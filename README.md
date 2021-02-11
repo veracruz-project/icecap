@@ -31,7 +31,7 @@ problems, please raise an issue or reach out to
 First, clone this respository and its submodules:
 
 ```bash
-$ git clone https://gitlab.com/arm-research/security/icecap
+$ git clone https://gitlab.com/arm-research/security/icecap/icecap
 $ cd icecap
 $ git submodule update --init
 ```
