@@ -6,12 +6,13 @@ with a minimal trusted computing base centered around the formally verified
 [seL4 microkernel](https://sel4.systems/) that aims to provide guests with
 confidentiality and integrity guarentees.
 
-[This seL4 Summit 2020 talk](https://www.youtube.com/watch?v=bZjWlN89zfo)
+[This seL4 Summit 2020 talk](https://nickspinale.com/talks/sel4-summit-2020.html)
 provides a high-level overview of IceCap's design. Aside from the content of
 that talk, one notable aspect of this project is its codebase. This project
 replaces the C-based seL4 userspace and CMake-based build system of the [seL4
 software ecosystem](https://github.com/seL4) with a Rust-based seL4 userspace
-and Nix-based build system.
+and Nix-based build system. With the exception of CapDL, IceCap's seL4 userspace
+contains [less than 350 lines of C](./src/c/icecap-runtime).
 
 This is a _soft launch_. We are still working on adding documentation to this
 repository.  In the meantime, we are eager to share and discuss any aspect of
@@ -55,20 +56,20 @@ $ ./result/run
 # 'ctrl-a x' quits QEMU
 ```
 
-Build and run a demo where the host spawns a confidential virtual machine called
-a realm, and then communicates with it via the virtual network:
+Build and run a demo where a host virtual machine spawns a confidential virtual
+machine called a realm, and then communicates with it via the virtual network:
 
 ```bash
 $ nix-build nix/ -A instances.virt.demos.realm-vm.run
 $ ./result/run
-# ... wait for the host to boot to a shell ...
+# ... wait for the host VM to boot to a shell ...
 # Spawn a VM in a realm (this will take some time on QEMU):
 $(host) create-realm file:/dev/rb_caput /spec.bin
 # ... wait for the realm VM to boot to a shell ...
 # Type '@?' for console multiplexer help.
-# The host uses virtual console 0, and the realm VM uses virtual console 1.
+# The host VM uses virtual console 0, and the realm VM uses virtual console 1.
 # Switch to the realm VM virtual console by typing '@1'
-# Access the internet from within the real VM via the host:
+# Access the internet from within the real VM via the host VM:
 $(realm) curl http://example.com
 # 'ctrl-a x' quits QEMU
 ```
@@ -78,9 +79,9 @@ $(realm) curl http://example.com
 
 IceCap supports Armv8.
 
-Note that we intentionally use different platform names than seL4. seL4 has the
-notion of a `KernelPlatform` (e.g. `bcm2711` for the Raspberry Pi 4). Our
-platforms may eventually become more specific than those named by seL4.
+Note that we intentionally use different platform names than the seL4 kernel.
+seL4 has the notion of a `KernelPlatform` (e.g. `bcm2711` for the Raspberry Pi
+4). Our platforms may eventually become more specific than those named by seL4.
 
 - `virt`: A minimal, made-up platform emulated by QEMU with `qemu-system-aarch64 -M virt`
 
