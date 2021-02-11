@@ -59,8 +59,7 @@ let
     inherit ref rev;
   };
 
-
-  mkIceCapGitUrl = repo: "ssh://git@gitlab.com/arm-research/security/icecap/${repo}";
+  mkIceCapGitUrl = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";
   mkIceCapKeepRef = rev: "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";
 
   mkIceCapLocalPath = repo: ref:
