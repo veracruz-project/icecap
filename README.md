@@ -44,8 +44,13 @@ $ nix-build
 $ popd
 ```
 
-From now on, use the Nix binaries in `./hack/nix/result/bin`.  Note that the
-initial build of IceCap may take over an hour and will consume around 15GB of
+From now on, use the Nix binaries in `./hack/nix/result/bin`:
+
+```bash
+export PATH="$(pwd)/hack/nix/result/bin:$PATH"
+```
+
+Note that the initial build of IceCap may take over an hour and will consume around 15GB of
 disk space.
 
 Build a minimal seL4 "Hello, World!", and run it on QEMU:
