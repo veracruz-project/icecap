@@ -1,0 +1,6 @@
+[submodule "nixpkgs"]
+	path = nixpkgs
+	url = https://gitlab.com/arm-research/security/icecap/nixpkgs.git
+[submodule "nix/nix-linux"]
+	path = nix/nix-linux
+	url = https://github.com/nspin/nix-linux.git

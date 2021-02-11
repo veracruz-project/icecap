@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# example usage: git-icecap-keep origin HEAD
+
+set -e
+
+remote="$1"
+ref="$2"
+short_rev=$(git rev-parse --short=32 "$ref")
+tag=icecap/keep/$short_rev
+git tag $tag $short_rev
+git push "$remote" $tag

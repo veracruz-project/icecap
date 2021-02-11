@@ -1,0 +1,8 @@
+/default.nix
+/config.nix
+/scratch
+/mnt
+/tmp
+
+result
+result-*

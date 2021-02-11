@@ -1,0 +1,91 @@
+--- a/configure
++++ b/configure
+@@ -50,6 +50,7 @@
+ partialld="ld -r"
+ with_debugger=ocamldebugger
+ with_ocamldoc=ocamldoc
++with_ocamltest=ocamltest
+ with_frame_pointers=false
+ with_spacetime=false
+ enable_call_counts=true
+@@ -185,6 +186,8 @@
+         with_debugger="";;
+     -no-ocamldoc|--no-ocamldoc)
+         with_ocamldoc="";;
++    -no-ocamltest|--no-ocamltest)
++        with_ocamltest="";;
+     -no-ocamlbuild|--no-ocamlbuild)
+         ;; # ignored for backward compatibility
+     -with-frame-pointers|--with-frame-pointers)
+@@ -372,6 +375,7 @@
+ else
+   cross_compiler=true
+ fi
++config CROSS_COMPILER "$cross_compiler"
+ 
+ # Do we have gcc?
+ 
+@@ -678,6 +682,10 @@
+                      echo "#define ARCH_SIXTYFOUR" >> m.h
+                      set 4 4 8 2 8
+                      arch64=true;;
++    aarch64-*-*-*) inf "Wow! A 64 bit architecture!"
++                     echo "#define ARCH_SIXTYFOUR" >> m.h
++                     set 4 4 8 2 8
++                     arch64=true;;
+     *) err "Since datatype sizes cannot be guessed when cross-compiling,\n" \
+            "a hardcoded list is used but your architecture isn't known yet.\n" \
+            "You need to determine the sizes yourself.\n" \
+@@ -2118,6 +2126,7 @@
+ config RUNTIMEI "${with_instrumented_runtime}"
+ config WITH_DEBUGGER "${with_debugger}"
+ config WITH_OCAMLDOC "${with_ocamldoc}"
++config WITH_OCAMLTEST "${with_ocamltest}"
+ config ASM_CFI_SUPPORTED "$asm_cfi_supported"
+ config WITH_FRAME_POINTERS "$with_frame_pointers"
+ config WITH_SPACETIME "$with_spacetime"
+
+--- a/Makefile
++++ b/Makefile
+@@ -82,6 +82,7 @@
+ DEPFLAGS=$(INCLUDES)
+ 
+ OCAMLDOC_OPT=$(WITH_OCAMLDOC:=.opt)
++OCAMLTEST_OPT=$(WITH_OCAMLTEST:=.opt)
+ 
+ UTILS=utils/config.cmo utils/misc.cmo \
+   utils/identifiable.cmo utils/numbers.cmo utils/arg_helper.cmo \
+@@ -475,11 +476,11 @@
+ 	$(MAKE) ocaml
+ 	$(MAKE) opt-core
+ 	$(MAKE) ocamlc.opt
+-	$(MAKE) otherlibraries $(WITH_DEBUGGER) $(WITH_OCAMLDOC) ocamltest
++	$(MAKE) otherlibraries $(WITH_DEBUGGER) $(WITH_OCAMLDOC) $(WITH_OCAMLTEST)
+ 	$(MAKE) ocamlopt.opt
+ 	$(MAKE) otherlibrariesopt
+ 	$(MAKE) ocamllex.opt ocamltoolsopt ocamltoolsopt.opt $(OCAMLDOC_OPT) \
+-	  ocamltest.opt
++	  $(OCAMLTEST_OPT)
+ 
+ # Core bootstrapping cycle
+ .PHONY: coreboot
+@@ -509,7 +510,7 @@
+ all: runtime
+ 	$(MAKE) coreall
+ 	$(MAKE) ocaml
+-	$(MAKE) otherlibraries $(WITH_DEBUGGER) $(WITH_OCAMLDOC) ocamltest
++	$(MAKE) otherlibraries $(WITH_DEBUGGER) $(WITH_OCAMLDOC) $(WITH_OCAMLTEST)
+ 
+ # Bootstrap and rebuild the whole system.
+ # The compilation of ocaml will fail if the runtime has changed.
+@@ -1116,7 +1117,9 @@
+ # Check that the stack limit is reasonable (Unix-only)
+ .PHONY: checkstack
+ checkstack:
+-ifeq "$(UNIX_OR_WIN32)" "unix"
++ifeq "$(CROSS_COMPILER)" "true"
++	@
++else ifeq "$(UNIX_OR_WIN32)" "unix"
+ 	if $(MKEXE) $(OUTPUTEXE)tools/checkstack$(EXE) tools/checkstack.c; \
+ 	  then tools/checkstack$(EXE); \
+ 	fi

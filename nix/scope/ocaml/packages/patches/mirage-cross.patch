@@ -1,0 +1,17 @@
+diff --git a/lib/mirage.ml b/lib/mirage.ml
+index 7417f032..48c3ac70 100644
+--- a/lib/mirage.ml
++++ b/lib/mirage.ml
+@@ -627,7 +627,11 @@ let compile ignore_dirs libs warn_error target =
+     | [] -> Bos.Cmd.empty
+     | dirs  -> Bos.Cmd.(v "-Xs" % concat dirs)
+   in
+-  let cmd = Bos.Cmd.(v "ocamlbuild" % "-use-ocamlfind" %
++  let toolchain = match Sys.getenv_opt "MIRAGE_TOOLCHAIN" with
++    | None -> Bos.Cmd.empty
++    | Some x -> Bos.Cmd.(v "-toolchain" % x)
++  in
++  let cmd = Bos.Cmd.(v "ocamlbuild" % "-use-ocamlfind" %% toolchain %
+                      "-classic-display" %
+                      "-tags" % concat tags %
+                      "-pkgs" % concat libs %

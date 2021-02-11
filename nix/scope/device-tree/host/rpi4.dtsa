@@ -1,0 +1,46 @@
+/ {
+
+    /delete-node/ cpus;
+    /delete-node/ memory;
+    /delete-node/ chosen;
+
+    soc {
+        /delete-node/ aux@7e215000;
+        /delete-node/ serial@7e215040;
+        /delete-node/ spi@7e215080;
+        /delete-node/ spi@7e2150c0;
+        /* /delete-node/ local_intc@40000000; */
+    };
+
+    scb {
+        /delete-node/ pcie@7d500000;
+        /* /delete-node/ genet@7d580000; */
+    };
+
+};
+
+/ {
+
+    memory@10000000 {
+        device_type = "memory";
+        reg = <0x0 0x10000000 0x10000000>;
+    };
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        cpu@0 {
+            compatible = "arm,cortex-a72";
+            device_type = "cpu";
+            reg = <0x0>;
+        };
+    };
+
+    scb {
+        ethernet@7d580000 {
+        /* genet@7d580000 { */
+            local-mac-address = [ dc a6 32 02 16 f6 ];
+        };
+    };
+
+};

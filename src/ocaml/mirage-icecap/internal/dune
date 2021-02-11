@@ -1,0 +1,28 @@
+(library
+  (name os_icecap)
+  (public_name mirage-icecap.internals)
+  (wrapped true)
+  (preprocess (pps lwt_ppx))
+  (libraries
+    base
+    lwt lwt-dllist
+    logs logs.fmt
+    mirage-types-lwt
+    mirage-time-lwt
+    mirage-net-lwt
+    mirage-protocols-lwt
+    mirage-clock-lwt
+    mirage-clock-freestanding
+    mirage-profile
+    mirage-random
+    ethernet
+    arp-mirage
+    tcpip
+    tcpip.ipv4
+    tcpip.icmpv4
+    tcpip.tcp
+    tcpip.udp
+    tcpip.stack-direct
+    tcpip.xen ; for stubs
+  )
+)

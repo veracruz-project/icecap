@@ -1,0 +1,17 @@
+diff --git a/src/dune_file.ml b/src/dune_file.ml
+index f3ee21e6..86d7eafd 100644
+--- a/src/dune_file.ml
++++ b/src/dune_file.ml
+@@ -348,8 +348,10 @@ module Preprocess = struct
+         Action
+           (loc,
+            Run
++              ((match Sys.getenv_opt "HACK_BOOT" with
++                | Some _ -> String_with_vars.make_var loc "libexec" ~payload:"dune.configurator:../future-syntax.exe"
++                | None -> String_with_vars.make_text loc "future-syntax"
++                ),
+-             (String_with_vars.make_var loc "libexec"
+-                ~payload:"dune.configurator:../future-syntax.exe",
+               [ String_with_vars.make_text loc "-dump-ast"
+               ; String_with_vars.make_var loc "input-file"
+               ]))

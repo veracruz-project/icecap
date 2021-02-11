@@ -1,0 +1,359 @@
+use alloc::boxed::Box;
+use alloc::collections::{VecDeque, BTreeMap};
+
+use icecap_failure::Fallible;
+use icecap_sel4::{Fault, prelude::*};
+use icecap_interfaces::Timer;
+
+use crate::{
+    asm, fault, biterate::biterate,
+    event::Event,
+    gic::{Distributor, IRQ, Action},
+};
+
+// NOTE
+// - General principle: use laziness to minimize time spent in the VMM
+
+// TODO
+// - For guest, use platform-independant GIC location and virtual timer IRQ
+
+pub const BADGE_EXTERNAL: Badge = 0;
+pub const BADGE_VM: Badge = 1;
+
+const SYS_PUTCHAR: Word = 1337;
+
+const GIC_DIST_SIZE: usize = 0x1000;
+
+const CNTV_CTL_EL0_IMASK: u64 = 2 << 0;
+const CNTV_CTL_EL0_ENABLE: u64 = 1 << 0;
+
+pub fn run(
+    tcb: TCB, vcpu: VCPU, cspace: CNode, fault_reply_cap: Endpoint, timer: Timer,
+    gic_dist_vaddr: usize, gic_dist_paddr: usize,
+    irqs: BTreeMap<IRQ, IRQType>, real_virtual_timer_irq: IRQ, virtual_timer_irq: IRQ,
+    vmm_endpoint: Endpoint,
+    putchar: impl Fn(u8),
+) -> Fallible<()> {
+    let mut vm = VM {
+        tcb,
+        vcpu,
+        cspace, fault_reply_cap,
+        timer,
+        gic_dist_paddr,
+        gic_dist: Distributor::new(gic_dist_vaddr as usize),
+        irqs,
+        real_virtual_timer_irq,
+        virtual_timer_irq,
+
+        is_wfi: false,
+        lr: LR {
+            mirror: [None; 64],
+            overflow: VecDeque::new(),
+        },
+
+        putchar,
+    };
+
+    vm.gic_dist.reset();
+    tcb.resume()?;
+    vm.run(vmm_endpoint);
+    Ok(())
+}
+
+#[derive(Debug)]
+pub enum IRQType {
+    Passthru(IRQHandler),
+    Virtual,
+    Timer,
+}
+
+struct LR {
+    mirror: [Option<IRQ>; 64],
+    overflow: VecDeque<IRQ>,
+}
+
+struct VM<T> {
+    // configuration
+    tcb: TCB,
+    vcpu: VCPU,
+    cspace: CNode, fault_reply_cap: Endpoint,
+    timer: Timer,
+    gic_dist_paddr: usize,
+    gic_dist: Distributor,
+    irqs: BTreeMap<IRQ, IRQType>,
+    real_virtual_timer_irq: IRQ,
+    virtual_timer_irq: IRQ,
+
+    // mutable state
+    is_wfi: bool,
+    lr: LR,
+
+    putchar: T,
+}
+
+impl<F: Fn(u8)> VM<F> {
+
+    fn run(&mut self, ep: Endpoint) {
+        loop {
+            let (info, badge) = ep.recv();
+            match badge {
+                BADGE_EXTERNAL => {
+                    match Event::get(info) {
+                        Event::Timeout => {
+                            self.pass_wfi();
+                        }
+                        Event::IRQ(irq) => {
+                            self.inject_irq(irq);
+                        }
+                    }
+                }
+                BADGE_VM => {
+                    let fault = Fault::get(info);
+                    // debug_println!("fault: {:?}", fault);
+                    match fault {
+                        Fault::VMFault(fault) => {
+                            self.cspace.save_caller(self.fault_reply_cap).unwrap();
+                            self.handle_page_fault(fault::VMFault(fault));
+                            self.fault_reply_cap.send(MessageInfo::empty());
+                        }
+                        Fault::UnknownSyscall(fault) => {
+                            self.handle_syscall(fault.syscall);
+                            reply(MessageInfo::empty());
+                        }
+                        Fault::UserException(fault) => {
+                            self.handle_exception(fault.fault_ip);
+                        }
+                        Fault::VGICMaintenance(fault) => {
+                            assert!(fault.idx as i32 >= 0);
+                            self.handle_vgic_maintenance(fault.idx as usize);
+                            reply(MessageInfo::empty());
+                        }
+                        Fault::VCPUFault(fault) => {
+                            // We only handle WFI/WFE
+                            assert!(fault.hsr >> 26 == 1);
+                            self.handle_wfi();
+                        }
+                        Fault::VPPIEvent(fault) => {
+                            assert!(fault.irq == self.real_virtual_timer_irq);
+                            self.inject_irq(self.virtual_timer_irq);
+                            reply(MessageInfo::empty());
+                        }
+                        _ => {
+                            panic!();
+                        }
+                    }
+                }
+                _ => {
+                    panic!();
+                }
+            }
+        }
+    }
+
+    fn handle_page_fault(&mut self, fault: fault::VMFault) {
+        let addr = fault.0.addr as usize;
+        if addr >= self.gic_dist_paddr && addr < self.gic_dist_paddr + GIC_DIST_SIZE {
+            let offset = addr - self.gic_dist_paddr;
+            self.handle_dist_fault(fault, align_down(offset, 4));
+        } else {
+            // TODO pretty-print fault
+            panic!("unhandled page fault at 0x{:x}", addr);
+        }
+        self.advance();
+    }
+
+    fn handle_dist_fault(&mut self, fault: fault::VMFault, offset: usize) {
+        // TODO bit width
+        // TODO clunky closure
+        let tcb = self.tcb;
+        let reg = (self.gic_dist.base_addr + offset) as *mut u32; // TODO u32
+        let act_on_set = |extra_offset: usize, mut f: Box<dyn FnMut(IRQ)>| {
+            let cur = unsafe { *reg as u64 };
+            let set = fault.get_data(tcb) & fault.get_data_mask() & !cur;
+            for i in biterate(set) {
+                let irq: usize = i as usize + (offset - extra_offset) * 8;
+                f(irq as IRQ);
+            }
+        };
+        match Action::at(offset) {
+            Action::ReadOnly => {}
+            Action::Passthru => {
+                unsafe { *reg = fault.emulate(self.tcb, *reg) }
+            }
+            Action::Enable => {
+                unsafe { *reg = fault.emulate(self.tcb, *reg) }
+                match fault.get_data(self.tcb) {
+                    0 => self.gic_dist.disable(),
+                    1 => self.gic_dist.enable(),
+                    _ => panic!(),
+                }
+            }
+            Action::EnableSet => {
+                act_on_set(0x100, Box::new(|irq| self.enable_irq(irq)));
+            }
+            Action::EnableClr => {
+                act_on_set(0x180, Box::new(|irq| self.disable_irq(irq)));
+            }
+            Action::PendingSet => {
+                act_on_set(0x200, Box::new(|irq| self.set_pending_irq(irq)));
+            }
+            Action::PendingClr => {
+                act_on_set(0x280, Box::new(|irq| self.clr_pending_irq(irq)));
+            }
+            _ => panic!(),
+        }
+    }
+
+    fn enable_irq(&mut self, irq: IRQ) {
+        self.gic_dist.set_enable(irq, true);
+        // TODO SliceIndex trait
+        if let Some(_) = self.irqs.get(&irq) {
+            if !self.gic_dist.is_pending(irq) {
+                self.ack_irq(irq);
+            }
+        }
+    }
+
+    fn disable_irq(&mut self, irq: IRQ) {
+        self.gic_dist.set_enable(irq, false);
+    }
+
+    fn set_pending_irq(&mut self, irq: IRQ) {
+        if let Some(_) = self.irqs.get(&irq) {
+            if self.gic_dist.is_dist_enabled() && self.gic_dist.is_enabled(irq) {
+                self.gic_dist.set_pending(irq, true);
+                self.vcpu_inject_irq(irq);
+            }
+        }
+    }
+
+    fn clr_pending_irq(&mut self, irq: IRQ) {
+        self.gic_dist.set_pending(irq, false);
+    }
+
+    fn handle_syscall(&mut self, syscall: Word) {
+        match syscall {
+            SYS_PUTCHAR => {
+                self.sys_putchar();
+            }
+            _ => {
+                panic!();
+            }
+        }
+    }
+
+    fn sys_putchar(&self) {
+        let mut ctx = self.tcb.read_all_registers(false).unwrap();
+        let c = ctx.x0 as u8;
+        (self.putchar)(c);
+        ctx.pc += 4;
+        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+    }
+
+    fn handle_exception(&mut self, _ip: Word) {
+        // TODO pretty-print fault
+        panic!();
+    }
+
+    fn handle_vgic_maintenance(&mut self, ix: usize) {
+        let irq = self.lr.mirror[ix].unwrap();
+        self.lr.mirror[ix] = None;
+        self.gic_dist.set_pending(irq, false);
+        self.ack_irq(irq);
+        if let Some(irq) = self.lr.overflow.pop_front() {
+            self.vcpu_inject_irq(irq);
+        }
+    }
+
+    fn handle_wfi(&mut self) {
+        // TODO only wait for ns > \epsilon
+        // TODO cancel timer once it becomes unecessary (just adds extra spurrious irqs to vm)
+        match self.upper_ns_bound_interrupt() {
+            None => {
+                self.set_wfi();
+            }
+            Some(ns) if ns > 0 => {
+                self.set_wfi();
+                self.timer.oneshot_relative(0, ns as u64).unwrap();
+            }
+            _ => {
+                self.advance();
+                reply(MessageInfo::empty());
+            }
+        }
+    }
+
+    fn upper_ns_bound_interrupt(&mut self) -> Option<i64> {
+        let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL).unwrap();
+        if (cntv_ctl & CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & CNTV_CTL_EL0_IMASK) == 0 {
+            // TODO use tval?
+            let cntv_cval = self.vcpu.read_regs(VCPUReg::CNTV_CVAL).unwrap() as i128;
+            let cntfrq = asm::read_cntfrq_el0() as i128;
+            let cntvct = asm::read_cntvct_el0() as i128;
+            let ns = (((cntv_cval - cntvct) * 1_000_000_000) / cntfrq) as i64;
+            Some(ns)
+        } else {
+            None
+        }
+    }
+
+    fn ack_irq(&mut self, irq: IRQ) {
+        let ty = &self.irqs[&irq];
+        match ty {
+            IRQType::Virtual => {
+            }
+            IRQType::Timer => {
+                self.vcpu.ack_vppi(irq).unwrap()
+            }
+            IRQType::Passthru(handler) => {
+                handler.ack().unwrap()
+            }
+        }
+    }
+
+    fn inject_irq(&mut self, irq: IRQ) {
+        self.set_pending_irq(irq);
+    }
+
+    fn vcpu_inject_irq(&mut self, irq: IRQ) {
+        // TODO only add if not already in either mirror or overflow
+        let mut ix = 64;
+        for (i, x) in self.lr.mirror.iter().enumerate() {
+            if let None = x {
+                ix = i;
+                break;
+            }
+        }
+        if self.vcpu.inject_irq(irq as u16, 0, 0, ix as u8).is_ok() {
+            // TODO is this right?
+            assert!(ix < 64);
+            self.lr.mirror[ix] = Some(irq);
+        } else {
+            self.lr.overflow.push_back(irq);
+        }
+        self.pass_wfi();
+    }
+
+    fn set_wfi(&mut self) {
+        self.cspace.save_caller(self.fault_reply_cap).unwrap();
+        self.is_wfi = true;
+    }
+
+    fn pass_wfi(&mut self) {
+        if self.is_wfi {
+            self.advance();
+            self.is_wfi = false;
+            self.fault_reply_cap.send(MessageInfo::empty());
+        }
+    }
+
+    fn advance(&mut self) {
+        let mut ctx = self.tcb.read_all_registers(false).unwrap();
+        ctx.pc += 4;
+        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+    }
+}
+
+fn align_down(x: usize, n: usize) -> usize {
+    x & !(n - 1)
+}

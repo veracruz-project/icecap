@@ -1,0 +1,35 @@
+{
+  "abi-blacklist": [
+    "stdcall",
+    "fastcall",
+    "vectorcall",
+    "thiscall",
+    "win64",
+    "sysv64"
+  ],
+  "arch": "aarch64",
+  "data-layout": "e-m:e-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128",
+  "disable-redzone": true,
+  "env": "",
+  "exe-suffix": ".elf",
+  "executables": true,
+  "features": "+strict-align,+neon,+fp-armv8",
+  "has-elf-tls": true,
+  "linker-flavor": "ld",
+  "linker-is-gnu": true,
+  "llvm-target": "aarch64-none-elf",
+  "max-atomic-width": 128,
+  "os": "icecap",
+  "panic-strategy": "abort",
+  "pre-link-args": {
+    "ld": [
+        "--eh-frame-hdr", "-z,noexecstack"
+    ]
+  },
+  "relocation-model": "static",
+  "requires-uwtable": true,
+  "target-c-int-width": "32",
+  "target-endian": "little",
+  "target-pointer-width": "64",
+  "vendor": ""
+}

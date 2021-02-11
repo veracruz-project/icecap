@@ -1,0 +1,36 @@
+/ {
+
+    /delete-node/ cpus;
+    /delete-node/ memory;
+    /delete-node/ chosen;
+
+    scb {
+        /delete-node/ pcie@7d500000;
+    };
+
+};
+
+/ {
+
+    memory@40000000 {
+        device_type = "memory";
+        reg = <0x0 0x10000000 0x10000000>;
+    };
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        cpu@0 {
+            compatible = "arm,cortex-a72";
+            device_type = "cpu";
+            reg = <0x0>;
+        };
+    };
+
+    scb {
+        genet@7d580000 {
+            local-mac-address = [ dc a6 32 02 16 f6 ];
+        };
+    };
+
+};

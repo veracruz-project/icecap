@@ -1,0 +1,5 @@
+(library
+  (name OS)
+  (public_name mirage-icecap)
+  (libraries mirage-icecap.internals)
+)
