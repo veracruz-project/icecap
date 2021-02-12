@@ -296,6 +296,9 @@ in
       };
     };
 
+    icecap-linux-syscall = mk {
+    };
+
   };
 
   "std-support" = {

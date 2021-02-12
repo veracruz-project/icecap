@@ -2,7 +2,7 @@
 , icecapSrcAbsSplit
 , libs, bins, liboutline
 , buildIceCapCrateBin, crateUtils, globalCrates
-, mkMirageBinary
+, mkMirageBinary, splitDebug
 }:
 
 mkInstance (self: with self; {
@@ -12,6 +12,7 @@ mkInstance (self: with self; {
       fault_handler.image = bins.fault-handler.split;
       timer_server.image = bins.timer-server.split;
       serial_server.image = bins.serial-server.split;
+      mirage.image = splitDebug "${mirageBinary}/bin/mirage.elf";
     };
   };
 

@@ -140,6 +140,7 @@ rec {
       icecap-autoconf
       icecap-runtime
       icecap-ocaml-runtime
+      icecap-utils # HACK
     ];
     graph = {
       "icecap_mirage_glue" = [ ];

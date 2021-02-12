@@ -11,8 +11,9 @@
         name = "mirage";
         src = icecapSrcRelSplit "rust/components/mirage";
         isBin = true;
-        deps = [
-          globalCrates.icecap-std
+        deps = with globalCrates; [
+          icecap-linux-syscall
+          icecap-std
         ];
         dependencies = {
           serde = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
@@ -27,9 +28,11 @@
           ];
         };
       };
+      extraLayers = [ [ "icecap-std" ] ];
       # HACK (see above)
       RUSTFLAGS = lib.concatMap (x: [ "-C" "link-arg=-l${x}" ]) [
         "icecap_mirage_glue" "sel4asmrun" "mirage" "sel4asmrun" "icecap_mirage_glue" "c" "gcc"
+        "icecap_utils" # HACK
       ];
       buildInputs = with libs; [
         liboutline

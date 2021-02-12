@@ -14,7 +14,7 @@ let
 
   src = (mkIceCapSrc {
     repo = "rust";
-    rev = "261497ea2e68081a5476a16447bb42e7b9866dcd";
+    rev = "df10c3238668af9108f33c7005ce1ac5875e335b";
     submodules = true;
   }).store;
 

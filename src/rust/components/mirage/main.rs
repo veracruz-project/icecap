@@ -3,10 +3,17 @@
 #![feature(alloc_prelude)]
 #![feature(array_value_iter)]
 #![feature(format_args_nl)]
+#![feature(c_variadic)]
+#![feature(type_ascription)]
+#![feature(new_uninit)]
+#![feature(slice_ptr_range)]
+#![feature(const_mut_refs)]
 #![allow(dead_code)]
 #![allow(unused_comparisons)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
+
+extern crate alloc;
 
 use serde::{Serialize, Deserialize};
 
@@ -14,19 +21,24 @@ use icecap_std::prelude::*;
 use sys::c_types::*;
 
 mod c;
+mod syscall;
 
 declare_generic_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct Config;
+struct Config {
+    test: String,
+}
 
 fn main(config: Config) -> Fallible<()> {
+    debug_println!("from rust: {}", config.test);
     let state = Box::new(State);
-    unsafe  {
-        // c::costub_init(); // including installing syscall handler vector
+    let ret = unsafe  {
+        syscall::init();
         GLOBAL_STATE = Box::into_raw(state) as usize;
-        c::costub_run_mirage();
-    }
+        c::costub_run_mirage()
+    };
+    debug_println!("mirage exit: {:?}", ret);
     Ok(())
 }
 
