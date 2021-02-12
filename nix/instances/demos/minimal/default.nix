@@ -1,7 +1,7 @@
 { mkInstance
 , icecapSrcAbsSplit
 , libs
-, trivialSplit
+, splitDebug
 }:
 
 mkInstance (self: with self; {
@@ -16,7 +16,7 @@ mkInstance (self: with self; {
 
   config = {
     components = {
-      minimal.image = trivialSplit "${minimal}/bin/minimal.elf";
+      minimal.image = splitDebug "${minimal}/bin/minimal.elf";
     };
   };
 

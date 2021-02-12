@@ -1,6 +1,6 @@
 { mkInstance
 , icecapSrcAbsSplit
-, libs
+, libs, strip
 }:
 
 mkInstance (self: with self; {
@@ -14,6 +14,6 @@ mkInstance (self: with self; {
     ];
   };
 
-  payload = "${minimal}/bin/minimal.elf";
+  payload = strip "${minimal}/bin/minimal.elf";
 
 })

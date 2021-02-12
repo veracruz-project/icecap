@@ -1,6 +1,7 @@
 { icecapPlat
 , pkgs_linux
 , icecapExtraConfig
+, runCommandCC
 }:
 
 self: with self;
@@ -13,8 +14,18 @@ self: with self;
 
   mkRun = callPackage (./run + "/${icecapPlat}") {};
 
-  trivialSplit = elf: {
-    min = elf;
+  strip = elf: runCommandCC "stripped.elf" {} ''
+    $STRIP -s ${elf} -o $out
+  '';
+
+  splitDebug = elf: {
     full = elf;
+    min = strip elf;
   };
+
+  trivialSplit = elf: {
+    full = elf;
+    min = elf;
+  };
+
 }
