@@ -19,11 +19,12 @@ CLIENT_RX_BADGE = 1 << 0
 CLIENT_TX_BADGE = 1 << 1
 IRQ_BADGE = 1 << 2
 
+HACK_AFFINITY = 1 # HACK
+
 class QEMURingBufferServer(ElfComponent):
 
     def __init__(self, *args, irq=DEFAULT_IRQ, paddr=DEFAULT_PADDR, ring_buffer_paddr_start=DEFAULT_RING_BUFFER_PADDR_START, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.primary_thread.tcb.affinity = 1
+        super().__init__(*args, affinity=HACK_AFFINITY, **kwargs)
         self.ring_buffer_paddr_start = ring_buffer_paddr_start
 
         wait_obj = self.alloc(ObjectType.seL4_NotificationObject, name='{}_wait'.format(self.name))

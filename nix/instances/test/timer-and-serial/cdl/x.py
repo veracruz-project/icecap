@@ -17,10 +17,6 @@ timer_server = composition.component(TimerServer, 'timer_server', fault_handler=
 serial_server = composition.component(SerialServer, 'serial_server', fault_handler=fault_handler)
 test = composition.component(Test, 'test', fault_handler=fault_handler)
 
-for c in [timer_server, serial_server, test]:
-    for thread in c.threads():
-        fault_handler.handle(thread)
-
 timer_server.connect(serial_server)
 timer_server.connect(test)
 serial_server.connect(test)

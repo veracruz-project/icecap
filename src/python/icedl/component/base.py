@@ -44,6 +44,9 @@ class BaseComponent:
     def fmt(self, s, *args):
         return s.format(self.name, *args)
 
+    def config(self):
+        return self.composition.config['components'][self.name]
+
     def map_with_size(self, size, vaddr, paddr=None, fill=[], label=None, read=False, write=False, execute=False, cached=True):
         assert vaddr % size == 0
         name = ''

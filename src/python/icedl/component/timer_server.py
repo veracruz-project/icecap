@@ -2,11 +2,12 @@ from capdl import ObjectType, Cap
 from icedl.component.elf import ElfComponent, ElfThread
 from icedl.utils import *
 
+HACK_AFFINITY = 1 # HACK
+
 class TimerServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.primary_thread.tcb.affinity = 1
+        super().__init__(*args, affinity=HACK_AFFINITY, **kwargs)
         self.ep = self.alloc(ObjectType.seL4_EndpointObject, name='{}_ep'.format(self.name))
         self.self_badge = 1
         self.ep_read = self.cspace().alloc(self.ep, read=True)

@@ -3,12 +3,12 @@ from capdl import ObjectType, Cap
 from icedl.component.generic import GenericElfComponent
 from icedl.utils import BLOCK_SIZE, PAGE_SIZE
 
+HACK_AFFINITY = 2 # HACK
+
 class Caput(GenericElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.primary_thread.tcb.affinity = 2
+        super().__init__(*args, affinity=HACK_AFFINITY, **kwargs)
 
         cnode_size_bits = 18
         self.cspace().cnode.size_bits = cnode_size_bits

@@ -156,9 +156,6 @@ class VM(BaseComponent):
         self.obj_space().merge(spec, label=self.key)
         super().finalize()
 
-    def config(self):
-        return self.composition.config['components'][self.name]
-
     def map_ram(self, ram_start, ram_size, images):
         assert ram_start % BLOCK_SIZE == 0
         assert ram_size % BLOCK_SIZE == 0

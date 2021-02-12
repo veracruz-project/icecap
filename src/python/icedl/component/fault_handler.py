@@ -17,7 +17,7 @@ class FaultHandler(ElfComponent):
         slot = thread.component.cspace().alloc(self.ep, name='fault_handler', badge=badge, write=True, grant=True)
         thread.tcb.fault_ep_slot = slot
         self.client_threads[badge] = {
-            'name': '{}_{}'.format(thread.component.name, thread.name),
+            'name': thread.name,
             'tcb': self.cspace().alloc(thread.tcb),
             }
 

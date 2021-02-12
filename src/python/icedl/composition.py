@@ -74,6 +74,8 @@ class Composition:
         self.write_spec()
         self.write_links()
 
+    # objects
+
     def alloc_region(self, tag, region_size):
         if region_size & ((1 << 21) - 1) == 0:
             frame_size_bits = 21

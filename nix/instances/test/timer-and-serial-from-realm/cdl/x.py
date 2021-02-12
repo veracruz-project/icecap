@@ -3,13 +3,9 @@ from icedl import *
 composition = start()
 
 fault_handler = composition.component(FaultHandler, 'fault_handler')
-timer_server = composition.component(TimerServer, 'timer_server')
-serial_server = composition.component(SerialServer, 'serial_server')
-caput = composition.component(Caput, 'caput')
-
-for c in [timer_server, serial_server, caput]:
-    for thread in c.threads():
-        fault_handler.handle(thread)
+timer_server = composition.component(TimerServer, 'timer_server', fault_handler=fault_handler)
+serial_server = composition.component(SerialServer, 'serial_server', fault_handler=fault_handler)
+caput = composition.component(Caput, 'caput', fault_handler=fault_handler)
 
 timer_server.connect(serial_server)
 timer_server.connect(caput)

@@ -17,10 +17,8 @@ DEFAULT_STACK_SIZE = BLOCK_SIZE
 
 class ElfComponent(BaseComponent):
 
-    def __init__(self, composition, name, fault_handler=None):
+    def __init__(self, composition, name, affinity=DEFAULT_AFFINITY, fault_handler=None):
         super().__init__(composition, name)
-
-        self.supervisor_ep = 0
 
         elf_min_fname = '{}.elf'.format(self.name)
         elf_min_path = Path(self.config()['image']['min'])
@@ -34,19 +32,26 @@ class ElfComponent(BaseComponent):
 
         self.cur_vaddr = vaddr_at_block(2, 0, 0)
 
-        self.primary_thread = ElfThread(self, 'primary')
+        self.fault_handler = fault_handler
+        self.primary_thread = ElfThread(self, 'primary', affinity=affinity)
         self.secondary_threads = []
 
+        self.supervisor_ep = 0 # TODO
         self.connections = {} # TODO
 
     def finalize(self):
+        for thread in self.threads():
+            self.finalize_thread(thread)
         self.runtime_config(self.heap(), self.arg())
         elf_spec = self.elf_min.get_spec(infer_tcb=False, infer_asid=False, pd=self.addr_space().vspace_root, addr_space=self.addr_space())
         self.obj_space().merge(elf_spec, label=self.key)
         super().finalize()
 
-    def config(self):
-        return self.composition.config['components'][self.name]
+    def align(self, size):
+        self.cur_vaddr = ((self.cur_vaddr - 1) | (size - 1)) + 1
+
+    def skip(self, n):
+        self.cur_vaddr += n
 
     def threads(self):
         yield self.primary_thread
@@ -55,11 +60,16 @@ class ElfComponent(BaseComponent):
     def num_threads(self):
         return 1 + len(self.secondary_threads)
 
-    def align(self, size):
-        self.cur_vaddr = ((self.cur_vaddr - 1) | (size - 1)) + 1
+    def secondary_thread(self, name, *args, affinity=None, **kwargs):
+        if affinity is None:
+            affinity = self.primary_thread.tcb.affinity
+        thread = ElfThread(self, name, *args, alloc_endpoint=True, affinity=affinity, **kwargs)
+        self.secondary_threads.append(thread)
+        return thread
 
-    def skip(self, n):
-        self.cur_vaddr += n
+    def finalize_thread(self, thread):
+        if self.fault_handler is not None:
+            self.fault_handler.handle(thread)
 
     def runtime_config(self, heap_info, arg_bin, fault_handling=1):
         self.align(PAGE_SIZE)
@@ -141,7 +151,6 @@ class ElfComponent(BaseComponent):
 
     def serialize_arg(self):
         raise NotImplementedError()
-        return path_bin.name
 
     # default
     def heap(self):
@@ -214,11 +223,6 @@ class ElfComponent(BaseComponent):
                     yield self.cspace().alloc(frame, **perms)
             return caps()
 
-    def secondary_thread(self, name, *args, **kwargs):
-        affinity = self.primary_thread.tcb.affinity # TODO
-        thread = ElfThread(self, name, *args, alloc_endpoint=True, affinity=affinity, **kwargs)
-        self.secondary_threads.append(thread)
-        return thread
 
 def tls_image(elf):
     tls = None
@@ -278,41 +282,38 @@ class ElfThread:
         stack_end_vaddr = stack_start_vaddr + stack_size
         ipc_buffer_vaddr = stack_end_vaddr + PAGE_SIZE
         self.component.cur_vaddr = ipc_buffer_vaddr + 2 * PAGE_SIZE
-
-        self.component.map_range(stack_start_vaddr, stack_end_vaddr, label='{}_stack'.format(name))
-
-        ipc_buffer_frame = self.component.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer'.format(name), size=PAGE_SIZE)
+        self.component.map_range(stack_start_vaddr, stack_end_vaddr, label='{}_stack'.format(self.name))
+        ipc_buffer_frame = self.component.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer'.format(self.name), size=PAGE_SIZE)
         ipc_buffer_cap = Cap(ipc_buffer_frame, read=True, write=True)
         self.component.addr_space().add_hack_page(ipc_buffer_vaddr, PAGE_SIZE, ipc_buffer_cap)
 
         tcb = self.component.alloc(ObjectType.seL4_TCBObject, name='{}_tcb'.format(self.name))
-
         tcb.ip = self.component.elf_min.get_entry_point()
         tcb.sp = stack_end_vaddr
         tcb.addr = ipc_buffer_vaddr
         tcb.prio = prio
         tcb.max_prio = max_prio
         tcb.affinity = affinity
-
         tcb['cspace'] = self.component.cnode_cap
         tcb['vspace'] = Cap(self.component.pd())
-        tcb['ipc_buffer_slot'] = ipc_buffer_cap
         tcb['ipc_buffer_slot'] = ipc_buffer_cap
 
         self.tcb = tcb
         self.ipc_buffer_vaddr = ipc_buffer_vaddr
 
+        self.endpoint = 0
         if alloc_endpoint:
             self.endpoint = self.component.cspace().alloc(
                 self.component.alloc(ObjectType.seL4_EndpointObject, name='{}_thread_ep'.format(self.name)),
                 read=True, write=True,
                 )
-        else:
-            self.endpoint = 0
 
         self.tcb_cap = 0
         if grant_tcb_cap:
             self.tcb_cap = self.component.cspace().alloc(tcb, name='{}_tcb_cap'.format(self.name))
+
+    def full_name(self):
+        return '{}_thread_{}'.format(self.component.name, self.name)
 
     def get_thread_runtime_config(self):
         return {

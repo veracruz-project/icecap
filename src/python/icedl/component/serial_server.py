@@ -2,11 +2,12 @@ from capdl import ObjectType, Cap
 from icedl.component.elf import ElfComponent
 from icedl.utils import as_list, PAGE_SIZE
 
+HACK_AFFINITY = 1 # HACK
+
 class SerialServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.primary_thread.tcb.affinity = 1
+        super().__init__(*args, affinity=HACK_AFFINITY, **kwargs)
         self.clients = []
 
     def connect_raw(self, client_name):
