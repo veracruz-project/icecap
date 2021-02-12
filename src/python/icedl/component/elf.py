@@ -11,13 +11,13 @@ from icedl.component.base import BaseComponent
 DEFAULT_STATIC_HEAP_SIZE = 4 * BLOCK_SIZE
 
 DEFAULT_AFFINITY = 0
-DEFAULT_PRIO = 255
-DEFAULT_MAX_PRIO = 255
+DEFAULT_PRIO = 128
+DEFAULT_MAX_PRIO = 0
 DEFAULT_STACK_SIZE = BLOCK_SIZE
 
 class ElfComponent(BaseComponent):
 
-    def __init__(self, composition, name, affinity=DEFAULT_AFFINITY, fault_handler=None):
+    def __init__(self, composition, name, affinity=DEFAULT_AFFINITY, prio=DEFAULT_PRIO, fault_handler=None):
         super().__init__(composition, name)
 
         elf_min_fname = '{}.elf'.format(self.name)
@@ -33,7 +33,7 @@ class ElfComponent(BaseComponent):
         self.cur_vaddr = vaddr_at_block(2, 0, 0)
 
         self.fault_handler = fault_handler
-        self.primary_thread = ElfThread(self, 'primary', affinity=affinity)
+        self.primary_thread = ElfThread(self, 'primary', affinity=affinity, prio=prio)
         self.secondary_threads = []
 
         self.supervisor_ep = 0 # TODO
@@ -60,10 +60,12 @@ class ElfComponent(BaseComponent):
     def num_threads(self):
         return 1 + len(self.secondary_threads)
 
-    def secondary_thread(self, name, *args, affinity=None, **kwargs):
+    def secondary_thread(self, name, *args, affinity=None, prio=None, **kwargs):
         if affinity is None:
             affinity = self.primary_thread.tcb.affinity
-        thread = ElfThread(self, name, *args, alloc_endpoint=True, affinity=affinity, **kwargs)
+        if prio is None:
+            prio = self.primary_thread.tcb.prio + 1 # a reasonable default for thin threads
+        thread = ElfThread(self, name, *args, alloc_endpoint=True, affinity=affinity, prio=prio, **kwargs)
         self.secondary_threads.append(thread)
         return thread
 

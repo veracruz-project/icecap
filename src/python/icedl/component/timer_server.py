@@ -3,11 +3,12 @@ from icedl.component.elf import ElfComponent, ElfThread
 from icedl.utils import *
 
 HACK_AFFINITY = 1 # HACK
+HACK_PRIO = 150 # HACK
 
 class TimerServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, affinity=HACK_AFFINITY, **kwargs)
+        super().__init__(*args, affinity=HACK_AFFINITY, prio=HACK_PRIO, **kwargs)
         self.ep = self.alloc(ObjectType.seL4_EndpointObject, name='{}_ep'.format(self.name))
         self.self_badge = 1
         self.ep_read = self.cspace().alloc(self.ep, read=True)
@@ -15,12 +16,7 @@ class TimerServer(ElfComponent):
         self.cur_badge = 2
         self.signals = []
 
-        irq_thread = ElfThread(self, 'irq_handler',
-            prio=130,
-            affinity=self.primary_thread.tcb.affinity,
-            alloc_endpoint=True,
-            )
-
+        irq_thread = self.secondary_thread('irq_handler')
         self.irq_thread_ep = irq_thread.endpoint
         self.secondary_threads.append(irq_thread)
 
