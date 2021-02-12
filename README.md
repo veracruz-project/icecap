@@ -51,7 +51,7 @@ export PATH="$(pwd)/hack/nix/result/bin:$PATH"
 ```
 
 Note that the initial build of IceCap may take hours and will consume around
-10GB of disk space.
+20GB of disk space.
 
 Build a minimal seL4 "Hello, World!", and run it on QEMU:
 
