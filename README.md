@@ -50,13 +50,13 @@ From now on, use the Nix binaries in `./hack/nix/result/bin`:
 export PATH="$(pwd)/hack/nix/result/bin:$PATH"
 ```
 
-Note that the initial build of IceCap may take over an hour and will consume around 15GB of
-disk space.
+Note that the initial build of IceCap may take hours and will consume around
+10GB of disk space.
 
 Build a minimal seL4 "Hello, World!", and run it on QEMU:
 
 ```bash
-$ nix-build nix/ -A instances.virt.demos.minimal-root.run
+$ nix-build nix/ -A instances.virt.demos.minimal-root.run # optional: -j$(nproc)
 $ ./result/run
 # 'ctrl-a x' quits QEMU
 ```
@@ -65,7 +65,7 @@ Build and run a demo where a host virtual machine spawns a confidential virtual
 machine called a realm, and then communicates with it via the virtual network:
 
 ```bash
-$ nix-build nix/ -A instances.virt.demos.realm-vm.run
+$ nix-build nix/ -A instances.virt.demos.realm-vm.run # optional: -j$(nproc)
 $ ./result/run
 # ... wait for the host VM to boot to a shell ...
 # Spawn a VM in a realm (this will take some time on QEMU):
