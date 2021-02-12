@@ -33,16 +33,16 @@ class ElfComponent(BaseComponent):
         self.cur_vaddr = vaddr_at_block(2, 0, 0)
 
         self.fault_handler = fault_handler
-        self.primary_thread = ElfThread(self, 'primary', affinity=affinity, prio=prio)
+        self.primary_thread = self.thread('primary', affinity=affinity, prio=prio)
         self.secondary_threads = []
 
         self.supervisor_ep = 0 # TODO
         self.connections = {} # TODO
 
-    def finalize(self):
-        for thread in self.threads():
-            self.finalize_thread(thread)
+    def pre_finalize(self):
         self.runtime_config(self.heap(), self.arg())
+
+    def finalize(self):
         elf_spec = self.elf_min.get_spec(infer_tcb=False, infer_asid=False, pd=self.addr_space().vspace_root, addr_space=self.addr_space())
         self.obj_space().merge(elf_spec, label=self.key)
         super().finalize()
@@ -60,16 +60,21 @@ class ElfComponent(BaseComponent):
     def num_threads(self):
         return 1 + len(self.secondary_threads)
 
+    def thread(self, *args, **kwargs):
+        thread = ElfThread(self, *args, **kwargs)
+        self.register_thread(thread)
+        return thread
+
     def secondary_thread(self, name, *args, affinity=None, prio=None, **kwargs):
         if affinity is None:
             affinity = self.primary_thread.tcb.affinity
         if prio is None:
             prio = self.primary_thread.tcb.prio + 1 # a reasonable default for thin threads
-        thread = ElfThread(self, name, *args, alloc_endpoint=True, affinity=affinity, prio=prio, **kwargs)
+        thread = self.thread(name, *args, alloc_endpoint=True, affinity=affinity, prio=prio, **kwargs)
         self.secondary_threads.append(thread)
         return thread
 
-    def finalize_thread(self, thread):
+    def register_thread(self, thread):
         if self.fault_handler is not None:
             self.fault_handler.handle(thread)
 

@@ -1,5 +1,5 @@
 from capdl import ObjectType, Cap
-from icedl.component.elf import ElfComponent, ElfThread
+from icedl.component.elf import ElfComponent
 from icedl.utils import *
 
 HACK_AFFINITY = 1 # HACK

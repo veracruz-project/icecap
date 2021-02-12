@@ -38,6 +38,9 @@ class BaseComponent:
         name = '{}_{}'.format(self.name, name) # TODO is this sound?
         return self.obj_space().alloc(type, name, *args, label=self.key, **kwargs)
 
+    def pre_finalize(self):
+        pass
+
     def finalize(self):
         self.cspace().cnode.finalise_size(arch=self.composition.arch)
 

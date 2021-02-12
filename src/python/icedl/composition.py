@@ -53,6 +53,8 @@ class Composition:
 
     def finalize(self):
         for component in self.components:
+            component.pre_finalize()
+        for component in self.components:
             component.finalize()
 
     def allocate(self):
