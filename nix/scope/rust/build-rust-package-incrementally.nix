@@ -18,6 +18,7 @@ in
 , extraManifestLocal ? {}
 , extraShellHook ? ""
 , callPackage ? callPackage_
+, extraLastLayerBuildInputs ? [] # TODO generalize
 , ...
 } @ origArgs:
 
@@ -81,7 +82,7 @@ let
   cargoVendorConfig = fetchCrates lock;
 
   extraArgs = builtins.removeAttrs args [
-    "layers" "rootCrate" "extraShellHook" "extraManifest" "extraManifestLocal" "extraCargoConfig" "extraCargoConfigLink"
+    "layers" "rootCrate" "extraShellHook" "extraManifest" "extraManifestLocal" "extraCargoConfig" "extraCargoConfigLink" "extraLastLayerBuildInputs"
     "callPackage"
   ] // {
     name = rootCrate.name;
@@ -238,6 +239,8 @@ in let
 
 in
 buildRustPackage (extraArgs // {
+  buildInputs = (extraArgs.buildInputs or []) ++ extraLastLayerBuildInputs;
+} // {
   inherit cargoVendorConfig;
   extraCargoConfig = allExtraCargoConfig;
 

@@ -34,8 +34,10 @@
         "icecap_mirage_glue" "sel4asmrun" "mirage" "sel4asmrun" "icecap_mirage_glue" "c" "gcc"
         "icecap_utils" # HACK
       ];
-      buildInputs = with libs; [
+      buildInputs = [
         liboutline
+      ];
+      extraLastLayerBuildInputs = with libs; [
         icecap-autoconf
         icecap-runtime
         icecap-utils icecap-pure # TODO
