@@ -8,7 +8,7 @@ HACK_AFFINITY = 2 # HACK
 class Caput(GenericElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, affinity=HACK_AFFINITY, **kwargs)
+        super().__init__(*args, affinity=HACK_AFFINITY, max_prio=255, **kwargs)
 
         cnode_size_bits = 18
         self.cspace().cnode.size_bits = cnode_size_bits
