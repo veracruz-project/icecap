@@ -146,12 +146,12 @@ class VM(BaseComponent):
             (self.addrs.initrd_addr, self.composition.get_file(self.initrd_fname).stat().st_size, self.initrd_fname),
             (self.addrs.dtb_addr, self.composition.get_file(self.dtb_fname).stat().st_size, self.dtb_fname),
             ])
+
+    def finalize(self):
         pages = PageCollection(self.name, arch=self.composition.arch.capdl_name(), infer_asid=False, vspace_root=self.addr_space().vspace_root)
         for (vaddr, (size, cap, fill)) in self.addr_space().get_hack_pages_and_clear().items():
             pages.add_page(vaddr, read=cap.read, write=cap.write, size=size, elffill=fill)
             self.addr_space().add_region_with_caps(vaddr, [size], [cap])
-
-    def finalize(self):
         spec = pages.get_spec(self.addr_space().get_regions_and_clear())
         self.obj_space().merge(spec, label=self.key)
         super().finalize()
