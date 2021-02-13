@@ -497,6 +497,18 @@ self: with self; {
     propagatedBuildInputsOCaml = [ easy-format biniou ];
   };
 
+  hex = buildDunePackage rec {
+    pname = "hex";
+    version = "1.4.0";
+    src = fetchFromGitHub {
+      owner = "mirage";
+      repo = "ocaml-hex";
+      rev = "v${version}";
+      sha256 = "sha256-GNhMTJbxew4MfQJ5hJwLAlOPFn7DSqLYnx54zlaEFjE=";
+    };
+    propagatedBuildInputsOCaml = [ cstruct bigarray-compat ];
+  };
+
   # Mirage
 
   ipaddr = buildDunePackage rec {

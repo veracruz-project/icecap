@@ -12,25 +12,28 @@ module STACK = struct
 end
 
 type config = {
-    ip_addr: Ipaddr.V4.t;
-    mac_addr: Macaddr.t;
+    mac: Macaddr.t;
+    ip: Ipaddr.V4.t;
+    network: Ipaddr.V4.Prefix.t;
+    gateway: Ipaddr.V4.t option;
 }
 
 let create config =
+    let ip = config.ip in
+    let gateway = config.gateway in
+    let network = config.network in
     let net = {
-        STACK.NET.mac = config.mac_addr;
-        mtu = 2048;
+        STACK.NET.mac = config.mac;
+        mtu = 2048; (* HACK *)
         stats = Mirage_net.Stats.create ();
     } in
 
     let%lwt e = STACK.ETH.connect net in
     let%lwt a = STACK.ARP.connect e in
     let%lwt c = STACK.CLOCK.connect () in
-    let%lwt i = STACK.IPV4.connect c e a in
+    let%lwt i = STACK.IPV4.connect ~ip ~network ~gateway c e a in
     let%lwt icmp = STACK.ICMPV4.connect i in
     let%lwt udp = STACK.UDP.connect i in
     let%lwt tcp = STACK.TCP.connect i c in
     let%lwt tcpip = STACK.TCPIP.connect net e a i icmp udp tcp in
-
-    let%lwt () = STACK.IPV4.set_ip (STACK.TCPIP.ipv4 tcpip) config.ip_addr in
     Lwt.return tcpip

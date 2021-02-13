@@ -32,7 +32,7 @@ unsafe extern "C" fn c_handle_syscall(sysnum: i64, mut args: ...) -> i64 {
 fn handle_syscall(sysnum: i64, args: &mut VaList) -> Fallible<i64> {
     match Syscall::get(sysnum, args) {
         Some(syscall) => {
-            debug_println!("syscall: {:?}", syscall);
+            // println!("syscall: {:?}", syscall);
             handle_known_syscall(syscall)
         }
         None => {
@@ -75,7 +75,7 @@ fn handle_known_syscall(syscall: Syscall) -> Fallible<i64> {
             assert!(fd == 1 || fd == 2);
             for i in 0..(count as isize) {
                 let c: u8 = unsafe { *buf.offset(i) };
-                debug_print!("{}", c as char);
+                print!("{}", c as char);
             }
             count as i64
         }
@@ -86,7 +86,7 @@ fn handle_known_syscall(syscall: Syscall) -> Fallible<i64> {
                 let iov = unsafe { &*iov.offset(i) };
                 for j in 0..(iov.iov_len as isize) {
                     let c: u8 = unsafe { *(iov.iov_base as *const u8).offset(j) };
-                    debug_print!("{}", c as char);
+                    print!("{}", c as char);
                     ret += 1;
                 }
             }

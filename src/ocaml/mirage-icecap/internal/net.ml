@@ -19,8 +19,8 @@ module N = struct
     let write t ~size fillf =
         let buf = Cstruct.create size in
         Cstruct.memset buf 0;
-        let n = fillf buf in
-        Icecap.Net.send_to_all (Cstruct.to_bytes buf);
+        let _ = fillf buf in
+        Icecap.Net.send_to_all (Cstruct.to_bytes buf); (* HACK *)
         Lwt.return (Ok ())
 
     let listen t ~header_size:_ receive_callback =

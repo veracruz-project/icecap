@@ -156,6 +156,10 @@ pub trait LocalCPtr: Sized + Copy {
     fn upcast(self) -> Unspecified {
         Unspecified::from_cptr(self.cptr())
     }
+
+    fn null() -> Self {
+        Unspecified::NULL.downcast()
+    }
 }
 
 pub trait ObjectFixedSize {

@@ -6,6 +6,6 @@
     mirage-icecap
     lwt lwt-dllist
     logs logs.fmt
-    yojson
+    yojson hex
   )
 )

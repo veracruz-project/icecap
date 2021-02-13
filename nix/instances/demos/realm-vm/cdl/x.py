@@ -34,7 +34,7 @@ host_vm.map_net(host_realm_objs)
 
 host_vm.map_con(serial_server.connect_raw('host_vm_con'))
 caput.add_extern_ring_buffer('realm_vm_con', serial_server.connect_raw('realm_vm_con'))
-serial_server.connect(host_vmm, mapped=True)
+serial_server.connect(host_vmm)
 caput.add_extern_ring_buffer('realm_vmm_con', serial_server.connect_raw('realm_vmm_con'))
 
 composition.complete()
