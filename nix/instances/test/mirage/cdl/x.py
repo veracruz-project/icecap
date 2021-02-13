@@ -6,7 +6,9 @@ class Mirage(GenericElfComponent):
 
     def arg_json(self):
         return {
-            'test': 'Hello, World!',
+            'passthru': {
+                'Hello': 'World!',
+            },
         }
 
 composition = start()

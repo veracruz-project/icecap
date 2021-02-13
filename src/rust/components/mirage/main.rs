@@ -22,22 +22,26 @@ use sys::c_types::*;
 
 mod c;
 mod syscall;
+mod ocaml;
 
 declare_generic_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
-    test: String,
+    passthru: serde_json::Value,
 }
 
 fn main(config: Config) -> Fallible<()> {
-    debug_println!("from rust: {}", config.test);
     let state = Box::new(State);
-    let ret = unsafe  {
-        syscall::init();
+    unsafe  {
         GLOBAL_STATE = Box::into_raw(state) as usize;
-        c::costub_run_mirage()
     };
+    syscall::init();
+    let arg = serde_json::to_vec(&serde_json::json!({
+        "passthru": config.passthru,
+    })).unwrap();
+    debug_println!("mirage enter");
+    let ret = ocaml::run(&arg);
     debug_println!("mirage exit: {:?}", ret);
     Ok(())
 }

@@ -17,6 +17,7 @@
         ];
         dependencies = {
           serde = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
+          serde_json = { version = "*"; default-features = false; features = [ "alloc" ]; };
         };
         buildScript = {
           # doesn't work because of circular dependencies. rustc deduplicates these
@@ -45,6 +46,9 @@
         muslc
         mirageLibrary
       ];
+      extraPassthru = {
+        inherit mirageLibrary;
+      };
     };
 
 }

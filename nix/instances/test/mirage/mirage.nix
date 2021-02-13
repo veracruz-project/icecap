@@ -18,6 +18,7 @@ mkMirageLibrary {
     propagatedBuildInputsOCaml = with ocamlPackages; [
       lwt
       mirage-icecap
+      yojson
       # TODO why is this necessary?
       lwt_ppx
     ];

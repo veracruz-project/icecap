@@ -461,6 +461,42 @@ self: with self; {
     };
   };
 
+  easy-format = buildDunePackage rec {
+    pname = "easy-format";
+    version = "1.3.1";
+    src = fetchFromGitHub {
+      owner = "ocaml-community";
+      repo = pname;
+      rev = "v${version}";
+      sha256 = "sha256-ExOWeJpIztPI55uExrZSScOqqXQ9e3F8cBqtEiJj1kk=";
+    };
+  };
+
+  biniou = buildDunePackage rec {
+    pname = "biniou";
+    version = "1.2.0";
+    src = fetchFromGitHub {
+      owner = "ocaml-community";
+      repo = pname;
+      rev = "v${version}";
+      sha256 = "sha256-izWUNQMli2uD7DAhDTXCFz/Z9qWVOsDlj2IJ7Dx/V1Y=";
+    };
+    propagatedBuildInputsOCaml = [ easy-format ];
+  };
+
+  yojson = buildDunePackage rec {
+    pname = "yojson";
+    version = "1.7.0";
+    src = fetchFromGitHub {
+      owner = "ocaml-community";
+      repo = pname;
+      rev = version;
+      sha256 = "sha256-VvbBwQ9/SKhVupBL0x8lSDqIhIH2MLfdDXCutxDXzH4=";
+    };
+    nativeBuildInputs = with buildPackagesOCaml; [ cppo ];
+    propagatedBuildInputsOCaml = [ easy-format biniou ];
+  };
+
   # Mirage
 
   ipaddr = buildDunePackage rec {
@@ -813,7 +849,7 @@ self: with self; {
     propagatedBuildInputsOCaml = [ lwt parse-argv ];
   };
 
-  # Last
+  # # #
 
   mirage-device = buildDunePackage rec {
     pname = "mirage-device";
@@ -1012,7 +1048,7 @@ self: with self; {
     propagatedBuildInputsOCaml = [ mirage-flow ];
   };
 
-  # Laster
+  # # #
 
   ocplib-endian = buildDunePackage rec {
     pname = "ocplib-endian";
@@ -1092,7 +1128,7 @@ self: with self; {
     propagatedBuildInputsOCaml = [ logs ptime mirage-clock mirage-profile lwt ];
   };
 
-  # Latesterer
+  # # #
 
   mirage-types-lwt = buildDunePackage rec {
     pname = "mirage-types-lwt";

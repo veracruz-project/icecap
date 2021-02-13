@@ -12,8 +12,9 @@ typedef size_t net_iface_id;
 
 // exports to rust
 
-int costub_run_mirage(void);
+void costub_startup(void);
 void costub_alloc(size_t size, value_handle *handle, char **buf);
+int costub_run_main(size_t handle);
 
 // imports from rust
 
