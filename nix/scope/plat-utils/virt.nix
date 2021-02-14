@@ -40,7 +40,7 @@ rec {
     "-chardev" "socket,id=ss,host=127.0.0.1,port=5554,server,nowait"
     "-chardev" "socket,id=rb0,host=127.0.0.1,port=5557,server,nowait"
     "-chardev" "socket,id=rb1,host=127.0.0.1,port=5558,server,nowait"
-    "-netdev" "user,id=netdev0,hostfwd=tcp::5555-:22,hostfwd=tcp::5556-:8080"
+    "-netdev" "user,id=netdev0,hostfwd=tcp::5555-:22,hostfwd=tcp::5556-:80,hostfwd=tcp::5559-:8080"
     "-fsdev" "local,id=store,security_model=none,readonly,path=${builtins.storeDir}"
   ];
 

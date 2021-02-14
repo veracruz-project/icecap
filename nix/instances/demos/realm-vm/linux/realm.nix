@@ -29,10 +29,13 @@ in
 
     initramfs.profile = ''
       i() {
-        iperf3 -c 192.168.1.1
+        iperf3 -c ${hostAddr}
       }
       c() {
         curl google.com
+      }
+      l() {
+        nc -l ${realmAddr} 8080
       }
     '';
 

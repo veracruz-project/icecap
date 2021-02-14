@@ -6,6 +6,7 @@ let
   virtualIface = "eth0";
   physicalIface = "eth1";
   hostAddr = "192.168.1.1";
+  realmAddr = "192.168.1.2";
 
   udhcpcScript = pkgs.writeScript "udhcpc.sh" ''
     #!${config.build.extraUtils}/bin/sh
@@ -35,10 +36,10 @@ let
   nftScript = pkgs.writeText "nftables" ''
     table ip nat {
       chain prerouting {
-        type nat hook prerouting priority 0; policy accept;
+        type nat hook prerouting priority 0;
       }
       chain postrouting {
-        type nat hook postrouting priority 100; policy accept;
+        type nat hook postrouting priority 100;
         oifname "${physicalIface}" masquerade
       }
     }
@@ -56,9 +57,12 @@ in
       ln -s $(which sh) /bin/sh
 
       sysctl -w net.ipv4.ip_forward=1
+
       ip link set ${physicalIface} up
       udhcpc --quit --now -i ${physicalIface} -O staticroutes --script ${udhcpcScript}
       nft -f ${nftScript}
+      physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
+      nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
 
       mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store
       spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
@@ -80,6 +84,9 @@ in
     initramfs.profile = ''
       i() {
         iperf3 -s
+      }
+      c() {
+        curl google.com
       }
       s() {
         create-realm file:/dev/rb_caput /spec.bin
