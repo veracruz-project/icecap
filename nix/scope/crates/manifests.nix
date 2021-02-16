@@ -11,11 +11,11 @@ let
 
   serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
 
-  mkConfigWith = deps: mk {
-    deps = [
+  mkConfigWith = localDependencies: mk {
+    localDependencies = [
       icecap-config-common
       icecap-sel4-hack
-    ] ++ deps;
+    ] ++ localDependencies;
     dependencies = {
       serde = serdeMin;
     };
@@ -37,7 +37,7 @@ in
     };
 
     icecap-backtrace = mk {
-      deps = [
+      localDependencies = [
         icecap-backtrace-types
       ];
       dependencies = {
@@ -58,7 +58,7 @@ in
     };
 
     icecap-failure = mk {
-      deps = [
+      localDependencies = [
         icecap-backtrace
         icecap-failure-derive
       ];
@@ -93,7 +93,7 @@ in
     };
 
     icecap-sel4 = mk {
-      deps = [
+      localDependencies = [
         icecap-failure
         icecap-sel4-derive
         icecap-sys
@@ -104,7 +104,7 @@ in
     };
 
     icecap-sel4-hack = mk {
-      deps = if hostPlatform.system == "aarch64-none" then [
+      localDependencies = if hostPlatform.system == "aarch64-none" then [
         icecap-sel4
         icecap-runtime
       ] else [
@@ -113,7 +113,7 @@ in
     };
 
     icecap-runtime = mk {
-      deps = [
+      localDependencies = [
         icecap-sel4
       ];
       dependencies = {
@@ -128,7 +128,7 @@ in
     };
 
     icecap-interfaces = mk {
-      deps = [
+      localDependencies = [
         icecap-failure
         icecap-sel4
       ];
@@ -140,7 +140,7 @@ in
     };
 
     icecap-realize-config = mk {
-      deps = [
+      localDependencies = [
         icecap-sel4
         icecap-runtime
         icecap-interfaces
@@ -149,7 +149,7 @@ in
     };
 
     icecap-vmm = mk {
-      deps = [
+      localDependencies = [
         icecap-failure
         icecap-sel4
         icecap-interfaces
@@ -162,7 +162,7 @@ in
     };
 
     icecap-net = mk {
-      deps = [
+      localDependencies = [
         icecap-interfaces
       ];
       dependencies = {
@@ -188,7 +188,7 @@ in
     };
 
     icecap-fdt = mk {
-      depsPhantom = [
+      phantomLocalDependencies = [
         icecap-failure
       ];
       dependencies = {
@@ -203,10 +203,10 @@ in
     };
 
     icecap-fdt-bindings = mk {
-      deps = [
+      localDependencies = [
         icecap-fdt
       ];
-      depsPhantom = [
+      phantomLocalDependencies = [
         icecap-failure
       ];
       dependencies = {
@@ -222,7 +222,7 @@ in
     };
 
     icecap-start = mk {
-      deps = [
+      localDependencies = [
         icecap-failure
         icecap-sel4
         icecap-runtime
@@ -236,7 +236,7 @@ in
     };
 
     icecap-core = mk {
-      deps = [
+      localDependencies = [
         icecap-backtrace
         icecap-failure
         icecap-sys
@@ -250,7 +250,7 @@ in
     };
 
     icecap-std = mk {
-      deps = [
+      localDependencies = [
         icecap-core
       ];
       dependencies = {
@@ -289,7 +289,7 @@ in
     };
 
     icecap-caput-host = mk {
-      deps = [
+      localDependencies = [
         icecap-caput-types
       ];
       dependencies = {
@@ -327,7 +327,7 @@ in
     };
 
     icecap-std-external = mk {
-      deps = [
+      localDependencies = [
         icecap-core
       ];
       dependencies = {
@@ -340,14 +340,14 @@ in
   "components" = {
 
     fault-handler = mkBin {
-      deps = [
+      localDependencies = [
         icecap-std
         icecap-fault-handler-config
       ];
     };
 
     timer-server = mkBin {
-      deps = [
+      localDependencies = [
         icecap-std
         icecap-timer-server-config
       ];
@@ -357,7 +357,7 @@ in
     };
 
     serial-server = mkBin {
-      deps = [
+      localDependencies = [
         icecap-std
         icecap-serial-server-config
       ];
@@ -367,7 +367,7 @@ in
     };
 
     caput = mkBin {
-      deps = [
+      localDependencies = [
         icecap-std
         icecap-caput-types
         icecap-qemu-ring-buffer-server-config
@@ -382,7 +382,7 @@ in
     };
 
     qemu-ring-buffer-server = mkBin {
-      deps = [
+      localDependencies = [
         icecap-std
         icecap-qemu-ring-buffer-server-config
       ];
@@ -392,7 +392,7 @@ in
     };
 
     vmm = mkBin {
-      deps = [
+      localDependencies = [
         icecap-std
         icecap-vmm-config
         icecap-vmm
@@ -416,7 +416,7 @@ in
     };
 
     icecap-p9 = mk {
-      deps = [
+      localDependencies = [
         icecap-p9-wire-format-derive
       ];
       dependencies = {
@@ -426,7 +426,7 @@ in
     };
 
     icecap-p9-server-linux = mk {
-      deps = [
+      localDependencies = [
         icecap-p9
       ];
       dependencies = {
@@ -436,7 +436,7 @@ in
     };
 
     icecap-p9-server-linux-cli = mkBin {
-      deps = [
+      localDependencies = [
         icecap-p9-server-linux
       ];
       dependencies = {
@@ -452,7 +452,7 @@ in
   "helpers" = {
 
     show-backtrace = mkBin {
-      deps = [
+      localDependencies = [
         icecap-backtrace-types
       ];
       dependencies = {
@@ -473,7 +473,7 @@ in
     };
 
     serialize-dyndl-spec = mkBin {
-      deps = [
+      localDependencies = [
         dyndl-types
       ];
       dependencies = {
@@ -484,7 +484,7 @@ in
     };
 
     serialize-runtime-config = mkBin {
-      deps = [
+      localDependencies = [
         icecap-runtime-config
       ];
       dependencies = {
@@ -502,7 +502,7 @@ in
     };
 
     append-icecap-devices = mkBin {
-      deps = [
+      localDependencies = [
         icecap-fdt
         icecap-fdt-bindings
       ];
@@ -513,7 +513,7 @@ in
     };
 
     create-realm = mkBin {
-      deps = [
+      localDependencies = [
         icecap-caput-host
       ];
     };
@@ -523,7 +523,7 @@ in
   "config" = {
 
     icecap-config-common = mk {
-      deps = [
+      localDependencies = [
         icecap-sel4-hack
       ];
       dependencies = {
@@ -552,7 +552,7 @@ in
     };
 
     dyndl-types = mk {
-      deps = [
+      localDependencies = [
         dyndl-types-derive
       ];
       dependencies = {
@@ -561,7 +561,7 @@ in
     };
 
     dyndl-realize = mk {
-      deps = [
+      localDependencies = [
         dyndl-types
         icecap-core
       ];

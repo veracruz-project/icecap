@@ -25,7 +25,7 @@ buildRustPackageIncrementally rec {
     src.store = linkFarm "src" [
       { name = "main.rs"; path = main_rs; }
     ];
-    deps = lib.optionals (crate != null) [
+    localDependencies = lib.optionals (crate != null) [
       crate
     ] ++ [
       globalCrates.icecap-serialize-config

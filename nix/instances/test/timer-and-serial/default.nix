@@ -11,7 +11,7 @@ mkInstance (self: with self; {
       name = "test";
       src = icecapSrcAbsSplit ./test;
       isBin = true;
-      deps = [
+      localDependencies = [
         globalCrates.icecap-std
       ];
       dependencies = {

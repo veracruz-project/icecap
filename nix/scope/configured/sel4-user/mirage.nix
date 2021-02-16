@@ -11,7 +11,7 @@
         name = "mirage";
         src = icecapSrcRelSplit "rust/components/mirage";
         isBin = true;
-        deps = with globalCrates; [
+        localDependencies = with globalCrates; [
           icecap-linux-syscall
           icecap-std
         ];

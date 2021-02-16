@@ -28,8 +28,6 @@ let
     ))
   );
 
-  # TODO deps_icecap, deps_not_icecap
-
   mkBase = ext: args: name: dir: crateUtils.mkGeneric (args // rec {
     inherit name;
     src = icecapSrcRelSplit "rust/${dir}/${name}";

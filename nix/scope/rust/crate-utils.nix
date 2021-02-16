@@ -13,7 +13,7 @@ rec {
   mkGeneric =
     { name, src
     , isBin ? false, isStaticlib ? false
-    , deps ? [], depsPhantom ? []
+    , localDependencies ? [], phantomLocalDependencies ? []
     , propagate ? {}
     , buildScript ? null
     , ...
@@ -29,7 +29,7 @@ rec {
           };
           dependencies = listToAttrs (map (crate: nameValuePair crate.name {
             path = "../${crate.name}";
-          }) deps);
+          }) localDependencies);
         }
 
         (if isBin then {
@@ -48,7 +48,7 @@ rec {
         (removeAttrs args [
           "name" "src" "srcLocal"
           "isBin" "isStaticlib"
-          "deps" "depsPhantom"
+          "localDependencies" "phantomLocalDependencies"
           "propagate" "buildScript"
         ])
 
@@ -65,16 +65,16 @@ rec {
       src = mkLink (mk src.store);
       srcLocal = mkLink (mk src.env);
       srcDummy = mkLink (mk dummySrc);
-      deps = deps ++ depsPhantom;
+      localDependencies = localDependencies ++ phantomLocalDependencies;
       inherit propagate buildScript;
     };
 
-  mkFromToml = { name, src, srcDummy ? null, depsPhantom ? [] }: {
+  mkFromToml = { name, src, srcDummy ? null, phantomLocalDependencies ? [] }: {
     type = "path";
     inherit name srcDummy;
     src = src.store;
     srcLocal = src.env;
-    deps = depsPhantom;
+    localDependencies = phantomLocalDependencies;
     buildScript = null;
   };
 
@@ -102,7 +102,7 @@ rec {
           else
             let
               queue' = attrsOf (attrVals (tail queueNames) queue);
-              ext = attrsOf queue.${head queueNames}.deps;
+              ext = attrsOf queue.${head queueNames}.localDependencies;
             in
               go (seen // ext) (queue' // ext);
     in root: go {} (attrsOf [ root ]);
