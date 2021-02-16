@@ -84,7 +84,7 @@ fn main(config: Config) -> Fallible<()> {
     syscall::init();
 
     let arg = serde_json::to_vec(&serde_json::json!({
-        "passthru": config.passthru,
+        "network_config": config.passthru,
     })).unwrap();
 
     println!("mirage enter");

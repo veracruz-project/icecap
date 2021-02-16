@@ -16,7 +16,10 @@ class Mirage(GenericElfComponent):
             'net_thread': self.secondary_thread('net').endpoint,
 
             'passthru': {
-                'Hello': 'World!',
+                'mac': '00:0a:95:9d:68:16',
+                'ip': '192.168.1.2',
+                'network': '192.168.1.0/24',
+                'gateway': '192.168.1.1',
             },
         }
 
