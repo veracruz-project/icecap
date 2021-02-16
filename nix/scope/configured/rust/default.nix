@@ -5,8 +5,8 @@
 
 self: with self; {
 
-  icecap-sys-gen = callPackage ./icecap-sys-gen {};
-  inherit (icecap-sys-gen) liboutline;
+  icecap-sel4-sys-gen = callPackage ./icecap-sel4-sys-gen {};
+  inherit (icecap-sel4-sys-gen) liboutline;
 
   sysroot-rs = callPackage ./sysroot.nix {
     # HACK wasmtime violates some assertions in core
@@ -22,7 +22,7 @@ self: with self; {
       };
       layers = with globalCrates; [
         thirdPartyCrates
-        [ icecap-sys ]
+        [ icecap-sel4-sys ]
       ] ++ extraLayers;
       debug = true;
       dontStrip = true;

@@ -1,52 +1,36 @@
-{ lib
-, nixToToml
-, icecapSrcRelSplit
-, hostPlatform
-, runCommand, linkFarm
-, callPackage
+{ lib, hostPlatform, callPackage, newScope
+, icecapSrcAbsSplit, icecapSrcRelRaw, mkIceCapSrc
 , crateUtils
-, mkIceCapSrc
 }:
 
 with lib;
 
 let
 
-  flatten = attrs:
-    listToAttrs
-      (concatMap
-        (mapAttrsToList (name: value: { inherit name value; }))
-        (attrValues attrs));
+  localCrates = mapAttrs (name: path:
+    let crate = callCrate path; in assert name == crate.name; crate
+   ) (import (icecapSrcRelRaw "rust/crates.nix"));
 
-  manifests = fix (self: flatten
-    (mapAttrs (dir: mapAttrs (name: f: f name dir)) (
-      callPackage ./manifests.nix {} {
-        inherit lib crateUtils;
-        inherit mk mkBin mkLib;
-        inherit patches;
-      } self
-    ))
-  );
+  callCrate = path:
+    let
+      mkBase = ext: args: crateUtils.mkGeneric ({
+        src = icecapSrcAbsSplit (path + "/src");
+      } // ext // args);
+    in newScope {
+      inherit localCrates patches hostPlatform;
+      mk = mkBase {};
+      mkBin = mkBase { isBin = true; };
 
-  mkBase = ext: args: name: dir: crateUtils.mkGeneric (args // rec {
-    inherit name;
-    src = icecapSrcRelSplit "rust/${dir}/${name}";
-  } // ext);
+      # abbreviations
+      serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
 
-  mk = mkBase {};
-
-  mkLib = mkBase {
-    isStaticlib = true;
-  };
-
-  mkBin = mkBase {
-    isBin = true;
-  };
+    } (path + "/cargo.nix") {};
 
   patches = import ./patches.nix {
     inherit mkIceCapSrc;
   };
 
-in manifests // {
+in localCrates // {
+  _localCrates = localCrates;
   _patches = patches;
 }

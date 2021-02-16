@@ -29,7 +29,7 @@ superCallPackage ./ocaml {} self //
   mkAbsSrc = path: { store = lib.cleanSource path; env = toString path; };
 
   icecapSrcRel = suffix: (icecapSrcRelSplit suffix).store;
-  icecapSrcAbs = src: (icecapSrcAbs src).store;
+  icecapSrcAbs = src: (icecapSrcAbsSplit src).store;
   icecapSrcRelRaw = suffix: ../../src + "/${suffix}";
   icecapSrcFilter = name: type: true; # TODO
   icecapSrcRelSplit = suffix: icecapSrcAbsSplit (icecapSrcRelRaw suffix);
