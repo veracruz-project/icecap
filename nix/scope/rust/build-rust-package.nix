@@ -15,6 +15,7 @@ in
 , cargoVendorConfigRaw ? null
 , cargoVendorDir ? null
 , debug ? false # TODO release ? true
+, doc ? false, cargoDocFlags ? []
 , offline ? true
 , stdenv ? stdenv_
 , extraCargoConfig ? {}
@@ -88,6 +89,12 @@ in stdenv.mkDerivation ({
       ${lib.optionalString (!debug) "--release"} \
       --target ${stdenv.hostPlatform.config} \
       ${lib.concatStringsSep " " cargoBuildFlags}
+    ${lib.optionalString doc ''
+      cargo doc -j $NIX_BUILD_CORES ${lib.optionalString offline "--offline --frozen"} \
+        ${lib.optionalString (!debug) "--release"} \
+        --target ${stdenv.hostPlatform.config} \
+        ${lib.concatStringsSep " " cargoDocFlags}
+    ''}
     runHook postBuild
   '';
 
