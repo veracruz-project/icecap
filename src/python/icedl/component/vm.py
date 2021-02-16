@@ -84,7 +84,7 @@ class VM(BaseComponent):
         self.addr_space().add_hack_page(GIC_CPU_PADDR, PAGE_SIZE, Cap(gic_vcpu_frame, read=True, write=True, cached=False))
 
         ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame'.format(self.name), size=PAGE_SIZE)
-        ipc_buffer_addr = vaddr_at_block(3, 0, 0)
+        ipc_buffer_addr = vaddr_at_page(4, 0, 0, 0)
         ipc_buffer_cap = Cap(ipc_buffer_frame, read=True, write=True)
         self.addr_space().add_hack_page(ipc_buffer_addr, PAGE_SIZE, ipc_buffer_cap)
 

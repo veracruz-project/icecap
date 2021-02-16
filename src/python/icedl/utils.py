@@ -19,7 +19,7 @@ def vaddr_at_block(a, b, c):
     return block_at(a, b, c) << BLOCK_SIZE_BITS
 
 def vaddr_at_page(a, b, c, d):
-    return block_at(a, b, c, d) << PAGE_SIZE_BITS
+    return page_at(a, b, c, d) << PAGE_SIZE_BITS
 
 def align_up(x, m):
     return ((x - 1) | (m - 1)) + 1
