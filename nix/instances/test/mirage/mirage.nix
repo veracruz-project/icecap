@@ -10,8 +10,7 @@ mkMirageLibrary {
   main = buildDunePackage rec {
     pname = "main";
     version = "0.1";
-    # src = lib.cleanSource ./mirage-ml;
-    src = lib.cleanSource ./mirage-ml-minimal;
+    src = lib.cleanSource ./mirage-ml;
     nativeBuildInputsOCaml = with buildPackagesOCaml; [
       lwt_ppx
     ];

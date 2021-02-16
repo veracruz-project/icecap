@@ -82,18 +82,6 @@ in
     '';
 
     initramfs.profile = ''
-      i() {
-        iperf3 -s
-      }
-      c() {
-        curl google.com
-      }
-      s() {
-        create-realm file:/dev/rb_caput /spec.bin
-      }
-      l() {
-        curl ${realmAddr}:8080
-      }
     '';
 
   };
