@@ -112,8 +112,12 @@ in stdenv.mkDerivation ({
     lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\)'
     find ${releaseDir} -maxdepth 1 -type f -executable -not -regex "$lib_re" | xargs -r install -D -t $out/bin
     find ${releaseDir} -maxdepth 1                          -regex "$lib_re" | xargs -r install -D -t $out/lib
+    ${lib.optionalString doc ''
+      mkdir -p $out/share
+      mv target/${stdenv.hostPlatform.config}/doc $out/share
+    ''}
     runHook postInstall
   '';
     # lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\|rlib\)'
 
-} // ccEnv // builtins.removeAttrs args [ "depsBuildBuild" "nativeBuildInputs" "extraCargoConfig" ])
+} // ccEnv // builtins.removeAttrs args [ "depsBuildBuild" "nativeBuildInputs" "extraCargoConfig" "debug" "doc" ])
