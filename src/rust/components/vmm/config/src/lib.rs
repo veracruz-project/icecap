@@ -14,7 +14,6 @@ pub struct Config {
 
     pub con: RingBufferConfig,
 
-    pub gic_dist_vaddr: usize,
     pub gic_dist_paddr: usize,
 
     pub real_virtual_timer_irq: IRQ,
@@ -22,8 +21,18 @@ pub struct Config {
     pub virtual_irqs: Vec<IRQGroup<IRQ>>,
     pub passthru_irqs: Vec<IRQGroup<PassthruIRQ>>,
 
+    pub nodes: Vec<Node>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Node {
+    pub thread: Thread,
+    pub nfn_thread: Thread,
+    pub start_ep: Endpoint, // TODO nfn? spec requires async
     pub ep_write: Endpoint,
     pub ep_read: Endpoint,
+    pub nfn_write: Notification,
+    pub nfn_read: Notification,
     pub reply_ep: Endpoint,
     pub tcb: TCB,
     pub vcpu: VCPU,

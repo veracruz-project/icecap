@@ -13,7 +13,7 @@ mod asm;
 mod event;
 mod biterate;
 
-pub use run::{run, IRQType, BADGE_EXTERNAL, BADGE_VM};
+pub use run::{run, BADGE_EXTERNAL, BADGE_VM, Mailbox};
 pub use event::{Event, RingBufferEvent};
-pub use gic::IRQ;
+pub use gic::{IRQ, CPU, IRQType, Distributor};
 pub use biterate::biterate;

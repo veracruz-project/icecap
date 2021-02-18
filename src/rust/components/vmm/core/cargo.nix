@@ -7,6 +7,7 @@ mk {
     icecap-sel4
     icecap-ring-buffer
     icecap-rpc-sel4
+    icecap-core
   ];
   dependencies = {
     num = { version = "*"; default-features = false; };

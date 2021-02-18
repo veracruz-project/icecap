@@ -1,6 +1,8 @@
 use core::ptr::{read_volatile, write_volatile};
 use core::convert::TryFrom;
+use core::sync::atomic::{AtomicBool, Ordering};
 
+use alloc::vec::Vec; // TODO: Implement Mailbox with static arrays.
 use alloc::boxed::Box;
 use alloc::collections::{VecDeque, BTreeMap};
 
@@ -11,7 +13,8 @@ use icecap_rpc_sel4::*;
 use crate::{
     asm, biterate::biterate,
     event::Event,
-    gic::{Distributor, IRQ, Action, GIC_DIST_SIZE},
+    gic::{Distributor, IRQType, IRQ, CPU, GIC_DIST_SIZE, WriteAction, ReadAction,
+    PPIAction, SPIAction, SGIAction, AckAction},
 };
 
 // NOTE
@@ -30,23 +33,44 @@ const SYS_RESOURCE_SERVER_PASSTHRU: Word = 1338;
 const CNTV_CTL_EL0_IMASK: u64 = 2 << 0;
 const CNTV_CTL_EL0_ENABLE: u64 = 1 << 0;
 
+pub struct Mailbox {
+    pub irq: Vec<AtomicBool>,
+}
+
+impl Mailbox {
+    pub fn new() -> Self {
+        Self {
+            irq: (0..1020).map(|_| AtomicBool::new(false)).collect(),
+        }
+    }
+
+    fn add_irq(&self, irq: IRQ) {
+        self.irq[irq].store(true, Ordering::SeqCst);
+    }
+}
+
 pub fn run(
+    node_index: usize,
     tcb: TCB, vcpu: VCPU, cspace: CNode, fault_reply_cap: Endpoint,
-    gic_dist_vaddr: usize, gic_dist_paddr: usize,
-    irqs: BTreeMap<IRQ, IRQType>, real_virtual_timer_irq: IRQ, virtual_timer_irq: IRQ,
-    vmm_endpoint: Endpoint,
+    gic_dist: &Distributor, gic_dist_paddr: usize,
+    irqs: &BTreeMap<IRQ, IRQType>, real_virtual_timer_irq: IRQ, virtual_timer_irq: IRQ,
+    vmm_endpoint: Endpoint, start_eps: &[Endpoint], nfn_writes: &[Notification],
+    mailboxes: &[Mailbox], putchar: impl Fn(u8),
     resource_server_write: Option<Endpoint>,
-    putchar: impl Fn(u8),
 ) -> Fallible<()> {
     let mut vm = VM {
+        node_index,
         tcb,
         vcpu,
         cspace, fault_reply_cap,
         gic_dist_paddr,
-        gic_dist: Distributor::new(gic_dist_vaddr as usize),
+        gic_dist,
         irqs,
         real_virtual_timer_irq,
         virtual_timer_irq,
+        start_eps,
+        nfn_writes,
+        mailboxes,
 
         lr: LR {
             mirror: [None; 64],
@@ -57,17 +81,22 @@ pub fn run(
         putchar,
     };
 
-    vm.gic_dist.reset();
-    tcb.resume()?;
+    vm.vcpu.write_regs(VCPUReg::VMPIDR_EL2, node_index as Word)?;
+
+    if node_index == 0 {
+        tcb.resume()?;
+    } else {
+        let (_info, _badge) = start_eps[node_index - 1].recv();
+        let entry = MR_0.get();
+        let ctx_id = MR_1.get();
+        let mut ctx = vm.tcb.read_all_registers(false).unwrap();
+        ctx.pc = entry;
+        ctx.x0 = ctx_id;
+        vm.tcb.write_all_registers(false, &mut ctx).unwrap();
+        vm.tcb.resume();
+    }
     vm.run(vmm_endpoint);
     Ok(())
-}
-
-#[derive(Debug)]
-pub enum IRQType {
-    Passthru(IRQHandler),
-    Virtual,
-    Timer,
 }
 
 struct LR {
@@ -75,16 +104,24 @@ struct LR {
     overflow: VecDeque<IRQ>,
 }
 
-struct VM<T> {
+// TODO: Does it make sense to rename this something like VMM_VCPU
+// since it now basically corresponds with a single threaded vcpu?
+// It will also have a single associated seL4 vcpu and be pinned
+// to a single core...
+struct VM<'a, T> {
     // configuration
+    node_index: usize,
     tcb: TCB,
     vcpu: VCPU,
     cspace: CNode, fault_reply_cap: Endpoint,
     gic_dist_paddr: usize,
-    gic_dist: Distributor,
-    irqs: BTreeMap<IRQ, IRQType>,
+    gic_dist: &'a Distributor,
+    irqs: &'a BTreeMap<IRQ, IRQType>,
     real_virtual_timer_irq: IRQ,
     virtual_timer_irq: IRQ,
+    start_eps: &'a [Endpoint],
+    nfn_writes: &'a [Notification],
+    mailboxes: &'a [Mailbox],
 
     // mutable state
     lr: LR,
@@ -93,7 +130,7 @@ struct VM<T> {
     putchar: T,
 }
 
-impl<F: Fn(u8)> VM<F> {
+impl<'a, F: Fn(u8)> VM<'a, F> {
 
     fn run(&mut self, ep: Endpoint) {
         loop {
@@ -101,25 +138,49 @@ impl<F: Fn(u8)> VM<F> {
             match badge {
                 BADGE_EXTERNAL => {
                     match Event::get(info) {
-                        Event::IRQ(irq) => {
-                            self.inject_irq(irq);
+                        Event::SPI(irq) => {
+                            let val = self.gic_dist.handle_spi(irq);
+                            match val {
+                                SPIAction::InjectIRQ => {
+                                    self.vcpu_inject_irq(irq);
+                                }
+                                _ => {}
+                            }
+                        }
+                        Event::SGI(irq) => {
+                            let val = self.gic_dist.handle_sgi(irq, self.node_index);
+                            match val {
+                                SGIAction::InjectIRQ => {
+                                    self.vcpu_inject_irq(irq);
+                                }
+                                _ => {}
+                            }
                         }
                     }
                 }
                 BADGE_VM => {
                     let fault = Fault::get(info);
+                    // if self.node_index > 0 {
+                    //     debug_println!("fault on node {}: {:?}", self.node_index, fault);
+                    // }
                     match fault {
                         Fault::VMFault(fault) => {
+                            // handle_page_fault() clobbers the reply capability
+                            // in the TCB, so we'll save it to fault_reply_cap
+                            // to invoke after we've handled the fault.
+                            // TODO: Avoid clobber to avoid this syscall.
                             self.cspace.save_caller(self.fault_reply_cap).unwrap();
                             self.handle_page_fault(fault);
                             self.fault_reply_cap.send(MessageInfo::empty());
                         }
                         Fault::UnknownSyscall(fault) => {
+                            self.cspace.save_caller(self.fault_reply_cap).unwrap();
                             self.handle_syscall(fault.syscall);
-                            reply(MessageInfo::empty());
+                            self.fault_reply_cap.send(MessageInfo::empty());
                         }
                         Fault::UserException(fault) => {
                             self.handle_exception(fault.fault_ip);
+                            panic!("Fault::UserException{:?}", fault);
                         }
                         Fault::VGICMaintenance(fault) => {
                             assert!(fault.idx as i32 >= 0);
@@ -128,14 +189,18 @@ impl<F: Fn(u8)> VM<F> {
                         }
                         Fault::VCPUFault(fault) => {
                             // We only handle WFI/WFE
-                            let ctx = self.tcb.read_all_registers(false).unwrap();
-                            debug_println!("bb {:x?}", &ctx);
                             assert!(fault.hsr >> 26 == 1);
                             panic!("WFI");
                         }
                         Fault::VPPIEvent(fault) => {
                             assert!(usize::try_from(fault.irq).unwrap() == self.real_virtual_timer_irq);
-                            self.inject_irq(self.virtual_timer_irq);
+                            let val = self.gic_dist.handle_ppi(self.virtual_timer_irq, self.node_index);
+                            match val {
+                                PPIAction::InjectIRQ => {
+                                    self.vcpu_inject_irq(self.virtual_timer_irq);
+                                }
+                                _ => {}
+                            }
                             reply(MessageInfo::empty());
                         }
                         _ => {
@@ -165,76 +230,63 @@ impl<F: Fn(u8)> VM<F> {
     fn handle_dist_fault(&mut self, fault: VMFault, offset: usize) {
         assert!(fault.is_valid());
         assert!(fault.is_aligned());
-        assert!(fault.is_write());
-        let ctx = self.tcb.read_all_registers(false).unwrap();
-        let val: u32 = match fault.data(&ctx) {
-            VMFaultData::Word(val) => val,
-            _ => panic!(),
-        };
-        let reg = (self.gic_dist.base_addr + offset) as *mut u32;
-        let act_on_set = |extra_offset: usize, mut f: Box<dyn FnMut(IRQ)>| {
-            let cur = unsafe { *reg };
-            let set = val & !cur;
-            for i in biterate(set) {
-                let irq: usize = i as usize + (offset - extra_offset) * 8;
-                f(irq as IRQ);
-            }
-        };
-        match Action::at(offset) {
-            Action::ReadOnly => {}
-            Action::Passthru => {
-                unsafe {
-                    write_volatile(reg, val);
+
+        if fault.is_write() {
+            let ctx = self.tcb.read_all_registers(false).unwrap();
+            let val = fault.data(&ctx);
+
+            let write_action = self.gic_dist.handle_write(offset, self.node_index, val);
+            match write_action {
+                WriteAction::NoAction => {}
+                WriteAction::InjectAndAckIRQs((to_inject, to_ack)) => {
+                    // Handle acks
+                    if let Some(to_ack) = to_ack {
+                        for (irq, cpu) in to_ack.iter() {
+                            // Only ack registered IRQs on this CPU.
+                            if *cpu == self.node_index {
+                                if let Some(_) = self.irqs.get(irq) {
+                                    self.ack_irq(*irq);
+                                }
+                            }
+                        }
+                    }
+
+                    // Handle injections
+                    if let Some(to_inject) = to_inject {
+                        for (irq, cpu) in to_inject.iter() {
+                            // Only ack registered IRQs on this CPU. Forward IRQs
+                            // to other CPUs for action, where appropriate.
+                            if *cpu == self.node_index {
+                                if let Some(_) = self.irqs.get(irq) {
+                                    self.ack_irq(*irq);
+                                }
+                            } else if *cpu < self.nfn_writes.len() {
+                                self.mailboxes[*cpu].add_irq(*irq);
+
+                                // Notify any other CPUs of IRQs in their mailboxes
+                                // TODO: This is inefficient.  Should wait for all
+                                // additions to the mailboxes and signal at the end,
+                                // but would need a way to track additions to each
+                                // mailbox to only notify affected CPUs.
+                                self.nfn_writes[*cpu].signal();
+                            }
+                        }
+                    }
                 }
-            }
-            Action::Enable => {
-                match val {
-                    0 => self.gic_dist.disable(),
-                    1 => self.gic_dist.enable(),
-                    _ => panic!(),
-                }
-            }
-            Action::EnableSet => {
-                act_on_set(0x100, Box::new(|irq| self.enable_irq(irq)));
-            }
-            Action::EnableClr => {
-                act_on_set(0x180, Box::new(|irq| self.disable_irq(irq)));
-            }
-            Action::PendingSet => {
-                act_on_set(0x200, Box::new(|irq| self.set_pending_irq(irq)));
-            }
-            Action::PendingClr => {
-                act_on_set(0x280, Box::new(|irq| self.clr_pending_irq(irq)));
-            }
-            _ => panic!(),
+                _ => panic!("Unexpected WriteAction")
+            };
+        } else if fault.is_read() {
+            let (val, read_action) = self.gic_dist.handle_read(offset, self.node_index, fault.width());
+            match read_action {
+                ReadAction::NoAction => {}
+                _ => panic!("Unexpected ReadAction")
+            };
+            let mut ctx = self.tcb.read_all_registers(false).unwrap();
+            fault.emulate_read(&mut ctx, val);
+            self.tcb.write_all_registers(false, &mut ctx).unwrap();
+        } else {
+            panic!();
         }
-    }
-
-    fn enable_irq(&mut self, irq: IRQ) {
-        self.gic_dist.set_enable(irq, true);
-        // TODO SliceIndex trait
-        if let Some(_) = self.irqs.get(&irq) {
-            if !self.gic_dist.is_pending(irq) {
-                self.ack_irq(irq);
-            }
-        }
-    }
-
-    fn disable_irq(&mut self, irq: IRQ) {
-        self.gic_dist.set_enable(irq, false);
-    }
-
-    fn set_pending_irq(&mut self, irq: IRQ) {
-        if let Some(_) = self.irqs.get(&irq) {
-            if self.gic_dist.is_dist_enabled() && self.gic_dist.is_enabled(irq) {
-                self.gic_dist.set_pending(irq, true);
-                self.vcpu_inject_irq(irq);
-            }
-        }
-    }
-
-    fn clr_pending_irq(&mut self, irq: IRQ) {
-        self.gic_dist.set_pending(irq, false);
     }
 
     fn handle_syscall(&mut self, syscall: Word) {
@@ -281,7 +333,9 @@ impl<F: Fn(u8)> VM<F> {
                 let entry = ctx.x2 as u64;
                 let ctx_id = ctx.x3 as u64;
                 debug_println!("cpu_on: {:x} {:x} {:x}", target, entry, ctx_id);
-                panic!();
+                MR_0.set(entry);
+                MR_1.set(ctx_id);
+                self.start_eps[target as usize - 1].send(MessageInfo::new(0, 0, 0, 2));
                 ctx.x0 = RET_SUCCESS as u64;
             }
             FID_MIGRATE_INFO_TYPE => {
@@ -330,31 +384,29 @@ impl<F: Fn(u8)> VM<F> {
         panic!();
     }
 
+    // We expect VGICMaintenance events when the VM is done servicing the IRQ.
     fn handle_vgic_maintenance(&mut self, ix: usize) {
         let irq = self.lr.mirror[ix].unwrap();
         self.lr.mirror[ix] = None;
-        self.gic_dist.set_pending(irq, false);
         self.ack_irq(irq);
         if let Some(irq) = self.lr.overflow.pop_front() {
             self.vcpu_inject_irq(irq);
         }
     }
 
-    fn upper_ns_bound_interrupt(&mut self) -> Option<i64> {
-        let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL).unwrap();
-        if (cntv_ctl & CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & CNTV_CTL_EL0_IMASK) == 0 {
-            // TODO use tval?
-            let cntv_cval = self.vcpu.read_regs(VCPUReg::CNTV_CVAL).unwrap() as i128;
-            let cntfrq = asm::read_cntfrq_el0() as i128;
-            let cntvct = asm::read_cntvct_el0() as i128;
-            let ns = (((cntv_cval - cntvct) * 1_000_000_000) / cntfrq) as i64;
-            Some(ns)
-        } else {
-            None
-        }
-    }
-
+    // This effectively skips the traditional acknowledgement state change
+    // from pending -> active and acts like an End of Interrupt, clearing
+    // the pending state of the IRQ in the GIC distributor and performing
+    // any necessary acknowledgements with the hypervisor.
     fn ack_irq(&mut self, irq: IRQ) {
+        // Handle the GIC distributor
+        let ack = self.gic_dist.handle_ack(irq, self.node_index);
+        match ack {
+            AckAction::NoAction => {},
+            _ => panic!("Unexpected result while acknowledging IRQ {}", irq)
+        }
+
+        // Perform any other actions
         let ty = &self.irqs[&irq];
         match ty {
             IRQType::Virtual => {
@@ -365,11 +417,9 @@ impl<F: Fn(u8)> VM<F> {
             IRQType::Passthru(handler) => {
                 handler.ack().unwrap()
             }
+            IRQType::SGI => {
+            }
         }
-    }
-
-    fn inject_irq(&mut self, irq: IRQ) {
-        self.set_pending_irq(irq);
     }
 
     fn vcpu_inject_irq(&mut self, irq: IRQ) {

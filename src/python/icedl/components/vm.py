@@ -1,6 +1,7 @@
 from pathlib import Path
 import json
 import subprocess
+from collections import namedtuple
 
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
@@ -47,6 +48,8 @@ class Addrs:
 
             self.virq_0 = 130
 
+VMNode = namedtuple('VMNode', 'tcb vcpu affinity')
+
 class VM(BaseComponent):
 
     def align(self, size):
@@ -75,13 +78,14 @@ class VM(BaseComponent):
     def set_chosen_default(self):
         return True
 
-    def __init__(self, composition, name, vmm_name, affinity, gic_vcpu_frame):
+    def __init__(self, composition, name, vmm_name, affinities, gic_vcpu_frame):
         super().__init__(composition, name)
         self.kernel_fname = self.composition.register_file('{}_kernel.img'.format(self.name), self.config()['kernel'])
         if 'initrd' in self.config():
             self.initrd_fname = self.composition.register_file('{}_initrd.img'.format(self.name), self.config()['initrd'])
 
         self.devices = []
+        self.nodes = []
 
         self.addrs = self.get_addrs()
 
@@ -90,36 +94,46 @@ class VM(BaseComponent):
 
         self.map_passthru_devices()
 
-        self.gic_dist_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_gic_dist_frame'.format(self.name), size=PAGE_SIZE)
-        self.addr_space().add_hack_page(self.addrs.gic_dist_paddr, PAGE_SIZE, Cap(self.gic_dist_frame, read=True, write=False, cached=False))
         self.addr_space().add_hack_page(self.addrs.gic_cpu_paddr, PAGE_SIZE, Cap(gic_vcpu_frame, read=True, write=True, cached=False))
-
-        ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame'.format(self.name), size=PAGE_SIZE)
-        ipc_buffer_addr = vaddr_at_page(4, 0, 0, 0)
-        ipc_buffer_cap = Cap(ipc_buffer_frame, read=True, write=True)
-        self.addr_space().add_hack_page(ipc_buffer_addr, PAGE_SIZE, ipc_buffer_cap)
-
-        self.tcb = self.alloc(ObjectType.seL4_TCBObject, name='{}_tcb'.format(self.name))
-        self.tcb.resume = False
 
         SPSR_EL1 = 0x5
 
-        self.tcb.ip = self.addrs.kernel_addr
-        self.tcb.sp = 0
-        self.tcb.addr = ipc_buffer_addr
-        self.tcb.prio = 99
-        self.tcb.max_prio = 0
-        self.tcb.affinity = affinity
-        self.tcb.spsr = SPSR_EL1;
+        # Establish IPC buffers, TCBs, and vCPUs for each node in the list of affinities.
+        for (node_index, affinity) in enumerate(affinities):
+            ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame_{}'.format(self.name, node_index), size=PAGE_SIZE)
+            ipc_buffer_addr = vaddr_at_page(4, 0, 0, node_index)
+            ipc_buffer_cap = Cap(ipc_buffer_frame, read=True, write=True)
+            self.addr_space().add_hack_page(ipc_buffer_addr, PAGE_SIZE, ipc_buffer_cap)
 
-        self.tcb.init.append(self.addrs.dtb_addr)
+            # Create a new seL4 VCPU object, and append it to the list of VPUs.
+            # This will eventually be bound to the TCB. 'node_index' should match the
+            # index of the new VCPU object in self.vcpu and the associated TCB
+            # in self.tcb.
+            vcpu = self.alloc(ObjectType.seL4_VCPU, name='{}_vcpu_{}'.format(self.name, node_index))
 
-        self.tcb['cspace'] = self.cnode_cap
-        self.tcb['vspace'] = Cap(self.pd())
-        self.tcb['ipc_buffer_slot'] = ipc_buffer_cap
+            # Create a new seL4 TCB object and append it to the list of TCBs,
+            # then populate the TCB. 'node_index' should match the index of the new
+            # TCB object in self.tcb.
+            tcb = self.alloc(ObjectType.seL4_TCBObject, name='{}_tcb_{}'.format(self.name, node_index))
+            tcb.resume = False
 
-        self.vcpu = self.alloc(ObjectType.seL4_VCPU, name='{}_vcpu'.format(self.name))
-        self.tcb['bound_vcpu'] = Cap(self.vcpu)
+            tcb.ip = self.addrs.kernel_addr
+            tcb.sp = 0
+            tcb.addr = ipc_buffer_addr
+            tcb.prio = 99
+            tcb.max_prio = 0
+            tcb.affinity = affinity
+            tcb.spsr = SPSR_EL1;
+
+            tcb.init.append(self.addrs.dtb_addr)
+
+            tcb['cspace'] = self.cnode_cap
+            tcb['vspace'] = Cap(self.pd())
+            tcb['ipc_buffer_slot'] = ipc_buffer_cap
+
+            tcb['bound_vcpu'] = Cap(vcpu)
+
+            self.nodes.append(VMNode(tcb=tcb, vcpu=vcpu, affinity=affinity))
 
         self.vmm = self.composition.component(VMM, vmm_name, gic_vcpu_frame=gic_vcpu_frame, vm=self)
 
@@ -127,7 +141,7 @@ class VM(BaseComponent):
         # TODO
         mod = {
             'devices': self.devices,
-            'num_cpus': 1, # TODO
+            'num_cpus': len(self.nodes),
             }
 
         if self.config().get('set_chosen', self.set_chosen_default()):
@@ -301,37 +315,50 @@ class VMM(ElfComponent):
     def __init__(self, *args, gic_vcpu_frame, vm, **kwargs):
         super().__init__(*args, **kwargs)
         self.heap_size = 0x400000
-        self.primary_thread.tcb.prio = 101
-        self.primary_thread.tcb.affinity = vm.tcb.affinity
         self.gic_vcpu_frame = gic_vcpu_frame
         self.vm = vm
 
-        self.ep = self.alloc(ObjectType.seL4_EndpointObject, name='vmm_event_ep')
+        # The primary vmm thread will be associated with the 0th VM thread
+        # managed by vm.tcb[0].
+        self.primary_thread.tcb.affinity = self.vm.nodes[0].affinity
+        self.primary_thread.tcb.prio = 101 # TODO
 
-        self.vm.tcb.fault_ep_slot = self.vm.cspace().alloc(self.ep, badge=1, write=True, grant=True)
+        nodes = []
 
-        gic_dist_vaddr = vaddr_at_block(8, 510, 0)
-        self.addr_space().add_hack_page(gic_dist_vaddr, PAGE_SIZE, Cap(self.vm.gic_dist_frame, read=True, write=True, cached=False))
+        # Perform node-specific assignments:
+        # each idx of self.vm.tcb corresponds to one node with a vm and a vmm thread.
+        for node_index, node in enumerate(self.vm.nodes):
+            # Create a new seL4 endpoint object, and append it to the list of
+            # endpoints. 'idx' should match the index of the new endpoint object in
+            # self.ep and the associated TCB in self.vm.tcb.
+            ep = self.alloc(ObjectType.seL4_EndpointObject, name='vmm_event_ep_{}'.format(node_index))
+            node.tcb.fault_ep_slot = self.vm.cspace().alloc(ep, badge=1, write=True, grant=True)
 
-        self._arg = {
-            'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
+            nfn = self.alloc(ObjectType.seL4_NotificationObject, name='vmm_event_nfn_{}'.format(node_index))
 
-            'gic_dist_vaddr': gic_dist_vaddr,
-            'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
+            if node_index != 0:
+                thread = self.secondary_thread(name='node_{}'.format(node_index), affinity=node.affinity, prio=self.primary_thread.tcb.prio).endpoint
+                start_ep = self.alloc(ObjectType.seL4_EndpointObject, name='vmm_start_ep_{}'.format(node_index))
+                start_ep_read_write = self.cspace().alloc(start_ep, read=True, write=True)
+            else:
+                thread = 0
+                start_ep_read_write = 0
 
-            'real_virtual_timer_irq': REAL_VIRTUAL_TIMER_IRQ,
-            'virtual_timer_irq': VIRTUAL_TIMER_IRQ,
-            'virtual_irqs': [],
-            'passthru_irqs': [],
+            # Create and append a Node structure for each node
+            nodes.append({
+                'thread': thread,
+                'nfn_thread': self.secondary_thread(name='node_{}_nfn'.format(node_index), affinity=node.affinity).endpoint,
+                'start_ep': start_ep_read_write,
+                'ep_write': self.cspace().alloc(ep, write=True, badge=0),
+                'ep_read': self.cspace().alloc(ep, read=True),
+                'nfn_write': self.cspace().alloc(nfn, write=True, badge=1),
+                'nfn_read': self.cspace().alloc(nfn, read=True),
+                'reply_ep': self.cspace().alloc(None),
+                'tcb': self.cspace().alloc(node.tcb, read=True, write=True, grant=True, grantreply=True),
+                'vcpu': self.cspace().alloc(node.vcpu, read=True, write=True, grant=True, grantreply=True),
+                })
 
-            'ep_write': self.cspace().alloc(self.ep, write=True, badge=0),
-            'ep_read': self.cspace().alloc(self.ep, read=True),
-            'reply_ep': self.cspace().alloc(None),
-            'tcb': self.cspace().alloc(self.vm.tcb, read=True, write=True, grant=True, grantreply=True),
-            'vcpu': self.cspace().alloc(self.vm.vcpu, read=True, write=True, grant=True, grantreply=True),
-            }
-
-        passthru_irqs = self._arg['passthru_irqs']
+        passthru_irqs = []
 
         for i_group, group in enumerate(groups_of(48, self.vm.get_passthru_irqs())):
             nfn = self.alloc(ObjectType.seL4_NotificationObject, 'vmm_irq_group_{}_nfn'.format(i_group))
@@ -354,6 +381,21 @@ class VMM(ElfComponent):
                 'thread': self.secondary_thread('irq_group_{}'.format(i_group)).endpoint,
                 'irqs': x(),
                 })
+
+        self._arg = {
+            'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
+
+            'timer_thread': self.secondary_thread('timer').endpoint,
+
+            'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
+
+            'real_virtual_timer_irq': REAL_VIRTUAL_TIMER_IRQ,
+            'virtual_timer_irq': VIRTUAL_TIMER_IRQ,
+            'virtual_irqs': [],
+            'passthru_irqs': passthru_irqs,
+
+            'nodes': nodes,
+        }
 
     def serialize_arg(self):
         return 'serialize-vmm-config'
