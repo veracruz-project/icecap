@@ -8,7 +8,7 @@ use icecap_interfaces::Timer;
 use crate::{
     asm, fault, biterate::biterate,
     event::Event,
-    gic::{Distributor, IRQ, Action},
+    gic::{Distributor, IRQ, Action, GIC_DIST_SIZE},
 };
 
 // NOTE
@@ -22,8 +22,6 @@ pub const BADGE_VM: Badge = 1;
 
 const SYS_PUTCHAR: Word = 1337;
 const SYS_PSCI: Word = 0;
-
-const GIC_DIST_SIZE: usize = 0x1000;
 
 const CNTV_CTL_EL0_IMASK: u64 = 2 << 0;
 const CNTV_CTL_EL0_ENABLE: u64 = 1 << 0;

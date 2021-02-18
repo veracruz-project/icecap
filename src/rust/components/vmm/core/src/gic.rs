@@ -5,6 +5,8 @@ use register::{mmio::ReadWrite, register_structs};
 // TODO
 // - see libsel4vm: Completely emulate vgicv2 distributor
 
+pub const GIC_DIST_SIZE: usize = 0x1000;
+
 register_structs! {
     pub DistributorRegisterBlock {
         (0x000 => enable: ReadWrite<u32>),
