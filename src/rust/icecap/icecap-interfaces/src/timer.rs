@@ -1,5 +1,6 @@
 use icecap_sel4::*;
 
+#[derive(Clone)]
 pub struct Timer {
     ep: Endpoint,
 }
