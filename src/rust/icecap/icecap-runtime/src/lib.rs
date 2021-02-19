@@ -20,6 +20,8 @@ extern "C" {
     fn icecap_runtime_tls_region_init(tls_region: usize) -> u64;
     fn icecap_runtime_tls_region_insert_ipc_buffer(dst_tls_region: usize, ipc_buffer: usize);
     fn icecap_runtime_tls_region_insert_tcb(dst_tls_region: usize, tcb: u64);
+
+    static icecap_runtime_heap_lock: u64;
 }
 
 pub fn exit() -> ! {
@@ -120,4 +122,16 @@ extern "C" fn entry(f_arg: u64) {
      f();
      // TODO
      exit();
+}
+
+pub fn acquire_heap() {
+    Notification::from_raw(unsafe {
+        icecap_runtime_heap_lock
+    }).wait();
+}
+
+pub fn release_heap() {
+    Notification::from_raw(unsafe {
+        icecap_runtime_heap_lock
+    }).signal();
 }

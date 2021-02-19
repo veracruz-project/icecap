@@ -173,7 +173,7 @@ class ElfComponent(BaseComponent):
         size = self.static_heap_size()
         lock = self.cspace().alloc(
                 self.alloc(ObjectType.seL4_NotificationObject, 'heap_lock'),
-                read=True, write=True,
+                read=True, write=True, badge=1,
                 )
         end = start + size
         self.map_range(start, end, label='heap')
