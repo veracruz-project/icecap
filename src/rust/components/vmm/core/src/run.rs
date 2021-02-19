@@ -21,6 +21,7 @@ pub const BADGE_EXTERNAL: Badge = 0;
 pub const BADGE_VM: Badge = 1;
 
 const SYS_PUTCHAR: Word = 1337;
+const SYS_PSCI: Word = 0;
 
 const GIC_DIST_SIZE: usize = 0x1000;
 
@@ -236,6 +237,9 @@ impl<F: Fn(u8)> VM<F> {
             SYS_PUTCHAR => {
                 self.sys_putchar();
             }
+            SYS_PSCI => {
+                self.sys_psci();
+            }
             _ => {
                 panic!();
             }
@@ -246,6 +250,50 @@ impl<F: Fn(u8)> VM<F> {
         let mut ctx = self.tcb.read_all_registers(false).unwrap();
         let c = ctx.x0 as u8;
         (self.putchar)(c);
+        ctx.pc += 4;
+        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+    }
+
+    fn sys_psci(&self) {
+        let mut ctx = self.tcb.read_all_registers(false).unwrap();
+        const FID_PSCI_VERSION: u32 = 0x8400_0000;
+        const FID_CPU_ON: u32 = 0xC400_0003;
+        const FID_MIGRATE_INFO_TYPE: u32 = 0x8400_0006;
+        const FID_PSCI_FEATURES: u32 = 0x8400_000a;
+        const RET_SUCCESS: i32 = 0;
+        const RET_NOT_SUPPORTED: i32 = -1;
+        let fid = ctx.x0 as u32;
+        match fid {
+            FID_PSCI_VERSION => {
+                const VERSION: u32 = 0x0001_0001;
+                ctx.x0 = VERSION as u64;
+            }
+            FID_CPU_ON => {
+                let target = ctx.x1 as u64;
+                let entry = ctx.x2 as u64;
+                let ctx_id = ctx.x3 as u64;
+                debug_println!("cpu_on: {:x} {:x} {:x}", target, entry, ctx_id);
+                panic!();
+                ctx.x0 = RET_SUCCESS as u64;
+            }
+            FID_MIGRATE_INFO_TYPE => {
+                ctx.x0 = RET_NOT_SUPPORTED as u64;
+            }
+            FID_PSCI_FEATURES => {
+                let qfid = ctx.x1 as u32;
+                ctx.x0 = match qfid {
+                    FID_CPU_ON => {
+                        0
+                    }
+                    _ => {
+                        RET_NOT_SUPPORTED as u64
+                    }
+                }
+            }
+            _ => {
+                panic!("psci fid {:x}", fid);
+            }
+        }
         ctx.pc += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
     }

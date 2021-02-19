@@ -13,6 +13,7 @@ use icecap_fdt_bindings::{
 struct Input {
     chosen: Option<Chosen>,
     devices: Vec<Device<RingBuffer>>,
+    num_cpus: usize,
 }
 
 fn main() -> Result<(), std::io::Error> {
@@ -29,6 +30,14 @@ fn main() -> Result<(), std::io::Error> {
     }
     for device in input.devices {
         device.apply(&mut dt);
+    }
+
+    let mut cpus = dt.root.get_child_mut("cpus").unwrap();
+    let cpu_0 = cpus.get_child("cpu@0").unwrap().clone();
+    for i in 1..input.num_cpus {
+        let mut cpu_n = cpu_0.clone();
+        cpu_n.set_property("reg", i as u32);
+        cpus.set_child(format!("cpu@{}", i), cpu_n);
     }
 
     io::stdout().write_all(&dt.write())?;

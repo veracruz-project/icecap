@@ -46,13 +46,13 @@ pub struct ReserveEntry {
     pub size: u64,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Node {
     pub properties: BTreeMap<String, Value>,
     pub children: BTreeMap<String, Box<Node>>,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Value {
     pub raw: Vec<u8>,
 }

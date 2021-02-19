@@ -123,6 +123,7 @@ class VM(BaseComponent):
                     },
                 },
             'devices': self.devices,
+            'num_cpus': 1, # TODO
             }
 
         mod_path = self.composition.out_dir / '{}_device_tree_mod.json'.format(self.name)
