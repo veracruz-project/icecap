@@ -26,6 +26,11 @@
         reg = <0x0 0x10000000 0x10000000>;
     };
 
+    psci {
+        compatible = "arm,psci-0.2";
+        method = "hvc";
+    };
+
     cpus {
         #address-cells = <1>;
         #size-cells = <0>;
