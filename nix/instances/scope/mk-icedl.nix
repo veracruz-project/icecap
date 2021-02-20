@@ -13,6 +13,7 @@
 , serialize-serial-server-config
 , serialize-qemu-ring-buffer-server-config
 , serialize-vmm-config
+, serialize-caput-config
 
 , serialize-dyndl-spec
 }:
@@ -42,6 +43,7 @@ let
       serialize-serial-server-config
       serialize-qemu-ring-buffer-server-config
       serialize-vmm-config
+      serialize-caput-config
 
       serialize-dyndl-spec
     ] ++ (with python3Packages; [

@@ -1,11 +1,11 @@
 from pathlib import Path
 from capdl import ObjectType, Cap
-from icedl.component.generic import GenericElfComponent
+from icedl.component.elf import ElfComponent
 from icedl.utils import BLOCK_SIZE, PAGE_SIZE
 
 HACK_AFFINITY = 2 # HACK
 
-class Caput(GenericElfComponent):
+class Caput(ElfComponent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, affinity=HACK_AFFINITY, max_prio=255, **kwargs)
@@ -94,6 +94,9 @@ class Caput(GenericElfComponent):
             'start': start,
             'end': end,
             }
+
+    def serialize_arg(self):
+        return 'serialize-caput-config'
 
     def arg_json(self):
         self._arg['timer'] = self.connections['timer']['TimerClient']

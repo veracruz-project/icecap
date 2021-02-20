@@ -124,6 +124,11 @@ superCallPackage ./ocaml {} self //
     type = "icecap_vmm_config::Config";
     crate = globalCrates.icecap-vmm-config;
   };
+  serialize-caput-config = mkSerializeConfig {
+    name = "caput";
+    type = "icecap_caput_config::Config";
+    crate = globalCrates.icecap-caput-config;
+  };
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};
   inherit (callPackage ./nix-utils/trivial-builders.nix {})

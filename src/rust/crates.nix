@@ -29,6 +29,7 @@
   icecap-vmm-core = ./components/vmm/core;
 
   caput = ./components/caput;
+  icecap-caput-config = ./components/caput/config;
   icecap-caput-types = ./components/caput/types;
   icecap-caput-host = ./components/caput/host;
   dyndl-realize = ./components/caput/dyndl-realize;
