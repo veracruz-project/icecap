@@ -93,7 +93,9 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         icecap_runtime_fault_handling = config->fault_handling;
         icecap_runtime_supervisor_ep = config->supervisor_ep;
         __icecap_runtime_tls_image = config->tls_image;
-        seL4_Signal(icecap_runtime_heap_lock);
+        if (icecap_runtime_heap_lock) {
+            seL4_Signal(icecap_runtime_heap_lock);
+        }
         icecap_main((void *)((char *)config + config->arg.offset), config->arg.size);
     } else {
         seL4_Recv(config->threads[thread_index].endpoint, 0);
