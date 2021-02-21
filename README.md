@@ -93,7 +93,7 @@ $(host) nc 192.168.1.2 8080
 # 'ctrl-a x' quits QEMU
 ```
 
-### Raspbery Pi 4
+#### Raspbery Pi 4
 
 The following steps to run the MirageOS demo on the Raspberry Pi 4 can be
 adapted to any of the other demos.  Note that we have only tested on a Raspberry
@@ -102,14 +102,15 @@ likely need to be changed to get IceCap running on a Raspberry Pi 4 with less
 than 4GB of RAM. Please reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
 work together to do so.  Also note that the `caput` component, necessary for
-spawning realms, is currently broken on the Raspberry Pi 4.
+spawning realms, is currently broken on the Raspberry Pi 4. As a result, the
+`realm-vm` demo will not work.
 
 You'll need an SD card containing a sufficiently large FAT partition (1GB should
 be enough).  Here's one way to set that up:
 
 ```bash
 $ fdisk /dev/sd<x>
-# ... make the first partition 2GB, bootable, and of type 0B ("W95 FAT32") ...
+# ... make the first partition 1GB, bootable, and of type 0B ("W95 FAT32") ...
 $ mkfs.vfat /dev/sd<x>1 -n icecap-boot
 ```
 
