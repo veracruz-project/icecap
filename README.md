@@ -104,14 +104,38 @@ than 4GB of RAM. Please reach out to [Nick Spinale
 work together to do so.  Also note that the `caput` component, necessary for
 spawning realms, is currently broken on the Raspberry Pi 4.
 
+You'll need an SD card containing a sufficiently large FAT partition (1GB should
+be enough).  Here's one way to set that up:
+
+```bash
+$ fdisk /dev/sd<x>
+# ... make the first partition 2GB, bootable, and of type 0B ("W95 FAT32") ...
+$ mkfs.vfat /dev/sd<x>1 -n icecap-boot
+```
+
+You'll also need a USB to TTL adapter. Hook this up to pins 14 and 15 on the Pi,
+and access it using a program like GNU Screen. For example:
+
+```bash
+$ screen /dev/ttyUSB0 115200
+```
+
+Build the demo and copy it to your boot partition:
+
 ```bash
 $ nix-build nix/ -A instances.rpi4.demos.mirage.run
 $ ls -l ./result/boot/
 # ./result/boot and its subdirectories contain symlinks which are to be resolved
-# and copied to the boot partition of your SD card:
+# and copied to the boot partition of your SD card. For example:
+$ mkdir -p ./mnt
+$ mount /dev/disk/by-label/icecap-boot ./mnt
+$ rm -r ./mnt/* || true # remove the old contents of the boot partition
 $ cp -rvL ./result/boot/* ./mnt
-# The entire demo resides in the boot partition. Now, just power on the board.
+$ umount ./mnt
 ```
+
+The entire demo resides in the boot partition. Power up the board and interact
+with the demo via serial.
 
 ## Supported Platforms
 
