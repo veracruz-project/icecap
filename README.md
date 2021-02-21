@@ -79,6 +79,39 @@ $(realm) curl http://example.com
 # 'ctrl-a x' quits QEMU
 ```
 
+Build and run a demo where a host virtual machine runs alongside a simple
+MirageOS unikernel which acts as a TCP echo server, and then communicates with
+it via the virtual network:
+
+```bash
+$ nix-build nix/ -A instances.virt.demos.mirage.run # optional: -j$(nproc)
+$ ./result/run
+# ... wait for the host VM to boot to a shell ...
+# Interact with the MirageOS unikernel from inside the host VM:
+$(host) nc 192.168.1.2 8080
+# ... enter some characters followed by a new line...
+# 'ctrl-a x' quits QEMU
+```
+
+### Raspbery Pi 4
+
+The following steps to run the MirageOS demo on the Raspberry Pi 4 can be
+adapted to any of the other demos.  Note that we have only tested on a Raspberry
+Pi 4 with 4GB of RAM. Some hard-coded physical address space constants would
+likely need to be changed to get IceCap running on a Raspberry Pi 4 with less
+than 4GB of RAM. Please reach out to [Nick Spinale
+&lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
+work together to do so.  Also note that the `caput` component, necessary for
+spawning realms, is currently broken on the Raspberry Pi 4.
+
+```bash
+$ nix-build nix/ -A instances.rpi4.demos.mirage.run
+$ ls -l ./result/boot/
+# ./result/boot and its subdirectories contain symlinks which are to be resolved
+# and copied to the boot partition of your SD card:
+$ cp -rvL ./result/boot/* ./mnt
+# The entire demo resides in the boot partition. Now, just power on the board.
+```
 
 ## Supported Platforms
 
