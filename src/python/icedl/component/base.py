@@ -50,13 +50,13 @@ class BaseComponent:
     def config(self):
         return self.composition.config['components'][self.name]
 
-    def map_with_size(self, size, vaddr, paddr=None, fill=[], label=None, read=False, write=False, execute=False, cached=True):
+    def map_with_size(self, size, vaddr, paddr=None, device=False, fill=[], label=None, read=False, write=False, execute=False, cached=True):
         assert vaddr % size == 0
         name = ''
         if label is not None:
             name += label + '_'
         name += '0x{:x}'.format(vaddr)
-        frame = self.alloc(ObjectType.seL4_FrameObject, name, size=size, fill=fill, paddr=paddr)
+        frame = self.alloc(ObjectType.seL4_FrameObject, name, size=size, fill=fill, paddr=paddr, device=device)
         cap = Cap(frame, read=read, write=write, grant=execute, cached=cached)
         self.addr_space().add_hack_page(vaddr, size, cap)
 

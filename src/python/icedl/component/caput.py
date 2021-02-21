@@ -17,8 +17,8 @@ class Caput(ElfComponent):
 
         # TODO
         ut_paddr = None
-        if self.composition.plat == 'rpi4':
-            ut_paddr = 0x60000000
+        # if self.composition.plat == 'rpi4':
+        #     ut_paddr = 0x80000000
 
         ut_slot = self.cspace().alloc(self.alloc(ObjectType.seL4_UntypedObject, name='{}_foo_untyped'.format(self.name), size_bits=ut_size_bits, paddr=ut_paddr, device=False))
 

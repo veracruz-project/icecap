@@ -176,9 +176,9 @@ class VM(BaseComponent):
                         )
                     break
             if self.map_phys():
-                self.map_block(vaddr=addr, paddr=addr, fill=fill, read=True, write=True, execute=True)
+                self.map_block(vaddr=addr, paddr=addr, device=True, fill=fill, read=True, write=True, execute=True)
             else:
-                self.map_block(vaddr=addr, fill=fill, read=True, write=True, execute=True)
+                self.map_block(vaddr=addr, fill=fill, device=False, read=True, write=True, execute=True)
 
     def map_ring_buffer(self, objs):
         read = objs.read
