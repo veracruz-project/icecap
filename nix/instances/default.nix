@@ -50,13 +50,13 @@ icecap.byIceCapPlat (icecapPlat:
       host-and-adjacent-vm = mkBasicInstance config.icecap ./test/host-and-adjacent-vm;
       timer-and-serial = mkBasicInstance config.icecap ./test/timer-and-serial;
       timer-and-serial-from-realm = mkBasicInstance config.icecap ./test/timer-and-serial-from-realm;
-      mirage = mkBasicInstance config.icecap ./test/mirage;
     };
 
     demos = {
       minimal-root = mkBasicInstance config.icecap ./demos/minimal-root;
       minimal = mkBasicInstance config.icecap ./demos/minimal;
       realm-vm = mkBasicInstance config.icecap ./demos/realm-vm;
+      mirage = mkBasicInstance config.icecap ./demos/mirage;
     };
 
     bench = {
