@@ -95,11 +95,11 @@ $(host) nc 192.168.1.2 8080
 
 #### Raspbery Pi 4
 
-The following steps to run the MirageOS demo on the Raspberry Pi 4 can be
-adapted to any of the other demos.  Note that we have only tested on a Raspberry
-Pi 4 with 4GB of RAM. Some hard-coded physical address space constants would
-likely need to be changed to get IceCap running on a Raspberry Pi 4 with less
-than 4GB of RAM. Please reach out to [Nick Spinale
+The following steps to run the MirageOS demo on the Raspberry Pi 4 expand on the
+instructions above, and can be adapted to any of the other demos.  Note that we
+have only tested on a Raspberry Pi 4 with 4GB of RAM. Some hard-coded physical
+address space constants would likely need to be changed to get IceCap running on
+a Raspberry Pi 4 with less than 4GB of RAM. Please reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
 work together to do so.  Also note that the `caput` component, necessary for
 spawning realms, is currently broken on the Raspberry Pi 4. As a result, the
