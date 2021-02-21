@@ -6,7 +6,7 @@
 , writeText
 , raspbian
 , runPkgs
-, icecapExtraConfig
+, icecapPlat, icecapExtraConfig
 , mkIceCapGitUrl
 , show-backtrace
 }:
@@ -15,9 +15,15 @@ let
   kernel_ = kernel;
 in
 
-{ payload, extraLinks ? {}, kernel ? kernel_ }:
+{ payload, extraLinks ? {}, kernel ? kernel_, icecapPlatArgs ? {} }:
 
 with uboot-ng;
+
+with (
+  { extraBootPartitionCommands ? "" }:
+  { inherit extraBootPartitionCommands; }
+) (icecapPlatArgs.${icecapPlat} or {});
+
 let
 
   source = doSource {
@@ -82,6 +88,7 @@ let
     ln -s ${ubootBin} $out/kernel8.img
     ln -s ${image}/bin/elfloader $out/buddy.elf
     ln -s ${scriptUimg} $out/${scriptName}
+    ${extraBootPartitionCommands}
   '';
 
   syncSimple = src: writeScript "sync" ''

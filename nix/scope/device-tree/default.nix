@@ -1,7 +1,6 @@
 { dtb-helpers, raspbian, linuxKernel }:
 
 {
-  guest = dtb-helpers.compile ./guest.dts;
   host = rec {
     rpi4 =
       let
@@ -13,5 +12,9 @@
     dts = {
       rpi4 = with dtb-helpers; decompile rpi4;
     };
+  };
+  guest = {
+    virt = dtb-helpers.compile ./guest/virt.dts;
+    rpi4 = dtb-helpers.compile ./guest/rpi4.dts;
   };
 }

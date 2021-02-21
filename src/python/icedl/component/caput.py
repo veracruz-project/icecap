@@ -13,8 +13,14 @@ class Caput(ElfComponent):
         cnode_size_bits = 18
         self.cspace().cnode.size_bits = cnode_size_bits
 
-        ut_size_bits = 30
-        ut_slot = self.cspace().alloc(self.alloc(ObjectType.seL4_UntypedObject, name='{}_foo_untyped'.format(self.name), size_bits=ut_size_bits))
+        ut_size_bits = 29
+
+        # TODO
+        ut_paddr = None
+        if self.composition.plat == 'rpi4':
+            ut_paddr = 0x60000000
+
+        ut_slot = self.cspace().alloc(self.alloc(ObjectType.seL4_UntypedObject, name='{}_foo_untyped'.format(self.name), size_bits=ut_size_bits, paddr=ut_paddr, device=False))
 
         ctrl_ep = self.alloc(ObjectType.seL4_EndpointObject, 'ctrl_ep')
 

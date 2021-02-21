@@ -22,10 +22,9 @@ in
 
     initramfs.extraInitCommands = lib.optionalString (icecapPlat == "rpi4") ''
       (
-        echo TODO cpufreq
-        # cd /sys/devices/system/cpu/cpu0/cpufreq/
-        # echo userspace > scaling_governor
-        # echo 1500000 > scaling_setspeed
+        cd /sys/devices/system/cpu/cpu0/cpufreq/
+        echo userspace > scaling_governor
+        echo 1500000 > scaling_setspeed
       )
     '';
 

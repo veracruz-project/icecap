@@ -36,7 +36,7 @@ mkInstance (self: with self; {
         realm_vm.bootargs = realm.bootargs;
         realm_vm.kernel = realm.linuxImage;
         realm_vm.initrd = realm.initrd;
-        realm_vm.dtb = deviceTree.guest;
+        realm_vm.dtb = deviceTree.guest.${icecapPlat};
       };
     };
   };
@@ -47,5 +47,9 @@ mkInstance (self: with self; {
   };
 
   src = ./cdl;
+
+  icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
+    ln -s ${spec} $out/spec.bin
+  '';
 
 })

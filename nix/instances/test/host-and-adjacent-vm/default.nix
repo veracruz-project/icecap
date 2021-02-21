@@ -27,7 +27,7 @@ mkInstance (self: with self; {
       guest_vm.bootargs = guest.bootargs;
       guest_vm.kernel = guest.linuxImage;
       guest_vm.initrd = guest.initrd;
-      guest_vm.dtb = deviceTree.guest;
+      guest_vm.dtb = deviceTree.guest.${icecapPlat};
     };
   };
 

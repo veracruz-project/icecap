@@ -29,6 +29,8 @@ with self; {
       // attrs.extraLinks or {};
   } // lib.optionalAttrs (lib.hasAttr "kernel" attrs) {
     inherit (attrs) kernel;
+  } // lib.optionalAttrs (lib.hasAttr "icecapPlatArgs" attrs) {
+    inherit (attrs) icecapPlatArgs;
   });
 
   cdl = mkIceDL {

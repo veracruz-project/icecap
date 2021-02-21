@@ -58,15 +58,19 @@ in
 
       sysctl -w net.ipv4.ip_forward=1
 
+    '' + lib.optionalString (icecapPlat == "virt") ''
       ip link set ${physicalIface} up
       udhcpc --quit --now -i ${physicalIface} -O staticroutes --script ${udhcpcScript}
       nft -f ${nftScript}
       physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
       nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
 
-      mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store
-      spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
-      ln -s "/mnt/$spec" /spec.bin
+    '' + lib.optionalString (icecapPlat == "rpi4") ''
+      (
+        cd /sys/devices/system/cpu/cpu0/cpufreq/
+        echo userspace > scaling_governor
+        echo 1500000 > scaling_setspeed
+      )
     '';
 
     initramfs.extraUtilsCommands = ''
@@ -82,6 +86,9 @@ in
     '';
 
     initramfs.profile = ''
+      n() {
+        echo 'Hello, World!' | nc 192.168.1.2 8080
+      }
     '';
 
   };

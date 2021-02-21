@@ -26,7 +26,7 @@ let
 
 in
 
-{ payload, extraLinks ? {}, kernel ? kernel_ }:
+{ payload, extraLinks ? {}, kernel ? kernel_, icecapPlatArgs ? {} }:
 
 let
 

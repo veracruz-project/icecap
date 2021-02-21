@@ -20,12 +20,12 @@ let test_echo_server config : unit Lwt.t =
             match result with
             | Error e -> raise (Failure "tcp read error")
             | Ok `Eof -> begin
-                Logs.debug (fun m -> m "tcp eof");
+                Logs.info (fun m -> m "tcp eof");
                 let%lwt () = TCP.close flow in
                 Lwt.return_unit
             end
             | Ok (`Data buf) -> begin
-                Logs.debug (fun m -> m "tcp read:\n%s" (Hex.hexdump_s ~print_chars:false (Hex.of_cstruct buf)));
+                Logs.info (fun m -> m "tcp read:\n%s" (Hex.hexdump_s ~print_chars:false (Hex.of_cstruct buf)));
                 let%lwt r = TCP.write flow buf in
                 begin match r with
                 | Error e -> raise (Failure "tcp write error")
@@ -51,9 +51,10 @@ let err exn =
 
 let main (raw_arg: bytes) =
     Logs.set_reporter (Logs_fmt.reporter ());
-    Logs.set_level (Some Logs.Debug);
+    Logs.set_level (Some Logs.Info);
+    (* Logs.set_level (Some Logs.Debug); *)
     let obj = Yojson.Safe.from_string (Bytes.to_string raw_arg) in
-    Logs.debug (fun m -> m "arg: %a" Yojson.Safe.pp obj);
+    Logs.info (fun m -> m "arg: %a" Yojson.Safe.pp obj);
     Lwt.async_exception_hook := err;
     (* OS.run (test_timer ()); *)
     OS.run (test_echo_server (parse_config (Yojson.Safe.Util.member "network_config" obj)));

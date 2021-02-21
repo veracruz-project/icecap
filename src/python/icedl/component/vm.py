@@ -13,19 +13,34 @@ VIRTUAL_TIMER_IRQ = 27
 
 class Addrs:
 
-    def __init__(self, plat):
+    def __init__(self, plat, is_host=False):
         if plat == 'virt':
             self.ram_base    = 0xf0000000
             self.ram_size    = 0x10000000
             self.kernel_addr = 0xf0080000
             self.dtb_addr    = 0xf2000000
             self.initrd_addr = 0xf8000000
+
+            self.gic_paddr = 0x8000000
+            self.gic_dist_paddr = self.gic_paddr + 0x00000
+            self.gic_cpu_paddr = self.gic_paddr + 0x10000
+            self.gic_vcpu_paddr = self.gic_paddr + 0x40000
+
+            self.virq_0 = 90
+
         elif plat == 'rpi4':
             self.ram_base    = 0x10000000
             self.ram_size    = 0x10000000
             self.kernel_addr = 0x10080000
             self.dtb_addr    = 0x12000000
             self.initrd_addr = 0x18000000
+
+            self.gic_paddr = 0xff841000
+            self.gic_dist_paddr = self.gic_paddr + 0x0000
+            self.gic_cpu_paddr = self.gic_paddr + 0x1000
+            self.gic_vcpu_paddr = self.gic_paddr + 0x5000
+
+            self.virq_0 = 130
 
 class VM(BaseComponent):
 
@@ -49,39 +64,25 @@ class VM(BaseComponent):
     def map_phys(self):
         return False
 
+    def get_addrs(self):
+        return Addrs(self.composition.plat, is_host=False)
+
     def __init__(self, composition, name, vmm_name, affinity, gic_vcpu_frame):
         super().__init__(composition, name)
         self.kernel_fname = self.composition.register_file('{}_kernel.img'.format(self.name), self.config()['kernel'])
         self.initrd_fname = self.composition.register_file('{}_initrd.img'.format(self.name), self.config()['initrd'])
         self.devices = []
 
-        self.addrs = Addrs(self.composition.plat)
+        self.addrs = self.get_addrs()
 
         self.cur_vaddr = vaddr_at_block(3, 0, 0)
-        if self.composition.plat == 'virt':
-            self.cur_virq = 90
-        elif self.composition.plat == 'rpi4':
-            self.cur_virq = 130
+        self.cur_virq = self.addrs.virq_0
 
         self.map_passthru_devices()
 
-        # TODO these only apply for host. guest is platform-ind
-        if self.composition.plat == 'virt':
-            GIC_PADDR = 0x8000000
-            GIC_DIST_PADDR = GIC_PADDR + 0x00000
-            GIC_CPU_PADDR = GIC_PADDR + 0x10000
-            GIC_VCPU_PADDR = GIC_PADDR + 0x40000
-        elif self.composition.plat == 'rpi4':
-            GIC_PADDR = 0xff841000
-            GIC_DIST_PADDR = GIC_PADDR + 0x0000
-            GIC_CPU_PADDR = GIC_PADDR + 0x1000
-            GIC_VCPU_PADDR = GIC_PADDR + 0x5000
-        # HACK
-        self.GIC_DIST_PADDR = GIC_DIST_PADDR
-
         self.gic_dist_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_gic_dist_frame'.format(self.name), size=PAGE_SIZE)
-        self.addr_space().add_hack_page(GIC_DIST_PADDR, PAGE_SIZE, Cap(self.gic_dist_frame, read=True, write=False, cached=False))
-        self.addr_space().add_hack_page(GIC_CPU_PADDR, PAGE_SIZE, Cap(gic_vcpu_frame, read=True, write=True, cached=False))
+        self.addr_space().add_hack_page(self.addrs.gic_dist_paddr, PAGE_SIZE, Cap(self.gic_dist_frame, read=True, write=False, cached=False))
+        self.addr_space().add_hack_page(self.addrs.gic_cpu_paddr, PAGE_SIZE, Cap(gic_vcpu_frame, read=True, write=True, cached=False))
 
         ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame'.format(self.name), size=PAGE_SIZE)
         ipc_buffer_addr = vaddr_at_page(4, 0, 0, 0)
@@ -304,7 +305,7 @@ class VMM(ElfComponent):
             'timer_thread': self.secondary_thread('timer').endpoint,
 
             'gic_dist_vaddr': gic_dist_vaddr,
-            'gic_dist_paddr': self.vm.GIC_DIST_PADDR,
+            'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
 
             'real_virtual_timer_irq': REAL_VIRTUAL_TIMER_IRQ,
             'virtual_timer_irq': VIRTUAL_TIMER_IRQ,
@@ -352,6 +353,9 @@ class VMM(ElfComponent):
 
 
 class HostVM(VM):
+
+    def get_addrs(self):
+        return Addrs(self.composition.plat, is_host=True)
 
     def map_phys(self):
         return True
