@@ -105,8 +105,8 @@ work together to do so.  Also note that the `caput` component, necessary for
 spawning realms, is currently broken on the Raspberry Pi 4. As a result, the
 `realm-vm` demo will not work.
 
-You'll need an SD card containing a sufficiently large FAT partition (1GB should
-be enough).  Here's one way to set that up:
+You will need an SD card containing a sufficiently large bootable FAT partition
+(1GB should be enough).  Here is one way to set that up:
 
 ```bash
 $ fdisk /dev/sd<x>
@@ -114,14 +114,14 @@ $ fdisk /dev/sd<x>
 $ mkfs.vfat /dev/sd<x>1 -n icecap-boot
 ```
 
-You'll also need a USB to TTL adapter. Hook this up to pins 14 and 15 on the Pi,
-and access it using a program like GNU Screen. For example:
+You will also need a USB to TTL adapter. Connect this to pins 14 and 15 on the
+Pi, and access it using a program like GNU Screen. For example:
 
 ```bash
 $ screen /dev/ttyUSB0 115200
 ```
 
-Build the demo and copy it to your boot partition:
+Build the demo and copy it to the boot partition of your SD card:
 
 ```bash
 $ nix-build nix/ -A instances.rpi4.demos.mirage.run
