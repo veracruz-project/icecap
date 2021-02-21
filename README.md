@@ -93,7 +93,7 @@ $(host) nc 192.168.1.2 8080
 # 'ctrl-a x' quits QEMU
 ```
 
-#### Raspbery Pi 4
+#### Raspberry Pi 4
 
 The following steps to run the MirageOS demo on the Raspberry Pi 4 expand on the
 instructions above, and can be adapted to any of the other demos.  Note that we
