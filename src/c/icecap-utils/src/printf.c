@@ -37,6 +37,8 @@
 
 #include <icecap_utils/printf.h>
 
+#define __64BIT__
+
 typedef unsigned long size_t;
 typedef long ssize_t;
 #ifdef __64BIT__
