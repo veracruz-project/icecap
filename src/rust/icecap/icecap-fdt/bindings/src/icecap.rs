@@ -114,9 +114,9 @@ impl Device<RingBuffer> {
 
     pub fn apply(&self, dt: &mut DeviceTree) {
         match self {
-            Device::Raw(dev) => dev.apply(&format!("icecap_raw@0x{:x}", dev.ring_buffer.read.ctrl.start), dt),
-            Device::Con(dev) => dev.apply(&format!("icecap_con@0x{:x}", dev.ring_buffer.read.ctrl.start), dt),
-            Device::Net(dev) => dev.apply(&format!("icecap_net@0x{:x}", dev.ring_buffer.read.ctrl.start), dt),
+            Device::Raw(dev) => dev.apply(&format!("icecap_raw@{:x}", dev.ring_buffer.read.ctrl.start), dt),
+            Device::Con(dev) => dev.apply(&format!("icecap_con@{:x}", dev.ring_buffer.read.ctrl.start), dt),
+            Device::Net(dev) => dev.apply(&format!("icecap_net@{:x}", dev.ring_buffer.read.ctrl.start), dt),
         }
     }
 
