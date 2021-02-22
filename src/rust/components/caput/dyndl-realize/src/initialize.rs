@@ -22,7 +22,7 @@ impl Initializer {
             FrameSize::Large => self.large_page_addr,
             _ => panic!(),
         };
-        frame.map(self.pd, vaddr, CapRights::read_write(), VMAttributes::default())?;
+        frame.map(self.pd, vaddr, CapRights::read_write(), VMAttributes::default() & !VMAttributes::PAGE_CACHEABLE)?;
         let view = unsafe {
             slice::from_raw_parts_mut(vaddr as *mut u8, T::frame_size().bytes())
         };
