@@ -1,3 +1,4 @@
+use core::ptr::{read_volatile, write_volatile};
 use alloc::boxed::Box;
 use alloc::collections::{VecDeque, BTreeMap};
 
@@ -177,7 +178,9 @@ impl<F: Fn(u8)> VM<F> {
         match Action::at(offset) {
             Action::ReadOnly => {}
             Action::Passthru => {
-                unsafe { *reg = fault.emulate(self.tcb, *reg) }
+                unsafe {
+                    write_volatile(reg, fault.emulate(self.tcb, read_volatile(reg)));
+                }
             }
             Action::Enable => {
                 unsafe { *reg = fault.emulate(self.tcb, *reg) }
