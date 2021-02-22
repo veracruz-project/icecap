@@ -1,5 +1,5 @@
 use core::{
-    ops::{BitOr, BitOrAssign},
+    ops::{Not, BitOr, BitOrAssign, BitAnd, BitAndAssign},
 };
 
 use crate::{
@@ -141,6 +141,7 @@ impl CNodeCapData {
 pub struct VMAttributes(sys::seL4_ARM_VMAttributes);
 
 impl VMAttributes {
+    pub const NONE: Self = Self(0);
     pub const PAGE_CACHEABLE: Self = Self(sys::seL4_ARM_VMAttributes_seL4_ARM_PageCacheable);
     pub const PARITY_ENABLED: Self = Self(sys::seL4_ARM_VMAttributes_seL4_ARM_ParityEnabled);
     pub const EXECUTE_NEVER: Self = Self(sys::seL4_ARM_VMAttributes_seL4_ARM_ExecuteNever);
@@ -160,6 +161,13 @@ impl Default for VMAttributes {
     }
 }
 
+impl Not for VMAttributes {
+    type Output = Self;
+    fn not(self) -> Self {
+        Self(!self.0)
+    }
+}
+
 impl BitOr for VMAttributes {
     type Output = Self;
     fn bitor(self, rhs: Self) -> Self {
@@ -170,6 +178,19 @@ impl BitOr for VMAttributes {
 impl BitOrAssign for VMAttributes {
     fn bitor_assign(&mut self, rhs: Self) {
         self.0 |= rhs.0;
+    }
+}
+
+impl BitAnd for VMAttributes {
+    type Output = Self;
+    fn bitand(self, rhs: Self) -> Self {
+        Self(self.0 & rhs.0)
+    }
+}
+
+impl BitAndAssign for VMAttributes {
+    fn bitand_assign(&mut self, rhs: Self) {
+        self.0 &= rhs.0;
     }
 }
 

@@ -175,12 +175,14 @@ pub mod cap {
     pub struct SmallPage {
         pub obj: ObjId,
         pub rights: Rights,
+        pub cached: bool,
     }
 
     #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, IsCap)]
     pub struct LargePage {
         pub obj: ObjId,
         pub rights: Rights,
+        pub cached: bool,
     }
 
     #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, IsCap)]

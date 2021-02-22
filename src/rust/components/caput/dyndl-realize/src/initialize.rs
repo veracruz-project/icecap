@@ -91,7 +91,11 @@ impl<'a> Initialize<'a> {
                                 let orig_frame: LargePage = self.cap(cap.obj);
                                 let frame: LargePage = self.create.copy(orig_frame.upcast())?.downcast();
                                 let rights = rights_of(&cap.rights);
-                                let attrs = VMAttributes::default();
+                                let attrs = VMAttributes::default() & !(if !cap.cached {
+                                    VMAttributes::PAGE_CACHEABLE
+                                } else {
+                                    VMAttributes::NONE
+                                });
                                 frame.map(pgd, vaddr, rights, attrs)?;
                             }
                             PDEntry::PT(cap) => {
@@ -106,7 +110,11 @@ impl<'a> Initialize<'a> {
                                     let frame: SmallPage = self.create.copy(orig_frame.upcast())?.downcast();
                                     let vaddr = vaddr + (i << 12);
                                     let rights = rights_of(&cap.rights);
-                                    let attrs = VMAttributes::default();
+                                    let attrs = VMAttributes::default() & !(if !cap.cached {
+                                        VMAttributes::PAGE_CACHEABLE
+                                    } else {
+                                        VMAttributes::NONE
+                                    });
                                     frame.map(pgd, vaddr, rights, attrs)?;
                                 }
                             }
