@@ -101,9 +101,7 @@ have only tested on a Raspberry Pi 4 with 4GB of RAM. Some hard-coded physical
 address space constants would likely need to be changed to get IceCap running on
 a Raspberry Pi 4 with less than 4GB of RAM. Please reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
-work together to do so.  Also note that the `caput` component, necessary for
-spawning realms, is currently broken on the Raspberry Pi 4. As a result, the
-`realm-vm` demo will not work.
+work together to do so.
 
 You will need an SD card containing a sufficiently large bootable FAT partition
 (1GB should be enough).  Here is one way to set that up:
