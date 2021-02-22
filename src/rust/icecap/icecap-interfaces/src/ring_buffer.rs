@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use core::arch::aarch64::{__dsb,__dmb,SY};
+use core::arch::aarch64::{__dsb, __dmb, SY};
 use core::cmp::max;
 use core::ops::Deref;
 use core::ptr::{read_volatile, write_volatile};
