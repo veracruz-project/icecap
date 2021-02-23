@@ -288,8 +288,9 @@ impl VMFault {
 
     pub fn emulate_read(&self, ctx: &mut UserContext, val: VMFaultData) {
         assert!(self.is_read());
+        assert_eq!(self.width(), val.into());
         let gpr = index_gpr_mut(ctx, self.gpr_index());
-        *gpr = val.into();
+        *gpr = val.set(*gpr);
     }
 
 }
@@ -303,7 +304,18 @@ pub enum VMFaultWidth {
 }
 
 impl VMFaultWidth {
+
+    pub fn mask(self) -> u64 {
+        match self {
+            Self::Byte => 0xffff,
+            Self::HalfWord => 0xffff_ffff,
+            Self::Word => 0xffff_ffff_ffff_ffff,
+            Self::DoubleWord => !0,
+        }
+    }
+
     pub fn truncate(self, val: u64) -> VMFaultData {
+        let val = val & self.mask();
         match self {
             Self::Byte => VMFaultData::Byte(val as u8),
             Self::HalfWord => VMFaultData::HalfWord(val as u16),
@@ -321,13 +333,30 @@ pub enum VMFaultData {
     DoubleWord(u64),
 }
 
-impl Into<u64> for VMFaultData {
-    fn into(self) -> u64 {
-        match self {
-            Self::Byte(raw) => raw as u64,
-            Self::HalfWord(raw) => raw as u64,
-            Self::Word(raw) => raw as u64,
-            Self::DoubleWord(raw) => raw as u64,
+impl VMFaultData {
+    pub fn set(self, old_val: u64) -> u64 {
+        (old_val & !VMFaultWidth::from(self).mask()) | u64::from(self)
+    }
+}
+
+impl From<VMFaultData> for u64 {
+    fn from(x: VMFaultData) -> u64 {
+        match x {
+            VMFaultData::Byte(raw) => raw as u64,
+            VMFaultData::HalfWord(raw) => raw as u64,
+            VMFaultData::Word(raw) => raw as u64,
+            VMFaultData::DoubleWord(raw) => raw as u64,
+        }
+    }
+}
+
+impl From<VMFaultData> for VMFaultWidth {
+    fn from(x: VMFaultData) -> VMFaultWidth {
+        match x {
+            VMFaultData::Byte(_) => Self::Byte,
+            VMFaultData::HalfWord(_) => Self::HalfWord,
+            VMFaultData::Word(_) => Self::Word,
+            VMFaultData::DoubleWord(_) => Self::DoubleWord,
         }
     }
 }
