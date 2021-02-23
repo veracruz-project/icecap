@@ -3,11 +3,11 @@ use alloc::boxed::Box;
 use alloc::collections::{VecDeque, BTreeMap};
 
 use icecap_failure::Fallible;
-use icecap_sel4::{Fault, prelude::*};
+use icecap_sel4::{Fault, fault::*, prelude::*};
 use icecap_interfaces::Timer;
 
 use crate::{
-    asm, fault, biterate::biterate,
+    asm, biterate::biterate,
     event::Event,
     gic::{Distributor, IRQ, Action, GIC_DIST_SIZE},
 };
@@ -113,7 +113,7 @@ impl<F: Fn(u8)> VM<F> {
                     match fault {
                         Fault::VMFault(fault) => {
                             self.cspace.save_caller(self.fault_reply_cap).unwrap();
-                            self.handle_page_fault(fault::VMFault(fault));
+                            self.handle_page_fault(fault);
                             self.fault_reply_cap.send(MessageInfo::empty());
                         }
                         Fault::UnknownSyscall(fault) => {
@@ -150,11 +150,11 @@ impl<F: Fn(u8)> VM<F> {
         }
     }
 
-    fn handle_page_fault(&mut self, fault: fault::VMFault) {
-        let addr = fault.0.addr as usize;
+    fn handle_page_fault(&mut self, fault: VMFault) {
+        let addr = fault.addr as usize;
         if addr >= self.gic_dist_paddr && addr < self.gic_dist_paddr + GIC_DIST_SIZE {
             let offset = addr - self.gic_dist_paddr;
-            self.handle_dist_fault(fault, align_down(offset, 4));
+            self.handle_dist_fault(fault, offset);
         } else {
             // TODO pretty-print fault
             panic!("unhandled page fault at 0x{:x}", addr);
@@ -162,14 +162,19 @@ impl<F: Fn(u8)> VM<F> {
         self.advance();
     }
 
-    fn handle_dist_fault(&mut self, fault: fault::VMFault, offset: usize) {
-        // TODO bit width
-        // TODO clunky closure
-        let tcb = self.tcb;
-        let reg = (self.gic_dist.base_addr + offset) as *mut u32; // TODO u32
+    fn handle_dist_fault(&mut self, fault: VMFault, offset: usize) {
+        assert!(fault.is_valid());
+        assert!(fault.is_aligned());
+        assert!(fault.is_write());
+        let ctx = self.tcb.read_all_registers(false).unwrap();
+        let val: u32 = match fault.data(&ctx) {
+            VMFaultData::Word(val) => val,
+            _ => panic!(),
+        };
+        let reg = (self.gic_dist.base_addr + offset) as *mut u32;
         let act_on_set = |extra_offset: usize, mut f: Box<dyn FnMut(IRQ)>| {
-            let cur = unsafe { *reg as u64 };
-            let set = fault.get_data(tcb) & fault.get_data_mask() & !cur;
+            let cur = unsafe { *reg };
+            let set = val & !cur;
             for i in biterate(set) {
                 let irq: usize = i as usize + (offset - extra_offset) * 8;
                 f(irq as IRQ);
@@ -179,12 +184,11 @@ impl<F: Fn(u8)> VM<F> {
             Action::ReadOnly => {}
             Action::Passthru => {
                 unsafe {
-                    write_volatile(reg, fault.emulate(self.tcb, read_volatile(reg)));
+                    write_volatile(reg, val);
                 }
             }
             Action::Enable => {
-                unsafe { *reg = fault.emulate(self.tcb, *reg) }
-                match fault.get_data(self.tcb) {
+                match val {
                     0 => self.gic_dist.disable(),
                     1 => self.gic_dist.enable(),
                     _ => panic!(),
@@ -401,8 +405,4 @@ impl<F: Fn(u8)> VM<F> {
         ctx.pc += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
     }
-}
-
-fn align_down(x: usize, n: usize) -> usize {
-    x & !(n - 1)
 }

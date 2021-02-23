@@ -3,6 +3,7 @@ use crate::{
     Word,
     MessageInfo,
     MessageRegister,
+    UserContext,
 };
 
 // TODO
@@ -229,4 +230,179 @@ impl Fault {
             }
         }
     }
+}
+
+// TODO move elsewhere
+// TODO remove magic values
+
+const HSR_SYNDROME_VALID: Word = 1 << 24;
+const SRT_MASK: Word = 0x1f;
+
+impl VMFault {
+
+    pub fn is_valid(&self) -> bool {
+        self.fsr & HSR_SYNDROME_VALID != 0
+    }
+
+    pub fn valid_hsr(&self) -> u64 {
+        assert!(self.is_valid());
+        self.fsr
+    }
+
+    pub fn is_aligned(&self) -> bool {
+        let mask = match self.width() {
+            VMFaultWidth::Byte => 0x0,
+            VMFaultWidth::HalfWord => 0x1,
+            VMFaultWidth::Word => 0x3,
+            VMFaultWidth::DoubleWord => 0x7,
+        };
+        self.addr & mask == 0
+    } 
+
+    pub fn is_write(&self) -> bool {
+        self.valid_hsr() & (1 << 6) != 0
+    }
+
+    pub fn is_read(&self) -> bool {
+        !self.is_write()
+    }
+
+    pub fn width(&self) -> VMFaultWidth {
+        match (self.valid_hsr() >> 22) & 0x3 {
+            0 => VMFaultWidth::Byte,
+            1 => VMFaultWidth::HalfWord,
+            2 => VMFaultWidth::Word,
+            3 => VMFaultWidth::DoubleWord,
+            _ => unreachable!(),
+        }
+    }
+
+    fn gpr_index(&self) -> u64 {
+        (self.valid_hsr() >> 16) & SRT_MASK
+    }
+
+    pub fn data(&self, ctx: &UserContext) -> VMFaultData {
+        assert!(self.is_write());
+        self.width().truncate(read_gpr(ctx, self.gpr_index()))
+    }
+
+    pub fn emulate_read(&self, ctx: &mut UserContext, val: VMFaultData) {
+        assert!(self.is_read());
+        let gpr = index_gpr_mut(ctx, self.gpr_index());
+        *gpr = val.into();
+    }
+
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub enum VMFaultWidth {
+    Byte,
+    HalfWord,
+    Word,
+    DoubleWord,
+}
+
+impl VMFaultWidth {
+    pub fn truncate(self, val: u64) -> VMFaultData {
+        match self {
+            Self::Byte => VMFaultData::Byte(val as u8),
+            Self::HalfWord => VMFaultData::HalfWord(val as u16),
+            Self::Word => VMFaultData::Word(val as u32),
+            Self::DoubleWord => VMFaultData::DoubleWord(val as u64),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum VMFaultData {
+    Byte(u8),
+    HalfWord(u16),
+    Word(u32),
+    DoubleWord(u64),
+}
+
+impl Into<u64> for VMFaultData {
+    fn into(self) -> u64 {
+        match self {
+            Self::Byte(raw) => raw as u64,
+            Self::HalfWord(raw) => raw as u64,
+            Self::Word(raw) => raw as u64,
+            Self::DoubleWord(raw) => raw as u64,
+        }
+    }
+}
+
+fn read_gpr(ctx: &UserContext, ix: u64) -> u64 {
+    match ix {
+        0 => ctx.x0,
+        1 => ctx.x1,
+        2 => ctx.x2,
+        3 => ctx.x3,
+        4 => ctx.x4,
+        5 => ctx.x5,
+        6 => ctx.x6,
+        7 => ctx.x7,
+        8 => ctx.x8,
+        9 => ctx.x9,
+        10 => ctx.x10,
+        11 => ctx.x11,
+        12 => ctx.x12,
+        13 => ctx.x13,
+        14 => ctx.x14,
+        15 => ctx.x15,
+        16 => ctx.x16,
+        17 => ctx.x17,
+        18 => ctx.x18,
+        19 => ctx.x19,
+        20 => ctx.x20,
+        21 => ctx.x21,
+        22 => ctx.x22,
+        23 => ctx.x23,
+        24 => ctx.x24,
+        25 => ctx.x25,
+        26 => ctx.x26,
+        27 => ctx.x27,
+        28 => ctx.x28,
+        29 => ctx.x29,
+        30 => ctx.x30,
+        31 => 0,
+        _ => panic!(),
+    }    
+}
+
+fn index_gpr_mut(ctx: &mut UserContext, ix: u64) -> &mut u64 {
+    match ix {
+        0 => &mut ctx.x0,
+        1 => &mut ctx.x1,
+        2 => &mut ctx.x2,
+        3 => &mut ctx.x3,
+        4 => &mut ctx.x4,
+        5 => &mut ctx.x5,
+        6 => &mut ctx.x6,
+        7 => &mut ctx.x7,
+        8 => &mut ctx.x8,
+        9 => &mut ctx.x9,
+        10 => &mut ctx.x10,
+        11 => &mut ctx.x11,
+        12 => &mut ctx.x12,
+        13 => &mut ctx.x13,
+        14 => &mut ctx.x14,
+        15 => &mut ctx.x15,
+        16 => &mut ctx.x16,
+        17 => &mut ctx.x17,
+        18 => &mut ctx.x18,
+        19 => &mut ctx.x19,
+        20 => &mut ctx.x20,
+        21 => &mut ctx.x21,
+        22 => &mut ctx.x22,
+        23 => &mut ctx.x23,
+        24 => &mut ctx.x24,
+        25 => &mut ctx.x25,
+        26 => &mut ctx.x26,
+        27 => &mut ctx.x27,
+        28 => &mut ctx.x28,
+        29 => &mut ctx.x29,
+        30 => &mut ctx.x30,
+        _ => panic!(),
+    }    
 }

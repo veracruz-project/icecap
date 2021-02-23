@@ -1,6 +1,6 @@
 use num::{PrimInt, One};
 
-pub fn biterate(set: u64) -> Biterator<u64> {
+pub fn biterate<T: PrimInt + One>(set: T) -> Biterator<T> {
     Biterator(set)
 }
 

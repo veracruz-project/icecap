@@ -20,7 +20,7 @@ mod cspace;
 mod vspace;
 mod invoke;
 mod endpoint;
-mod fault;
+pub mod fault; // TODO
 mod debug;
 
 pub mod prelude;
@@ -74,6 +74,8 @@ pub use fault::{
     // fault types:
     NullFault, CapFault, UnknownSyscall, UserException,
     VMFault, VGICMaintenance, VCPUFault, VPPIEvent,
+    // helpers:
+    VMFaultWidth, VMFaultData,
 };
 
 pub use debug::{

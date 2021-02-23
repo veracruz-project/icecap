@@ -8,7 +8,6 @@
 extern crate alloc;
 
 mod run;
-mod fault;
 mod gic;
 mod asm;
 mod event;
