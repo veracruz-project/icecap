@@ -257,7 +257,7 @@ impl VMFault {
             VMFaultWidth::DoubleWord => 0x7,
         };
         self.addr & mask == 0
-    } 
+    }
 
     pub fn is_write(&self) -> bool {
         self.valid_hsr() & (1 << 6) != 0
@@ -307,9 +307,9 @@ impl VMFaultWidth {
 
     pub fn mask(self) -> u64 {
         match self {
-            Self::Byte => 0xffff,
-            Self::HalfWord => 0xffff_ffff,
-            Self::Word => 0xffff_ffff_ffff_ffff,
+            Self::Byte => 0xff,
+            Self::HalfWord => 0xffff,
+            Self::Word => 0xffff_ffff,
             Self::DoubleWord => !0,
         }
     }
@@ -396,7 +396,7 @@ fn read_gpr(ctx: &UserContext, ix: u64) -> u64 {
         30 => ctx.x30,
         31 => 0,
         _ => panic!(),
-    }    
+    }
 }
 
 fn index_gpr_mut(ctx: &mut UserContext, ix: u64) -> &mut u64 {
@@ -433,5 +433,5 @@ fn index_gpr_mut(ctx: &mut UserContext, ix: u64) -> &mut u64 {
         29 => &mut ctx.x29,
         30 => &mut ctx.x30,
         _ => panic!(),
-    }    
+    }
 }
