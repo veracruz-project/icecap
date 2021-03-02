@@ -113,7 +113,8 @@ $ mkfs.vfat /dev/sd<x>1 -n icecap-boot
 ```
 
 You will also need a USB to TTL adapter. Connect this to pins 14 and 15 on the
-Pi, and access it using a program like GNU Screen. For example:
+Pi (see [this image](docs/images/raspberry-pi-4-uart.jpg)), and access it using
+a program like GNU Screen. For example:
 
 ```bash
 $ screen /dev/ttyUSB0 115200
