@@ -1,4 +1,6 @@
 use core::ptr::{read_volatile, write_volatile};
+use core::convert::TryFrom;
+
 use alloc::boxed::Box;
 use alloc::collections::{VecDeque, BTreeMap};
 
@@ -134,7 +136,7 @@ impl<F: Fn(u8)> VM<F> {
                             self.handle_wfi();
                         }
                         Fault::VPPIEvent(fault) => {
-                            assert!(fault.irq == self.real_virtual_timer_irq);
+                            assert!(usize::try_from(fault.irq).unwrap() == self.real_virtual_timer_irq);
                             self.inject_irq(self.virtual_timer_irq);
                             reply(MessageInfo::empty());
                         }
@@ -356,7 +358,7 @@ impl<F: Fn(u8)> VM<F> {
             IRQType::Virtual => {
             }
             IRQType::Timer => {
-                self.vcpu.ack_vppi(irq).unwrap()
+                self.vcpu.ack_vppi(u64::try_from(irq).unwrap()).unwrap()
             }
             IRQType::Passthru(handler) => {
                 handler.ack().unwrap()

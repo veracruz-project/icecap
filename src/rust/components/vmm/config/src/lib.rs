@@ -7,7 +7,7 @@ use serde::{Serialize, Deserialize};
 use icecap_config_common::{DescTimerClient, DescMappedRingBuffer};
 use icecap_sel4_hack::prelude::*;
 
-pub type IRQ = u64;
+pub type IRQ = usize;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

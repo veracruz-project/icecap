@@ -1,9 +1,11 @@
+use core::convert::TryFrom;
+
 use icecap_sel4::prelude::*;
 
 #[derive(Debug)]
 pub enum Event {
     Timeout,
-    IRQ(u64),
+    IRQ(usize),
 }
 
 #[derive(Debug)]
@@ -27,7 +29,7 @@ impl Event {
             }
             EVENT_TYPE_IRQ => {
                 let irq = MR_0.get();
-                Self::IRQ(irq)
+                Self::IRQ(usize::try_from(irq).unwrap())
             }
             _ => {
                 panic!()
@@ -41,7 +43,7 @@ impl Event {
                 ep.send(MessageInfo::new(EVENT_TYPE_TIMER, 0, 0, 0));
             }
             Self::IRQ(irq) => {
-                MR_0.set(irq);
+                MR_0.set(u64::try_from(irq).unwrap());
                 ep.send(MessageInfo::new(EVENT_TYPE_IRQ, 0, 0, 1));
             }
         }

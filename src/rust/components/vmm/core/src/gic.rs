@@ -42,7 +42,7 @@ register_structs! {
     }
 }
 
-pub type IRQ = u64;
+pub type IRQ = usize;
 
 pub struct Distributor {
     pub base_addr: usize,

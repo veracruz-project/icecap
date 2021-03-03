@@ -10,7 +10,7 @@ use icecap_std::prelude::*;
 use icecap_std::realize_config::*;
 use icecap_vmm_config::Config;
 use icecap_vmm_core::{
-    run, IRQType, Event, biterate,
+    run, IRQType, Event, biterate, IRQ,
 };
 
 declare_main!(main);
@@ -38,7 +38,7 @@ pub fn main(config: Config) -> Fallible<()> {
                 irqs.insert(*irq, IRQType::Virtual);
             }
         }
-        let irq_vals: Vec<Option<u64>> = group.irqs.clone();
+        let irq_vals: Vec<Option<IRQ>> = group.irqs.clone();
         group.thread.start(move || {
             loop {
                 let badge = nfn.wait();
@@ -57,7 +57,7 @@ pub fn main(config: Config) -> Fallible<()> {
                 irqs.insert(irq.irq, IRQType::Passthru(irq.handler));
             }
         }
-        let irq_vals: Vec<Option<u64>> = group.irqs.iter().map(|irq| irq.as_ref().map(|x| x.irq)).collect();
+        let irq_vals: Vec<Option<IRQ>> = group.irqs.iter().map(|irq| irq.as_ref().map(|x| x.irq)).collect();
         group.thread.start(move || {
             loop {
                 let badge = nfn.wait();
