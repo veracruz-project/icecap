@@ -7,6 +7,7 @@ mk {
     icecap-failure
     icecap-sel4-sys
     icecap-sel4
+    icecap-sync
     icecap-runtime
     icecap-interfaces
     icecap-realize-config

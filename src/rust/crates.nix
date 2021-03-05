@@ -8,6 +8,7 @@
   icecap-failure-derive = ./icecap/icecap-failure/derive;
   icecap-backtrace = ./icecap/icecap-backtrace;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
+  icecap-sync = ./icecap/icecap-sync;
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
   icecap-interfaces = ./icecap/icecap-interfaces;

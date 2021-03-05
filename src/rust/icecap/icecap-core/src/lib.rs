@@ -9,6 +9,7 @@ pub use icecap_backtrace as backtrace;
 pub use icecap_failure as failure;
 pub use icecap_sel4_sys as sys;
 pub use icecap_sel4 as sel4;
+pub use icecap_sync as sync;
 pub use icecap_runtime as runtime;
 pub use icecap_interfaces as interfaces;
 pub use icecap_realize_config as realize_config;
