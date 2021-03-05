@@ -12,7 +12,7 @@ let
     version = "5.4.47";
     src = (mkIceCapSrc {
       repo = "linux";
-      rev = "2cd0e396605f7b4b91d42dcb100f8629103932ea"; # branch: icecap-rpi-5.4
+      rev = "2cd0e396605f7b4b91d42dcb100f8629103932ea"; # branch: icecap-rpi-5.4 (TODO sync with branch "icecap")
     }).store;
   };
 
