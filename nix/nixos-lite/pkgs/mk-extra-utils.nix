@@ -101,7 +101,7 @@ in
 
     copy_bin_and_libs () {
       [ -f "$out/bin/$(basename $1)" ] && rm "$out/bin/$(basename $1)"
-      cp -pdv $1 $out/bin
+      cp -pd $1 $out/bin
     }
 
     for f in ${busybox}/{s,}bin/*; do
@@ -114,7 +114,7 @@ in
     ${extraUtilsCommands}
 
     # Copy ld manually since it isn't detected correctly
-    cp -pv ${stdenv.cc.libc.out}/lib/ld*.so.? $out/lib
+    cp -p ${stdenv.cc.libc.out}/lib/ld*.so.? $out/lib
 
     # Copy all of the needed libraries
     find $out/bin $out/lib -type f | while read BIN; do
@@ -123,7 +123,7 @@ in
         TGT="$out/lib/$(basename $LIB)"
         if [ ! -f "$TGT" ]; then
           SRC="$(readlink -e $LIB)"
-          cp -pdv "$SRC" "$TGT"
+          cp -pd "$SRC" "$TGT"
         fi
       done
     done
