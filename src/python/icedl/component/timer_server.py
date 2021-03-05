@@ -1,4 +1,4 @@
-from capdl import ObjectType, Cap
+from capdl import ObjectType, Cap, ARMIRQMode
 from icedl.component.elf import ElfComponent
 from icedl.utils import *
 
@@ -41,9 +41,11 @@ class TimerServer(ElfComponent):
         if self.composition.plat == 'virt':
             paddr = 0x9090000
             irq = 208
+            trigger = ARMIRQMode.seL4_ARM_IRQ_LEVEL
         elif self.composition.plat == 'rpi4':
             paddr = 0xfe003000
             irq = 97
+            trigger = ARMIRQMode.seL4_ARM_IRQ_LEVEL
 
         self.align(PAGE_SIZE)
         self.skip(PAGE_SIZE)
@@ -54,7 +56,7 @@ class TimerServer(ElfComponent):
 
         irq_nfn = self.alloc(ObjectType.seL4_NotificationObject, name='irq_{}_nfn'.format(irq))
         irq_handler = self.cspace().alloc(
-                self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, notification=Cap(irq_nfn))
+                self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=Cap(irq_nfn, badge=1))
                 )
 
         config = {

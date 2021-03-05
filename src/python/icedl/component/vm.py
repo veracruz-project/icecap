@@ -362,7 +362,7 @@ class HostVM(VM):
 
     def get_passthru_irqs(self):
         if self.composition.plat == 'virt':
-            edge_triggered = frozenset()
+            edge_triggered = frozenset([78, 79])
             no = frozenset()
             whole = [78, 79]
         elif self.composition.plat == 'rpi4':

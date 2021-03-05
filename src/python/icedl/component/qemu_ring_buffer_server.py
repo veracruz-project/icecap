@@ -1,4 +1,4 @@
-from capdl import ObjectType, Cap
+from capdl import ObjectType, Cap, ARMIRQMode
 from icedl.composition import RingBufferObjects, RingBufferSideObjects
 from icedl.component.elf import ElfComponent
 from icedl.utils import *
@@ -36,10 +36,12 @@ class QEMURingBufferServer(ElfComponent):
         self.skip(PAGE_SIZE)
         self.skip(PAGE_SIZE)
 
+        trigger = ARMIRQMode.seL4_ARM_IRQ_LEVEL
+
         self.wait_obj = wait_obj
         self._arg = {
             'irq_handler': self.cspace().alloc(
-                self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, notification=Cap(wait_obj, badge=IRQ_BADGE))
+                self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=Cap(wait_obj, badge=IRQ_BADGE))
                 ),
             'dev_vaddr': dev_vaddr,
             'wait': self.cspace().alloc(wait_obj, read=True),

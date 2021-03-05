@@ -1,4 +1,4 @@
-from capdl import ObjectType, Cap
+from capdl import ObjectType, Cap, ARMIRQMode
 from icedl.component.elf import ElfComponent
 from icedl.utils import as_list, PAGE_SIZE
 
@@ -34,9 +34,11 @@ class SerialServer(ElfComponent):
         if self.composition.plat == 'virt':
             paddr = 0x9000000
             irq = 33
+            trigger = ARMIRQMode.seL4_ARM_IRQ_LEVEL
         elif self.composition.plat == 'rpi4':
             paddr = 0xfe215000
             irq = 125
+            trigger = ARMIRQMode.seL4_ARM_IRQ_LEVEL
 
         self.align(PAGE_SIZE)
         self.skip(PAGE_SIZE)
@@ -47,7 +49,7 @@ class SerialServer(ElfComponent):
 
         irq_nfn = self.alloc(ObjectType.seL4_NotificationObject, name='irq_{}_nfn'.format(irq))
         irq_handler = self.cspace().alloc(
-                self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, notification=Cap(irq_nfn))
+                self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=Cap(irq_nfn, badge=1))
                 )
 
         @as_list
