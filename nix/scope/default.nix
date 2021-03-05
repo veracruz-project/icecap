@@ -62,11 +62,10 @@ superCallPackage ./ocaml {} self //
   linuxKernelUnifiedSource = with linux-ng; doSource {
     version = "5.6.0";
     extraVersion = "-rc2";
-    src = builtins.fetchGit rec {
-      url = mkIceCapGitUrl "linux";
-      ref = mkIceCapKeepRef rev;
-      rev = "a30ea4342cbc2f7b3769eb24ad846b166a28a341";
-    };
+    src = (mkIceCapSrc {
+      repo = "linux";
+      rev = "cdc08e25a4231a900dc6f3e8ab50974ca17dc60b"; # branch icecap
+    }).store;
   };
 
   muslc = callPackage ./stdenv/musl {};
