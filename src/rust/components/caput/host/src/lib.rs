@@ -106,8 +106,18 @@ impl Host {
     pub fn send_msg(&self, msg: &Message) -> Result<()> {
         let (hdr, msg) = msg.mk_with_header();
         let mut endpoint = self.endpoint.lock().unwrap();
-        endpoint.write(&hdr)?;
-        endpoint.write(&msg)?;
+        endpoint.write_all(&hdr)?;
+        endpoint.write_all(&msg)?;
+        endpoint.flush()?;
+        Ok(())
+    }
+
+    pub fn send_content(&self, content: &[u8]) -> Result<()> {
+        let hdr = Message::mk_content_header(content);
+        let mut endpoint = self.endpoint.lock().unwrap();
+        endpoint.write_all(&hdr)?;
+        endpoint.write_all(content)?;
+        endpoint.flush()?;
         Ok(())
     }
 
@@ -116,7 +126,8 @@ impl Host {
         for (i, chunk) in spec.chunks(chunk_size).enumerate() {
             let start = i * chunk_size;
             let range = start .. start + chunk.len();
-            self.send_msg(&Message::Chunk { range, content: chunk.to_vec() })?;
+            self.send_msg(&Message::Chunk { range })?;
+            self.send_content(chunk)?;
         }
         self.send_msg(&Message::End)?;
         Ok(())

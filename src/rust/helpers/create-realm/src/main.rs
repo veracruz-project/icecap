@@ -11,7 +11,7 @@ fn main() -> io::Result<()> {
     let spec_path = &args[2];
     let spec = fs::read(spec_path)?;
     let host = Host::from_str(&host).unwrap();
-    const CHUNK_SIZE: usize = 4096 * 64 - Message::HEADER_SIZE;
+    const CHUNK_SIZE: usize = 4096 * 64;
     host.send_spec(&spec, CHUNK_SIZE).unwrap();
     Ok(())
 }

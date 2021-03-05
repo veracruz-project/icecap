@@ -67,7 +67,9 @@ in
 
       mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
       spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
-      ln -s "/mnt/$spec" /spec.bin
+      echo "cp -L /mnt/$spec /spec.bin..."
+      cp -L "/mnt/$spec" /spec.bin
+      echo "...done"
 
     '' + lib.optionalString (icecapPlat == "rpi4") ''
       (

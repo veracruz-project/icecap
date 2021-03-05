@@ -10,7 +10,7 @@ use serde::{Serialize, Deserialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Message {
     Start { size: usize },
-    Chunk { range: Range<usize>, content: Vec<u8> },
+    Chunk { range: Range<usize> },
     End,
 }
 
@@ -42,6 +42,10 @@ impl Message {
         let hdr = msg.len();
         let hdr = Self::mk_header(hdr);
         (hdr, msg)
+    }
+
+    pub fn mk_content_header(content: &[u8]) -> [u8; Self::HEADER_SIZE] {
+        HeaderFormat::to_le_bytes(content.len() as u32)
     }
 
     // // TODO #[cfg(not(target_os = "icecap"))] or with std

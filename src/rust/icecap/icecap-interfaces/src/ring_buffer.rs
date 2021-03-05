@@ -5,7 +5,7 @@ use core::arch::aarch64::{__dsb, __dmb, SY};
 use core::cmp::max;
 use core::ops::Deref;
 use core::ptr::{read_volatile, write_volatile};
-use core::sync::atomic::{compiler_fence, Ordering};
+use core::sync::atomic::{fence, Ordering};
 use alloc::vec::Vec;
 use byteorder::{ByteOrder, LittleEndian};
 use register::{mmio::*, register_bitfields, register_structs};
@@ -65,16 +65,16 @@ fn dmb_sy() {
     }
 }
 
-// HACK
 fn acquire() {
-    compiler_fence(Ordering::Acquire);
+    fence(Ordering::Acquire);
+    // HACK
     dsb_sy();
     dmb_sy();
 }
 
-// HACK
 fn release() {
-    compiler_fence(Ordering::Release);
+    fence(Ordering::Release);
+    // HACK
     dsb_sy();
     dmb_sy();
 }

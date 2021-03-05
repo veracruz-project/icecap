@@ -66,16 +66,17 @@ fn get_model(rb: &mut PacketRingBuffer, rb_wait: Notification, timer: &Timer) ->
         msg => bail!("unexpected message: {:?}", msg),
     };
     // let t_0 = timer.time();
-    // debug_println!("size: {}", size);
+    // debug_println!("spec size: {}", size);
     let mut buf = vec![0; size];
     loop {
         match Message::parse(&read_packet(rb, rb_wait)).map_err(err)? {
-            Message::Chunk { range, content } => {
-                // debug_println!("chunk: {:?}", range);
+            Message::Chunk { range } => {
+                let content = read_packet(rb, rb_wait);
+                assert_eq!(range.len(), content.len());
                 buf[range].copy_from_slice(&content);
             }
             Message::End => {
-                // debug_println!("end");
+                // debug_println!("spec end");
                 break;
             }
             msg => bail!("unexpected message: {:?}", msg),
