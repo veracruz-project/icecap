@@ -1,4 +1,4 @@
-use icecap_sel4::{LocalCPtr, Notification};
+use icecap_sel4::Notification;
 use core::sync::atomic::{AtomicIsize, Ordering, fence};
 use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
