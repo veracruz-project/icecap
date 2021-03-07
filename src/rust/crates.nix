@@ -62,7 +62,7 @@ lib.fix (self: with self; {
   icecap-vmm-core = ./components/vmm/core;
 
   caput = ./components/caput;
-  dyndl-realize = ./components/caput/dyndl-realize;
+  icecap-caput-core = ./components/caput/core;
 
   fault-handler = ./components/fault-handler;
 

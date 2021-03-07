@@ -21,3 +21,8 @@ pub fn blueprint_of(obj: &Obj) -> ObjectBlueprint {
 pub fn rights_of(rights: &Rights) -> CapRights {
     CapRights::new(rights.grant_reply, rights.grant, rights.read, rights.write)
 }
+
+pub fn size_bits_to_contain(x: usize) -> usize {
+    const TOTAL: usize = 8 * core::mem::size_of::<usize>();
+    TOTAL - (x.leading_zeros() as usize)
+}

@@ -4,7 +4,7 @@ from icedl.utils import PAGE_SIZE, BLOCK_SIZE, align_up, mk_fill
 
 class BaseComponent:
 
-    def __init__(self, composition, name):
+    def __init__(self, composition, name, update_guard_size=True):
         self.composition = composition
         self.key = name
         self.name = name
@@ -17,7 +17,8 @@ class BaseComponent:
         self.render_state().addr_spaces[self.key] = addr_space
 
         self.cnode_cap = Cap(self.cspace().cnode)
-        self.cspace().cnode.update_guard_size_caps.append(self.cnode_cap)
+        if update_guard_size:
+            self.cspace().cnode.update_guard_size_caps.append(self.cnode_cap)
 
     def render_state(self):
         return self.composition.render_state

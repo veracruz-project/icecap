@@ -93,6 +93,8 @@ pub mod obj {
 
         pub affinity: u64,
         pub prio: u8,
+        pub max_prio: u8,
+        pub resume: bool,
 
         pub ip: u64,
         pub sp: u64,

@@ -6,8 +6,8 @@ mkBin {
     icecap-std
     icecap-caput-types
     icecap-caput-config
+    icecap-caput-core
     dyndl-types
-    dyndl-realize
   ];
   dependencies = {
     pinecone = "*";

@@ -17,8 +17,8 @@ DEFAULT_STACK_SIZE = BLOCK_SIZE
 
 class ElfComponent(BaseComponent):
 
-    def __init__(self, composition, name, affinity=DEFAULT_AFFINITY, prio=DEFAULT_PRIO, max_prio=DEFAULT_MAX_PRIO, fault_handler=None):
-        super().__init__(composition, name)
+    def __init__(self, composition, name, affinity=DEFAULT_AFFINITY, prio=DEFAULT_PRIO, max_prio=DEFAULT_MAX_PRIO, fault_handler=None, **kwargs):
+        super().__init__(composition, name, **kwargs)
 
         elf_min_fname = '{}.elf'.format(self.name)
         elf_min_path = Path(self.config()['image']['min'])

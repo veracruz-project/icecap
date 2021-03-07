@@ -75,7 +75,7 @@ impl ObjectType {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ObjectBlueprint {
     Untyped { size_bits: usize },
     Endpoint,
