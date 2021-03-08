@@ -25,6 +25,7 @@ pub const BADGE_VM: Badge = 1;
 
 const SYS_PUTCHAR: Word = 1337;
 const SYS_PSCI: Word = 0;
+const SYS_CAPUT: Word = 1338;
 
 const CNTV_CTL_EL0_IMASK: u64 = 2 << 0;
 const CNTV_CTL_EL0_ENABLE: u64 = 1 << 0;
@@ -34,6 +35,7 @@ pub fn run(
     gic_dist_vaddr: usize, gic_dist_paddr: usize,
     irqs: BTreeMap<IRQ, IRQType>, real_virtual_timer_irq: IRQ, virtual_timer_irq: IRQ,
     vmm_endpoint: Endpoint,
+    caput_write: Endpoint,
     putchar: impl Fn(u8),
 ) -> Fallible<()> {
     let mut vm = VM {
@@ -53,6 +55,7 @@ pub fn run(
             overflow: VecDeque::new(),
         },
 
+        caput_write,
         putchar,
     };
 
@@ -90,6 +93,7 @@ struct VM<T> {
     is_wfi: bool,
     lr: LR,
 
+    caput_write: Endpoint,
     putchar: T,
 }
 
@@ -248,6 +252,9 @@ impl<F: Fn(u8)> VM<F> {
             SYS_PSCI => {
                 self.sys_psci();
             }
+            SYS_CAPUT => {
+                self.sys_caput();
+            }
             _ => {
                 panic!();
             }
@@ -302,6 +309,25 @@ impl<F: Fn(u8)> VM<F> {
                 panic!("psci fid {:x}", fid);
             }
         }
+        ctx.pc += 4;
+        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+    }
+
+    fn sys_caput(&self) {
+        let mut ctx = self.tcb.read_all_registers(false).unwrap();
+        debug_println!("SYS_CAPUT {:x?}", ctx);
+        let label = ctx.x4;
+        let length = ctx.x5;
+        MR_0.set(ctx.x0);
+        MR_1.set(ctx.x1);
+        MR_2.set(ctx.x2);
+        MR_3.set(ctx.x3);
+        let info = self.caput_write.call(MessageInfo::new(label, 0, 0, length));
+        ctx.x0 = match info.length() {
+            0 => 0,
+            1 => MR_0.get(),
+            _ => panic!(),
+        };
         ctx.pc += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
     }

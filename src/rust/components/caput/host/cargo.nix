@@ -5,4 +5,7 @@ mk {
   localDependencies = with localCrates; [
     icecap-caput-types
   ];
+  dependencies = {
+    libc = "*";
+  };
 }

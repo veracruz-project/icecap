@@ -29,6 +29,8 @@ pub struct Config {
     pub reply_ep: Endpoint,
     pub tcb: TCB,
     pub vcpu: VCPU,
+
+    pub caput_ep_write: Option<Endpoint>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

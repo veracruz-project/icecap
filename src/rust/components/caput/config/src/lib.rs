@@ -19,6 +19,7 @@ pub struct Config {
     pub untyped: Vec<DynamicUntyped>,
     pub externs: ConfigExterns,
 
+    pub host_ep_read: Endpoint,
     pub host_rb: DescMappedRingBuffer,
     pub timer: DescTimerClient,
     pub ctrl_ep_read: Endpoint,

@@ -29,6 +29,8 @@ class Caput(ElfComponent):
             'paddr': 0,
             'device': False,
         }
+
+        self.host_ep = self.alloc(ObjectType.seL4_EndpointObject, 'host_ep')
         ctrl_ep = self.alloc(ObjectType.seL4_EndpointObject, 'ctrl_ep')
 
         self.align(BLOCK_SIZE)
@@ -70,11 +72,13 @@ class Caput(ElfComponent):
                     'cptr': self.cspace().alloc(ctrl_ep, write=True, grantreply=True),
                     },
                 },
+            'host_ep_read': self.cspace().alloc(self.host_ep, read=True),
             'ctrl_ep_read': self.cspace().alloc(ctrl_ep, read=True),
             }
 
-    def map_host(self, objs, ready_obj=None):
+    def map_host(self, objs):
         self._arg['host_rb'] = self.map_ring_buffer(objs)
+        self.primary_thread.tcb['bound_notification'] = Cap(objs.read.nfn, read=True)
 
     def add_extern(self, ident, ty, cptr):
         self._arg['externs'][ident] = {

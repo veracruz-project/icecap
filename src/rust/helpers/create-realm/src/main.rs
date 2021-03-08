@@ -10,8 +10,9 @@ fn main() -> io::Result<()> {
     let host = &args[1];
     let spec_path = &args[2];
     let spec = fs::read(spec_path)?;
+    let num_nodes = 4; // TOOD
     let host = Host::from_str(&host).unwrap();
     const CHUNK_SIZE: usize = 4096 * 64;
-    host.send_spec(&spec, CHUNK_SIZE).unwrap();
+    host.run(&spec, num_nodes, CHUNK_SIZE).unwrap();
     Ok(())
 }

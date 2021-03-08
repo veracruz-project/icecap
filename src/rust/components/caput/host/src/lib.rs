@@ -9,7 +9,11 @@ use std::sync::Mutex;
 use std::error::Error;
 use std::fmt;
 
-pub use icecap_caput_types::Message;
+use libc::{syscall, c_long};
+
+pub use icecap_caput_types::{Message, calls};
+
+pub const SYS_ICECAP: c_long = 436;
 
 pub enum Endpoint {
     TCP(SocketAddr),
@@ -121,21 +125,38 @@ impl Host {
         Ok(())
     }
 
-    pub fn send_spec(&self, spec: &[u8], chunk_size: usize) -> Result<()> {
-        self.send_msg(&Message::Start { size: spec.len() })?;
+    pub fn send_spec(&self, realm_id: usize, spec: &[u8], chunk_size: usize) -> Result<()> {
         for (i, chunk) in spec.chunks(chunk_size).enumerate() {
-            let start = i * chunk_size;
-            let range = start .. start + chunk.len();
-            self.send_msg(&Message::Chunk { range })?;
+            let offset = i * chunk_size;
+            self.send_msg(&Message::SpecChunk { realm_id, offset })?;
             self.send_content(chunk)?;
         }
-        self.send_msg(&Message::End)?;
         Ok(())
     }
 
-    pub fn send_spec_from_file(&self, path: &impl AsRef<Path>, chunk_size: usize) -> Result<()> {
+    pub fn send_spec_from_file(&self, realm_id: usize, path: &impl AsRef<Path>, chunk_size: usize) -> Result<()> {
         let spec = fs::read(path)?;
-        self.send_spec(&spec, chunk_size)
+        self.send_spec(realm_id, &spec, chunk_size)
     }
 
+    pub fn declare(&self, spec_size: usize) -> Result<usize> {
+        println!("declare");
+        Ok(unsafe {
+            syscall(SYS_ICECAP, spec_size as c_long, 0, 0, 0, calls::DECLARE as c_long, 2)
+        } as usize)
+    }
+
+    pub fn realize(&self, realm_id: usize, num_nodes: usize) -> Result<()> {
+        unsafe {
+            syscall(SYS_ICECAP, realm_id as c_long, num_nodes as c_long, 0, 0, calls::REALIZE as c_long, 3)
+        };
+        Ok(())
+    }
+
+    pub fn run(&self, spec: &[u8], num_nodes: usize, chunk_size: usize) -> Result<()> {
+        let realm_id = self.declare(spec.len())?;
+        self.send_spec(realm_id, spec, chunk_size)?;
+        self.realize(realm_id, num_nodes)?;
+        Ok(())
+    }
 }

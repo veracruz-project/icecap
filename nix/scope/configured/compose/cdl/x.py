@@ -37,4 +37,6 @@ caput.add_extern_ring_buffer('realm_vm_con', serial_server.connect_raw('realm_vm
 serial_server.connect(host_vmm)
 caput.add_extern_ring_buffer('realm_vmm_con', serial_server.connect_raw('realm_vmm_con'))
 
+host_vmm._arg['caput_ep_write'] = host_vmm.cspace().alloc(caput.host_ep, write=True, grantreply=True)
+
 composition.complete()
