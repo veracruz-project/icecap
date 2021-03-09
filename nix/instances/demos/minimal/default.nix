@@ -1,10 +1,19 @@
 { mkInstance
+, compose, stripElfSplit
 , icecapSrcAbsSplit
 , libs
-, splitDebug
 }:
 
 mkInstance (self: with self; {
+
+  composition = compose {
+    src = ./cdl;
+    config = {
+      components = {
+        minimal.image = stripElfSplit "${minimal}/bin/minimal.elf";
+      };
+    };
+  };
 
   minimal = libs.mk {
     name = "minimal";
@@ -13,13 +22,5 @@ mkInstance (self: with self; {
       icecap-runtime
     ];
   };
-
-  config = {
-    components = {
-      minimal.image = splitDebug "${minimal}/bin/minimal.elf";
-    };
-  };
-
-  src = ./cdl;
 
 })

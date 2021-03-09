@@ -93,7 +93,7 @@ impl RawRingBuffer<RingBuffer> {
         let spec = dt.root.get_size_spec();
         let mut node = Node::new();
         node.set_compatible("icecap,ring-buffer");
-        node.set_property("name", self.name.as_str());
+        node.set_property("name", self.name.as_str()); // TODO rename. "name" is reserved
         node.set_property("id", self.id);
         node.set_property_iter("interrupts", &[
             0, self.irq, 1,

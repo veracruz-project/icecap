@@ -1,5 +1,5 @@
 { lib, buildPackages, callPackage
-, linux-ng, linuxHeaders
+, uboot-ng, linux-ng, linuxHeaders
 , busybox
 }:
 
@@ -50,9 +50,20 @@ superCallPackage ./ocaml {} self //
 
   deviceTree = callPackage ./device-tree {};
 
-  virtUtils = callPackage ./plat-utils/virt.nix {};
+  virtUtils = callPackage ./plat-utils/virt {};
+  rpi4Utils = callPackage ./plat-utils/rpi4 {};
 
   globalCrates = callPackage ./crates {};
+
+  uBoot = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
+
+  uBootUnifiedSource = with uboot-ng; doSource {
+    version = "2019.07";
+    src = (mkIceCapSrc {
+      repo = "u-boot";
+      rev = "9626efe72a2200d3dc6852ce41e4c34f791833bf"; # branch icecap-host
+    }).store;
+  };
 
   linuxKernel = rec {
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
@@ -135,6 +146,10 @@ superCallPackage ./ocaml {} self //
 
   intToHex = callPackage ./nix-utils/int-to-hex.nix {};
   toposort = callPackage ./nix-utils/toposort {};
+
+  stripElf = callPackage ./nix-utils/strip-elf.nix {};
+  stripElfSplit = callPackage ./nix-utils/strip-elf-split.nix {};
+  stripElfSplitTrivial = callPackage ./nix-utils/strip-elf-split-trivial.nix {};
 
   mkCpio = callPackage ./nix-utils/mk-cpio.nix {};
   mkCpioFrom = callPackage ./nix-utils/mk-cpio-from.nix {};

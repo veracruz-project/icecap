@@ -1,5 +1,5 @@
 { lib, writeText, writeScript
-, linuxKernel
+, linuxKernel, uBoot
 , icecapPlat, icecapExtraConfig
 , pkgs_linux
 

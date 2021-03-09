@@ -15,7 +15,7 @@ let
   kernel_ = kernel;
 in
 
-{ payload, extraLinks ? {}, kernel ? kernel_, icecapPlatArgs ? {} }:
+{ composition, payload, extraLinks ? {}, icecapPlatArgs ? {}, allDebugFiles }:
 
 with uboot-ng;
 
@@ -25,6 +25,8 @@ with (
 ) (icecapPlatArgs.${icecapPlat} or {});
 
 let
+
+  inherit (composition) image;
 
   source = doSource {
     version = "2019.07";
@@ -43,13 +45,13 @@ let
 
   scriptPartition = "mmc 0:1";
   scriptAddr = "0x100000";
-  scriptName = "script.uimg";
-  buddyAddr = "0x30000000";
+  scriptName = "script.outer.uimg";
+  icecapAddr = "0x30000000";
   scriptUimg = uboot-ng-mkimage {
     type = "script";
     data = writeText "script.txt" ''
-      load mmc 0:1 ${buddyAddr} /buddy.elf
-      bootelf ${buddyAddr}
+      load mmc 0:1 ${icecapAddr} /icecap.elf
+      bootelf ${icecapAddr}
     '';
   };
 
@@ -73,21 +75,24 @@ let
     enable_jtag_gpio=1
   '';
 
-  image = elfloader {
-    app-elf = payload;
-    inherit kernel;
-  };
-
   boot = runCommand "boot" {} ''
     mkdir $out
-    mkdir $out/overlays
     ln -s ${raspbian.latest.boot}/*.* $out
-    rm $out/kernel*.img
+    mkdir $out/overlays
     ln -s ${raspbian.latest.boot}/overlays/*.* $out/overlays
+
     ln -sf ${configTxt} $out/config.txt
+
+    rm $out/kernel*.img
     ln -s ${ubootBin} $out/kernel8.img
-    ln -s ${image}/bin/elfloader $out/buddy.elf
     ln -s ${scriptUimg} $out/${scriptName}
+
+    ln -s ${image} $out/icecap.elf
+    mkdir $out/payload
+    ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+      ln -s ${v} $out/payload/${k}
+    '') payload)}
+
     ${extraBootPartitionCommands}
   '';
 
@@ -114,14 +119,12 @@ let
   sync = syncSimple boot;
 
   links = {
-    "image.elf" = image.elf;
-    "kernel.elf" = image.kernel-elf;
-    "kernel.dtb" = image.kernel-dtb;
-    "app.elf" = image.app-elf;
-    "boot" = boot;
     run = sync;
+    inherit boot;
     "show-backtrace" = "${show-backtrace.nativeDrv}/bin/show-backtrace";
-  } // extraLinks;
+  } // composition.debugFiles
+    // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
+    // extraLinks;
 
 in
 runCommand "run" {

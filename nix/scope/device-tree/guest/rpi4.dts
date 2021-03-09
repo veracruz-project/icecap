@@ -21,6 +21,15 @@
         };
     };
 
+    psci {
+        compatible = "arm,psci-0.2";
+        method = "hvc";
+    };
+
+    icecap_vmm {
+        compatible = "icecap,vmm";
+    };
+
     intc: gic400@40041000 {
         compatible = "arm,gic-400";
         interrupt-controller;

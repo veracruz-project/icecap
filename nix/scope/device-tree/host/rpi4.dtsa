@@ -2,6 +2,7 @@
 
     /delete-node/ cpus;
     /delete-node/ memory;
+    /delete-node/ memory@0;
     /delete-node/ chosen;
 
     soc {
@@ -29,6 +30,14 @@
     psci {
         compatible = "arm,psci-0.2";
         method = "hvc";
+    };
+
+    icecap_vmm {
+        compatible = "icecap,vmm";
+    };
+
+    chosen {
+        stdout-path = "/icecap_vmm";
     };
 
     cpus {

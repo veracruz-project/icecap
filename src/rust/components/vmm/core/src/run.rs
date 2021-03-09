@@ -111,7 +111,6 @@ impl<F: Fn(u8)> VM<F> {
                 }
                 BADGE_VM => {
                     let fault = Fault::get(info);
-                    // debug_println!("fault: {:?}", fault);
                     match fault {
                         Fault::VMFault(fault) => {
                             self.cspace.save_caller(self.fault_reply_cap).unwrap();
@@ -132,6 +131,8 @@ impl<F: Fn(u8)> VM<F> {
                         }
                         Fault::VCPUFault(fault) => {
                             // We only handle WFI/WFE
+                            let ctx = self.tcb.read_all_registers(false).unwrap();
+                            debug_println!("bb {:x?}", &ctx);
                             assert!(fault.hsr >> 26 == 1);
                             self.handle_wfi();
                         }

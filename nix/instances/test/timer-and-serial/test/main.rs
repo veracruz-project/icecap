@@ -10,6 +10,7 @@ use serde::{Serialize, Deserialize};
 use icecap_std::prelude::*;
 use icecap_std::config_common::{DescTimerClient, DescMappedRingBuffer};
 use icecap_std::realize_config::{realize_timer_client, realize_mapped_ring_buffer};
+use icecap_start_generic::declare_generic_main;
 
 declare_generic_main!(main);
 

@@ -21,6 +21,15 @@
         };
     };
 
+    psci {
+        compatible = "arm,psci-0.2";
+        method = "hvc";
+    };
+
+    icecap_vmm {
+        compatible = "icecap,vmm";
+    };
+
     intc: intc@8000000 {
         compatible = "arm,cortex-a15-gic";
         interrupt-controller;

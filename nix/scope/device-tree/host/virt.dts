@@ -16,6 +16,14 @@
         method = "hvc";
     };
 
+    icecap_vmm {
+        compatible = "icecap,vmm";
+    };
+
+    chosen {
+        stdout-path = "/icecap_vmm";
+    };
+
     cpus {
         #address-cells = <1>;
         #size-cells = <0>;

@@ -1,13 +1,8 @@
-{ lib, writeScript, runCommand, buildPackages, elfloader, kernel
-, virtUtils
-, runPkgs
-, icecapExtraConfig
+{ lib, writeScript, runCommand, runPkgs
 , show-backtrace
+, virtUtils
+, icecapExtraConfig
 }:
-
-let
-  kernel_ = kernel;
-in
 
 let
   basicScript = { kernel, extraArgs ? [] }:
@@ -26,36 +21,32 @@ let
 
 in
 
-{ payload, extraLinks ? {}, kernel ? kernel_, icecapPlatArgs ? {} }:
+{ composition, payload, extraLinks ? {}, icecapPlatArgs ? {}, allDebugFiles }:
 
 let
 
-  image = elfloader {
-    app-elf = payload;
-    inherit kernel;
-  };
+  inherit (composition) image;
 
   run = basicScript {
-    kernel = image.elf;
+    kernel = image;
   };
 
   links = {
-    inherit run;
-    "image.elf" = image.elf;
-    "kernel.elf" = image.kernel-elf;
-    "kernel.dtb" = image.kernel-dtb;
-    "app.elf" = image.app-elf;
+    inherit run image;
     "show-backtrace" = "${show-backtrace.nativeDrv}/bin/show-backtrace";
-  } // extraLinks;
+  } // composition.debugFiles
+    // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
+    // extraLinks;
 
 in
-runCommand "run" {
-  passthru = {
-    inherit image;
-  };
-} ''
+runCommand "run" {} ''
   mkdir $out
   ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
     ln -s ${v} $out/${k}
   '') links)}
+
+  mkdir $out/payload
+  ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+    ln -s ${v} $out/payload/${k}
+  '') payload)}
 ''

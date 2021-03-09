@@ -1,6 +1,7 @@
-{ hostPlatform, runCommandCC
+{ hostPlatform
 , buildRustPackageIncrementally
 , crateUtils, globalCrates
+, stripElfSplit
 }:
 
 self: with self; {
@@ -38,15 +39,9 @@ self: with self; {
   buildIceCapCrateBin = { rootCrate, ... }@args:
     let
       self = buildIceCapCrate args;
-      full = "${self}/bin/${rootCrate.name}.elf";
-      min = runCommandCC "${rootCrate.name}.stripped.elf" {} ''
-        $STRIP -s ${full} -o $out
-      '';
     in
       self // {
-        split = {
-          inherit full min;
-        };
+        split = stripElfSplit "${self}/bin/${rootCrate.name}.elf";
       };
 
 }

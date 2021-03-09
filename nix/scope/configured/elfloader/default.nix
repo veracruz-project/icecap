@@ -8,31 +8,19 @@
 , dtc, python3, python3Packages
 
 , runCMake, libcpio
-, runCommandCC
 }:
 
-let
-  kernel_ = kernel;
-in
-
-{ app-elf, kernel ? kernel_ }:
+{ app-elf, kernel-elf, kernel-dtb, kernel-source ? kernel.source }:
 
 let
-
-  strip = elf: runCommandCC "stripped.elf" {} ''
-    $STRIP -s ${elf} -o $out
-  '';
-
-  kernel-elf = "${kernel}/boot/kernel.elf";
-  kernel-dtb = "${kernel}/boot/kernel.dtb";
 
   images = mkCpioObj {
     symbolName = "_archive_start";
     libName = "images";
     archive-cpio = mkCpio [
-      { path = "kernel.elf"; contents = strip kernel-elf; }
+      { path = "kernel.elf"; contents = kernel-elf; }
       { path = "kernel.dtb"; contents = kernel-dtb; }
-      { path = "app.elf"; contents = strip app-elf; }
+      { path = "app.elf"; contents = app-elf; }
     ];
   };
 
@@ -41,11 +29,11 @@ let
   } ''
     install -D -t $out ${repos.rel.seL4_tools "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
     patchShebangs --build $out
-    cp -r ${kernel.source}/tools/hardware $out
+    cp -r ${kernel-source}/tools/hardware $out
   '';
 
 in
-lib.fix (self: runCMake stdenvBoot rec {
+runCMake stdenvBoot rec {
   baseName = "elfloader";
   name = "sel4-elfloader";
 
@@ -81,8 +69,7 @@ lib.fix (self: runCMake stdenvBoot rec {
   '';
 
   passthru = {
-    inherit kernel kernel-elf kernel-dtb app-elf;
-    elf = "${self}/bin/elfloader";
+    inherit kernel-source kernel-elf kernel-dtb app-elf;
   };
 
-})
+}

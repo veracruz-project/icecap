@@ -21,6 +21,7 @@ rec {
     "-smp" (toString vmCores)
     "-m" (toString vmMemorySize)
     "-nographic"
+    "-semihosting-config" "enable=on,target=native"
     "-device" "virtio-net-device,netdev=netdev0"
     "-device" "virtio-9p-device,mount_tag=store,fsdev=store"
   ];

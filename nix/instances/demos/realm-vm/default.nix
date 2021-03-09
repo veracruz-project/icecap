@@ -1,32 +1,13 @@
 { mkInstance
-, icecapSrcAbsSplit
-, buildIceCapCrateBin, crateUtils, globalCrates
-, deviceTree, bins
+, deviceTree, bins, uBoot
+, compose, mkIceDL, mkDynDLSpec
 , icecapPlat
-, mkIceDL, mkDynDLSpec
 }:
 
 mkInstance (self: with self; {
 
   linux = callPackage ./linux {};
   inherit (linux) host realm;
-
-  config = {
-    components = {
-      fault_handler.image = bins.fault-handler.split;
-      timer_server.image = bins.timer-server.split;
-      serial_server.image = bins.serial-server.split;
-
-      caput.image = bins.caput.split;
-      caput.heap_size = 128 * 1048576;
-
-      host_vmm.image = bins.vmm.split;
-      host_vm.bootargs = host.bootargs;
-      host_vm.kernel = host.linuxImage;
-      host_vm.initrd = host.initrd;
-      host_vm.dtb = deviceTree.host.${icecapPlat};
-    };
-  };
 
   ddl = mkIceDL {
     src = ./ddl;
@@ -46,10 +27,19 @@ mkInstance (self: with self; {
     root = "${ddl}/links";
   };
 
-  src = ./cdl;
-
   icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
     ln -s ${spec} $out/spec.bin
   '';
 
+  payload = uBoot.${icecapPlat}.mkDefaultPayload {
+    linuxImage = host.linuxImage;
+    initramfs = host.initrd;
+    dtb = composition.host-dtb;
+    bootargs = host.bootargs;
+  };
+
 })
+
+  # composition = compose {
+  #   u-boot = /home/x/i/local/u-boot/u-boot.bin;
+  # };

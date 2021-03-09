@@ -1,3 +1,5 @@
+# TODO update
+
 { mkInstance
 , icecapSrcAbsSplit
 , buildIceCapCrateBin, crateUtils, globalCrates
@@ -7,7 +9,7 @@
 , kernel, repos
 }:
 
-mkInstance (self: with self; {
+mkInstance (self: with self; if true then {} else {
 
   test = buildIceCapCrateBin {
     rootCrate = crateUtils.mkGeneric {

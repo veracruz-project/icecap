@@ -32,8 +32,13 @@ class Addrs:
             self.ram_base    = 0x10000000
             self.ram_size    = 0x10000000
             self.kernel_addr = 0x10080000
-            self.dtb_addr    = 0x12000000
-            self.initrd_addr = 0x18000000
+            if is_host:
+                # TODO find out why u-boot was clobbering fdt in lower memory
+                self.dtb_addr    = 0x18f00000
+                self.initrd_addr = 0x19000000
+            else:
+                self.dtb_addr    = 0x12000000
+                self.initrd_addr = 0x19000000
 
             self.gic_paddr = 0xff841000
             self.gic_dist_paddr = self.gic_paddr + 0x0000
@@ -67,10 +72,15 @@ class VM(BaseComponent):
     def get_addrs(self):
         return Addrs(self.composition.plat, is_host=False)
 
+    def set_chosen_default(self):
+        return True
+
     def __init__(self, composition, name, vmm_name, affinity, gic_vcpu_frame):
         super().__init__(composition, name)
         self.kernel_fname = self.composition.register_file('{}_kernel.img'.format(self.name), self.config()['kernel'])
-        self.initrd_fname = self.composition.register_file('{}_initrd.img'.format(self.name), self.config()['initrd'])
+        if 'initrd' in self.config():
+            self.initrd_fname = self.composition.register_file('{}_initrd.img'.format(self.name), self.config()['initrd'])
+
         self.devices = []
 
         self.addrs = self.get_addrs()
@@ -116,16 +126,19 @@ class VM(BaseComponent):
     def device_tree(self):
         # TODO
         mod = {
-            'chosen': {
-                'bootargs': self.config()['bootargs'],
-                'initrd': {
-                    'start': self.addrs.initrd_addr,
-                    'end': self.addrs.initrd_addr + self.composition.get_file(self.initrd_fname).stat().st_size,
-                    },
-                },
             'devices': self.devices,
             'num_cpus': 1, # TODO
             }
+
+        if self.config().get('set_chosen', self.set_chosen_default()):
+            mod['chosen'] = {}
+            if 'bootargs' in self.config():
+                mod['chosen']['bootargs'] = self.config()['bootargs']
+            if 'initrd' in self.config():
+                mod['chosen']['initrd'] = {
+                    'start': self.addrs.initrd_addr,
+                    'end': self.addrs.initrd_addr + self.composition.get_file(self.initrd_fname).stat().st_size,
+                    }
 
         mod_path = self.composition.out_dir / '{}_device_tree_mod.json'.format(self.name)
         with mod_path.open('w') as f:
@@ -143,11 +156,12 @@ class VM(BaseComponent):
 
     def pre_finalize(self):
         self.device_tree()
-        self.map_ram(self.addrs.ram_base, self.addrs.ram_size, [
-            (self.addrs.kernel_addr, self.composition.get_file(self.kernel_fname).stat().st_size, self.kernel_fname),
-            (self.addrs.initrd_addr, self.composition.get_file(self.initrd_fname).stat().st_size, self.initrd_fname),
-            (self.addrs.dtb_addr, self.composition.get_file(self.dtb_fname).stat().st_size, self.dtb_fname),
-            ])
+        mappings = []
+        mappings.append((self.addrs.kernel_addr, self.composition.get_file(self.kernel_fname).stat().st_size, self.kernel_fname))
+        if 'initrd' in self.config():
+            mappings.append((self.addrs.initrd_addr, self.composition.get_file(self.initrd_fname).stat().st_size, self.initrd_fname))
+        mappings.append((self.addrs.dtb_addr, self.composition.get_file(self.dtb_fname).stat().st_size, self.dtb_fname))
+        self.map_ram(self.addrs.ram_base, self.addrs.ram_size, mappings)
 
     def finalize(self):
         pages = PageCollection(self.name, arch=self.composition.arch.capdl_name(), infer_asid=False, vspace_root=self.addr_space().vspace_root)
@@ -356,6 +370,9 @@ class HostVM(VM):
 
     def get_addrs(self):
         return Addrs(self.composition.plat, is_host=True)
+
+    def set_chosen_default(self):
+        return False
 
     def map_phys(self):
         return True

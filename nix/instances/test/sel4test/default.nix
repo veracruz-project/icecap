@@ -1,4 +1,5 @@
-{ mkRun
+{ mkInstance
+, compose, stripElfSplit
 , sel4test
 , repos, kernel
 }:
@@ -13,16 +14,16 @@
 #   });
 # in
 
-self: with self;
+mkInstance (self: with self; {
 
-{
+  allDebugFiles = false;
 
-  run = mkRun {
-    inherit kernel;
-    payload = "${sel4test.sel4test-driver}/bin/sel4test-driver";
-    extraLinks = {
-      "tests.elf" = "${sel4test.sel4test-tests}/bin/sel4test-tests";
-    };
+  extraLinks = {
+    "tests.elf" = "${sel4test.sel4test-tests}/bin/sel4test-tests";
   };
 
-}
+  composition = compose {
+    app-elf = stripElfSplit "${sel4test.sel4test-driver}/bin/sel4test-driver";
+  };
+
+})

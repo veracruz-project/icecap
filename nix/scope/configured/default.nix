@@ -22,6 +22,8 @@ superCallPackage ./rust {} self //
   kernelPlat = cmakeConfig.KernelPlatform.value;
   selectIceCapPlat = attrs: attrs.${icecapPlat};
 
+  inherit (callPackage ./icecap {}) compose icecapFirmware mkIceDL;
+
   _sel4 = callPackage ./sel4-kernel {};
   # can be overridden individually
   kernel = _sel4;

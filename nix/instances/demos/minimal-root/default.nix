@@ -1,9 +1,16 @@
 { mkInstance
+, compose, stripElfSplit
 , icecapSrcAbsSplit
-, libs, strip
+, libs
 }:
 
 mkInstance (self: with self; {
+
+  allDebugFiles = false;
+
+  composition = compose {
+    app-elf = stripElfSplit "${minimal}/bin/minimal.elf";
+  };
 
   minimal = libs.mkRoot {
     name = "minimal";
@@ -13,7 +20,5 @@ mkInstance (self: with self; {
       icecap-utils
     ];
   };
-
-  payload = strip "${minimal}/bin/minimal.elf";
 
 })
