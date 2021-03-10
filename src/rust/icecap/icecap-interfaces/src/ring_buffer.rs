@@ -7,7 +7,6 @@ use core::ops::Deref;
 use core::ptr::{read_volatile, write_volatile};
 use core::sync::atomic::{fence, Ordering};
 use alloc::vec::Vec;
-use byteorder::{ByteOrder, LittleEndian};
 use register::{mmio::*, register_bitfields, register_structs};
 
 use icecap_sel4::Notification;
@@ -244,20 +243,17 @@ impl PacketRingBuffer {
         Self::HEADER_SIZE + buf.len()
     }
 
-    fn serialize_header(n: usize) -> Vec<u8> {
-        let mut writer = vec![0; Self::HEADER_SIZE];
-        LittleEndian::write_uint(writer.as_mut_slice(), n as u64, Self::HEADER_SIZE);
-        writer
+    fn serialize_header(n: usize) -> [u8; Self::HEADER_SIZE] {
+        (n as u32).to_le_bytes()
     }
 
     pub fn poll(&self) -> Option<usize> {
         if self.rb.poll_read() < Self::HEADER_SIZE {
             return None
         }
-        let mut header = vec![0; Self::HEADER_SIZE];
-        self.rb.peek(Self::HEADER_SIZE, header.as_mut_slice());
-        let n = LittleEndian::read_uint(header.as_slice(), Self::HEADER_SIZE) as usize;
-        // icecap_sel4::debug_println!("n: {:x}", n);
+        let mut header = [0; Self::HEADER_SIZE];
+        self.rb.peek(Self::HEADER_SIZE, &mut header);
+        let n = u32::from_le_bytes(header) as usize;
         if n > self.rb.poll_read() - Self::HEADER_SIZE {
             return None
         }
@@ -277,7 +273,7 @@ impl PacketRingBuffer {
         if self.rb.poll_write() < Self::packet_size(buf) {
             return false;
         }
-        self.rb.write(Self::serialize_header(buf.len()).as_slice());
+        self.rb.write(&Self::serialize_header(buf.len()));
         self.rb.write(buf);
         true
     }

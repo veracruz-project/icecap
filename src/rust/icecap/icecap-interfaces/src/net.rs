@@ -5,7 +5,6 @@
 use core::cmp::min;
 use alloc::collections::VecDeque;
 use alloc::vec::Vec;
-use byteorder::{ByteOrder, LittleEndian};
 use crate::ring_buffer::PacketRingBuffer;
 
 pub const DEFAULT_RING_BUFFER_SIZE: usize = 0x100000;

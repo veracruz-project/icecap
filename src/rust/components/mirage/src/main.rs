@@ -20,6 +20,7 @@ use serde::{Serialize, Deserialize};
 use icecap_std::prelude::*;
 use icecap_std::config_common::*;
 use icecap_std::realize_config::*;
+use icecap_start_generic::declare_generic_main;
 use sys::c_types::*;
 
 mod c;

@@ -6,7 +6,8 @@
   icecap-sel4-derive = ./icecap/icecap-sel4/derive;
   icecap-failure = ./icecap/icecap-failure;
   icecap-failure-derive = ./icecap/icecap-failure/derive;
-  icecap-backtrace = ./icecap/icecap-backtrace;
+  # icecap-backtrace = ./icecap/icecap-backtrace; # TODO make configurable
+  icecap-backtrace = ./icecap/icecap-backtrace/dummy;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-sync = ./icecap/icecap-sync;
   icecap-fdt = ./icecap/icecap-fdt;
@@ -16,6 +17,7 @@
   icecap-runtime = ./icecap/icecap-runtime;
   icecap-runtime-config = ./icecap/icecap-runtime/config;
   icecap-start = ./icecap/icecap-start;
+  icecap-start-generic = ./icecap/icecap-start/generic;
 
   icecap-config-common = ./icecap/icecap-config-common;
   icecap-realize-config = ./icecap/icecap-realize-config;

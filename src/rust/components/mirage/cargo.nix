@@ -5,6 +5,7 @@ mkBin {
   localDependencies = with localCrates; [
     icecap-linux-syscall
     icecap-std
+    icecap-start-generic
   ];
   dependencies = {
     serde = serdeMin;

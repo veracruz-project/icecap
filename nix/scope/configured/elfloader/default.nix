@@ -8,6 +8,7 @@
 , dtc, python3, python3Packages
 
 , runCMake, libcpio
+, runCommandCC
 }:
 
 let
@@ -18,6 +19,10 @@ in
 
 let
 
+  strip = elf: runCommandCC "stripped.elf" {} ''
+    $STRIP -s ${elf} -o $out
+  '';
+
   kernel-elf = "${kernel}/boot/kernel.elf";
   kernel-dtb = "${kernel}/boot/kernel.dtb";
 
@@ -25,9 +30,9 @@ let
     symbolName = "_archive_start";
     libName = "images";
     archive-cpio = mkCpio [
-      { path = "kernel.elf"; contents = kernel-elf; }
+      { path = "kernel.elf"; contents = strip kernel-elf; }
       { path = "kernel.dtb"; contents = kernel-dtb; }
-      { path = "app.elf"; contents = app-elf; }
+      { path = "app.elf"; contents = strip app-elf; }
     ];
   };
 
@@ -69,6 +74,10 @@ lib.fix (self: runCMake stdenvBoot rec {
     set(FOO_KERNEL_TOOLS ${kernel.source}/tools CACHE STRING "")
     set(FOO_HARDWARE_GEN ${py}/hardware_gen.py CACHE STRING "")
     set(platform_yaml ${libsel4}/sel4-aux/platform_gen.yaml CACHE STRING "")
+  '';
+
+  extraPostInstall = ''
+    $STRIP -s $out/bin/elfloader
   '';
 
   passthru = {

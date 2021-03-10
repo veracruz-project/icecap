@@ -21,5 +21,4 @@ pub use icecap_interfaces::{
 
 pub use icecap_start::{
     declare_main,
-    declare_generic_main,
 };

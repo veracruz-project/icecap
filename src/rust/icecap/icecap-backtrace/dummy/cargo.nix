@@ -1,13 +1,11 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-interfaces";
+  name = "icecap-backtrace";
   localDependencies = with localCrates; [
-    icecap-failure
-    icecap-sel4
+    icecap-backtrace-types
   ];
   dependencies = {
     log = "*";
-    register = "*";
   };
 }
