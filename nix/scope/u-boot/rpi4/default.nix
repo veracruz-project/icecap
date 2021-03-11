@@ -22,7 +22,7 @@ let
 
   scriptPartition = "mmc 0:1";
   scriptAddr = "0x10070000";
-  scriptName = "script.uimg";
+  scriptName = "load-host.script.uimg";
   scriptPath = "payload/${scriptName}";
 
   bootcmd = "load ${scriptPartition} ${scriptAddr} ${scriptPath}; source ${scriptAddr}";

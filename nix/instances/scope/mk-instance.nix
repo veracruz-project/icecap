@@ -14,12 +14,12 @@ with self; {
   payload = {};
   allDebugFiles = true;
 
+  extraLinks = {};
+  icecapPlatArgs = {};
+
   run = mkRun ({
     inherit composition payload allDebugFiles;
-  } // lib.optionalAttrs (lib.hasAttr "extraLinks" attrs) {
-    inherit (attrs) extraLinks;
-  } // lib.optionalAttrs (lib.hasAttr "icecapPlatArgs" attrs) {
-    inherit (attrs) icecapPlatArgs;
+    inherit extraLinks icecapPlatArgs;
   });
 
 } // attrs
