@@ -1,9 +1,7 @@
 { lib, callPackage
 }:
 
-{ icecapPlat
-, cmakeConfig
-}:
+config:
 
 let
   superCallPackage = callPackage;
@@ -17,10 +15,13 @@ in
 
 superCallPackage ./rust {} self //
 {
+  inherit config;
 
-  inherit icecapPlat cmakeConfig;
-  kernelPlat = cmakeConfig.KernelPlatform.value;
+  icecapPlat = config.plat;
   selectIceCapPlat = attrs: attrs.${icecapPlat};
+
+  cmakeConfig = callPackage ./cmake-config.nix {};
+  kernelPlat = cmakeConfig.KernelPlatform.value;
 
   inherit (callPackage ./icecap {}) compose icecapFirmware mkIceDL;
 

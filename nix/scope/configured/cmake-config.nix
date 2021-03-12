@@ -1,15 +1,15 @@
-{ configUtils, icecapPlat, repos }:
+{ configUtils, repos
+, config, icecapPlat
+}:
 
 with configUtils;
 
 let
+
   kernelPlat = {
     virt = "virt-aarch64";
     rpi4 = "bcm2711";
   }.${icecapPlat};
-in
-
-rec {
 
   common = {
     KernelArch = STRING "arm";
@@ -28,6 +28,15 @@ rec {
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
   };
 
+in {
+
+  icecap = common // {
+    KernelRootCNodeSizeBits = STRING "18"; # default: 12
+    # KernelStackBits = STRING "15";
+    # KernelPrinting = ON;
+    # KernelUserStackTraceLength = 32;
+  };
+
   sel4test = common // {
     KernelDomainSchedule = STRING (repos.rel.sel4test "domain_schedule.c");
     Sel4testHaveCache = {
@@ -37,11 +46,4 @@ rec {
     LibUtilsDefaultZfLogLevel = STRING "3"; # 0-5, 0 is most verbose
   };
 
-  icecap = common // {
-    KernelRootCNodeSizeBits = STRING "18"; # default: 12
-    # KernelStackBits = STRING "15";
-    # KernelPrinting = ON;
-    # KernelUserStackTraceLength = 32;
-  };
-
-}
+}.${config.profile}

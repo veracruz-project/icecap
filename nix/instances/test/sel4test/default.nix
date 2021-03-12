@@ -18,12 +18,8 @@ mkInstance (self: with self; {
 
   allDebugFiles = false;
 
-  extraLinks = {
-    "tests.elf" = "${sel4test.sel4test-tests}/bin/sel4test-tests";
-  };
+  extraLinks = sel4test.extraDebugFiles;
 
-  composition = compose {
-    app-elf = stripElfSplit "${sel4test.sel4test-driver}/bin/sel4test-driver";
-  };
+  inherit (sel4test) composition;
 
 })

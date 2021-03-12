@@ -1,9 +1,18 @@
 { stdenvToken, mkStdenv
+, compose, stripElfSplit
 }:
 
 self: with self;
 
 rec {
+
+  composition = compose {
+    app-elf = stripElfSplit "${sel4test-driver}/bin/sel4test-driver";
+  };
+
+  extraDebugFiles = {
+    "tests.elf" = "${sel4test-tests}/bin/sel4test-tests";
+  };
 
   runCMake = callPackage ./build-support/run-cmake.nix {};
   runCMakeToken = runCMake stdenvToken;

@@ -15,18 +15,19 @@ let
   icecapExtraConfig = icecapExtraConfigDefault // icecapExtraConfigOverrides;
 
 in
-icecap.byIceCapPlat (icecapPlat:
+icecap.byIceCapPlat (plat:
   let
 
-    config = callPackage ./config.nix {
-      inherit icecapPlat;
+    configs = lib.mapAttrs (profile: _: {
+      inherit plat profile;
+    }) {
+      icecap = null;
+      sel4test = null;
     };
 
-    mkInstance = f: { cmakeConfig }: args:
+    mkInstance = f: config: args:
       let
-        configuredScope = icecap.configure {
-          inherit cmakeConfig icecapPlat;
-        };
+        configuredScope = icecap.configure config;
         instancesScope = lib.makeScope configuredScope.newScope (configuredScope.callPackage ./scope {
           inherit icecapExtraConfig;
         });
@@ -36,32 +37,31 @@ icecap.byIceCapPlat (icecapPlat:
         iscope = instancesScope;
       } // instanceScope;
 
-    mkBasicInstanceWith = cmakeConfig: f: args: mkInstance f {
-      inherit cmakeConfig;
-    } args;
+    mkBasicInstanceWith = config: f: args: mkInstance f config args;
 
-    mkBasicInstance = cmakeConfig: f: mkBasicInstanceWith cmakeConfig f {};
+    mkBasicInstance = config: f: mkBasicInstanceWith config f {};
 
   in {
 
     test = {
-      sel4test = mkBasicInstance config.sel4test ./test/sel4test;
-      host = mkBasicInstance config.icecap ./test/host;
-      host-and-adjacent-vm = mkBasicInstance config.icecap ./test/host-and-adjacent-vm;
-      timer-and-serial = mkBasicInstance config.icecap ./test/timer-and-serial;
-      timer-and-serial-from-realm = mkBasicInstance config.icecap ./test/timer-and-serial-from-realm;
+      sel4test = mkBasicInstance configs.sel4test ./test/sel4test;
+      host = mkBasicInstance configs.icecap ./test/host;
+      host-and-adjacent-vm = mkBasicInstance configs.icecap ./test/host-and-adjacent-vm;
+      timer-and-serial = mkBasicInstance configs.icecap ./test/timer-and-serial;
+      timer-and-serial-from-realm = mkBasicInstance configs.icecap ./test/timer-and-serial-from-realm;
     };
 
     demos = {
-      minimal-root = mkBasicInstance config.icecap ./demos/minimal-root;
-      minimal = mkBasicInstance config.icecap ./demos/minimal;
-      realm-vm = mkBasicInstance config.icecap ./demos/realm-vm;
-      mirage = mkBasicInstance config.icecap ./demos/mirage;
+      minimal-root = mkBasicInstance configs.icecap ./demos/minimal-root;
+      minimal = mkBasicInstance configs.icecap ./demos/minimal;
+      realm-vm = mkBasicInstance configs.icecap ./demos/realm-vm;
+      mirage = mkBasicInstance configs.icecap ./demos/mirage;
     };
 
     bench = {
       baseline = lib.makeScope newScope (callPackage ./bench/baseline {
-        inherit icecapPlat icecapExtraConfig;
+        inherit icecapExtraConfig;
+        icecapPlat = plat;
       });
     };
 
