@@ -9,10 +9,7 @@
 #[macro_use]
 extern crate alloc;
 
-#[cfg(target_os = "icecap")]
 use icecap_failure as failure;
-#[cfg(not(target_os = "icecap"))]
-use failure;
 
 mod chosen;
 mod icecap;

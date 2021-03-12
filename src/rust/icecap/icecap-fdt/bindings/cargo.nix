@@ -1,21 +1,16 @@
-{ mk, localCrates, serdeMin }:
+{ mk, localCrates, hostPlatform, serdeMin }:
 
 mk {
   name = "icecap-fdt-bindings";
   localDependencies = with localCrates; [
     icecap-fdt
-  ];
-  phantomLocalDependencies = with localCrates;[
+  ] ++ (if hostPlatform.system == "aarch64-none" then [
     icecap-failure
-  ];
+  ] else [
+    icecap-failure_dummy
+  ]);
   dependencies = {
     log = "*";
     serde = serdeMin;
-  };
-  target."cfg(target_os = \"icecap\")".dependencies = {
-    icecap-failure = { path = "../icecap-failure"; };
-  };
-  target."cfg(not(target_os = \"icecap\"))".dependencies = {
-    failure = { version = "*"; };
   };
 }

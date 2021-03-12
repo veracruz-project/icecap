@@ -1,17 +1,13 @@
-{ mk, localCrates }:
+{ mk, localCrates, hostPlatform }:
 
 mk {
   name = "icecap-fdt";
-  phantomLocalDependencies = with localCrates; [
+  localDependencies = with localCrates; if hostPlatform.system == "aarch64-none" then [
     icecap-failure
+  ] else [
+    icecap-failure_dummy
   ];
   dependencies = {
     log = "*";
-  };
-  target."cfg(target_os = \"icecap\")".dependencies = {
-    icecap-failure = { path = "../icecap-failure"; };
-  };
-  target."cfg(not(target_os = \"icecap\"))".dependencies = {
-    failure = { version = "*"; };
   };
 }

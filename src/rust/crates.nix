@@ -69,4 +69,5 @@ rec {
   icecap-sel4_dummy = ./icecap/icecap-sel4/dummy;
   icecap-runtime_dummy = ./icecap/icecap-runtime/dummy;
   icecap-backtrace_dummy = ./icecap/icecap-backtrace/dummy;
+  icecap-failure_dummy = ./icecap/icecap-failure/dummy;
 }
