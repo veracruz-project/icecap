@@ -4,9 +4,13 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_sel4_hack::prelude::*;
+use icecap_sel4::prelude::*;
 
-pub use icecap_sel4_hack as sel4;
+pub use icecap_sel4 as sel4;
+pub use icecap_runtime::{
+    self as runtime,
+    Thread,
+};
 
 // TODO rename these types
 

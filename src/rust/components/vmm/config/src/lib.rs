@@ -4,8 +4,7 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_config_common::{DescTimerClient, DescMappedRingBuffer};
-use icecap_sel4_hack::prelude::*;
+use icecap_config_common::{sel4::prelude::*, Thread, DescTimerClient, DescMappedRingBuffer};
 
 pub type IRQ = usize;
 

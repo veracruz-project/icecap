@@ -8,7 +8,7 @@ with lib;
 let
 
   localCrates = mapAttrs (name: path:
-    let crate = callCrate path; in assert name == crate.name; crate
+    let crate = callCrate path; in assert head (splitString "_" name) == crate.name; crate
    ) (import (icecapSrcRelRaw "rust/crates.nix"));
 
   callCrate = path:

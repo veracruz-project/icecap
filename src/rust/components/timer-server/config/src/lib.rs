@@ -4,7 +4,7 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_config_common::sel4::prelude::*;
+use icecap_config_common::{sel4::prelude::*, Thread};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

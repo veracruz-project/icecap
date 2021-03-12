@@ -1,4 +1,4 @@
-{
+rec {
   icecap-std = ./icecap/icecap-std;
   icecap-core = ./icecap/icecap-core;
   icecap-sel4 = ./icecap/icecap-sel4;
@@ -7,7 +7,7 @@
   icecap-failure = ./icecap/icecap-failure;
   icecap-failure-derive = ./icecap/icecap-failure/derive;
   # icecap-backtrace = ./icecap/icecap-backtrace; # TODO make configurable
-  icecap-backtrace = ./icecap/icecap-backtrace/dummy;
+  icecap-backtrace = icecap-backtrace_dummy; # TODO make configurable
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-sync = ./icecap/icecap-sync;
   icecap-fdt = ./icecap/icecap-fdt;
@@ -21,8 +21,6 @@
 
   icecap-config-common = ./icecap/icecap-config-common;
   icecap-realize-config = ./icecap/icecap-realize-config;
-  icecap-sel4-hack = ./icecap/icecap-config-common/icecap-sel4-hack;
-  icecap-sel4-hack-meta = ./icecap/icecap-config-common/icecap-sel4-hack-meta;
 
   icecap-std-external = ./std-support/icecap-std-external;
   icecap-std-impl = ./std-support/icecap-std-impl;
@@ -66,4 +64,9 @@
   serialize-runtime-config = ./helpers/serialize-runtime-config;
   show-backtrace = ./helpers/show-backtrace;
   generated-module-hack = ./helpers/generated-module-hack;
+
+
+  icecap-sel4_dummy = ./icecap/icecap-sel4/dummy;
+  icecap-runtime_dummy = ./icecap/icecap-runtime/dummy;
+  icecap-backtrace_dummy = ./icecap/icecap-backtrace/dummy;
 }
