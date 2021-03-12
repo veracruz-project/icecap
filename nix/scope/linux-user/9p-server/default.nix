@@ -1,8 +1,8 @@
-{ buildRustPackageIncrementally, globalCrates
+{ buildRustPackageIncrementally, outerGlobalCrates
 , pkgconfig, dbus
 }:
 
-with globalCrates;
+with outerGlobalCrates;
 
 buildRustPackageIncrementally rec {
   rootCrate = icecap-p9-server-linux-cli;

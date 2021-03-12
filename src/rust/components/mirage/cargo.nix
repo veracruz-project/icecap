@@ -1,4 +1,4 @@
-{ mkBin, localCrates, serdeMin }:
+{ mkBin, localCrates, serdeMin, stdenv }:
 
 mkBin {
   name = "mirage";
@@ -11,7 +11,7 @@ mkBin {
     serde = serdeMin;
     serde_json = { version = "*"; default-features = false; features = [ "alloc" ]; };
   };
-  buildScript = { stdenv }: {
+  buildScript = {
     # doesn't work because of circular dependencies. rustc deduplicates these
     # rustc-link-lib = [
     #   "icecap_mirage_glue" "mirage" "sel4asmrun" "c" "gcc"

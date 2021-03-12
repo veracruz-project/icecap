@@ -1,10 +1,18 @@
 { hostPlatform
-, buildRustPackageIncrementally
-, crateUtils, globalCrates
+, buildRustPackageIncrementally, crateUtils
+, mkGlobalCrates
 , stripElfSplit
+, stdenv
 }:
 
 self: with self; {
+
+  globalCrates = mkGlobalCrates {
+    seL4 = true;
+    extraArgs = {
+      inherit stdenv icecap-sel4-sys-gen;
+    };
+  };
 
   icecap-sel4-sys-gen = callPackage ./icecap-sel4-sys-gen {};
   inherit (icecap-sel4-sys-gen) liboutline;

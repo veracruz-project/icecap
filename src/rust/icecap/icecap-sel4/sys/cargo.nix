@@ -1,8 +1,8 @@
-{ mk }:
+{ mk, icecap-sel4-sys-gen }:
 
 mk {
   name = "icecap-sel4-sys";
-  buildScript = { icecap-sel4-sys-gen }: {
+  buildScript = {
     rustc-env.GEN_RS = icecap-sel4-sys-gen;
     rustc-link-lib = [
       "outline" "sel4"

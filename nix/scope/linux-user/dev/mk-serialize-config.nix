@@ -1,6 +1,6 @@
 { lib
 , buildRustPackageIncrementally
-, crateUtils, globalCrates
+, crateUtils, outerGlobalCrates
 , linkFarm, writeText
 }:
 
@@ -28,7 +28,7 @@ buildRustPackageIncrementally rec {
     localDependencies = lib.optionals (crate != null) [
       crate
     ] ++ [
-      globalCrates.icecap-serialize-config
+      outerGlobalCrates.icecap-serialize-config
     ];
     dependencies = {
       serde = "*";

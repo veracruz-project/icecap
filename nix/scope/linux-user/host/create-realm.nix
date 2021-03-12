@@ -1,8 +1,8 @@
 { buildRustPackageIncrementally
-, globalCrates
+, outerGlobalCrates
 }:
 
-with globalCrates;
+with outerGlobalCrates;
 
 buildRustPackageIncrementally rec {
   rootCrate = create-realm;

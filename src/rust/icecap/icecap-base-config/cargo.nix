@@ -1,13 +1,10 @@
-{ mk, localCrates, serdeMin, hostPlatform }:
+{ mk, localCrates, serdeMin }:
 
 mk {
   name = "icecap-base-config";
-  localDependencies = with localCrates; if hostPlatform.system == "aarch64-none" then [
+  localDependencies = with localCrates; [
     icecap-sel4
     icecap-runtime
-  ] else [
-    icecap-sel4_dummy
-    icecap-runtime_dummy
   ];
   dependencies = {
     serde = serdeMin;

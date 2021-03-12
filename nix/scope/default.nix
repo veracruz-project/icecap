@@ -64,7 +64,8 @@ superCallPackage ./ocaml {} self //
   virtUtils = callPackage ./plat-utils/virt {};
   rpi4Utils = callPackage ./plat-utils/rpi4 {};
 
-  globalCrates = callPackage ./crates {};
+  mkGlobalCrates = callPackage ./crates {};
+  outerGlobalCrates = mkGlobalCrates {};
 
   uBoot = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
 
@@ -123,32 +124,32 @@ superCallPackage ./ocaml {} self //
   serialize-fault-handler-config = mkSerializeConfig {
     name = "fault-handler";
     type = "icecap_fault_handler_config::Config";
-    crate = globalCrates.icecap-fault-handler-config;
+    crate = outerGlobalCrates.icecap-fault-handler-config;
   };
   serialize-timer-server-config = mkSerializeConfig {
     name = "timer-server";
     type = "icecap_timer_server_config::Config";
-    crate = globalCrates.icecap-timer-server-config;
+    crate = outerGlobalCrates.icecap-timer-server-config;
   };
   serialize-serial-server-config = mkSerializeConfig {
     name = "serial-server";
     type = "icecap_serial_server_config::Config";
-    crate = globalCrates.icecap-serial-server-config;
+    crate = outerGlobalCrates.icecap-serial-server-config;
   };
   serialize-qemu-ring-buffer-server-config = mkSerializeConfig {
     name = "qemu-ring-buffer-server";
     type = "icecap_qemu_ring_buffer_server_config::Config";
-    crate = globalCrates.icecap-qemu-ring-buffer-server-config;
+    crate = outerGlobalCrates.icecap-qemu-ring-buffer-server-config;
   };
   serialize-vmm-config = mkSerializeConfig {
     name = "vmm";
     type = "icecap_vmm_config::Config";
-    crate = globalCrates.icecap-vmm-config;
+    crate = outerGlobalCrates.icecap-vmm-config;
   };
   serialize-caput-config = mkSerializeConfig {
     name = "caput";
     type = "icecap_caput_config::Config";
-    crate = globalCrates.icecap-caput-config;
+    crate = outerGlobalCrates.icecap-caput-config;
   };
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};

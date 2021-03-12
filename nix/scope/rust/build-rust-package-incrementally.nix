@@ -107,13 +107,7 @@ let
     {
       target.${hostPlatform.config} = crateUtils.clobber (map (crate:
       if crate.buildScript == null then {} else {
-        ${"dummy-link-${crate.name}"} =
-          if isFunction crate.buildScript
-          then builtins.removeAttrs (callPackage crate.buildScript {}) [
-            "override"
-            "overrideDerivation"
-            "overrideAttrs"
-          ] else crate.buildScript;
+        ${"dummy-link-${crate.name}"} = crate.buildScript;
       }) layer);
     }
   ];

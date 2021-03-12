@@ -1,10 +1,8 @@
 { mkInstance, lib
 , compose
 , icecapSrcAbsSplit
-, bins, liboutline
-, buildIceCapCrateBin, crateUtils, globalCrates
-, deviceTree, icecapPlat, mkFilesObj
-, kernel, repos
+, bins
+, deviceTree, icecapPlat
 }:
 
 mkInstance (self: with self; {

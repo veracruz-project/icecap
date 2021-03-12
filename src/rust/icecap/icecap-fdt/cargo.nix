@@ -1,11 +1,9 @@
-{ mk, localCrates, hostPlatform }:
+{ mk, localCrates }:
 
 mk {
   name = "icecap-fdt";
-  localDependencies = with localCrates; if hostPlatform.system == "aarch64-none" then [
+  localDependencies = with localCrates; [
     icecap-failure
-  ] else [
-    icecap-failure_dummy
   ];
   dependencies = {
     log = "*";
