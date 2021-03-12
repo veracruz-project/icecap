@@ -6,7 +6,7 @@ use core::ops::Range;
 use alloc::collections::btree_map::BTreeMap;
 use alloc::string::String;
 use serde::{Serialize, Deserialize};
-use icecap_config_common::{sel4::prelude::*, DescTimerClient};
+use icecap_base_config::{sel4::prelude::*, DescTimerClient};
 use icecap_qemu_ring_buffer_server_config::Client as QEMUClient;
 use dyndl_types::ExternObj;
 

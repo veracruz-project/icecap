@@ -9,8 +9,8 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
-use icecap_std::config_common::{DescMappedRingBuffer, DescTimerClient};
-use icecap_std::realize_config::{realize_mapped_ring_buffer_resume, realize_timer_client};
+use icecap_std::base_config::{DescMappedRingBuffer, DescTimerClient};
+use icecap_std::base_config_realize::{realize_mapped_ring_buffer_resume, realize_timer_client};
 
 use serde::{Serialize, Deserialize};
 

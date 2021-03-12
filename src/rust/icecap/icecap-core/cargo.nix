@@ -10,8 +10,8 @@ mk {
     icecap-sync
     icecap-runtime
     icecap-interfaces
-    icecap-realize-config
-    icecap-config-common
+    icecap-base-config-realize
+    icecap-base-config
     icecap-start
   ];
 }

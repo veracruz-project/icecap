@@ -14,7 +14,7 @@ use alloc::collections::btree_map::BTreeMap;
 use serde::{Serialize, Deserialize};
 
 use icecap_std::prelude::*;
-use icecap_std::realize_config::{realize_mapped_ring_buffer, realize_timer_client};
+use icecap_std::base_config_realize::{realize_mapped_ring_buffer, realize_timer_client};
 use icecap_caput_config::*;
 use icecap_caput_types::Message;
 use dyndl_types::{Model, ExternObj};

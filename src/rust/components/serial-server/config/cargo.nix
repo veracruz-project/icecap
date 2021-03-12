@@ -3,7 +3,7 @@
 mk {
   name = "icecap-serial-server-config";
   localDependencies = with localCrates; [
-    icecap-config-common
+    icecap-base-config
   ];
   dependencies = {
     serde = serdeMin;

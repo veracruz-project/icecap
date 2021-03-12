@@ -19,8 +19,8 @@ rec {
   icecap-start = ./icecap/icecap-start;
   icecap-start-generic = ./icecap/icecap-start/generic;
 
-  icecap-config-common = ./icecap/icecap-config-common;
-  icecap-realize-config = ./icecap/icecap-realize-config;
+  icecap-base-config = ./icecap/icecap-base-config;
+  icecap-base-config-realize = ./icecap/icecap-base-config/realize;
 
   icecap-std-external = ./std-support/icecap-std-external;
   icecap-std-impl = ./std-support/icecap-std-impl;

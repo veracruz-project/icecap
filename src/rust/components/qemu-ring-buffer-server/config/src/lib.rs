@@ -4,8 +4,8 @@ extern crate alloc;
 
 use serde::{Serialize, Deserialize};
 
-use icecap_config_common::DescMappedRingBuffer;
-use icecap_config_common::sel4::prelude::*;
+use icecap_base_config::DescMappedRingBuffer;
+use icecap_base_config::sel4::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
