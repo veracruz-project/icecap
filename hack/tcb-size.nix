@@ -6,9 +6,18 @@ let
     stat --format="%s" ${path} > $out
   '');
 
-in with components;
-  size loader-elf.min -
-    (with config.components;
-      size host_vmm.image.min + size host_vm.kernel + size host_vm.dtb +
-      size timer_server.image.min + size serial_server.image.min
-    )
+  kb = bytes: import (top.dev.runCommand "size.nix" {
+    nativeBuildInputs = [ top.dev.python ];
+  } ''
+    python -c 'print("\"{}K\"".format(${toString bytes} // 1024))' > $out
+  '');
+
+  untrusted = with components.config.components;
+    size host_vmm.image.min + size host_vm.kernel + size host_vm.dtb
+    + size timer_server.image.min + size serial_server.image.min;
+
+  bytes = size components.loader-elf.min - untrusted;
+
+in kb bytes
+  
+    
