@@ -1,4 +1,4 @@
-{ lib, callPackage
+{ lib, callPackage, makeOverridable'
 }:
 
 config:
@@ -23,7 +23,8 @@ superCallPackage ./rust {} self //
   cmakeConfig = callPackage ./cmake-config.nix {};
   kernelPlat = cmakeConfig.KernelPlatform.value;
 
-  inherit (callPackage ./icecap {}) compose icecapFirmware mkIceDL;
+  compose = callPackage ./compose {};
+  icecapFirmware = makeOverridable' compose {};
 
   _sel4 = callPackage ./sel4-kernel {};
   # can be overridden individually
@@ -41,6 +42,7 @@ superCallPackage ./rust {} self //
   capdl-loader-lib = callPackage ./capdl/capdl-loader-lib.nix {};
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
+  mkIceDL = callPackage ./capdl/mk-icedl.nix {};
 
   stdenvIceCap = mkStdenv (callPackage ./sel4-user/c/libc-wrapper.nix {});
 
