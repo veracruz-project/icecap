@@ -33,7 +33,7 @@ self: with self; {
         thirdPartyCrates
         [ icecap-sel4-sys ]
       ] ++ extraLayers;
-      debug = true;
+      debug = false;
       dontStrip = true;
       dontPatchELF = true;
       hardeningDisable = [ "all" ];
