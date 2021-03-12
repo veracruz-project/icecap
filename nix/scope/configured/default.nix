@@ -20,7 +20,7 @@ superCallPackage ./rust {} self //
   icecapPlat = config.plat;
   selectIceCapPlat = attrs: attrs.${icecapPlat};
 
-  cmakeConfig = callPackage ./cmake-config.nix {};
+  cmakeConfig = callPackage ./sel4-kernel/cmake-config.nix {};
   kernelPlat = cmakeConfig.KernelPlatform.value;
 
   compose = callPackage ./compose {};
