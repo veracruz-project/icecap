@@ -22,7 +22,6 @@ let
 in
 doKernel rec {
   inherit source config;
-  # modules = true;
   modules = false;
-  dtbs = true;
+  dtbs = false;
 }
