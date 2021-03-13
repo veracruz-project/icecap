@@ -48,10 +48,6 @@ let
             set -- $(IFS=,; echo $params)
             console=$1
             ;;
-          init=*)
-            set -- $(IFS==; echo $o)
-            next_init=$2
-            ;;
         esac
       done
 
@@ -65,9 +61,9 @@ let
       }
       trap fail 0
 
-      mkdir -p /lib
-      echo ${extraUtils}/bin/modprobe > /proc/sys/kernel/modprobe
       ${optionalString (cfg.modules != null) ''
+        mkdir -p /lib
+        echo ${extraUtils}/bin/modprobe > /proc/sys/kernel/modprobe
         ln -s ${modulesClosure}/lib/modules /lib/modules
         ln -s ${modulesClosure}/lib/firmware /lib/firmware
         for m in ${concatStringsSep " " cfg.loadModules}; do
