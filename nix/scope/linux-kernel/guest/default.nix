@@ -10,8 +10,7 @@ let
 
   # TODO
   # y crypto acceleration for net stack
-  # n debug symbols
-  # expert: n multiuser, n block
+  # expert: n block
 
   config = makeConfig {
     inherit source;
