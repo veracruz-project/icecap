@@ -59,6 +59,7 @@ icecap.byIceCapPlat (plat:
     };
 
     bench = {
+      icecap = mkBasicInstance configs.icecap ./bench/icecap;
       baseline = lib.makeScope newScope (callPackage ./bench/baseline {
         inherit icecapExtraConfig;
         icecapPlat = plat;
