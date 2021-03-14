@@ -19,5 +19,3 @@ let
   bytes = size components.loader-elf.min - untrusted;
 
 in kb bytes
-  
-    

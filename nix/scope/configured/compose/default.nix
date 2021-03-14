@@ -68,7 +68,7 @@ let
     kernel = kernel-elf;
     app = app-elf;
   };
-  
+
   cdlImages = lib.mapAttrs'
     (k: v: lib.nameValuePair k v.image)
     (lib.filterAttrs (k: lib.hasAttr "image") config.components);
