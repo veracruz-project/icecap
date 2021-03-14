@@ -52,30 +52,23 @@ impl Deref for Ctrl {
     }
 }
 
-fn dsb_sy() {
+fn hack_mb() {
     unsafe {
-        __dsb(SY)
-    }
-}
-
-fn dmb_sy() {
-    unsafe {
-        __dmb(SY)
+        __dsb(SY);
+        __dmb(SY);
     }
 }
 
 fn acquire() {
     fence(Ordering::Acquire);
     // HACK
-    dsb_sy();
-    dmb_sy();
+    hack_mb();
 }
 
 fn release() {
     fence(Ordering::Release);
     // HACK
-    dsb_sy();
-    dmb_sy();
+    hack_mb();
 }
 
 #[derive(Debug)]
@@ -150,23 +143,10 @@ impl RingBuffer {
         return max(0, self.write.size - (offset_w - offset_r) - 1);
     }
 
-    pub fn read(&mut self, n: usize, buf: &mut [u8]) {
-        self.peek(n, buf);
-        self.skip(n);
-    }
-
-    pub fn skip(&mut self, n: usize) {
+    pub fn peek(&self, buf: &mut [u8]) {
         acquire();
-        assert!(n <= self.poll_read());
-        self.private_offset_r += n;
-        release();
-    }
-
-    pub fn peek(&self, n: usize, buf: &mut [u8]) {
-        acquire();
-        assert!(n <= self.poll_read());
         // TODO core::ptr::volatile_copy_nonoverlapping_memory
-        for i in 0..n {
+        for i in 0..buf.len() {
             let off = ((self.private_offset_r + i) % self.read.size) as isize;
             buf[i] = unsafe {
                 read_volatile(self.read.buf.offset(off))
@@ -175,9 +155,21 @@ impl RingBuffer {
         release();
     }
 
+    pub fn skip(&mut self, n: usize) {
+        acquire();
+        debug_assert!(n <= self.poll_read());
+        self.private_offset_r += n;
+        release();
+    }
+
+    pub fn read(&mut self, buf: &mut [u8]) {
+        self.peek(buf);
+        self.skip(buf.len());
+    }
+
     pub fn write(&mut self, buf: &[u8]) {
         acquire();
-        assert!(buf.len() <= self.poll_write());
+        debug_assert!(buf.len() <= self.poll_write());
         // TODO core::ptr::volatile_copy_nonoverlapping_memory
         for i in 0..buf.len() {
             let off = ((self.private_offset_w + i) % self.write.size) as isize;
@@ -252,7 +244,7 @@ impl PacketRingBuffer {
             return None
         }
         let mut header = [0; Self::HEADER_SIZE];
-        self.rb.peek(Self::HEADER_SIZE, &mut header);
+        self.rb.peek(&mut header);
         let n = u32::from_le_bytes(header) as usize;
         if n > self.rb.poll_read() - Self::HEADER_SIZE {
             return None
@@ -260,11 +252,15 @@ impl PacketRingBuffer {
         Some(n)
     }
 
+    pub fn read_into(&mut self, buf: &mut [u8]) {
+        self.rb.skip(Self::HEADER_SIZE);
+        self.rb.read(buf);
+    }
+
     pub fn read(&mut self) -> Option<Vec<u8>> {
         self.poll().map(|n| {
             let mut buf = vec![0; n];
-            self.rb.skip(Self::HEADER_SIZE);
-            self.rb.read(n, buf.as_mut_slice());
+            self.read_into(buf.as_mut_slice());
             buf
         })
     }

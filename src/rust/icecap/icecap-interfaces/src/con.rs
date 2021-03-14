@@ -58,7 +58,7 @@ impl ConDriver {
     pub fn rx_into(&mut self, buf: &mut [u8]) -> usize {
         let n_real = min(buf.len(), self.poll());
         if n_real > 0 {
-            self.rb.read(n_real, buf);
+            self.rb.read(&mut buf[0..n_real]);
             self.rb.notify_read();
         }
         n_real
@@ -68,7 +68,7 @@ impl ConDriver {
         let n = self.poll();
         if n > 0 {
             let mut buf = vec![0; n];
-            self.rb.read(n, buf.as_mut_slice());
+            self.rb.read(buf.as_mut_slice());
             self.rb.notify_read();
             return Some(buf)
         }
