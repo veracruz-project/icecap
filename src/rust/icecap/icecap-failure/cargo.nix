@@ -3,8 +3,9 @@
 mk {
   name = "icecap-failure";
   localDependencies = with localCrates; [
-    icecap-backtrace
     icecap-failure-derive
+    icecap-backtrace
+    icecap-sel4
   ];
   dependencies = {
     log = "*";

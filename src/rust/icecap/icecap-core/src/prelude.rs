@@ -1,24 +1,23 @@
 pub use alloc::prelude::v1::*;
 pub use alloc::vec;
 
-pub use icecap_failure::{
-    Fail, Error, Fallible, bail, ensure, format_err,
-};
+pub use crate::{
+    sel4::prelude::*,
+    runtime,
+    interfaces::{
+        RingBuffer,
+        PacketRingBuffer,
+        ConDriver,
+        NetDriver,
+        Timer,
+    },
+    failure::{
+        Fail, Error, Fallible, bail, ensure, format_err,
+    },
+    start::{
+        declare_main,
+    },
 
-pub use icecap_sel4_sys as sys;
-
-pub use icecap_sel4::prelude::*;
-
-pub use icecap_runtime as runtime;
-
-pub use icecap_interfaces::{
-    Timer,
-    ConDriver,
-    NetDriver,
-    RingBuffer,
-    PacketRingBuffer,
-};
-
-pub use icecap_start::{
-    declare_main,
+    // TODO remove
+    sel4::sys,
 };

@@ -8,7 +8,7 @@ use crate::{
 pub type Result<T> = result::Result<T, Error>;
 
 #[repr(u32)]
-#[derive(Copy, Clone, Debug, Fail)]
+#[derive(Copy, Clone, Debug)]
 pub enum Error {
     InvalidArgument = sys::seL4_Error_seL4_InvalidArgument,
     InvalidCapability = sys::seL4_Error_seL4_InvalidCapability,

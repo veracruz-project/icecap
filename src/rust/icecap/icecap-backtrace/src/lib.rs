@@ -1,7 +1,7 @@
 #![no_std]
 #![feature(global_asm)]
 
-#[macro_use] extern crate alloc;
+extern crate alloc;
 
 use alloc::string::{String, ToString};
 use alloc::str;

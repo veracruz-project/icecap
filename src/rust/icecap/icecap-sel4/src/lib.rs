@@ -3,16 +3,10 @@
 #![feature(const_if_match)]
 #![feature(format_args_nl)]
 
-// !
-// extern crate alloc;
-
 #[macro_use]
 extern crate icecap_sel4_derive;
 
-#[macro_use]
-extern crate icecap_failure;
-
-pub(crate) use icecap_sel4_sys as sys;
+pub use icecap_sel4_sys as sys;
 
 mod types;
 mod error;
