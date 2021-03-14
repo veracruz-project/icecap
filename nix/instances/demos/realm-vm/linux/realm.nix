@@ -17,15 +17,12 @@ in
     '';
 
     initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.strace}/bin/strace
-      copy_bin_and_libs ${pkgs.iproute}/bin/ip
-      copy_bin_and_libs ${pkgs.nftables}/bin/nft
       copy_bin_and_libs ${pkgs.netcat}/bin/nc
       copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
       copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
-      cp -pdv ${pkgs.libunwind}/lib/libunwind-aarch64*.so* $out/lib
       cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
     '';
+      # cp -pdv ${pkgs.libunwind}/lib/libunwind-aarch64*.so* $out/lib
 
     initramfs.profile = ''
       i() {
