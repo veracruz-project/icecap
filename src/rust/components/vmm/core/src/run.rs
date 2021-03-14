@@ -111,7 +111,6 @@ impl<F: Fn(u8)> VM<F> {
                 }
                 BADGE_VM => {
                     let fault = Fault::get(info);
-                    panic!("{:?}", fault);
                     match fault {
                         Fault::VMFault(fault) => {
                             self.cspace.save_caller(self.fault_reply_cap).unwrap();

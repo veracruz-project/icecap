@@ -5,6 +5,7 @@ use core::arch::aarch64::{__dsb, __dmb, SY};
 use core::cmp::max;
 use core::ops::Deref;
 use core::ptr::{read_volatile, write_volatile};
+use core::intrinsics::volatile_copy_nonoverlapping_memory;
 use core::sync::atomic::{fence, Ordering};
 use alloc::vec::Vec;
 use register::{mmio::*, register_bitfields, register_structs};
@@ -145,13 +146,23 @@ impl RingBuffer {
 
     pub fn peek(&self, buf: &mut [u8]) {
         acquire();
-        // TODO core::ptr::volatile_copy_nonoverlapping_memory
-        for i in 0..buf.len() {
-            let off = ((self.private_offset_r + i) % self.read.size) as isize;
-            buf[i] = unsafe {
-                read_volatile(self.read.buf.offset(off))
+
+        let offset = self.private_offset_r % self.read.size;
+        let n1 = self.read.size - offset;
+        let n = buf.len();
+
+        let src = self.read.buf;
+        let dst = buf.as_mut_ptr();
+
+        unsafe {
+            if n <= n1 {
+                volatile_copy_nonoverlapping_memory(dst, src.offset(offset as isize), n);
+            } else {
+                volatile_copy_nonoverlapping_memory(dst, src.offset(offset as isize), n1);
+                volatile_copy_nonoverlapping_memory(dst.offset(n1 as isize), src, n - n1);
             }
         }
+
         release();
     }
 
@@ -170,14 +181,24 @@ impl RingBuffer {
     pub fn write(&mut self, buf: &[u8]) {
         acquire();
         debug_assert!(buf.len() <= self.poll_write());
-        // TODO core::ptr::volatile_copy_nonoverlapping_memory
-        for i in 0..buf.len() {
-            let off = ((self.private_offset_w + i) % self.write.size) as isize;
-            unsafe {
-                write_volatile(self.write.buf.offset(off), buf[i])
+
+        let offset = self.private_offset_w % self.write.size;
+        let n1 = self.write.size - offset;
+        let n = buf.len();
+
+        let src = buf.as_ptr();
+        let dst = self.write.buf;
+
+        unsafe {
+            if n <= n1 {
+                volatile_copy_nonoverlapping_memory(dst.offset(offset as isize), src, n);
+            } else {
+                volatile_copy_nonoverlapping_memory(dst.offset(offset as isize), src, n1);
+                volatile_copy_nonoverlapping_memory(dst, src.offset(n1 as isize), n - n1);
             }
         }
-        self.private_offset_w += buf.len();
+
+        self.private_offset_w += n;
         release();
     }
 
