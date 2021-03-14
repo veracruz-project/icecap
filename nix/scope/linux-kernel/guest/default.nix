@@ -10,7 +10,6 @@ let
 
   # TODO
   # y crypto acceleration for net stack
-  # expert: n block
 
   config = makeConfig {
     inherit source;
