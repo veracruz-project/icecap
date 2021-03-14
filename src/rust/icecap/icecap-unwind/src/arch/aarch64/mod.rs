@@ -8,10 +8,9 @@ use gimli::{
     EhFrame, EhFrameHdr, ParsedEhFrameHdr,
 };
 
-use find_cfi::{EhRef, find_cfi_sections};
+use crate::{EhRef, find_cfi_sections};
 use registers::{Registers, DwarfRegister};
 
-mod find_cfi;
 mod glue;
 mod registers;
 

@@ -5,8 +5,22 @@
 extern crate alloc;
 
 mod arch;
+mod sys;
+
+use core::ops::Range;
 
 pub use arch::{
-    StackFrame, StackFrames,
-    Unwinder, UnwindPayload, DwarfUnwinder,
+    Unwinder, StackFrames, StackFrame,
+    DwarfUnwinder,
 };
+
+use sys::{
+    find_cfi_sections,
+};
+
+#[derive(Debug)]
+pub(crate) struct EhRef {
+    text: Range<usize>,
+    eh_frame_hdr: Range<usize>,
+    eh_frame_end: usize,
+}

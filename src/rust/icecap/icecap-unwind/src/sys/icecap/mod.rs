@@ -1,12 +1,5 @@
-use core::ops::Range;
 use alloc::vec::Vec;
-
-#[derive(Debug)]
-pub struct EhRef {
-    pub text: Range<usize>,
-    pub eh_frame_hdr: Range<usize>,
-    pub eh_frame_end: usize,
-}
+use crate::EhRef;
 
 extern "C" {
     static icecap_runtime_text_start: usize;
@@ -16,7 +9,7 @@ extern "C" {
     static icecap_runtime_eh_frame_end: usize;
 }
 
-pub fn find_cfi_sections() -> Vec<EhRef> {
+pub(crate) fn find_cfi_sections() -> Vec<EhRef> {
     vec![
         unsafe {
             EhRef {
