@@ -45,6 +45,7 @@ lib.fix (self: with self; {
   icecap-sel4 = ./icecap/icecap-sel4;
   icecap-sel4-sys = ./icecap/icecap-sel4/sys;
   icecap-sel4-derive = ./icecap/icecap-sel4/derive;
+  icecap-unwind = ./icecap/icecap-unwind;
   icecap-failure = ./icecap/icecap-failure;
   icecap-failure-derive = ./icecap/icecap-failure/derive;
   icecap-sync = ./icecap/icecap-sync;

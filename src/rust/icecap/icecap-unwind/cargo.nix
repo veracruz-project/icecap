@@ -1,11 +1,7 @@
-{ mk, localCrates }:
+{ mk }:
 
 mk {
-  name = "icecap-backtrace";
-  localDependencies = with localCrates; [
-    icecap-unwind
-    icecap-backtrace-types
-  ];
+  name = "icecap-unwind";
   dependencies = {
     fallible-iterator = { version = "*"; default-features = false; features = [ "alloc" ]; };
     gimli = { version = "0.20.0"; default-features = false; features = [ "read" ]; };

@@ -8,9 +8,7 @@ use alloc::str;
 use alloc::vec;
 use fallible_iterator::FallibleIterator;
 pub use icecap_backtrace_types::{RawBacktrace, RawStackFrame};
-use crate::unwind::Unwinder;
-
-mod unwind;
+use icecap_unwind::{Unwinder, DwarfUnwinder};
 
 #[derive(Debug, Clone)]
 pub struct Backtrace {
@@ -45,7 +43,7 @@ fn collect_raw_backtrace(skip: usize) -> RawBacktrace {
     log::warn!("collecting backtrace");
     let mut stack_frames = vec![];
     let mut error = None;
-    unwind::DwarfUnwinder::default().trace(|frames| {
+    DwarfUnwinder::default().trace(|frames| {
         frames.for_each(|frame| {
             stack_frames.push(RawStackFrame {
                 initial_address: frame.initial_address,
