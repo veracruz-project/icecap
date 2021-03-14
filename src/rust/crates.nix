@@ -4,7 +4,6 @@ lib.fix (self: with self; {
 
   icecap-sel4_dummy = ./icecap/icecap-sel4/dummy;
   icecap-runtime_dummy = ./icecap/icecap-runtime/dummy;
-  icecap-failure_dummy = ./icecap/icecap-failure/dummy;
   icecap-backtrace_dummy = ./icecap/icecap-backtrace/dummy;
 
   dyndl-types = ./components/caput/dyndl-types;
@@ -78,7 +77,6 @@ lib.fix (self: with self; {
 
   icecap-sel4 = icecap-sel4_dummy;
   icecap-runtime = icecap-runtime_dummy;
-  icecap-failure = icecap-failure_dummy;
   icecap-backtrace = icecap-backtrace_dummy;
 
 }) // (if debug then {

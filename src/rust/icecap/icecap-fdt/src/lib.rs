@@ -4,19 +4,20 @@
 #[macro_use]
 extern crate alloc;
 
-use icecap_failure as failure;
-
+mod error;
 mod types;
 mod read;
 mod write;
 mod debug;
-pub mod bindings; // TODO do these need to be in this crate?
+mod utils;
+
+pub mod bindings;
+
+// use error::{
+//     warn_malformed, bail, ensure,
+// };
+pub use error::{
+    Error, Result,
+};
 
 pub use types::{DeviceTree, ReserveEntry, Node, Value};
-
-fn align_up(x: usize, n: usize) -> usize {
-    match x {
-        0 => 0,
-        _ => ((x - 1) | (n - 1)) + 1,
-    }
-}

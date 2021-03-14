@@ -9,8 +9,6 @@
 #[macro_use]
 extern crate alloc;
 
-use icecap_failure as failure;
-
 mod chosen;
 mod icecap;
 mod guest;

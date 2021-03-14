@@ -1,7 +1,7 @@
 use core::iter;
 use alloc::prelude::v1::*;
 
-use crate::align_up;
+use crate::utils::align_up;
 use crate::types::*;
 
 struct Strings {

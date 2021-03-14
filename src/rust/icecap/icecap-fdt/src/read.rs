@@ -2,8 +2,8 @@ use core::mem::size_of;
 use alloc::prelude::v1::*;
 use alloc::collections::BTreeMap;
 
-use crate::align_up;
-use crate::failure::{Fallible, bail, ensure, format_err};
+use crate::utils::align_up;
+use crate::{Result, bail, ensure, warn_malformed};
 use crate::types::*;
 
 struct Cursor<'a> {
@@ -28,7 +28,7 @@ impl<'a> Cursor<'a> {
         self.i = align_up(self.i, n);
     }
 
-    fn read(&mut self, n: usize) -> Fallible<&[u8]> {
+    fn read(&mut self, n: usize) -> Result<&[u8]> {
         if let Some(sub) = self.buf.get(self.i .. self.i + n) {
             self.advance(n);
             Ok(sub)
@@ -37,34 +37,34 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    fn read_value(&mut self, size: usize) -> Fallible<Value> {
+    fn read_value(&mut self, size: usize) -> Result<Value> {
         let v = Value::new(self.read(size)?.to_vec());
         self.align(4);
         Ok(v)
     }
 
-    fn read_unit_name(&mut self) -> Fallible<&str> {
+    fn read_unit_name(&mut self) -> Result<&str> {
         let s = cstring_at(self.buf, self.i)?;
         self.advance(s.len() + 1); // '\0'
         self.align(4);
         Ok(s)
     }
 
-    fn read_be_u32(&mut self) -> Fallible<u32> {
+    fn read_be_u32(&mut self) -> Result<u32> {
         const SIZE: usize = size_of::<u32>();
         let mut raw: [u8; SIZE] = [0; SIZE];
         raw.copy_from_slice(self.read(SIZE)?);
         Ok(u32::from_be_bytes(raw))
     }
 
-    fn read_be_u64(&mut self) -> Fallible<u64> {
+    fn read_be_u64(&mut self) -> Result<u64> {
         const SIZE: usize = size_of::<u64>();
         let mut raw: [u8; SIZE] = [0; SIZE];
         raw.copy_from_slice(self.read(SIZE)?);
         Ok(u64::from_be_bytes(raw))
     }
 
-    fn read_header(&mut self) -> Fallible<Header> {
+    fn read_header(&mut self) -> Result<Header> {
         Ok(Header {
             magic: self.read_be_u32()?,
             totalsize: self.read_be_u32()?,
@@ -79,21 +79,21 @@ impl<'a> Cursor<'a> {
         })
     }
 
-    fn read_reserve_entry(&mut self) -> Fallible<ReserveEntry> {
+    fn read_reserve_entry(&mut self) -> Result<ReserveEntry> {
         Ok(ReserveEntry {
             address: self.read_be_u64()?,
             size: self.read_be_u64()?,
         })
     }
 
-    fn read_prop_header(&mut self) -> Fallible<PropHeader> {
+    fn read_prop_header(&mut self) -> Result<PropHeader> {
         Ok(PropHeader {
             len: self.read_be_u32()?,
             name_off: self.read_be_u32()?,
         })
     }
 
-    fn read_node(&mut self, strings: &Strings) -> Fallible<Node> {
+    fn read_node(&mut self, strings: &Strings) -> Result<Node> {
         let mut properties = BTreeMap::new();
         let mut children = BTreeMap::new();
         loop {
@@ -126,7 +126,7 @@ impl<'a> Cursor<'a> {
         })
     }
 
-    fn read_mem_rsvmap(&mut self) -> Fallible<Vec<ReserveEntry>> {
+    fn read_mem_rsvmap(&mut self) -> Result<Vec<ReserveEntry>> {
         let mut v = vec![];
         loop {
             let entry = self.read_reserve_entry()?;
@@ -144,21 +144,21 @@ struct Strings<'a> {
 
 impl<'a> Strings<'a> {
 
-    fn get(&self, offset: u32) -> Fallible<&str> {
+    fn get(&self, offset: u32) -> Result<&str> {
         cstring_at(self.table, offset as usize)
     }
 
 }
 
-fn cstring_at(buf: &[u8], offset: usize) -> Fallible<&str> {
-    let sub = buf.get(offset..).ok_or(format_err!("offset {} out of bounds", offset))?;
-    let n = sub.iter().position(|&b| b == 0).ok_or(format_err!("no null byte"))?;
-    Ok(core::str::from_utf8(&sub[..n])?)
+fn cstring_at(buf: &[u8], offset: usize) -> Result<&str> {
+    let sub = buf.get(offset..).ok_or(warn_malformed!("offset {} out of bounds", offset))?;
+    let n = sub.iter().position(|&b| b == 0).ok_or(warn_malformed!("no null byte"))?;
+    core::str::from_utf8(&sub[..n]).map_err(|err| warn_malformed!("utf8 error: {:?}", err))
 }
 
 impl DeviceTree {
 
-    pub fn read(dtb: &[u8]) -> Fallible<Self> {
+    pub fn read(dtb: &[u8]) -> Result<Self> {
 
         let header = Cursor::new(dtb).read_header()?;
         ensure!(header.magic == MAGIC);

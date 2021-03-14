@@ -1,10 +1,7 @@
-{ mk, localCrates }:
+{ mk }:
 
 mk {
   name = "icecap-fdt";
-  localDependencies = with localCrates; [
-    icecap-failure
-  ];
   dependencies = {
     log = "*";
   };
