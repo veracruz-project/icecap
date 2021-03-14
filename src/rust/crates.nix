@@ -77,7 +77,6 @@ lib.fix (self: with self; {
 
   icecap-sel4 = icecap-sel4_dummy;
   icecap-runtime = icecap-runtime_dummy;
-  icecap-backtrace = icecap-backtrace_dummy;
 
 }) // (if debug then {
 
