@@ -74,7 +74,7 @@ in
     '';
 
     initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.icecap.icecap-host-cli}/bin/icecap-host-cli
+      copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
       copy_bin_and_libs ${pkgs.strace}/bin/strace
       copy_bin_and_libs ${pkgs.iproute}/bin/ip
       copy_bin_and_libs ${pkgs.nftables}/bin/nft

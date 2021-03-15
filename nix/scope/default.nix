@@ -94,7 +94,7 @@ superCallPackage ./ocaml {} self //
   muslc = callPackage ./stdenv/musl {};
   inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 
-  icecap-host-cli = callPackage ./linux-user/host/icecap-host-cli.nix {};
+  icecap-host = callPackage ./linux-user/host/icecap-host.nix {};
 
   firecracker = callPackage ./linux-user/host/firecracker.nix {};
   firecracker-prebuilt = callPackage ./linux-user/host/firecracker-prebuilt.nix {};

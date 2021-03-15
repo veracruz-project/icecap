@@ -11,8 +11,8 @@ lib.fix (self: with self; {
   dyndl-serialize-spec = ./dyndl/cli/dyndl-serialize-spec;
 
   icecap-caput-types = ./components/caput/types;
-  icecap-caput-host = ./components/caput/host;
-  icecap-host-cli = ./components/caput/host/cli;
+  icecap-host-core = ./components/host;
+  icecap-host = ./components/host/cli;
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
@@ -48,6 +48,7 @@ lib.fix (self: with self; {
   icecap-runtime = ./icecap/icecap-runtime;
   icecap-sync = ./icecap/icecap-sync;
   icecap-interfaces = ./icecap/icecap-interfaces;
+  icecap-net = ./icecap/icecap-net;
   icecap-base-config-realize = ./icecap/icecap-base-config/realize;
   icecap-unwind = ./icecap/icecap-unwind;
   icecap-failure = ./icecap/icecap-failure;
@@ -56,8 +57,6 @@ lib.fix (self: with self; {
   icecap-start-generic = ./icecap/icecap-start/generic;
   icecap-core = ./icecap/icecap-core;
   icecap-std = ./icecap/icecap-std;
-
-  icecap-net = ./icecap/icecap-net;
 
   icecap-std-external = ./std-support/icecap-std-external;
   icecap-std-impl = ./std-support/icecap-std-impl;

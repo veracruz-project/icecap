@@ -1,7 +1,7 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-caput-host";
+  name = "icecap-host-core";
   localDependencies = with localCrates; [
     icecap-caput-types
   ];

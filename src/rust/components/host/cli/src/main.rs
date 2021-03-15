@@ -2,7 +2,7 @@ use std::{
     io, env, fs,
 };
 
-use icecap_caput_host::{Host, Message};
+use icecap_host_core::{Host, Message};
 
 // TODO use proper CLI framework
 fn main() -> io::Result<()> {

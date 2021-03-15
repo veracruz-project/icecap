@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "icecap-host-cli";
+  name = "icecap-host";
   localDependencies = with localCrates; [
-    icecap-caput-host
+    icecap-host-core
   ];
 }
