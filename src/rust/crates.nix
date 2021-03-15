@@ -2,9 +2,6 @@
 
 lib.fix (self: with self; {
 
-  icecap-sel4_dummy = ./icecap/icecap-sel4/dummy;
-  icecap-runtime_dummy = ./icecap/icecap-runtime/dummy;
-
   dyndl-types = ./dyndl/types;
   dyndl-types-derive = ./dyndl/types/derive;
   dyndl-serialize-spec = ./dyndl/cli/dyndl-serialize-spec;
@@ -20,13 +17,14 @@ lib.fix (self: with self; {
   icecap-unwind = ./icecap/icecap-unwind;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-backtrace = ./icecap/icecap-backtrace;
-  icecap-backtrace-collect = ./icecap/icecap-backtrace/collect + lib.optionalString (!debug) "/dummy";
+  icecap-backtrace-collect = ./icecap/icecap-backtrace/collect + lib.optionalString (!debug || !seL4) "/dummy";
   icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
 
   icecap-runtime-config = ./icecap/icecap-runtime/config;
   icecap-serialize-runtime-config = ./icecap/icecap-runtime/config/cli/icecap-serialize-runtime-config;
 
   icecap-config = ./icecap/icecap-config;
+  icecap-config-sys = ./icecap/icecap-config/sys + "/${if seL4 then "icecap" else "linux"}";
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
 
   icecap-vmm-config = ./components/vmm/config;
@@ -77,10 +75,5 @@ lib.fix (self: with self; {
 
   mirage = ./components/mirage;
   icecap-linux-syscall = ./components/mirage/icecap-linux-syscall;
-
-} // (if seL4 then {} else { # !seL4
-
-  icecap-sel4 = icecap-sel4_dummy;
-  icecap-runtime = icecap-runtime_dummy;
 
 })

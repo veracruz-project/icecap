@@ -1,9 +1,10 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-config";
+  name = "icecap-config-sys";
   localDependencies = with localCrates; [
-    icecap-config-sys
+    icecap-sel4
+    icecap-runtime
   ];
   dependencies = {
     serde = serdeMin;

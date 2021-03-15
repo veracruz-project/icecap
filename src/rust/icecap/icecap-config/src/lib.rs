@@ -4,10 +4,14 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_sel4::prelude::*;
+use icecap_config_sys::*;
 
-pub use icecap_sel4 as sel4;
-pub use icecap_runtime::{
+// TODO remove these and propagate
+pub mod sel4 {
+    pub use icecap_config_sys::*;
+    pub use icecap_config_sys as prelude;
+}
+pub use icecap_config_sys::{
     self as runtime,
     Thread,
 };
