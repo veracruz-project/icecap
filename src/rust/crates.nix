@@ -4,7 +4,6 @@ lib.fix (self: with self; {
 
   icecap-sel4_dummy = ./icecap/icecap-sel4/dummy;
   icecap-runtime_dummy = ./icecap/icecap-runtime/dummy;
-  icecap-backtrace_dummy = ./icecap/icecap-backtrace/dummy;
 
   dyndl-types = ./dyndl/types;
   dyndl-types-derive = ./dyndl/types/derive;
@@ -18,7 +17,10 @@ lib.fix (self: with self; {
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
   icecap-append-devices = ./icecap/icecap-fdt/bindings/cli/icecap-append-devices;
 
+  icecap-unwind = ./icecap/icecap-unwind;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
+  icecap-backtrace = ./icecap/icecap-backtrace;
+  icecap-backtrace-collect = ./icecap/icecap-backtrace/collect + lib.optionalString (!debug) "/dummy";
   icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
 
   icecap-runtime-config = ./icecap/icecap-runtime/config;
@@ -34,7 +36,6 @@ lib.fix (self: with self; {
   icecap-serial-server-config = ./components/serial-server/config;
   icecap-qemu-ring-buffer-server-config = ./components/qemu-ring-buffer-server/config;
 
-
   icecap-p9 = ./9p/icecap-p9;
   icecap-p9-wire-format-derive = ./9p/icecap-p9/wire-format-derive;
   icecap-p9-server-linux = ./9p/icecap-p9-server-linux;
@@ -42,7 +43,7 @@ lib.fix (self: with self; {
 
   generated-module-hack = ./helpers/generated-module-hack;
 
-} // (if seL4 then {
+} // lib.optionalAttrs seL4 {
 
   icecap-sel4 = ./icecap/icecap-sel4;
   icecap-sel4-sys = ./icecap/icecap-sel4/sys;
@@ -52,7 +53,6 @@ lib.fix (self: with self; {
   icecap-interfaces = ./icecap/icecap-interfaces;
   icecap-net = ./icecap/icecap-net;
   icecap-config-realize = ./icecap/icecap-config/realize;
-  icecap-unwind = ./icecap/icecap-unwind;
   icecap-failure = ./icecap/icecap-failure;
   icecap-failure-derive = ./icecap/icecap-failure/derive;
   icecap-start = ./icecap/icecap-start;
@@ -78,17 +78,9 @@ lib.fix (self: with self; {
   mirage = ./components/mirage;
   icecap-linux-syscall = ./components/mirage/icecap-linux-syscall;
 
-} else { # !seL4
+} // (if seL4 then {} else { # !seL4
 
   icecap-sel4 = icecap-sel4_dummy;
   icecap-runtime = icecap-runtime_dummy;
 
-}) // (if debug then {
-
-  icecap-backtrace = ./icecap/icecap-backtrace;
-
-} else { # !debug
-
-  icecap-backtrace = icecap-backtrace_dummy;
-
-}))
+})

@@ -1,27 +1,18 @@
 #![no_std]
-#![feature(global_asm)]
+#![feature(alloc_prelude)]
 
+#[macro_use]
 extern crate alloc;
 
-use alloc::string::{String, ToString};
+use alloc::prelude::v1::*;
 use alloc::str;
-use alloc::vec;
-use fallible_iterator::FallibleIterator;
-pub use icecap_backtrace_types::{RawBacktrace, RawStackFrame};
-use icecap_unwind::{Unwinder, DwarfUnwinder};
+use icecap_backtrace_types::RawBacktrace;
+use icecap_backtrace_collect::{collect_raw_backtrace, SKIP};
 
 #[derive(Debug, Clone)]
 pub struct Backtrace {
     pub raw: RawBacktrace,
 }
-
-const SKIP: usize = 4;
-// NOTE skip:
-//     unwind::Unwinder::trace
-//     collect_raw_backtrace
-//     Backtrace::raw
-//     Backtrace::new_skip
-
 
 impl Backtrace {
     pub fn new() -> Self {
@@ -33,32 +24,15 @@ impl Backtrace {
     }
 
     pub fn raw(skip: usize) -> Self {
+        let (stack_frames, error) = collect_raw_backtrace();
         Self {
-            raw: collect_raw_backtrace(skip),
+            raw: RawBacktrace {
+                path: get_image_path(),
+                skip,
+                stack_frames,
+                error,
+            },
         }
-    }
-}
-
-fn collect_raw_backtrace(skip: usize) -> RawBacktrace {
-    log::warn!("collecting backtrace");
-    let mut stack_frames = vec![];
-    let mut error = None;
-    DwarfUnwinder::default().trace(|frames| {
-        frames.for_each(|frame| {
-            stack_frames.push(RawStackFrame {
-                initial_address: frame.initial_address,
-                callsite_address: frame.caller,
-            });
-            Ok(())
-        }).err().map(|err| {
-            error = Some(String::from(err.description()));
-        });
-    });
-    RawBacktrace {
-        path: get_image_path(),
-        skip,
-        stack_frames,
-        error,
     }
 }
 
