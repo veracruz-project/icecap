@@ -1,7 +1,7 @@
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr;
 
-use icecap_core::runtime;
+use icecap_core::{sel4, runtime};
 use icecap_core::sync::{GenericMutex, unsafe_static_mutex};
 
 struct IceCapAllocator;
@@ -32,26 +32,11 @@ unsafe impl GlobalAlloc for IceCapAllocator {
     }
 }
 
-#[no_mangle]
-extern "C" fn icecap_dynamic_malloc(size: usize) -> *mut u8 {
-    unsafe {
-        DLMALLOC.lock().malloc(size, 8)
-    }
-}
-
-#[no_mangle]
-extern "C" fn icecap_dynamic_free(_ptr: *mut u8) -> *mut u8 {
-    // panic!()
-    ptr::null_mut()
-}
-
 #[global_allocator]
 static GLOBAL_ALLOCATOR: IceCapAllocator = IceCapAllocator;
 
 #[alloc_error_handler]
 fn alloc_error_handler(layout: core::alloc::Layout) -> ! {
-    crate::sel4::debug_println!("alloc error with layout: {:?}", layout);
-    loop {
-        runtime::exit()
-    }
+    sel4::debug_println!("alloc error with layout: {:?}", layout);
+    runtime::exit()
 }
