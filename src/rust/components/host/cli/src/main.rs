@@ -2,7 +2,7 @@ use std::{
     io, env, fs,
 };
 
-use icecap_host_core::{Host, Message};
+use icecap_host_core::*;
 
 // TODO use proper CLI framework
 fn main() -> io::Result<()> {
@@ -10,9 +10,10 @@ fn main() -> io::Result<()> {
     let host = &args[1];
     let spec_path = &args[2];
     let spec = fs::read(spec_path)?;
-    let num_nodes = 4; // TOOD
-    let host = Host::from_str(&host).unwrap();
-    const CHUNK_SIZE: usize = 4096 * 64;
-    host.run(&spec, num_nodes, CHUNK_SIZE).unwrap();
+    let num_nodes = 4;
+    let bulk_transport_spec = BulkTransportSpec::parse(&host).unwrap();
+    let bulk_transport_chunk_size: usize = 4096 * 64;
+    let mut host = Host::new().unwrap();
+    let realm_id = host.create_realm(&spec, num_nodes, &bulk_transport_spec, bulk_transport_chunk_size).unwrap();
     Ok(())
 }
