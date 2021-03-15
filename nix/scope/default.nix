@@ -111,9 +111,9 @@ superCallPackage ./ocaml {} self //
   capdl-tool = callPackage ./linux-user/dev/capdl-tool.nix {};
 
   icecap-show-backtrace = callPackage ./linux-user/dev/icecap-show-backtrace.nix {};
-  append-icecap-devices = callPackage ./linux-user/dev/append-icecap-devices.nix {};
+  icecap-append-devices = callPackage ./linux-user/dev/icecap-append-devices.nix {};
   dyndl-serialize-spec = callPackage ./linux-user/dev/dyndl-serialize-spec.nix {};
-  serialize-runtime-config = callPackage ./linux-user/dev/serialize-runtime-config.nix {};
+  icecap-serialize-runtime-config = callPackage ./linux-user/dev/icecap-serialize-runtime-config.nix {};
 
   mkSerializeConfig = callPackage ./linux-user/dev/mk-serialize-config.nix {};
 

@@ -5,8 +5,8 @@
 , icecapPlat
 , repos
 
-, append-icecap-devices
-, serialize-runtime-config
+, icecap-append-devices
+, icecap-serialize-runtime-config
 , serialize-generic-config
 , serialize-fault-handler-config
 , serialize-timer-server-config
@@ -35,8 +35,8 @@ let
   f = attr: runCommand "manifest" {
     nativeBuildInputs = [
       buildPackages.stdenv.cc
-      append-icecap-devices
-      serialize-runtime-config
+      icecap-append-devices
+      icecap-serialize-runtime-config
       serialize-generic-config
       serialize-fault-handler-config
       serialize-timer-server-config

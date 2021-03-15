@@ -115,7 +115,7 @@ class ElfComponent(BaseComponent):
             json.dump(config, f_json, indent=4)
         with path_json.open('r') as f_json:
             with path_bin.open('wb') as f_bin:
-                subprocess.check_call(['serialize-runtime-config'], stdin=f_json, stdout=f_bin)
+                subprocess.check_call(['icecap-serialize-runtime-config'], stdin=f_json, stdout=f_bin)
                 f_bin.write(image_path)
 
         self.composition.register_file(path_bin.name, path_bin)

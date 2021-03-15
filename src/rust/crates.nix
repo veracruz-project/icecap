@@ -16,10 +16,14 @@ lib.fix (self: with self; {
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
+  icecap-append-devices = ./icecap/icecap-fdt/bindings/cli/icecap-append-devices;
+
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
 
   icecap-runtime-config = ./icecap/icecap-runtime/config;
+  icecap-serialize-runtime-config = ./icecap/icecap-runtime/config/cli/icecap-serialize-runtime-config;
+
   icecap-base-config = ./icecap/icecap-base-config;
   icecap-vmm-config = ./components/vmm/config;
   icecap-caput-config = ./components/caput/config;
@@ -33,28 +37,27 @@ lib.fix (self: with self; {
   icecap-p9-server-linux = ./9p/icecap-p9-server-linux;
   icecap-p9-server-linux-cli = ./9p/icecap-p9-server-linux/cli;
 
-  append-icecap-devices = ./helpers/append-icecap-devices;
   icecap-serialize-config = ./helpers/icecap-serialize-config;
-  serialize-runtime-config = ./helpers/serialize-runtime-config;
   generated-module-hack = ./helpers/generated-module-hack;
 
 } // (if seL4 then {
 
-  icecap-std = ./icecap/icecap-std;
-  icecap-core = ./icecap/icecap-core;
   icecap-sel4 = ./icecap/icecap-sel4;
   icecap-sel4-sys = ./icecap/icecap-sel4/sys;
   icecap-sel4-derive = ./icecap/icecap-sel4/derive;
-  icecap-unwind = ./icecap/icecap-unwind;
-  icecap-failure = ./icecap/icecap-failure;
-  icecap-failure-derive = ./icecap/icecap-failure/derive;
+  icecap-runtime = ./icecap/icecap-runtime;
   icecap-sync = ./icecap/icecap-sync;
   icecap-interfaces = ./icecap/icecap-interfaces;
   icecap-base-config-realize = ./icecap/icecap-base-config/realize;
-  icecap-net = ./icecap/icecap-net;
-  icecap-runtime = ./icecap/icecap-runtime;
+  icecap-unwind = ./icecap/icecap-unwind;
+  icecap-failure = ./icecap/icecap-failure;
+  icecap-failure-derive = ./icecap/icecap-failure/derive;
   icecap-start = ./icecap/icecap-start;
   icecap-start-generic = ./icecap/icecap-start/generic;
+  icecap-core = ./icecap/icecap-core;
+  icecap-std = ./icecap/icecap-std;
+
+  icecap-net = ./icecap/icecap-net;
 
   icecap-std-external = ./std-support/icecap-std-external;
   icecap-std-impl = ./std-support/icecap-std-impl;

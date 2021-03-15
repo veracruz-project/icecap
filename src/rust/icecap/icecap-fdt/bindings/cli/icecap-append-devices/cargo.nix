@@ -1,7 +1,7 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "append-icecap-devices";
+  name = "icecap-append-devices";
   localDependencies = with localCrates; [
     icecap-fdt
     icecap-fdt-bindings

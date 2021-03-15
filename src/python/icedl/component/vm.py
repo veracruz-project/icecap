@@ -148,7 +148,7 @@ class VM(BaseComponent):
         dtb_path_out = self.composition.out_dir / '{}.dtb'.format(self.name)
         with dtb_path_in.open('r') as f_in:
             with dtb_path_out.open('wb') as f_out:
-                subprocess.check_call(['append-icecap-devices', mod_path], stdin=f_in, stdout=f_out)
+                subprocess.check_call(['icecap-append-devices', mod_path], stdin=f_in, stdout=f_out)
 
         self.dtb_fname = self.composition.register_file(dtb_path_out.name, dtb_path_out)
 

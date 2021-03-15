@@ -5,7 +5,7 @@
 with outerGlobalCrates;
 
 buildRustPackageIncrementally rec {
-  rootCrate = append-icecap-devices;
+  rootCrate = icecap-append-devices;
   layers = [ [] ];
 
   debug = true;
