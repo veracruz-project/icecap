@@ -8,8 +8,8 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
-use icecap_std::base_config_realize::{realize_mapped_ring_buffer, realize_timer_client};
-use icecap_std::base_config::{DynamicUntyped};
+use icecap_std::config_realize::{realize_mapped_ring_buffer, realize_timer_client};
+use icecap_std::config::{DynamicUntyped};
 use icecap_caput_config::*;
 use icecap_caput_types::{Message, calls};
 use icecap_caput_core::*;

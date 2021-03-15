@@ -15,7 +15,7 @@ mod device;
 declare_main!(main);
 
 use icecap_std::prelude::*;
-use icecap_std::base_config_realize::*;
+use icecap_std::config_realize::*;
 use icecap_serial_server_config::Config;
 
 use run::{run, ClientId};

@@ -3,7 +3,7 @@
 mk {
   name = "icecap-qemu-ring-buffer-server-config";
   localDependencies = with localCrates; [
-    icecap-base-config
+    icecap-config
   ];
   dependencies = {
     serde = serdeMin;

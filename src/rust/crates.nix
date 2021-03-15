@@ -24,7 +24,9 @@ lib.fix (self: with self; {
   icecap-runtime-config = ./icecap/icecap-runtime/config;
   icecap-serialize-runtime-config = ./icecap/icecap-runtime/config/cli/icecap-serialize-runtime-config;
 
-  icecap-base-config = ./icecap/icecap-base-config;
+  icecap-config = ./icecap/icecap-config;
+  icecap-config-cli-core = ./icecap/icecap-config/cli/core;
+
   icecap-vmm-config = ./components/vmm/config;
   icecap-caput-config = ./components/caput/config;
   icecap-fault-handler-config = ./components/fault-handler/config;
@@ -32,12 +34,12 @@ lib.fix (self: with self; {
   icecap-serial-server-config = ./components/serial-server/config;
   icecap-qemu-ring-buffer-server-config = ./components/qemu-ring-buffer-server/config;
 
+
   icecap-p9 = ./9p/icecap-p9;
   icecap-p9-wire-format-derive = ./9p/icecap-p9/wire-format-derive;
   icecap-p9-server-linux = ./9p/icecap-p9-server-linux;
   icecap-p9-server-linux-cli = ./9p/icecap-p9-server-linux/cli;
 
-  icecap-serialize-config = ./helpers/icecap-serialize-config;
   generated-module-hack = ./helpers/generated-module-hack;
 
 } // (if seL4 then {
@@ -49,7 +51,7 @@ lib.fix (self: with self; {
   icecap-sync = ./icecap/icecap-sync;
   icecap-interfaces = ./icecap/icecap-interfaces;
   icecap-net = ./icecap/icecap-net;
-  icecap-base-config-realize = ./icecap/icecap-base-config/realize;
+  icecap-config-realize = ./icecap/icecap-config/realize;
   icecap-unwind = ./icecap/icecap-unwind;
   icecap-failure = ./icecap/icecap-failure;
   icecap-failure-derive = ./icecap/icecap-failure/derive;

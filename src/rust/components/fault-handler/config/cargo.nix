@@ -3,7 +3,7 @@
 mk {
   name = "icecap-fault-handler-config";
   localDependencies = with localCrates; [
-    icecap-base-config
+    icecap-config
   ];
   dependencies = {
     serde = serdeMin;

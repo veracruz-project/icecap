@@ -7,8 +7,8 @@ mk {
     icecap-runtime
     icecap-sync
     icecap-interfaces
-    icecap-base-config
-    icecap-base-config-realize
+    icecap-config
+    icecap-config-realize
     icecap-backtrace
     icecap-failure
     icecap-start

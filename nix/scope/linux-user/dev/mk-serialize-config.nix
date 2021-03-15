@@ -13,7 +13,7 @@ let
     use std::marker::PhantomData;
 
     fn main() -> Result<(), std::io::Error> {
-        icecap_serialize_config::main(PhantomData: PhantomData<${type}>)
+        icecap_config_cli_core::main(PhantomData: PhantomData<${type}>)
     }
   '';
 in
@@ -28,7 +28,7 @@ buildRustPackageIncrementally rec {
     localDependencies = lib.optionals (crate != null) [
       crate
     ] ++ [
-      outerGlobalCrates.icecap-serialize-config
+      outerGlobalCrates.icecap-config-cli-core
     ];
     dependencies = {
       serde = "*";

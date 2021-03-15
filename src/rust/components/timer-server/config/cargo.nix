@@ -3,7 +3,7 @@
 mk {
   name = "icecap-timer-server-config";
   localDependencies = with localCrates; [
-    icecap-base-config
+    icecap-config
   ];
   dependencies = {
     serde = serdeMin;

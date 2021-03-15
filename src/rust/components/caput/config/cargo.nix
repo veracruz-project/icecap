@@ -3,7 +3,7 @@
 mk {
   name = "icecap-caput-config";
   localDependencies = with localCrates; [
-    icecap-base-config
+    icecap-config
     dyndl-types
   ];
   dependencies = {

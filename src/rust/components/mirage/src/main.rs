@@ -18,8 +18,8 @@ extern crate alloc;
 use serde::{Serialize, Deserialize};
 
 use icecap_std::prelude::*;
-use icecap_std::base_config::*;
-use icecap_std::base_config_realize::*;
+use icecap_std::config::*;
+use icecap_std::config_realize::*;
 use icecap_start_generic::declare_generic_main;
 use sys::c_types::*;
 
