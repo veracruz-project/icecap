@@ -5,7 +5,7 @@
 with outerGlobalCrates;
 
 buildRustPackageIncrementally rec {
-  rootCrate = create-realm;
+  rootCrate = icecap-host-cli;
   layers = [ [] ];
 
   debug = true;

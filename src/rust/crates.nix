@@ -6,14 +6,18 @@ lib.fix (self: with self; {
   icecap-runtime_dummy = ./icecap/icecap-runtime/dummy;
   icecap-backtrace_dummy = ./icecap/icecap-backtrace/dummy;
 
-  dyndl-types = ./components/caput/dyndl-types;
-  dyndl-types-derive = ./components/caput/dyndl-types/derive;
+  dyndl-types = ./dyndl/types;
+  dyndl-types-derive = ./dyndl/types/derive;
+  dyndl-serialize-spec = ./dyndl/cli/dyndl-serialize-spec;
+
   icecap-caput-types = ./components/caput/types;
   icecap-caput-host = ./components/caput/host;
+  icecap-host-cli = ./components/caput/host/cli;
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
+  icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
 
   icecap-runtime-config = ./icecap/icecap-runtime/config;
   icecap-base-config = ./icecap/icecap-base-config;
@@ -29,12 +33,9 @@ lib.fix (self: with self; {
   icecap-p9-server-linux = ./9p/icecap-p9-server-linux;
   icecap-p9-server-linux-cli = ./9p/icecap-p9-server-linux/cli;
 
-  create-realm = ./helpers/create-realm;
   append-icecap-devices = ./helpers/append-icecap-devices;
   icecap-serialize-config = ./helpers/icecap-serialize-config;
-  serialize-dyndl-spec = ./helpers/serialize-dyndl-spec;
   serialize-runtime-config = ./helpers/serialize-runtime-config;
-  show-backtrace = ./helpers/show-backtrace;
   generated-module-hack = ./helpers/generated-module-hack;
 
 } // (if seL4 then {

@@ -3,7 +3,7 @@
 , capdl-loader-lib
 , capdl-tool
 , object-sizes
-, serialize-dyndl-spec
+, dyndl-serialize-spec
 }:
 
 { cdl, root }:
@@ -19,13 +19,13 @@ let
 
   bin = runCommand "dyndl_spec.bin" {
     nativeBuildInputs = [
-      serialize-dyndl-spec
+      dyndl-serialize-spec
     ];
     passthru = {
       inherit json;
     };
   } ''
-    serialize-dyndl-spec ${root} < ${json} > $out
+    dyndl-serialize-spec ${root} < ${json} > $out
   '';
 in
   bin

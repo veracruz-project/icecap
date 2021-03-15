@@ -15,7 +15,7 @@
 , serialize-vmm-config
 , serialize-caput-config
 
-, serialize-dyndl-spec
+, dyndl-serialize-spec
 }:
 
 { config
@@ -45,7 +45,7 @@ let
       serialize-vmm-config
       serialize-caput-config
 
-      serialize-dyndl-spec
+      dyndl-serialize-spec
     ] ++ (with python3Packages; [
       future six
       aenum orderedset sortedcontainers

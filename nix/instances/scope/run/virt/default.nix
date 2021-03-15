@@ -1,5 +1,5 @@
 { lib, writeScript, runCommand, runPkgs
-, show-backtrace
+, icecap-show-backtrace
 , virtUtils
 , icecapExtraConfig
 }:
@@ -33,7 +33,7 @@ let
 
   links = {
     inherit run image;
-    "show-backtrace" = "${show-backtrace.nativeDrv}/bin/show-backtrace";
+    "icecap-show-backtrace" = "${icecap-show-backtrace.nativeDrv}/bin/icecap-show-backtrace";
   } // composition.debugFiles
     // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
     // extraLinks;

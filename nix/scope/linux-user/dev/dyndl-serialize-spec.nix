@@ -5,7 +5,7 @@
 with outerGlobalCrates;
 
 buildRustPackageIncrementally rec {
-  rootCrate = serialize-dyndl-spec;
+  rootCrate = dyndl-serialize-spec;
   layers =  [ [] ];
 
   debug = true;

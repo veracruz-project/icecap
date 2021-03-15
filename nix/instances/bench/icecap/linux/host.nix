@@ -82,12 +82,12 @@ in
       ln -s /mnt/spec.bin /spec.bin
     '' + ''
 
-      time create-realm file:/dev/rb_caput /spec.bin
+      time icecap-host-cli file:/dev/rb_caput /spec.bin
       iperf3 -s1
     '';
 
     initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.icecap.create-realm}/bin/create-realm
+      copy_bin_and_libs ${pkgs.icecap.icecap-host-cli}/bin/icecap-host-cli
       copy_bin_and_libs ${pkgs.strace}/bin/strace
       copy_bin_and_libs ${pkgs.iproute}/bin/ip
       copy_bin_and_libs ${pkgs.nftables}/bin/nft
@@ -100,7 +100,7 @@ in
 
     initramfs.profile = ''
       s() {
-        create-realm file:/dev/rb_caput /spec.bin
+        icecap-host-cli file:/dev/rb_caput /spec.bin
       }
       i() {
         iperf3 -s

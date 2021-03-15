@@ -1,7 +1,7 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "create-realm";
+  name = "icecap-host-cli";
   localDependencies = with localCrates; [
     icecap-caput-host
   ];

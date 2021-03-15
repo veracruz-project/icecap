@@ -1,6 +1,6 @@
 { lib, writeScript, runCommand, runPkgs
 , rpi4Utils
-, show-backtrace
+, icecap-show-backtrace
 , icecapPlat
 }:
 
@@ -44,7 +44,7 @@ let
   links = {
     run = sync;
     inherit boot;
-    "show-backtrace" = "${show-backtrace.nativeDrv}/bin/show-backtrace";
+    "icecap-show-backtrace" = "${icecap-show-backtrace.nativeDrv}/bin/show-backtrace";
   } // composition.debugFiles
     // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
     // extraLinks;

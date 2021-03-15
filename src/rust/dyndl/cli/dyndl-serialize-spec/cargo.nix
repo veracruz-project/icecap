@@ -1,7 +1,7 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "serialize-dyndl-spec";
+  name = "dyndl-serialize-spec";
   localDependencies = with localCrates; [
     dyndl-types
   ];

@@ -94,7 +94,7 @@ superCallPackage ./ocaml {} self //
   muslc = callPackage ./stdenv/musl {};
   inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 
-  create-realm = callPackage ./linux-user/host/create-realm.nix {};
+  icecap-host-cli = callPackage ./linux-user/host/icecap-host-cli.nix {};
 
   firecracker = callPackage ./linux-user/host/firecracker.nix {};
   firecracker-prebuilt = callPackage ./linux-user/host/firecracker-prebuilt.nix {};
@@ -110,9 +110,9 @@ superCallPackage ./ocaml {} self //
 
   capdl-tool = callPackage ./linux-user/dev/capdl-tool.nix {};
 
-  show-backtrace = callPackage ./linux-user/dev/show-backtrace.nix {};
+  icecap-show-backtrace = callPackage ./linux-user/dev/icecap-show-backtrace.nix {};
   append-icecap-devices = callPackage ./linux-user/dev/append-icecap-devices.nix {};
-  serialize-dyndl-spec = callPackage ./linux-user/dev/serialize-dyndl-spec.nix {};
+  dyndl-serialize-spec = callPackage ./linux-user/dev/dyndl-serialize-spec.nix {};
   serialize-runtime-config = callPackage ./linux-user/dev/serialize-runtime-config.nix {};
 
   mkSerializeConfig = callPackage ./linux-user/dev/mk-serialize-config.nix {};
