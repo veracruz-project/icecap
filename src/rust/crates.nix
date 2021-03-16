@@ -1,6 +1,12 @@
 { lib, seL4, debug }:
 
-{
+with lib;
+
+let
+  seL4Only = if seL4 then id else const null;
+in
+
+filterAttrs (_: v: v != null) {
 
   dyndl-types = ./dyndl/types;
   dyndl-types-derive = ./dyndl/types/derive;
@@ -41,39 +47,37 @@
 
   generated-module-hack = ./helpers/generated-module-hack;
 
-} // lib.optionalAttrs seL4 {
+  icecap-sel4 = seL4Only ./icecap/icecap-sel4;
+  icecap-sel4-sys = seL4Only ./icecap/icecap-sel4/sys;
+  icecap-sel4-derive = seL4Only ./icecap/icecap-sel4/derive;
+  icecap-runtime = seL4Only ./icecap/icecap-runtime;
+  icecap-sync = seL4Only ./icecap/icecap-sync;
+  icecap-interfaces = seL4Only ./icecap/icecap-interfaces;
+  icecap-net = seL4Only ./icecap/icecap-net;
+  icecap-config-realize = seL4Only ./icecap/icecap-config/realize;
+  icecap-failure = seL4Only ./icecap/icecap-failure;
+  icecap-failure-derive = seL4Only ./icecap/icecap-failure/derive;
+  icecap-start = seL4Only ./icecap/icecap-start;
+  icecap-start-generic = seL4Only ./icecap/icecap-start/generic;
+  icecap-core = seL4Only ./icecap/icecap-core;
+  icecap-std = seL4Only ./icecap/icecap-std;
 
-  icecap-sel4 = ./icecap/icecap-sel4;
-  icecap-sel4-sys = ./icecap/icecap-sel4/sys;
-  icecap-sel4-derive = ./icecap/icecap-sel4/derive;
-  icecap-runtime = ./icecap/icecap-runtime;
-  icecap-sync = ./icecap/icecap-sync;
-  icecap-interfaces = ./icecap/icecap-interfaces;
-  icecap-net = ./icecap/icecap-net;
-  icecap-config-realize = ./icecap/icecap-config/realize;
-  icecap-failure = ./icecap/icecap-failure;
-  icecap-failure-derive = ./icecap/icecap-failure/derive;
-  icecap-start = ./icecap/icecap-start;
-  icecap-start-generic = ./icecap/icecap-start/generic;
-  icecap-core = ./icecap/icecap-core;
-  icecap-std = ./icecap/icecap-std;
+  icecap-std-external = seL4Only ./std-support/icecap-std-external;
+  icecap-std-impl = seL4Only ./std-support/icecap-std-impl;
 
-  icecap-std-external = ./std-support/icecap-std-external;
-  icecap-std-impl = ./std-support/icecap-std-impl;
+  vmm = seL4Only ./components/vmm;
+  icecap-vmm-core = seL4Only ./components/vmm/core;
 
-  vmm = ./components/vmm;
-  icecap-vmm-core = ./components/vmm/core;
+  caput = seL4Only ./components/caput;
+  icecap-caput-core = seL4Only ./components/caput/core;
 
-  caput = ./components/caput;
-  icecap-caput-core = ./components/caput/core;
+  fault-handler = seL4Only ./components/fault-handler;
 
-  fault-handler = ./components/fault-handler;
+  timer-server = seL4Only ./components/timer-server;
+  serial-server = seL4Only ./components/serial-server;
+  qemu-ring-buffer-server = seL4Only ./components/qemu-ring-buffer-server;
 
-  timer-server = ./components/timer-server;
-  serial-server = ./components/serial-server;
-  qemu-ring-buffer-server = ./components/qemu-ring-buffer-server;
-
-  mirage = ./components/mirage;
-  icecap-linux-syscall = ./components/mirage/icecap-linux-syscall;
+  mirage = seL4Only ./components/mirage;
+  icecap-linux-syscall = seL4Only ./components/mirage/icecap-linux-syscall;
 
 }
