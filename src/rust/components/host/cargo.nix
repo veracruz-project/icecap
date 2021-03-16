@@ -1,11 +1,8 @@
-{ mk, localCrates }:
+{ mkBin, localCrates }:
 
-mk {
-  name = "icecap-host-core";
+mkBin {
+  name = "icecap-host";
   localDependencies = with localCrates; [
-    icecap-caput-types
+    icecap-host-core
   ];
-  dependencies = {
-    libc = "*";
-  };
 }

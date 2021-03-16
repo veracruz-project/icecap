@@ -1,22 +1,22 @@
 { lib, seL4, debug }:
 
-lib.fix (self: with self; {
+{
 
   dyndl-types = ./dyndl/types;
   dyndl-types-derive = ./dyndl/types/derive;
   dyndl-serialize-spec = ./dyndl/cli/dyndl-serialize-spec;
 
+  icecap-host = ./components/host;
+  icecap-host-core = ./components/host/core;
   icecap-caput-types = ./components/caput/types;
-  icecap-host-core = ./components/host;
-  icecap-host = ./components/host/cli;
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
   icecap-append-devices = ./icecap/icecap-fdt/bindings/cli/icecap-append-devices;
 
   icecap-unwind = ./icecap/icecap-unwind;
-  icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-backtrace = ./icecap/icecap-backtrace;
+  icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-backtrace-collect = ./icecap/icecap-backtrace/collect + lib.optionalString (!debug || !seL4) "/dummy";
   icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
 
@@ -76,4 +76,4 @@ lib.fix (self: with self; {
   mirage = ./components/mirage;
   icecap-linux-syscall = ./components/mirage/icecap-linux-syscall;
 
-})
+}
