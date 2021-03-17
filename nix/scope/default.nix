@@ -109,6 +109,7 @@ superCallPackage ./ocaml {} self //
   };
 
   capdl-tool = callPackage ./linux-user/dev/capdl-tool.nix {};
+  sel4-manual = callPackage ./sel4-manual {};
 
   icecap-show-backtrace = callPackage ./linux-user/dev/icecap-show-backtrace.nix {};
   icecap-append-devices = callPackage ./linux-user/dev/icecap-append-devices.nix {};
