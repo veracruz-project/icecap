@@ -35,7 +35,7 @@ pub fn run(
     gic_dist_vaddr: usize, gic_dist_paddr: usize,
     irqs: BTreeMap<IRQ, IRQType>, real_virtual_timer_irq: IRQ, virtual_timer_irq: IRQ,
     vmm_endpoint: Endpoint,
-    caput_write: Endpoint,
+    caput_write: Option<Endpoint>,
     putchar: impl Fn(u8),
 ) -> Fallible<()> {
     let mut vm = VM {
@@ -93,7 +93,7 @@ struct VM<T> {
     is_wfi: bool,
     lr: LR,
 
-    caput_write: Endpoint,
+    caput_write: Option<Endpoint>,
     putchar: T,
 }
 
@@ -322,7 +322,7 @@ impl<F: Fn(u8)> VM<F> {
         MR_1.set(ctx.x1);
         MR_2.set(ctx.x2);
         MR_3.set(ctx.x3);
-        let info = self.caput_write.call(MessageInfo::new(label, 0, 0, length));
+        let info = self.caput_write.unwrap().call(MessageInfo::new(label, 0, 0, length));
         ctx.x0 = match info.length() {
             0 => 0,
             1 => MR_0.get(),

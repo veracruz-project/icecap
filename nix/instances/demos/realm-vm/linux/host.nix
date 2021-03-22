@@ -104,6 +104,9 @@ in
       c() {
         curl google.com
       }
+      cr() {
+        icecap-host file:/dev/rb_caput /spec.bin
+      }
     '';
 
   };

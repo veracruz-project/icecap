@@ -65,6 +65,10 @@ impl<'a> Initialize<'a> {
             self.init_tcb(tcb, obj)?;
             tcb.debug_name(name);
             tcbs[obj.affinity as usize].push(tcb);
+            // TODO: Implement obj.resume
+            if obj.resume || true {
+                tcb.resume()?;
+            }
         }
         Ok(tcbs)
     }
@@ -222,7 +226,7 @@ impl<'a> Initialize<'a> {
         let slot = self.cregion.alloc().unwrap();
         let src = self.cregion.context().relative(cap);
         self.cregion.relative_cptr(slot).copy(&src, CapRights::all_rights())?;
-        Ok(T::from_cptr(self.cregion.cptr(slot)))
+        Ok(self.cregion.cptr_with_depth(slot).local_cptr())
     }
 
     fn obj<O: TryFrom<&'a Obj>>(&self, i: usize) -> Fallible<O> {

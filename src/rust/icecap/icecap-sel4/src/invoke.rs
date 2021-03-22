@@ -328,6 +328,20 @@ impl RelativeCPtr {
         })
     }
 
+    pub fn mutate(&self, src: &RelativeCPtr, badge: sys::seL4_Word) -> Result<()> {
+        Error::wrap(unsafe {
+            sys::seL4_CNode_Mutate(
+                self.root.raw(),
+                self.path.cptr.raw(),
+                self.path.depth as u8,
+                src.root.raw(),
+                src.path.cptr.raw(),
+                src.path.depth as u8,
+                badge
+            )
+        })
+    }
+
     pub fn save_caller(&self) -> Result<()> {
         Error::wrap(unsafe {
             sys::seL4_CNode_SaveCaller(self.root.raw(), self.path.cptr.raw(), self.path.depth as u8)

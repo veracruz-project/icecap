@@ -47,6 +47,21 @@ impl CPtrWithDepth {
     pub const fn deep(cptr: CPtr) -> Self {
         Self::new(cptr, Self::WORD_SIZE)
     }
+
+    // TODO: Propagate this logic throughout the crate (i.e. that CPtr without a depth cannot be
+    // used on it's own and LocalCPtrs have a depth of 64).
+    pub fn local_cptr<T: LocalCPtr>(&self) -> T {
+        assert_eq!(self.depth, 64);
+        T::from_cptr(self.cptr)
+    }
+
+    // HACK: This is used when creating a LocalCPtr to an Untyped which
+    // does not have a depth 64, so we remove the assertion.
+    // This will work for anything except a CNode capability.
+    // TODO: Get rid of this hack.
+    pub fn local_cptr_hack<T: LocalCPtr>(&self) -> T {
+        T::from_cptr(CPtr::from_raw(self.cptr.raw() << (64 - self.depth)))
+    }
 }
 
 pub type RawObjectType = u32;
@@ -211,7 +226,7 @@ pub struct Unspecified(CPtr);
 #[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr)]
 pub struct Null(CPtr);
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RelativeCPtr {
     pub root: CNode,
     pub path: CPtrWithDepth,

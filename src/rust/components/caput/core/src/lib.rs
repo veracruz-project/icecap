@@ -37,10 +37,20 @@ pub struct FillId {
     fill_index: usize,
 }
 
+/// Unique id for an untyped block of memory
+#[derive(Clone, Debug)]
+pub struct UntypedId {
+    /// The physical address of the untyped block
+    pub paddr: usize,
+
+    /// log_2 of the size (in bytes) of the untyped block
+    /// (e.g., for a 32 byte block, `size_bits` is 5)
+    pub size_bits: usize,
+}
+
 pub struct ElaboratedUntyped {
     pub cptr: Untyped,
-    pub paddr: usize,
-    pub size_bits: usize,
+    pub untyped_id: UntypedId,
 }
 
 pub type Externs = BTreeMap<String, Extern>;
@@ -64,8 +74,13 @@ pub struct Caput {
 
 struct Realm {
     virtual_nodes: Vec<VirtualNode>,
-    cnode_untyped: ElaboratedUntyped,
-    object_untyped: Vec<ElaboratedUntyped>,
+
+    // ID of the Untyped retyped for the realm's CNode.
+    cnode_untyped_id: UntypedId,
+
+    // IDs of the Untypeds retyped for the realm's objects.
+    object_untyped_ids: Vec<UntypedId>,
+
     externs: Externs,
 }
 
@@ -112,7 +127,9 @@ impl Caput {
         let raw = self.partial_specs.remove(&realm_id).unwrap();
         let model = pinecone::from_bytes(&raw).unwrap();
         let realm = self.realize_inner(&model, num_nodes)?;
+
         self.realms.insert(realm_id, realm);
+
         Ok(())
     }
 
@@ -134,9 +151,9 @@ impl Caput {
                 tcb.suspend()?;
             }
         }
-        self.allocator.revoke_and_free(&realm.cnode_untyped)?;
-        for untyped in &realm.object_untyped {
-            self.allocator.revoke_and_free(&untyped)?;
+        self.allocator.revoke_and_free(&realm.cnode_untyped_id)?;
+        for untyped_id in &realm.object_untyped_ids {
+            self.allocator.revoke_and_free(&untyped_id)?;
         }
         self.externs.extend(realm.externs);
         Ok(())
@@ -189,20 +206,20 @@ impl Caput {
         };
         ensure!(self.allocator.peek_space(&untyped_requirements));
 
-        let (mut cregion, cnode_untyped) = self.allocator.create_cnode(cnode_slots_size_bits)?;
-        let (local_object_slots, local_object_untyped) = self.allocator.create_objects(&mut cregion, &local_object_blueprints)?;
+        let (mut cregion, cnode_untyped_id, managed_cnode_slot) = self.allocator.create_cnode(cnode_slots_size_bits)?;
+        let (local_object_slots, local_object_untyped_ids) = self.allocator.create_objects(&mut cregion, &local_object_blueprints)?;
 
         // fill pages
         // TODO continuation interface with integrity protection
         for (i, obj) in model.objects.iter().enumerate() {
             if let AnyObj::Local(obj) = &obj.object {
-                let cptr = cregion.cptr(view.local_objects[view.reverse[i]]);
+                let cptr_with_depth = cregion.cptr_with_depth(local_object_slots[view.reverse[i]]);
                 match obj {
                     Obj::SmallPage(frame) => {
-                        self.initialization_resources.fill_frame(SmallPage::from_cptr(cptr), &frame.fill)?;
+                        self.initialization_resources.fill_frame(cptr_with_depth.local_cptr::<SmallPage>(), &frame.fill)?;
                     }
                     Obj::LargePage(frame) => {
-                        self.initialization_resources.fill_frame(LargePage::from_cptr(cptr), &frame.fill)?;
+                        self.initialization_resources.fill_frame(cptr_with_depth.local_cptr::<LargePage>(), &frame.fill)?;
                     }
                     _ => {
                     }
@@ -211,10 +228,34 @@ impl Caput {
         }
 
         // initialize objects
-        let (externs, extern_caps): (Externs, Vec<Unspecified>) = todo!(); // f(model, &mut self.externs)
+        let (externs, extern_caps): (Externs, Vec<Unspecified>) = {
+            let mut externs = BTreeMap::new();
+
+            let extern_caps: Vec<Unspecified> = view.extern_objects.iter().map(|i| {
+                match &model.objects[*i].object {
+                    AnyObj::Extern(obj) => {
+                        let name = model.objects[*i].name.clone();
+                        let ext = self.externs.remove(&name).unwrap();
+                        assert_eq!(&ext.ty, obj);
+                        let cptr = ext.cptr;
+
+                        // Store the removed extern from self.extern to restore
+                        // when the realm is destroyed.
+                        externs.insert(name, ext);
+
+                        // Collect the cptr.
+                        cptr
+                    }
+                    _ => panic!(),
+                }
+            }).collect();
+
+            (externs, extern_caps)
+        };
+
         let all_caps: Vec<Unspecified> = model.objects.iter().enumerate().map(|(i, obj)| {
             match &obj.object {
-                AnyObj::Local(_) => Unspecified::from_cptr(cregion.cptr(local_object_slots[view.reverse[i]])),
+                AnyObj::Local(_) => cregion.cptr_with_depth(local_object_slots[view.reverse[i]]).local_cptr::<Unspecified>(),
                 AnyObj::Extern(_) => extern_caps[view.reverse[i]],
             }
         }).collect();
@@ -226,8 +267,8 @@ impl Caput {
 
         Ok(Realm {
             virtual_nodes,
-            cnode_untyped,
-            object_untyped: local_object_untyped,
+            cnode_untyped_id,
+            object_untyped_ids: local_object_untyped_ids,
             externs,
         })
     }

@@ -20,6 +20,10 @@ use realize_config::*;
 declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
+    // Unmap dummy pages in the Caput CNode.
+    config.small_page.unmap()?;
+    config.large_page.unmap()?;
+
     let host_ep_read = config.host_ep_read;
     let mut host_rb = PacketRingBuffer::new(realize_mapped_ring_buffer(&config.host_rb));
     let host_rb_wait = config.host_rb.wait;
@@ -35,8 +39,10 @@ fn main(config: Config) -> Fallible<()> {
         for DynamicUntyped { slot, size_bits, paddr, .. } in &config.untyped {
             builder.add_untyped(ElaboratedUntyped {
                 cptr: *slot,
-                size_bits: *size_bits,
-                paddr: paddr.unwrap(), // HACK
+                untyped_id: UntypedId {
+                    size_bits: *size_bits,
+                    paddr: paddr.unwrap(), // HACK
+                },
             });
         }
         builder.build()

@@ -81,7 +81,7 @@ pub fn main(config: Config) -> Fallible<()> {
         config.gic_dist_vaddr, config.gic_dist_paddr, // TODO rename in run args
         irqs, config.real_virtual_timer_irq, config.virtual_timer_irq,
         ep_read,
-        config.caput_ep_write.unwrap(),
+        config.caput_ep_write,
         |c| print!("{}", c as char),
     )
 }

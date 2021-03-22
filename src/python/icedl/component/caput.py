@@ -19,7 +19,8 @@ class Caput(ElfComponent):
         self.cspace().cnode.slots[0] = Cap(self.cspace().cnode, guard=0, guard_size=hack_guard_size)
 
         allocator_cnode_size_bits = 18
-        allocator_cnode = self.alloc(ObjectType.seL4_CapTableObject, name='allocator_cnode', size_bits=14)
+        allocator_cnode = self.alloc(ObjectType.seL4_CapTableObject, name='allocator_cnode', size_bits=allocator_cnode_size_bits)
+        allocator_cnode_shift = root_cnode_size_bits
 
         ut_size_bits = 29
         ut_slot = self.cspace().alloc(self.alloc(ObjectType.seL4_UntypedObject, name='allocator_untyped_0', size_bits=ut_size_bits))
@@ -57,8 +58,8 @@ class Caput(ElfComponent):
             'large_page': large_frame,
             'allocator_cregion': {
                 'root': {
-                    'root': self.cspace().alloc(self.cspace().cnode, write=True),
-                    'cptr': self.cspace().alloc(allocator_cnode, write=True),
+                    'root': self.cspace().alloc(self.cspace().cnode, write=True, update_guard_size=False),
+                    'cptr': self.cspace().alloc(allocator_cnode, write=True, update_guard_size=False),
                     'depth': root_cnode_size_bits,
                 },
                 'guard': 0,

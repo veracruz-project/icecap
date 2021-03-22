@@ -38,7 +38,7 @@ impl ModelView {
             });
 
             for (i, j) in view.local_objects.iter().enumerate() {
-                view.reverse[i] = *j;
+                view.reverse[*j] = i;
             }
         }
 
