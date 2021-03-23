@@ -23,7 +23,10 @@ superCallPackage ./rust {} self //
   cmakeConfig = callPackage ./sel4-kernel/cmake-config.nix {};
   kernelPlat = cmakeConfig.KernelPlatform.value;
 
-  compose = callPackage ./compose {};
+  compose = callPackage ./compose {
+    _kernel = kernel;
+  };
+
   icecapFirmware = makeOverridable' compose {};
 
   _sel4 = callPackage ./sel4-kernel {};

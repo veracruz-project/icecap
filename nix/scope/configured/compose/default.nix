@@ -1,14 +1,15 @@
 { lib, runCommand
 , deviceTree, uBoot
-, kernel, elfloader, mkCapDLLoader, bins
+, elfloader, mkCapDLLoader, bins
 , mkCpioFrom, mkIceDL, dtb-helpers
 , stripElf, stripElfSplit
 , icecapPlat
+
+, _kernel
 }:
 
 let
   _u-boot = "${uBoot.${icecapPlat}}/u-boot.bin";
-  _kernel = kernel;
 in
 
 args:
