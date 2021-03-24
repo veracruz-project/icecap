@@ -1,4 +1,6 @@
 use icecap_std::prelude::*;
+use icecap_timer_server_types::*;
+use icecap_rpc_sel4::*;
 use core::result;
 
 use crate::{
@@ -40,42 +42,17 @@ pub fn run(cspace: CNode, reply_ep: Endpoint, vmem: usize, ep_read: Endpoint, cl
             }
             _ => {
                 let cid: usize = badge as usize - CLIENT_BADGE_START as usize;
-                match recv_info.label() {
-                    label::COMPLETED => {
-                        MR_0.set(server.completed(cid));
-                        MessageInfo::new(0, 0, 0, 1)
-                    }
-                    label::PERIODIC => {
-                        MR_0.set(pack_result(server.periodic(cid, MR_0.get() as TimerId, MR_1.get() as Nanosecond)));
-                        MessageInfo::new(0, 0, 0, 1)
-                    }
-                    label::ONESHOT_ABSOLUTE => {
-                        MR_0.set(pack_result(server.oneshot_absolute(cid, MR_0.get() as TimerId, MR_1.get() as Nanosecond)));
-                        MessageInfo::new(0, 0, 0, 1)
-                    }
-                    label::ONESHOT_RELATIVE => {
-                        MR_0.set(pack_result(server.oneshot_relative(cid, MR_0.get() as TimerId, MR_1.get() as Nanosecond)));
-                        MessageInfo::new(0, 0, 0, 1)
-                    }
-                    label::STOP => {
-                        MR_0.set(pack_result(server.stop(cid, MR_0.get() as TimerId)));
-                        MessageInfo::new(0, 0, 0, 1)
-                    }
-                    label::TIME => {
-                        MR_0.set(server.time(cid) as Word);
-                        MessageInfo::new(0, 0, 0, 1)
-                    }
-                    label => {
-                        panic!("unexpected message label: {}", label)
-                    }
+                match rpc_server::recv(&recv_info) {
+                    Request::Completed => panic!(), // rpc_server::prepare(server.completed(cid)),
+                    Request::Periodic { tid, ns } => rpc_server::prepare(&response::Basic(server.periodic(cid, tid, ns as i64))),
+                    Request::OneshotAbsolute { tid, ns } => rpc_server::prepare(&response::Basic(server.oneshot_absolute(cid, tid, ns as i64))),
+                    Request::OneshotRelative { tid, ns } => rpc_server::prepare(&response::Basic(server.oneshot_relative(cid, tid, ns as i64))),
+                    Request::Stop { tid } => rpc_server::prepare(&response::Basic(server.stop(cid, tid))),
+                    Request::Time => rpc_server::prepare(&response::Time { ns: server.time(cid) as u64 }),
                 }
             }
         };
 
         reply_ep.send(reply_info);
     }
-}
-
-fn pack_result(r: result::Result<(), Error>) -> Word {
-    r.err().unwrap_or(0) as Word
 }

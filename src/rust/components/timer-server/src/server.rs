@@ -5,7 +5,7 @@ use alloc::collections::{BTreeMap, BTreeSet};
 
 use crate::device::TimerDevice;
 
-pub type Error = i64;
+pub type Error = ();
 pub type ClientId = usize;
 pub type TimerId = i64;
 pub type Nanosecond = i64;
@@ -158,7 +158,7 @@ impl<D: TimerDevice> Server<D> {
 
     fn guard_tid(&self, tid: TimerId) -> result::Result<(), Error> {
         if tid > self.timers_per_client {
-            Err(-1)
+            Err(())
         } else {
             Ok(())
         }

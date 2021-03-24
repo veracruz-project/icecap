@@ -29,6 +29,8 @@ filterAttrs (_: v: v != null) {
   icecap-runtime-config = ./icecap/icecap-runtime/config;
   icecap-serialize-runtime-config = ./icecap/icecap-runtime/config/cli/icecap-serialize-runtime-config;
 
+  icecap-rpc = ./icecap/icecap-rpc;
+  icecap-rpc-sel4 = seL4Only ./icecap/icecap-rpc/sel4;
   icecap-config = ./icecap/icecap-config;
   icecap-config-sys = ./icecap/icecap-config/sys + "/${if seL4 then "icecap" else "linux"}";
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
@@ -74,6 +76,9 @@ filterAttrs (_: v: v != null) {
   fault-handler = seL4Only ./components/fault-handler;
 
   timer-server = seL4Only ./components/timer-server;
+  icecap-timer-server-types = seL4Only ./components/timer-server/types;
+  icecap-timer-server-client = seL4Only ./components/timer-server/client;
+
   serial-server = seL4Only ./components/serial-server;
   qemu-ring-buffer-server = seL4Only ./components/qemu-ring-buffer-server;
 

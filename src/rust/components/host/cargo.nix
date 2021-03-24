@@ -5,4 +5,7 @@ mkBin {
   localDependencies = with localCrates; [
     icecap-host-core
   ];
+  dependencies = {
+    clap = "*";
+  };
 }
