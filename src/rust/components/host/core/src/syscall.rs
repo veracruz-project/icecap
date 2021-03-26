@@ -16,9 +16,9 @@ pub fn declare(realm_id: usize, spec_size: usize) -> Result<()> {
     Ok(())
 }
 
-pub fn realize(realm_id: usize, num_nodes: usize) -> Result<()> {
+pub fn realize(realm_id: usize) -> Result<()> {
     assert_eq!(0, unsafe {
-        wrap("realize", syscall(SYS_ICECAP, realm_id as c_long, num_nodes as c_long, 0, 0, calls::REALIZE as c_long, 3))?
+        wrap("realize", syscall(SYS_ICECAP, realm_id as c_long, 0, 0, 0, calls::REALIZE as c_long, 2))?
     });
     Ok(())
 }

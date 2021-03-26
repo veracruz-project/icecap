@@ -124,10 +124,10 @@ impl ResourceServer {
         Ok(())
     }
 
-    pub fn realize(&mut self, realm_id: RealmId, num_nodes: usize) -> Fallible<()> {
+    pub fn realize(&mut self, realm_id: RealmId) -> Fallible<()> {
         let raw = self.partial_specs.remove(&realm_id).unwrap();
         let model = pinecone::from_bytes(&raw).unwrap();
-        let realm = self.realize_inner(&model, num_nodes)?;
+        let realm = self.realize_inner(&model)?;
 
         self.realms.insert(realm_id, realm);
 
@@ -162,7 +162,7 @@ impl ResourceServer {
 
     ////
 
-    fn realize_inner(&mut self, model: &Model, num_nodes: usize) -> Fallible<Realm> {
+    fn realize_inner(&mut self, model: &Model) -> Fallible<Realm> {
         let view = ModelView::new(model);
 
         // allocate
@@ -261,7 +261,7 @@ impl ResourceServer {
             }
         }).collect();
 
-        let virtual_nodes = self.initialization_resources.initialize(num_nodes, model, &all_caps, &mut cregion)?;
+        let virtual_nodes = self.initialization_resources.initialize(model.num_nodes, model, &all_caps, &mut cregion)?;
         let virtual_nodes = virtual_nodes.into_iter().map(|tcbs| VirtualNode {
             tcbs, physical_node: None,
         }).collect();

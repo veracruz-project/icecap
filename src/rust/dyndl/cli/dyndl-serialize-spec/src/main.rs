@@ -10,7 +10,13 @@ use dyndl_types::*;
 fn main() -> Result<(), io::Error> {
     let dir = env::args().nth(1).unwrap();
     let dir = Path::new(&dir);
-    let mut model: Model = serde_json::from_reader(io::stdin())?;
+    let output: CapDLToolOutput = serde_json::from_reader(io::stdin())?;
+    let objects = output.objects;
+    let num_nodes = count_nodes(&objects); // HACK
+    let mut model = Model {
+        num_nodes,
+        objects,
+    };
     add_fill(&mut model, &dir)?;
     io::stdout().write_all(&pinecone::to_vec(&model).unwrap())?;
     Ok(())
@@ -36,4 +42,14 @@ fn add_fill(model: &mut Model, dir: &Path) -> Result<(), io::Error> {
         }
     }
     Ok(())
+}
+
+fn count_nodes(objects: &Objects) -> usize {
+    objects.iter().filter_map(|obj| {
+        if let AnyObj::Local(Obj::TCB(obj::TCB { affinity, .. })) = &obj.object {
+            Some(*affinity as usize)
+        } else {
+            None
+        }
+    }).max().map_or(0, |affinity| affinity + 1)
 }

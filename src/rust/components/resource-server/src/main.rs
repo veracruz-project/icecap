@@ -99,8 +99,7 @@ fn main(config: Config) -> Fallible<()> {
                 }
                 calls::REALIZE => {
                     let realm_id = MR_0.get() as usize;
-                    let num_nodes = MR_1.get() as usize;
-                    resource_server.realize(realm_id, num_nodes)?;
+                    resource_server.realize(realm_id)?;
                     0
                 }
                 // ...

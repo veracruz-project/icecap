@@ -219,8 +219,11 @@ pub enum ExternObj {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Model {
-    pub objects: Vec<TopObj>
+    pub num_nodes: usize,
+    pub objects: Objects,
 }
+
+pub type Objects = Vec<TopObj>;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AnyObj {
@@ -232,4 +235,10 @@ pub enum AnyObj {
 pub struct TopObj {
     pub object: AnyObj,
     pub name: String,
+}
+
+// HACK
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct CapDLToolOutput {
+    pub objects: Objects,
 }
