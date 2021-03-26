@@ -1,6 +1,6 @@
 from capdl import ObjectType, Cap, ARMIRQMode
 from icedl.composition import RingBufferObjects, RingBufferSideObjects
-from icedl.component.elf import ElfComponent
+from icedl.components.elf import ElfComponent
 from icedl.utils import *
 
 DEV_0_IRQ = 209

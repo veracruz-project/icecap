@@ -1,6 +1,6 @@
 from pathlib import Path
 from capdl import ObjectType, Cap
-from icedl.component.elf import ElfComponent
+from icedl.components.elf import ElfComponent
 from icedl.utils import BLOCK_SIZE, PAGE_SIZE
 
 HACK_AFFINITY = 2 # HACK

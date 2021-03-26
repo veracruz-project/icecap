@@ -6,7 +6,7 @@ from elftools.elf.elffile import ELFFile
 from capdl import ObjectType, ELF, Cap
 
 from icedl.utils import PAGE_SIZE, BLOCK_SIZE, vaddr_at_block, align_up, mk_fill, as_list
-from icedl.component.base import BaseComponent
+from icedl.components.base import BaseComponent
 
 DEFAULT_STATIC_HEAP_SIZE = 4 * BLOCK_SIZE
 

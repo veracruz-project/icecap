@@ -1,4 +1,4 @@
-from icedl.component.elf import ElfComponent
+from icedl.components.elf import ElfComponent
 
 class GenericElfComponent(ElfComponent):
 

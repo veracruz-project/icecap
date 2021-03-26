@@ -1,5 +1,5 @@
 from capdl import ObjectType, Cap, ARMIRQMode
-from icedl.component.elf import ElfComponent
+from icedl.components.elf import ElfComponent
 from icedl.utils import as_list, PAGE_SIZE
 
 HACK_AFFINITY = 1 # HACK

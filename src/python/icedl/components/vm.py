@@ -4,8 +4,8 @@ import subprocess
 
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.component.base import BaseComponent
-from icedl.component.elf import ElfComponent
+from icedl.components.base import BaseComponent
+from icedl.components.elf import ElfComponent
 from icedl.utils import *
 
 REAL_VIRTUAL_TIMER_IRQ = 27
