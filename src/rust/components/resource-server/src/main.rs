@@ -10,9 +10,9 @@ extern crate alloc;
 use icecap_std::prelude::*;
 use icecap_std::config_realize::{realize_mapped_ring_buffer, realize_timer_client};
 use icecap_std::config::{DynamicUntyped};
-use icecap_caput_config::*;
-use icecap_caput_types::{Message, calls};
-use icecap_caput_core::*;
+use icecap_resource_server_config::*;
+use icecap_resource_server_types::{Message, calls};
+use icecap_resource_server_core::*;
 
 mod realize_config;
 use realize_config::*;
@@ -20,7 +20,7 @@ use realize_config::*;
 declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
-    // Unmap dummy pages in the Caput CNode.
+    // Unmap dummy pages in the ResourceServer CNode.
     config.small_page.unmap()?;
     config.large_page.unmap()?;
 
@@ -51,7 +51,7 @@ fn main(config: Config) -> Fallible<()> {
     let initialization_resources = realize_initialization_resources(&config.initialization_resources);
     let externs = realize_externs(&config.externs);
 
-    let mut caput = Caput::new(initialization_resources, allocator, externs);
+    let mut resource_server = ResourceServer::new(initialization_resources, allocator, externs);
 
     let err = |err| format_err!("failed to parse packet: {}", err);
 
@@ -72,7 +72,7 @@ fn main(config: Config) -> Fallible<()> {
                         state = None;
                         match message {
                             Message::SpecChunk { realm_id, offset } => {
-                                caput.incorporate_spec_chunk(realm_id, offset, &packet)?;
+                                resource_server.incorporate_spec_chunk(realm_id, offset, &packet)?;
                             }
                             Message::FillChunk { realm_id, .. } => {
                                 todo!()
@@ -93,14 +93,14 @@ fn main(config: Config) -> Fallible<()> {
             let length = match info.label() as usize {
                 calls::DECLARE => {
                     let spec_size = MR_0.get() as usize;
-                    let realm_id = caput.declare(spec_size)?;
+                    let realm_id = resource_server.declare(spec_size)?;
                     MR_0.set(realm_id as u64);
                     1
                 }
                 calls::REALIZE => {
                     let realm_id = MR_0.get() as usize;
                     let num_nodes = MR_1.get() as usize;
-                    caput.realize(realm_id, num_nodes)?;
+                    resource_server.realize(realm_id, num_nodes)?;
                     0
                 }
                 // ...

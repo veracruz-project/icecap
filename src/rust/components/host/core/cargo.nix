@@ -3,7 +3,7 @@
 mk {
   name = "icecap-host-core";
   localDependencies = with localCrates; [
-    icecap-caput-types
+    icecap-resource-server-types
   ];
   dependencies = {
     libc = "*";

@@ -1,12 +1,12 @@
 { mkBin, localCrates, serdeMin }:
 
 mkBin {
-  name = "caput";
+  name = "resource-server";
   localDependencies = with localCrates; [
     icecap-std
-    icecap-caput-types
-    icecap-caput-config
-    icecap-caput-core
+    icecap-resource-server-types
+    icecap-resource-server-config
+    icecap-resource-server-core
     dyndl-types
   ];
   dependencies = {

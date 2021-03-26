@@ -1,5 +1,5 @@
 use libc::{syscall, c_long};
-use icecap_caput_types::calls;
+use icecap_resource_server_types::calls;
 use crate::{Result, ensure};
 
 const SYS_ICECAP: c_long = 436;

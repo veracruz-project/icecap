@@ -96,7 +96,7 @@ in
 
     initramfs.profile = ''
       s() {
-        icecap-host file:/dev/rb_caput /spec.bin
+        icecap-host file:/dev/rb_resource_server /spec.bin
       }
       i() {
         iperf3 -s
@@ -105,7 +105,7 @@ in
         curl google.com
       }
       cr() {
-        icecap-host file:/dev/rb_caput /spec.bin
+        icecap-host file:/dev/rb_resource_server /spec.bin
       }
     '';
 

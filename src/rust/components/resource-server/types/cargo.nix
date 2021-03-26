@@ -1,7 +1,7 @@
 { mk, serdeMin }:
 
 mk {
-  name = "icecap-caput-types";
+  name = "icecap-resource-server-types";
   dependencies = {
     serde = serdeMin;
     pinecone = "*";

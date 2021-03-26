@@ -34,8 +34,8 @@ mkInstance (self: with self; if true then {} else {
       fault_handler.image = bins.fault-handler.split;
       timer_server.image = bins.timer-server.split;
       serial_server.image = bins.serial-server.split;
-      caput.image = bins.caput.split;
-      caput.spec = spec;
+      resource_server.image = bins.resource-server.split;
+      resource_server.spec = spec;
     };
   };
 

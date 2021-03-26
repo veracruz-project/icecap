@@ -27,7 +27,7 @@ lib.mapAttrs mk {
   fault-handler = {};
   serial-server = {};
   timer-server = {};
-  caput = {};
+  resource-server = {};
   vmm = {};
   qemu-ring-buffer-server = {};
 

@@ -82,7 +82,7 @@ in
       ln -s /mnt/spec.bin /spec.bin
     '' + ''
 
-      time icecap-host file:/dev/rb_caput /spec.bin
+      time icecap-host file:/dev/rb_resource_server /spec.bin
       iperf3 -s1
     '';
 
@@ -100,7 +100,7 @@ in
 
     initramfs.profile = ''
       s() {
-        icecap-host file:/dev/rb_caput /spec.bin
+        icecap-host file:/dev/rb_resource_server /spec.bin
       }
       i() {
         iperf3 -s

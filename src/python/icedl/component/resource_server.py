@@ -5,7 +5,7 @@ from icedl.utils import BLOCK_SIZE, PAGE_SIZE
 
 HACK_AFFINITY = 2 # HACK
 
-class Caput(ElfComponent):
+class ResourceServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, affinity=HACK_AFFINITY, max_prio=255, update_guard_size=False, **kwargs)
@@ -113,7 +113,7 @@ class Caput(ElfComponent):
             add_frame(obj, 'write', 'data', i, read=True, write=True)
 
     def serialize_arg(self):
-        return 'serialize-caput-config'
+        return 'serialize-resource-server-config'
 
     def arg_json(self):
         self._arg['timer'] = self.connections['timer']['TimerClient']

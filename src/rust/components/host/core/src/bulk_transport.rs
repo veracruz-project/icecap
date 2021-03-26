@@ -4,7 +4,7 @@ use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 
-pub use icecap_caput_types::Message;
+pub use icecap_resource_server_types::Message;
 
 use crate::{Result, bail};
 

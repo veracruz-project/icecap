@@ -1,12 +1,14 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-caput-config";
+  name = "icecap-resource-server-core";
   localDependencies = with localCrates; [
-    icecap-config
     dyndl-types
+    icecap-core
   ];
   dependencies = {
+    log = "*";
+    pinecone = "*";
     serde = serdeMin;
   };
 }

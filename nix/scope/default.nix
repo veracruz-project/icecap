@@ -147,10 +147,10 @@ superCallPackage ./ocaml {} self //
     type = "icecap_vmm_config::Config";
     crate = outerGlobalCrates.icecap-vmm-config;
   };
-  serialize-caput-config = mkSerializeConfig {
-    name = "caput";
-    type = "icecap_caput_config::Config";
-    crate = outerGlobalCrates.icecap-caput-config;
+  serialize-resource-server-config = mkSerializeConfig {
+    name = "resource-server";
+    type = "icecap_resource_server_config::Config";
+    crate = outerGlobalCrates.icecap-resource-server-config;
   };
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};

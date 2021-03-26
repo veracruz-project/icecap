@@ -1,6 +1,6 @@
 use icecap_std::prelude::*;
-use icecap_caput_config::*;
-use icecap_caput_core::*;
+use icecap_resource_server_config::*;
+use icecap_resource_server_core::*;
 
 pub fn realize_initialization_resources(x: &ConfigRealmObjectInitializationResources) -> RealmObjectInitializationResources {
     RealmObjectInitializationResources {

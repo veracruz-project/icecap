@@ -14,7 +14,7 @@ filterAttrs (_: v: v != null) {
 
   icecap-host = ./components/host;
   icecap-host-core = ./components/host/core;
-  icecap-caput-types = ./components/caput/types;
+  icecap-resource-server-types = ./components/resource-server/types;
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
@@ -36,7 +36,7 @@ filterAttrs (_: v: v != null) {
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
 
   icecap-vmm-config = ./components/vmm/config;
-  icecap-caput-config = ./components/caput/config;
+  icecap-resource-server-config = ./components/resource-server/config;
   icecap-fault-handler-config = ./components/fault-handler/config;
   icecap-timer-server-config = ./components/timer-server/config;
   icecap-serial-server-config = ./components/serial-server/config;
@@ -70,8 +70,8 @@ filterAttrs (_: v: v != null) {
   vmm = seL4Only ./components/vmm;
   icecap-vmm-core = seL4Only ./components/vmm/core;
 
-  caput = seL4Only ./components/caput;
-  icecap-caput-core = seL4Only ./components/caput/core;
+  resource-server = seL4Only ./components/resource-server;
+  icecap-resource-server-core = seL4Only ./components/resource-server/core;
 
   fault-handler = seL4Only ./components/fault-handler;
 

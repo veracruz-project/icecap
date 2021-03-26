@@ -30,7 +30,7 @@ pub struct Config {
     pub tcb: TCB,
     pub vcpu: VCPU,
 
-    pub caput_ep_write: Option<Endpoint>,
+    pub resource_server_ep_write: Option<Endpoint>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

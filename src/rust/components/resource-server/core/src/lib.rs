@@ -60,7 +60,7 @@ pub struct Extern {
     pub cptr: Unspecified,
 }
 
-pub struct Caput {
+pub struct ResourceServer {
     initialization_resources: RealmObjectInitializationResources,
     allocator: Allocator,
     externs: Externs,
@@ -93,14 +93,14 @@ struct VirtualNode {
 // struct PartialRealm {
 // }
 
-impl Caput {
+impl ResourceServer {
 
     pub fn new(
         initialization_resources: RealmObjectInitializationResources,
         allocator: Allocator,
         externs: Externs,
     ) -> Self {
-        Caput {
+        ResourceServer {
             initialization_resources,
             allocator,
             externs,

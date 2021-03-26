@@ -47,8 +47,8 @@ let
         timer_server.image = bins.timer-server.split;
         serial_server.image = bins.serial-server.split;
 
-        caput.image = bins.caput.split;
-        caput.heap_size = 128 * 1048576;
+        resource_server.image = bins.resource-server.split;
+        resource_server.heap_size = 128 * 1048576;
 
         host_vmm.image = bins.vmm.split;
         host_vm.kernel = u-boot;
