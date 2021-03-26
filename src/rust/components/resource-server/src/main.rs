@@ -92,10 +92,10 @@ fn main(config: Config) -> Fallible<()> {
 
             let length = match info.label() as usize {
                 calls::DECLARE => {
-                    let spec_size = MR_0.get() as usize;
-                    let realm_id = resource_server.declare(spec_size)?;
-                    MR_0.set(realm_id as u64);
-                    1
+                    let realm_id = MR_0.get() as usize;
+                    let spec_size = MR_1.get() as usize;
+                    let realm_id = resource_server.declare(realm_id, spec_size)?;
+                    0
                 }
                 calls::REALIZE => {
                     let realm_id = MR_0.get() as usize;

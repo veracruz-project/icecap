@@ -110,10 +110,11 @@ impl ResourceServer {
         }
     }
 
-    pub fn declare(&mut self, spec_size: usize) -> Fallible<RealmId> {
-        let realm_id = 0; // TODO
+    pub fn declare(&mut self, realm_id: RealmId, spec_size: usize) -> Fallible<()> {
+        assert!(!self.partial_specs.contains_key(&realm_id));
+        assert!(!self.realms.contains_key(&realm_id));
         self.partial_specs.insert(realm_id, vec![0; spec_size]);
-        Ok(realm_id)
+        Ok(())
     }
 
     pub fn incorporate_spec_chunk(&mut self, realm_id: RealmId, offset: usize, chunk: &[u8]) -> Fallible<()> {

@@ -9,10 +9,11 @@ fn wrap(label: &str, ret: c_long) -> Result<c_long> {
     Ok(ret)
 }
 
-pub fn declare(spec_size: usize) -> Result<usize> {
-    Ok(unsafe {
-        wrap("declare", syscall(SYS_ICECAP, spec_size as c_long, 0, 0, 0, calls::DECLARE as c_long, 2))?
-    } as usize)
+pub fn declare(realm_id: usize, spec_size: usize) -> Result<()> {
+    assert_eq!(0, unsafe {
+        wrap("declare", syscall(SYS_ICECAP, realm_id as c_long, spec_size as c_long, 0, 0, calls::DECLARE as c_long, 3))?
+    });
+    Ok(())
 }
 
 pub fn realize(realm_id: usize, num_nodes: usize) -> Result<()> {
