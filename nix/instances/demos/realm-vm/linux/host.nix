@@ -95,8 +95,11 @@ in
     '';
 
     initramfs.profile = ''
-      s() {
-        icecap-host file:/dev/rb_resource_server /spec.bin
+      ic() {
+        icecap-host create 0 /spec.bin file:/dev/rb_resource_server
+      }
+      id() {
+        icecap-host destroy 0
       }
       i() {
         iperf3 -s
