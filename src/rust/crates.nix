@@ -73,6 +73,8 @@ filterAttrs (_: v: v != null) {
   resource-server = seL4Only ./components/resource-server;
   icecap-resource-server-core = seL4Only ./components/resource-server/core;
 
+  idle = seL4Only ./components/idle;
+
   fault-handler = seL4Only ./components/fault-handler;
 
   timer-server = seL4Only ./components/timer-server;

@@ -30,5 +30,6 @@ lib.mapAttrs mk {
   resource-server = {};
   vmm = {};
   qemu-ring-buffer-server = {};
+  idle = {};
 
 }

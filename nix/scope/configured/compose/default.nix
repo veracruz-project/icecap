@@ -43,6 +43,7 @@ let
 
     config = {
       components = {
+        idle.image = bins.idle.split;
         fault_handler.image = bins.fault-handler.split;
         timer_server.image = bins.timer-server.split;
         serial_server.image = bins.serial-server.split;

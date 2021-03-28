@@ -5,6 +5,7 @@ from icedl.composition import Composition, RingBufferObjects, RingBufferSideObje
 from icedl.components.base import BaseComponent
 from icedl.components.elf import ElfComponent, ElfThread
 from icedl.components.generic import GenericElfComponent
+from icedl.components.idle import Idle
 from icedl.components.fault_handler import FaultHandler
 from icedl.components.timer_server import TimerServer
 from icedl.components.serial_server import SerialServer

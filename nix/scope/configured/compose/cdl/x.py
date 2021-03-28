@@ -4,6 +4,7 @@ composition = start()
 
 gic_vcpu_frame = composition.gic_vcpu_frame()
 
+idle = composition.component(Idle, 'idle', affinity=3, prio=255)
 fault_handler = composition.component(FaultHandler, 'fault_handler')
 timer_server = composition.component(TimerServer, 'timer_server', fault_handler=fault_handler)
 serial_server = composition.component(SerialServer, 'serial_server', fault_handler=fault_handler)
