@@ -29,3 +29,10 @@ pub fn destroy(realm_id: usize) -> Result<()> {
     });
     Ok(())
 }
+
+// pub fn yield_to(realm_id: usize) -> Result<()> {
+//     assert_eq!(0, unsafe {
+//         wrap("destroy", syscall(SYS_ICECAP, realm_id as c_long, 0, 0, 0, calls::DESTROY as c_long, 2))?
+//     });
+//     Ok(())
+// }

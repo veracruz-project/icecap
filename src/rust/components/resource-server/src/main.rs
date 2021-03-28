@@ -107,6 +107,11 @@ fn main(config: Config) -> Fallible<()> {
                     resource_server.destroy(realm_id)?;
                     0
                 }
+                calls::YIELD_TO => {
+                    let realm_id = MR_0.get() as usize;
+                    resource_server.destroy(realm_id)?;
+                    0
+                }
                 _ => {
                     panic!()
                 }

@@ -4,7 +4,7 @@ use icecap_core::prelude::*;
 use dyndl_types::*;
 
 use crate::{
-    CRegion, utils::rights_of,
+    CRegion, utils::rights_of, cpu::schedule,
 };
 
 pub struct RealmObjectInitializationResources {
@@ -199,7 +199,7 @@ impl<'a> Initialize<'a> {
 
         tcb.configure(fault_ep, cspace, cspace_root_data, vspace, obj.ipc_buffer_addr, ipc_buffer_frame)?;
         tcb.set_sched_params(self.initialization_resources.tcb_authority, obj.max_prio as u64, obj.prio as u64)?;
-        tcb.set_affinity(obj.affinity)?; // HACK should be 'num_physical_nodes'
+        schedule(tcb, None)?;
 
         let mut regs = UserContext::default();
         regs.pc = obj.ip;

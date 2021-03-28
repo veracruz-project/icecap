@@ -6,27 +6,11 @@ use core::mem;
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
-// #[derive(Clone, Debug)]
-// pub struct Call {
-//     pub id: u64,
-//     pub num_args: usize,
-//     pub num_ret: usize,
-// }
-
 pub mod calls {
-    // use super::Call;
-
-    // pub const DECLARE: Call = Call { id: 1, num_args: 1, num_ret: 1 };
-    // pub const REALIZE: Call = Call { id: 2, num_args: 3, num_ret: 0 };
-    // pub const PUT: Call = Call { id: 3, num_args: 3, num_ret: 0 };
-    // pub const TAKE: Call = Call { id: 4, num_args: 2, num_ret: 0 };
-    // pub const DESTROY: Call = Call { id: 5, num_args: 1, num_ret: 0 };
-
     pub const DECLARE: usize = 1;
     pub const REALIZE: usize = 2;
-    pub const PUT: usize = 3;
-    pub const TAKE: usize = 4;
-    pub const DESTROY: usize = 5;
+    pub const YIELD_TO: usize = 3;
+    pub const DESTROY: usize = 4;
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

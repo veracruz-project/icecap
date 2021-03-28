@@ -19,9 +19,13 @@ mod allocator;
 mod utils;
 mod model_view;
 mod initialize_realm_objects;
+mod cpu;
 
 use utils::*;
 use model_view::ModelView;
+use cpu::{
+    NUM_NODES, schedule,
+};
 
 pub use cregion::{CRegion, Slot};
 pub use allocator::{Allocator, AllocatorBuilder};
@@ -70,6 +74,15 @@ pub struct ResourceServer {
 
     // TODO
     // partial_realms: BTreeMap<RealmId, PartialRealm>,
+
+    physical_nodes: [Option<(RealmId, VirtualNodeIndex)>; NUM_NODES],
+
+    resume_host: Box<dyn Fn(PhysicalNodeIndex, ResumeHostCondition)>,
+
+    set_timeout: Box<dyn Fn(PhysicalNodeIndex, Nanoseconds)>,
+    cancel_timeout: Box<dyn Fn(PhysicalNodeIndex)>,
+    set_notify_host_event: Box<dyn Fn(PhysicalNodeIndex)>,
+    cancel_notify_host_event: Box<dyn Fn(PhysicalNodeIndex)>,
 }
 
 struct Realm {
@@ -86,7 +99,7 @@ struct Realm {
 
 struct VirtualNode {
     tcbs: Vec<TCB>,
-    physical_node: Option<PhysicalNodeIndex>,
+    physical_node: Option<PhysicalNodeIndex>, // TODO include timout target?
 }
 
 // TODO
@@ -107,8 +120,19 @@ impl ResourceServer {
 
             realms: BTreeMap::new(),
             partial_specs: BTreeMap::new(),
+
+            physical_nodes: [None; NUM_NODES],
+
+            resume_host: Box::new(|_, _| todo!()),
+
+            set_timeout: Box::new(|_, _| todo!()),
+            cancel_timeout: Box::new(|_| todo!()),
+            set_notify_host_event: Box::new(|_| todo!()),
+            cancel_notify_host_event: Box::new(|_| todo!()),
         }
     }
+
+    // Kernel object resources
 
     pub fn declare(&mut self, realm_id: RealmId, spec_size: usize) -> Fallible<()> {
         assert!(!self.partial_specs.contains_key(&realm_id));
@@ -134,23 +158,10 @@ impl ResourceServer {
         Ok(())
     }
 
-    pub fn put(&mut self, realm_id: RealmId, virtual_node: VirtualNodeIndex, physical_node: PhysicalNodeIndex) -> Fallible<()> {
-        // TODO
-        Ok(())
-    }
-
-    pub fn take(&mut self, realm_id: RealmId, virtual_node: VirtualNodeIndex) -> Fallible<()> {
-        // TODO
-        Ok(())
-    }
-
     pub fn destroy(&mut self, realm_id: RealmId) -> Fallible<()> {
         let realm = self.realms.remove(&realm_id).unwrap();
         for virtual_node in &realm.virtual_nodes {
-            for tcb in &virtual_node.tcbs {
-                // HACK
-                tcb.suspend()?;
-            }
+            assert!(virtual_node.physical_node.is_none());
         }
         self.allocator.revoke_and_free(&realm.cnode_untyped_id)?;
         for untyped_id in &realm.object_untyped_ids {
@@ -159,8 +170,6 @@ impl ResourceServer {
         self.externs.extend(realm.externs);
         Ok(())
     }
-
-    ////
 
     fn realize_inner(&mut self, model: &Model) -> Fallible<Realm> {
         let view = ModelView::new(model);
@@ -262,9 +271,16 @@ impl ResourceServer {
         }).collect();
 
         let virtual_nodes = self.initialization_resources.initialize(model.num_nodes, model, &all_caps, &mut cregion)?;
-        let virtual_nodes = virtual_nodes.into_iter().map(|tcbs| VirtualNode {
+        let virtual_nodes: Vec<VirtualNode> = virtual_nodes.into_iter().map(|tcbs| VirtualNode {
             tcbs, physical_node: None,
         }).collect();
+
+        // HACK
+        for (i, virtual_node) in virtual_nodes.iter().enumerate() {
+            for tcb in &virtual_node.tcbs {
+                schedule(*tcb, Some(i))?;
+            }
+        }
 
         Ok(Realm {
             virtual_nodes,
@@ -273,4 +289,83 @@ impl ResourceServer {
             externs,
         })
     }
+
+    // CPU resources
+
+    pub fn yield_to(&mut self, physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds) -> Fallible<()> {
+        assert!(self.physical_nodes[physical_node].is_none());
+        self.physical_nodes[physical_node] = Some((realm_id, virtual_node));
+        let realm = self.realms.get_mut(&realm_id).unwrap();
+        let virtual_node = &mut realm.virtual_nodes[virtual_node];
+        assert!(virtual_node.physical_node.is_none());
+        virtual_node.physical_node = Some(physical_node);
+        for tcb in &virtual_node.tcbs {
+            schedule(*tcb, Some(physical_node))?;
+        }
+        (self.set_notify_host_event)(physical_node);
+        (self.set_timeout)(physical_node, timeout);
+        Ok(())
+    }
+
+    pub fn yield_back(&mut self, realm_id: RealmId, virtual_node: VirtualNodeIndex, condition: YieldBackCondition) -> Fallible<()> {
+        let realm = self.realms.get_mut(&realm_id).unwrap();
+        let virtual_node = &mut realm.virtual_nodes[virtual_node];
+        let physical_node = virtual_node.physical_node.take().unwrap();
+        for tcb in &virtual_node.tcbs {
+            schedule(*tcb, None)?;
+        }
+        (self.cancel_notify_host_event)(physical_node);
+        (self.cancel_timeout)(physical_node);
+        (self.resume_host)(physical_node, ResumeHostCondition::RealmYieldedBack(condition));
+        Ok(())
+    }
+
+    pub fn host_event(&mut self, physical_node: PhysicalNodeIndex) -> Fallible<()> {
+        if let Some((realm_id, virtual_node)) = self.physical_nodes[physical_node].take() {
+            let realm = self.realms.get_mut(&realm_id).unwrap();
+            let virtual_node = &mut realm.virtual_nodes[virtual_node];
+            virtual_node.physical_node = None;
+            for tcb in &virtual_node.tcbs {
+                schedule(*tcb, None)?;
+            }
+            (self.cancel_notify_host_event)(physical_node);
+            (self.cancel_timeout)(physical_node);
+            (self.resume_host)(physical_node, ResumeHostCondition::HostEvent);
+        }
+        Ok(())
+    }
+
+    pub fn timeout(&mut self, physical_node: PhysicalNodeIndex) -> Fallible<()> {
+        if let Some((realm_id, virtual_node)) = self.physical_nodes[physical_node].take() {
+            let realm = self.realms.get_mut(&realm_id).unwrap();
+            let virtual_node = &mut realm.virtual_nodes[virtual_node];
+            virtual_node.physical_node = None;
+            for tcb in &virtual_node.tcbs {
+                schedule(*tcb, None)?;
+            }
+            (self.cancel_notify_host_event)(physical_node);
+            (self.cancel_timeout)(physical_node);
+            (self.resume_host)(physical_node, ResumeHostCondition::HostEvent);
+        }
+        Ok(())
+    }
+
+}
+
+pub type Nanoseconds = usize;
+
+pub enum NotifyEventDomain {
+    Host,
+    Realm(RealmId),
+}
+
+pub enum YieldBackCondition {
+    WFE { timeout: Nanoseconds },
+    // Message,
+}
+
+pub enum ResumeHostCondition {
+    Timeout,
+    HostEvent,
+    RealmYieldedBack(YieldBackCondition),
 }
