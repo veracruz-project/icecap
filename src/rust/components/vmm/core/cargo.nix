@@ -6,6 +6,7 @@ mk {
     icecap-failure
     icecap-sel4
     icecap-interfaces
+    icecap-rpc-sel4
   ];
   dependencies = {
     num = { version = "*"; default-features = false; };

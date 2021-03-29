@@ -11,8 +11,9 @@ use icecap_std::prelude::*;
 use icecap_std::config_realize::{realize_mapped_ring_buffer, realize_timer_client};
 use icecap_std::config::{DynamicUntyped};
 use icecap_resource_server_config::*;
-use icecap_resource_server_types::{Message, calls};
+use icecap_resource_server_types::*;
 use icecap_resource_server_core::*;
+use icecap_rpc_sel4::*;
 
 mod realize_config;
 use realize_config::*;
@@ -89,35 +90,14 @@ fn main(config: Config) -> Fallible<()> {
         }
 
         if badge == 0 {
-
-            let length = match info.label() {
-                calls::DECLARE => {
-                    let realm_id = MR_0.get() as usize;
-                    let spec_size = MR_1.get() as usize;
-                    let realm_id = resource_server.declare(realm_id, spec_size)?;
-                    0
-                }
-                calls::REALIZE => {
-                    let realm_id = MR_0.get() as usize;
-                    resource_server.realize(realm_id)?;
-                    0
-                }
-                calls::DESTROY => {
-                    let realm_id = MR_0.get() as usize;
-                    resource_server.destroy(realm_id)?;
-                    0
-                }
-                calls::YIELD_TO => {
-                    let realm_id = MR_0.get() as usize;
-                    resource_server.destroy(realm_id)?;
-                    0
-                }
-                _ => {
-                    panic!()
+            match rpc_server::recv(&info) {
+                Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
+                Request::Realize { realm_id } => rpc_server::reply::<()>(&resource_server.realize(realm_id)?),
+                Request::Destroy { realm_id } => rpc_server::reply::<()>(&resource_server.destroy(realm_id)?),
+                Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
+                    todo!();
                 }
             };
-
-            reply(MessageInfo::new(0, 0, 0, length));
         }
     }
 }

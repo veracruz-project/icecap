@@ -65,6 +65,8 @@ in
       physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
       nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
 
+      mount -t debugfs none /sys/kernel/debug/
+
       mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
       spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
       echo "cp -L /mnt/$spec /spec.bin..."

@@ -1,38 +1,55 @@
 use libc::{syscall, c_long};
-use icecap_resource_server_types::calls;
+use std::fs::File;
+use std::os::unix::io::AsRawFd;
+use icecap_resource_server_types::*;
+use icecap_rpc::*;
 use crate::{Result, ensure};
 
-const SYS_ICECAP: c_long = 436;
+const ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU: u64 = 1338;
 
-fn wrap(label: &str, ret: c_long) -> Result<c_long> {
-    ensure!(ret >= 0, "{} returned {}", label, ret);
-    Ok(ret)
+const ICECAP_VMM_PASSTHRU: u64 = 0xc0403300;
+
+#[repr(C)]
+struct Passthru {
+    sys_id: u64,
+    regs: [u64; 7],
 }
 
-pub fn declare(realm_id: usize, spec_size: usize) -> Result<()> {
-    assert_eq!(0, unsafe {
-        wrap("declare", syscall(SYS_ICECAP, realm_id as c_long, spec_size as c_long, 0, 0, calls::DECLARE as c_long, 3))?
-    });
-    Ok(())
+fn ioctl_passthru(passthru: &mut Passthru) {
+    let f = File::open("/sys/kernel/debug/icecap_vmm").unwrap();
+    let ret = unsafe {
+        libc::ioctl(f.as_raw_fd(), ICECAP_VMM_PASSTHRU, passthru as *mut Passthru)
+    };
+    assert_eq!(ret, 0);
 }
 
-pub fn realize(realm_id: usize) -> Result<()> {
-    assert_eq!(0, unsafe {
-        wrap("realize", syscall(SYS_ICECAP, realm_id as c_long, 0, 0, 0, calls::REALIZE as c_long, 2))?
-    });
-    Ok(())
+fn call_passthru<Input: RPC, Output: RPC>(sys_id: u64, input: &Input) -> Output {
+    let mut v_in = input.send_to_vec();
+    let length = v_in.len();
+    assert!(length <= 6);
+    v_in.resize_with(6, || 0);
+    let mut passthru = Passthru {
+        sys_id,
+        regs: [0; 7],
+    };
+    passthru.regs[0] = length as u64;
+    passthru.regs[1..].copy_from_slice(&v_in);
+    ioctl_passthru(&mut passthru);
+    Output::recv_from_slice(&passthru.regs[1..][..passthru.regs[0] as usize])
 }
 
-pub fn destroy(realm_id: usize) -> Result<()> {
-    assert_eq!(0, unsafe {
-        wrap("destroy", syscall(SYS_ICECAP, realm_id as c_long, 0, 0, 0, calls::DESTROY as c_long, 2))?
-    });
-    Ok(())
+fn call_resource_server<Output: RPC>(request: &Request) -> Output {
+    call_passthru(ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU, request)
 }
 
-// pub fn yield_to(realm_id: usize) -> Result<()> {
-//     assert_eq!(0, unsafe {
-//         wrap("destroy", syscall(SYS_ICECAP, realm_id as c_long, 0, 0, 0, calls::DESTROY as c_long, 2))?
-//     });
-//     Ok(())
-// }
+pub fn declare(realm_id: usize, spec_size: usize) {
+    call_resource_server(&Request::Declare { realm_id, spec_size })
+}
+
+pub fn realize(realm_id: usize) {
+    call_resource_server(&Request::Realize { realm_id })
+}
+
+pub fn destroy(realm_id: usize) {
+    call_resource_server(&Request::Destroy { realm_id })
+}

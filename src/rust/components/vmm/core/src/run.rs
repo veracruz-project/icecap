@@ -7,6 +7,7 @@ use alloc::collections::{VecDeque, BTreeMap};
 use icecap_failure::Fallible;
 use icecap_sel4::{Fault, fault::*, prelude::*};
 use icecap_interfaces::Timer;
+use icecap_rpc_sel4::*;
 
 use crate::{
     asm, biterate::biterate,
@@ -25,7 +26,7 @@ pub const BADGE_VM: Badge = 1;
 
 const SYS_PUTCHAR: Word = 1337;
 const SYS_PSCI: Word = 0;
-const SYS_CAPUT: Word = 1338;
+const SYS_RESOURCE_SERVER_PASSTHRU: Word = 1338;
 
 const CNTV_CTL_EL0_IMASK: u64 = 2 << 0;
 const CNTV_CTL_EL0_ENABLE: u64 = 1 << 0;
@@ -252,8 +253,8 @@ impl<F: Fn(u8)> VM<F> {
             SYS_PSCI => {
                 self.sys_psci();
             }
-            SYS_CAPUT => {
-                self.sys_resource_server();
+            SYS_RESOURCE_SERVER_PASSTHRU => {
+                self.sys_resource_server_passthru();
             }
             _ => {
                 panic!();
@@ -313,21 +314,21 @@ impl<F: Fn(u8)> VM<F> {
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
     }
 
-    fn sys_resource_server(&self) {
+    fn sys_resource_server_passthru(&self) {
         let mut ctx = self.tcb.read_all_registers(false).unwrap();
-        debug_println!("SYS_CAPUT {:x?}", ctx);
-        let label = ctx.x4;
-        let length = ctx.x5;
-        MR_0.set(ctx.x0);
-        MR_1.set(ctx.x1);
-        MR_2.set(ctx.x2);
-        MR_3.set(ctx.x3);
-        let info = self.resource_server_write.unwrap().call(MessageInfo::new(label, 0, 0, length));
-        ctx.x0 = match info.length() {
-            0 => 0,
-            1 => MR_0.get(),
-            _ => panic!(),
-        };
+        let length = ctx.x0 as usize;
+        let parameters = &[ctx.x1, ctx.x2, ctx.x3, ctx.x4, ctx.x5, ctx.x6][..length];
+        let recv_info = self.resource_server_write.unwrap().call(proxy::up(parameters));
+        let mut r = proxy::down(&recv_info);
+        assert!(r.len() <= 6);
+        ctx.x0 = r.len() as u64;
+        r.resize_with(6, || 0);
+        ctx.x1 = r[0];
+        ctx.x2 = r[1];
+        ctx.x3 = r[2];
+        ctx.x4 = r[3];
+        ctx.x5 = r[4];
+        ctx.x6 = r[5];
         ctx.pc += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
     }

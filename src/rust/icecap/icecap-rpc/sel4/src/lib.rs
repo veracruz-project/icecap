@@ -1,8 +1,12 @@
 #![no_std]
 
+extern crate alloc;
+
 pub use icecap_rpc::*;
-pub use icecap_sel4::prelude::*;
-pub use core::marker::PhantomData;
+
+use icecap_sel4::prelude::*;
+use core::marker::PhantomData;
+use alloc::vec::Vec;
 
 struct ReadCallImpl {
     length: usize,
@@ -10,7 +14,6 @@ struct ReadCallImpl {
 }
 
 impl ReadCallImpl {
-
 
     fn new(length: usize) -> Self {
         Self {
@@ -27,7 +30,7 @@ impl ReadCallImpl {
 
 impl ReadCall for ReadCallImpl {
 
-    fn read(&mut self) -> ParameterValue {
+    fn read_value(&mut self) -> ParameterValue {
         assert_ne!(self.cursor, self.length);
         let value = MessageRegister::new(self.cursor as i32).get();
         self.cursor += 1;
@@ -57,7 +60,7 @@ impl WriteCallImpl {
 
 impl WriteCall for WriteCallImpl {
 
-    fn write(&mut self, value: ParameterValue) {
+    fn write_value(&mut self, value: ParameterValue) {
         MessageRegister::new(self.cursor as i32).set(value);
         self.cursor += 1;
     }
@@ -100,5 +103,27 @@ pub mod rpc_server {
 
     pub fn reply<Output: RPC>(output: &Output) {
         sel4::reply(WriteCallImpl::complete(output))
+    }
+}
+
+pub mod proxy {
+    use super::*;
+
+    pub fn down(info: &MessageInfo) -> Vec<ParameterValue> {
+        let mut parameters = Vec::new();
+        let length = info.length() as usize;
+        let mut call = ReadCallImpl::new(length);
+        for _ in 0..length {
+            parameters.push(call.read());
+        }
+        parameters
+    }
+
+    pub fn up(parameters: &[ParameterValue]) -> MessageInfo {
+        let mut call = WriteCallImpl::new();
+        for parameter in parameters {
+            call.write(*parameter);
+        }
+        MessageInfo::new(0, 0, 0, parameters.len() as u64)
     }
 }

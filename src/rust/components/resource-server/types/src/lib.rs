@@ -32,7 +32,7 @@ pub enum Request {
     YieldTo { physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds },
 }
 
-pub mod calls {
+mod calls {
     use super::*;
 
     pub const DECLARE: ParameterValue = 1;
@@ -44,11 +44,38 @@ pub mod calls {
 impl RPC for Request {
 
     fn send(&self, call: &mut impl WriteCall) {
-        todo!()
+        match *self {
+            Request::Declare { realm_id, spec_size } => {
+                call.write(calls::DECLARE);
+                call.write(realm_id);
+                call.write(spec_size);
+            }
+            Request::Realize { realm_id } => {
+                call.write(calls::REALIZE);
+                call.write(realm_id);
+            }
+            Request::Destroy { realm_id } => {
+                call.write(calls::DESTROY);
+                call.write(realm_id);
+            }
+            Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
+                call.write(calls::YIELD_TO);
+                call.write(physical_node);
+                call.write(realm_id);
+                call.write(virtual_node);
+                call.write(timeout);
+            }
+        }
     }
 
     fn recv(call: &mut impl ReadCall) -> Self {
-        todo!()
+        match call.read() {
+            calls::DECLARE => Request::Declare { realm_id: call.read(), spec_size: call.read() },
+            calls::REALIZE => Request::Realize { realm_id: call.read() },
+            calls::DESTROY => Request::Destroy { realm_id: call.read() },
+            calls::YIELD_TO => Request::YieldTo { physical_node: call.read(), realm_id: call.read(), virtual_node: call.read(), timeout: call.read() },
+            _ => panic!(),
+        }
     }
 }
 

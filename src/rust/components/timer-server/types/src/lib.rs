@@ -45,10 +45,10 @@ impl RPC for Request {
     fn recv(call: &mut impl ReadCall) -> Self {
         match call.read() {
             label::COMPLETED => Request::Completed,
-            label::PERIODIC => Request::Periodic { tid: call.read() as TimerID, ns: call.read() as Nanoseconds },
-            label::ONESHOT_ABSOLUTE => Request::OneshotAbsolute { tid: call.read() as TimerID, ns: call.read() as Nanoseconds },
-            label::ONESHOT_RELATIVE => Request::OneshotRelative { tid: call.read() as TimerID, ns: call.read() as Nanoseconds },
-            label::STOP => Request::Stop { tid: call.read() as TimerID },
+            label::PERIODIC => Request::Periodic { tid: call.read(), ns: call.read() },
+            label::ONESHOT_ABSOLUTE => Request::OneshotAbsolute { tid: call.read(), ns: call.read() },
+            label::ONESHOT_RELATIVE => Request::OneshotRelative { tid: call.read(), ns: call.read() },
+            label::STOP => Request::Stop { tid: call.read() },
             label::TIME => Request::Time,
             _ => panic!(),
         }
