@@ -33,10 +33,24 @@ impl Endpoint {
         }
     }
 
+    pub fn nb_send(&self, info: MessageInfo) {
+        unsafe {
+            sys::seL4_NBSend(self.raw(), info.raw())
+        }
+    }
+
     pub fn recv(&self) -> (MessageInfo, Badge) {
         let mut badge = 0;
         let raw_info = unsafe {
             sys::seL4_Recv(self.raw(), &mut badge)
+        };
+        (MessageInfo::from_raw(raw_info), badge)
+    }
+
+    pub fn nb_recv(&self) -> (MessageInfo, Badge) {
+        let mut badge = 0;
+        let raw_info = unsafe {
+            sys::seL4_NBRecv(self.raw(), &mut badge)
         };
         (MessageInfo::from_raw(raw_info), badge)
     }
