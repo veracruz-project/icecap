@@ -1,0 +1,10 @@
+{ mk, localCrates, serdeMin }:
+
+mk {
+  name = "icecap-event-server-types";
+  localDependencies = with localCrates; [
+    icecap-rpc
+  ];
+  dependencies = {
+  };
+}

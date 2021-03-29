@@ -81,6 +81,11 @@ filterAttrs (_: v: v != null) {
   icecap-timer-server-types = seL4Only ./components/timer-server/types;
   icecap-timer-server-client = seL4Only ./components/timer-server/client;
 
+  event-server = seL4Only ./components/event-server;
+  icecap-event-server-types = seL4Only ./components/event-server/types;
+  icecap-event-server-client = seL4Only ./components/event-server/client;
+  icecap-event-server-config = ./components/event-server/config;
+
   serial-server = seL4Only ./components/serial-server;
   qemu-ring-buffer-server = seL4Only ./components/qemu-ring-buffer-server;
 
