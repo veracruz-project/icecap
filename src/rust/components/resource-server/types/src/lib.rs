@@ -6,12 +6,68 @@ use core::mem;
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
-pub mod calls {
-    pub const DECLARE: usize = 1;
-    pub const REALIZE: usize = 2;
-    pub const YIELD_TO: usize = 3;
-    pub const DESTROY: usize = 4;
+use icecap_rpc::*;
+
+pub type RealmId = usize;
+pub type PhysicalNodeIndex = usize;
+pub type VirtualNodeIndex = usize;
+
+pub type Nanoseconds = usize;
+
+pub enum YieldBackCondition {
+    WFE { timeout: Nanoseconds },
+    // Message,
 }
+
+pub enum ResumeHostCondition {
+    Timeout,
+    HostEvent,
+    RealmYieldedBack(YieldBackCondition),
+}
+
+pub enum Request {
+    Declare { realm_id: RealmId, spec_size: usize },
+    Realize { realm_id: RealmId },
+    Destroy { realm_id: RealmId },
+    YieldTo { physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds },
+}
+
+pub mod calls {
+    use super::*;
+
+    pub const DECLARE: ParameterValue = 1;
+    pub const REALIZE: ParameterValue = 2;
+    pub const DESTROY: ParameterValue = 3;
+    pub const YIELD_TO: ParameterValue = 4;
+}
+
+impl RPC for Request {
+
+    fn send(&self, call: &mut impl WriteCall) {
+        todo!()
+    }
+
+    fn recv(call: &mut impl ReadCall) -> Self {
+        todo!()
+    }
+}
+
+pub mod response {
+    use super::*;
+
+    impl RPC for ResumeHostCondition {
+
+        fn send(&self, call: &mut impl WriteCall) {
+            todo!()
+        }
+    
+        fn recv(call: &mut impl ReadCall) -> Self {
+            todo!()
+        }
+    }
+}
+
+///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Message {

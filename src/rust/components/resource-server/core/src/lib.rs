@@ -12,6 +12,7 @@ extern crate alloc;
 use alloc::prelude::v1::*;
 use alloc::collections::btree_map::BTreeMap;
 use icecap_core::prelude::*;
+use icecap_resource_server_types::*;
 use dyndl_types::*;
 
 mod cregion;
@@ -30,11 +31,6 @@ use cpu::{
 pub use cregion::{CRegion, Slot};
 pub use allocator::{Allocator, AllocatorBuilder};
 pub use initialize_realm_objects::{RealmObjectInitializationResources};
-
-pub type RealmId = usize;
-pub type NodeIndex = usize;
-pub type PhysicalNodeIndex = usize;
-pub type VirtualNodeIndex = usize;
 
 pub struct FillId {
     obj_id: ObjId,
@@ -350,22 +346,4 @@ impl ResourceServer {
         Ok(())
     }
 
-}
-
-pub type Nanoseconds = usize;
-
-pub enum NotifyEventDomain {
-    Host,
-    Realm(RealmId),
-}
-
-pub enum YieldBackCondition {
-    WFE { timeout: Nanoseconds },
-    // Message,
-}
-
-pub enum ResumeHostCondition {
-    Timeout,
-    HostEvent,
-    RealmYieldedBack(YieldBackCondition),
 }

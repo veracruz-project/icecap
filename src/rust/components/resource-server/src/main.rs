@@ -90,7 +90,7 @@ fn main(config: Config) -> Fallible<()> {
 
         if badge == 0 {
 
-            let length = match info.label() as usize {
+            let length = match info.label() {
                 calls::DECLARE => {
                     let realm_id = MR_0.get() as usize;
                     let spec_size = MR_1.get() as usize;

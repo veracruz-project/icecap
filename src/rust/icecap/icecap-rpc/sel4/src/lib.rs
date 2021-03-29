@@ -4,39 +4,62 @@ pub use icecap_rpc::*;
 pub use icecap_sel4::prelude::*;
 pub use core::marker::PhantomData;
 
-struct CallImpl {
-    info: Info,
+struct ReadCallImpl {
+    length: usize,
+    cursor: usize,
 }
 
-impl Call for CallImpl {
+impl ReadCallImpl {
 
-     fn new(info: Info) -> Self {
+
+    fn new(length: usize) -> Self {
         Self {
-            info,
+            length,
+            cursor: 0,
         }
     }
 
-     fn info(&self) -> &Info {
-        &self.info
-    }
-
-     fn get(&self, ix: ParameterIndex) -> ParameterValue {
-        MessageRegister::new(ix as i32).get()
-    }
-
-     fn set(&mut self, ix: ParameterIndex, value: ParameterValue) {
-        MessageRegister::new(ix as i32).set(value)
+    fn complete<T: RPC>(info: &MessageInfo) -> T {
+        let mut call = Self::new(info.length() as usize);
+        T::recv(&mut call)
     }
 }
 
-fn to_message_info(info: &Info) -> MessageInfo {
-    MessageInfo::new(info.label, 0, 0, info.length as u64)
+impl ReadCall for ReadCallImpl {
+
+    fn read(&mut self) -> ParameterValue {
+        assert_ne!(self.cursor, self.length);
+        let value = MessageRegister::new(self.cursor as i32).get();
+        self.cursor += 1;
+        value
+    }
 }
 
-fn from_message_info(info: &MessageInfo) -> Info {
-    Info {
-        label: info.label(),
-        length: info.length() as usize,
+struct WriteCallImpl {
+    cursor: usize,
+}
+
+impl WriteCallImpl {
+
+    fn new() -> Self {
+        Self {
+            cursor: 0,
+        }
+    }
+
+    fn complete(message: &impl RPC) -> MessageInfo {
+        let mut call = WriteCallImpl::new();
+        message.send(&mut call);
+        let length = call.cursor;
+        MessageInfo::new(0, 0, 0, length as u64)
+    }
+}
+
+impl WriteCall for WriteCallImpl {
+
+    fn write(&mut self, value: ParameterValue) {
+        MessageRegister::new(self.cursor as i32).set(value);
+        self.cursor += 1;
     }
 }
 
@@ -56,32 +79,26 @@ impl<Input: RPC> RPCEndpoint<Input> {
     }
 
     pub fn call<Output: RPC>(&self, input: &Input) -> Output {
-        let info = self.endpoint.call(to_message_info(input.send::<CallImpl>().info()));
-        Output::recv(CallImpl::new(from_message_info(&info)))
+        ReadCallImpl::complete(&self.endpoint.call(WriteCallImpl::complete(input)))
     }
-
-    pub fn recv(&self, info: &MessageInfo) -> Input {
-        Input::recv(CallImpl::new(from_message_info(info)))
-    }
-
 }
 
 pub mod rpc_server {
     use super::*;
 
     pub fn prepare<Output: RPC>(output: &Output) -> MessageInfo {
-        to_message_info(output.send::<CallImpl>().info())
+        WriteCallImpl::complete(output)
     }
 
     pub fn recv<Input: RPC>(info: &MessageInfo) -> Input {
-        Input::recv(CallImpl::new(from_message_info(info)))
+        ReadCallImpl::complete(info)
     }
 
     pub fn send<Output: RPC>(endpoint: Endpoint, output: &Output) {
-        endpoint.send(to_message_info(output.send::<CallImpl>().info()))
+        endpoint.send(WriteCallImpl::complete(output))
     }
 
     pub fn reply<Output: RPC>(output: &Output) {
-        sel4::reply(to_message_info(output.send::<CallImpl>().info()))
+        sel4::reply(WriteCallImpl::complete(output))
     }
 }

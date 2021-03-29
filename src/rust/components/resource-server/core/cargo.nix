@@ -5,6 +5,7 @@ mk {
   localDependencies = with localCrates; [
     dyndl-types
     icecap-core
+    icecap-resource-server-types
   ];
   dependencies = {
     log = "*";

@@ -1,37 +1,78 @@
 #![no_std]
 
-pub type Label = u64;
+extern crate alloc;
 
-pub struct Info {
-    pub length: usize,
-    pub label: Label,
-}
+use alloc::collections::VecDeque;
 
-pub type ParameterIndex = usize;
 pub type ParameterValue = u64;
 
-pub trait Call: Sized {
+pub trait ReadCall {
 
-    fn new(info: Info) -> Self;
+    fn read(&mut self) -> ParameterValue;
+}
 
-    fn info(&self) -> &Info;
+pub trait WriteCall {
 
-    fn get(&self, ix: ParameterIndex) -> ParameterValue;
+    fn write(&mut self, value: ParameterValue);
 
-    fn set(&mut self, ix: ParameterIndex, value: ParameterValue);
-
-    fn simple(label: Label, parameters: &[ParameterValue]) -> Self {
-        let mut call = Self::new(Info { label, length: parameters.len() });
-        for (i, parameter) in parameters.iter().enumerate() {
-            call.set(i, *parameter);
+    fn write_all(&mut self, values: &[ParameterValue]) {
+        for value in values.iter() {
+            self.write(*value);
         }
-        call
     }
 }
 
 pub trait RPC {
 
-    fn send<T: Call>(&self) -> T;
+    fn send(&self, call: &mut impl WriteCall);
 
-    fn recv(call: impl Call) -> Self;
+    fn recv(call: &mut impl ReadCall) -> Self;
+}
+
+impl RPC for () {
+
+    fn send(&self, _call: &mut impl WriteCall) {
+    }
+
+    fn recv(_call: &mut impl ReadCall) -> Self {
+        ()
+    }
+}
+
+impl<T: RPC, E: RPC> RPC for Result<T, E> {
+
+    fn send(&self, call: &mut impl WriteCall) {
+        match self {
+            Ok(v) => {
+                call.write(0);
+                v.send(call);
+            }
+            Err(v) => {
+                call.write(1);
+                v.send(call);
+            }
+        }
+    }
+
+    fn recv(call: &mut impl ReadCall) -> Self {
+        match call.read() {
+            0 => Ok(T::recv(call)),
+            1 => Err(E::recv(call)),
+            _ => panic!(),
+        }
+    }
+}
+
+impl ReadCall for VecDeque<ParameterValue> {
+
+    fn read(&mut self) -> ParameterValue {
+        self.pop_front().unwrap()
+    }
+}
+
+impl WriteCall for VecDeque<ParameterValue> {
+
+    fn write(&mut self, value: ParameterValue) {
+        self.push_back(value)
+    }
 }

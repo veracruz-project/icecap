@@ -1,4 +1,4 @@
-{ mk, serdeMin }:
+{ mk, serdeMin, localCrates }:
 
 mk {
   name = "icecap-resource-server-types";
@@ -6,4 +6,7 @@ mk {
     serde = serdeMin;
     pinecone = "*";
   };
+  localDependencies = with localCrates; [
+    icecap-rpc
+  ];
 }

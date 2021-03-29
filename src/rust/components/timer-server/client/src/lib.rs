@@ -20,23 +20,23 @@ impl Timer {
     }
 
     pub fn completed(&self) -> TimerResult<()> {
-        self.ep.call::<response::Basic>(&Request::Completed).0
+        self.ep.call::<response::Basic>(&Request::Completed)
     }
 
     pub fn periodic(&self, tid: TimerID, ns: Nanoseconds) -> TimerResult<()> {
-        self.ep.call::<response::Basic>(&Request::Periodic { tid, ns }).0
+        self.ep.call::<response::Basic>(&Request::Periodic { tid, ns })
     }
 
     pub fn oneshot_absolute(&self, tid: TimerID, ns: Nanoseconds) -> TimerResult<()> {
-        self.ep.call::<response::Basic>(&Request::OneshotAbsolute { tid, ns }).0
+        self.ep.call::<response::Basic>(&Request::OneshotAbsolute { tid, ns })
     }
 
     pub fn oneshot_relative(&self, tid: TimerID, ns: Nanoseconds) -> TimerResult<()> {
-        self.ep.call::<response::Basic>(&Request::OneshotRelative { tid, ns }).0
+        self.ep.call::<response::Basic>(&Request::OneshotRelative { tid, ns })
     }
 
     pub fn stop(&self, tid: TimerID) -> TimerResult<()> {
-        self.ep.call::<response::Basic>(&Request::Stop { tid }).0
+        self.ep.call::<response::Basic>(&Request::Stop { tid })
     }
 
     pub fn time(&self) -> Nanoseconds {
