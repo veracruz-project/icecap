@@ -1,5 +1,5 @@
 use icecap_std::prelude::*;
-use icecap_timer_server_types::*;
+use icecap_timer_server_types::{*, Result as TimerServerResult};
 use icecap_rpc_sel4::*;
 use core::result;
 
@@ -44,11 +44,11 @@ pub fn run(cspace: CNode, reply_ep: Endpoint, vmem: usize, ep_read: Endpoint, cl
                 let cid: usize = badge as usize - CLIENT_BADGE_START as usize;
                 match rpc_server::recv(&recv_info) {
                     Request::Completed => panic!(), // rpc_server::prepare(server.completed(cid)),
-                    Request::Periodic { tid, ns } => rpc_server::prepare::<response::Basic>(&server.periodic(cid, tid, ns as i64)),
-                    Request::OneshotAbsolute { tid, ns } => rpc_server::prepare::<response::Basic>(&server.oneshot_absolute(cid, tid, ns as i64)),
-                    Request::OneshotRelative { tid, ns } => rpc_server::prepare::<response::Basic>(&server.oneshot_relative(cid, tid, ns as i64)),
-                    Request::Stop { tid } => rpc_server::prepare::<response::Basic>(&server.stop(cid, tid)),
-                    Request::Time => rpc_server::prepare(&response::Time { ns: server.time(cid) as u64 }),
+                    Request::Periodic { tid, ns } => rpc_server::prepare(&server.periodic(cid, tid, ns as i64)),
+                    Request::OneshotAbsolute { tid, ns } => rpc_server::prepare(&server.oneshot_absolute(cid, tid, ns as i64)),
+                    Request::OneshotRelative { tid, ns } => rpc_server::prepare(&server.oneshot_relative(cid, tid, ns as i64)),
+                    Request::Stop { tid } => rpc_server::prepare(&server.stop(cid, tid)),
+                    Request::Time => rpc_server::prepare(&(server.time(cid) as u64)),
                 }
             }
         };

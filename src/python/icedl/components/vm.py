@@ -316,8 +316,6 @@ class VMM(ElfComponent):
         self._arg = {
             'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
 
-            'timer_thread': self.secondary_thread('timer').endpoint,
-
             'gic_dist_vaddr': gic_dist_vaddr,
             'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
 
@@ -361,7 +359,6 @@ class VMM(ElfComponent):
         return 'serialize-vmm-config'
 
     def arg_json(self):
-        self._arg['timer'] = self.connections['timer']['TimerClient']
         self._arg['con'] = self.connections['con']['MappedRingBuffer']
         return self._arg
 

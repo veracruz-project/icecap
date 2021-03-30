@@ -1,6 +1,7 @@
-use icecap_std::prelude::*;
 use core::fmt::Write;
 use alloc::collections::VecDeque;
+use icecap_std::prelude::*;
+use icecap_timer_server_client::*;
 
 use crate::{
     event::{Event, RingBufferEvent},
@@ -67,7 +68,7 @@ impl<T: SerialDevice> SerialServer<T> {
         }
     }
 
-    fn run(&mut self, timer: Timer, event_ep: Endpoint, cspace: CNode, reply_ep: Endpoint) {
+    fn run(&mut self, timer: TimerClient, event_ep: Endpoint, cspace: CNode, reply_ep: Endpoint) {
 
         // TODO for (i, client) in self.clients.iter_mut().enumerate()
         for i in 0..self.clients.len() {
@@ -288,6 +289,6 @@ Escape char: {}
     }
 }
 
-pub fn run(clients: Vec<RingBuffer>, timer: Timer, event_ep: Endpoint, cspace: CNode, reply_ep: Endpoint, dev: impl SerialDevice) {
+pub fn run(clients: Vec<RingBuffer>, timer: TimerClient, event_ep: Endpoint, cspace: CNode, reply_ep: Endpoint, dev: impl SerialDevice) {
     SerialServer::new(dev, clients).run(timer, event_ep, cspace, reply_ep)
 }

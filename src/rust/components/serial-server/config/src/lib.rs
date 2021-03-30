@@ -5,8 +5,7 @@ extern crate alloc;
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
-use icecap_config::{DescTimerClient, DescMappedRingBuffer};
-use icecap_config::{sel4::prelude::*, Thread};
+use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -18,7 +17,8 @@ pub struct Config {
     pub irq_nfn: Notification,
     pub irq_handler: IRQHandler,
     pub irq_thread: Thread,
-    pub timer: DescTimerClient,
+    pub timer_ep_write: Endpoint,
+    pub timer_wait: Notification,
     pub timer_thread: Thread,
 }
 

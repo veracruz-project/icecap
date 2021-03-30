@@ -6,7 +6,6 @@ use alloc::collections::{VecDeque, BTreeMap};
 
 use icecap_failure::Fallible;
 use icecap_sel4::{Fault, fault::*, prelude::*};
-use icecap_interfaces::Timer;
 use icecap_rpc_sel4::*;
 
 use crate::{
@@ -32,7 +31,7 @@ const CNTV_CTL_EL0_IMASK: u64 = 2 << 0;
 const CNTV_CTL_EL0_ENABLE: u64 = 1 << 0;
 
 pub fn run(
-    tcb: TCB, vcpu: VCPU, cspace: CNode, fault_reply_cap: Endpoint, timer: Timer,
+    tcb: TCB, vcpu: VCPU, cspace: CNode, fault_reply_cap: Endpoint,
     gic_dist_vaddr: usize, gic_dist_paddr: usize,
     irqs: BTreeMap<IRQ, IRQType>, real_virtual_timer_irq: IRQ, virtual_timer_irq: IRQ,
     vmm_endpoint: Endpoint,
@@ -43,14 +42,12 @@ pub fn run(
         tcb,
         vcpu,
         cspace, fault_reply_cap,
-        timer,
         gic_dist_paddr,
         gic_dist: Distributor::new(gic_dist_vaddr as usize),
         irqs,
         real_virtual_timer_irq,
         virtual_timer_irq,
 
-        is_wfi: false,
         lr: LR {
             mirror: [None; 64],
             overflow: VecDeque::new(),
@@ -83,7 +80,6 @@ struct VM<T> {
     tcb: TCB,
     vcpu: VCPU,
     cspace: CNode, fault_reply_cap: Endpoint,
-    timer: Timer,
     gic_dist_paddr: usize,
     gic_dist: Distributor,
     irqs: BTreeMap<IRQ, IRQType>,
@@ -91,7 +87,6 @@ struct VM<T> {
     virtual_timer_irq: IRQ,
 
     // mutable state
-    is_wfi: bool,
     lr: LR,
 
     resource_server_write: Option<Endpoint>,
@@ -106,9 +101,6 @@ impl<F: Fn(u8)> VM<F> {
             match badge {
                 BADGE_EXTERNAL => {
                     match Event::get(info) {
-                        Event::Timeout => {
-                            self.pass_wfi();
-                        }
                         Event::IRQ(irq) => {
                             self.inject_irq(irq);
                         }
@@ -139,7 +131,7 @@ impl<F: Fn(u8)> VM<F> {
                             let ctx = self.tcb.read_all_registers(false).unwrap();
                             debug_println!("bb {:x?}", &ctx);
                             assert!(fault.hsr >> 26 == 1);
-                            self.handle_wfi();
+                            panic!("WFI");
                         }
                         Fault::VPPIEvent(fault) => {
                             assert!(usize::try_from(fault.irq).unwrap() == self.real_virtual_timer_irq);
@@ -348,24 +340,6 @@ impl<F: Fn(u8)> VM<F> {
         }
     }
 
-    fn handle_wfi(&mut self) {
-        // TODO only wait for ns > \epsilon
-        // TODO cancel timer once it becomes unecessary (just adds extra spurrious irqs to vm)
-        match self.upper_ns_bound_interrupt() {
-            None => {
-                self.set_wfi();
-            }
-            Some(ns) if ns > 0 => {
-                self.set_wfi();
-                self.timer.oneshot_relative(0, ns as u64).unwrap();
-            }
-            _ => {
-                self.advance();
-                reply(MessageInfo::empty());
-            }
-        }
-    }
-
     fn upper_ns_bound_interrupt(&mut self) -> Option<i64> {
         let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL).unwrap();
         if (cntv_ctl & CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & CNTV_CTL_EL0_IMASK) == 0 {
@@ -413,20 +387,6 @@ impl<F: Fn(u8)> VM<F> {
             self.lr.mirror[ix] = Some(irq);
         } else {
             self.lr.overflow.push_back(irq);
-        }
-        self.pass_wfi();
-    }
-
-    fn set_wfi(&mut self) {
-        self.cspace.save_caller(self.fault_reply_cap).unwrap();
-        self.is_wfi = true;
-    }
-
-    fn pass_wfi(&mut self) {
-        if self.is_wfi {
-            self.advance();
-            self.is_wfi = false;
-            self.fault_reply_cap.send(MessageInfo::empty());
         }
     }
 

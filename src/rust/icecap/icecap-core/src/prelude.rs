@@ -9,7 +9,6 @@ pub use crate::{
         PacketRingBuffer,
         ConDriver,
         NetDriver,
-        Timer,
     },
     failure::{
         Fail, Error, Fallible, bail, ensure, format_err,

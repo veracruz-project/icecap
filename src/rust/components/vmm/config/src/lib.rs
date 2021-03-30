@@ -4,7 +4,7 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_config::{sel4::prelude::*, Thread, DescTimerClient, DescMappedRingBuffer};
+use icecap_config::*;
 
 pub type IRQ = usize;
 
@@ -13,8 +13,6 @@ pub struct Config {
     pub cnode: CNode,
 
     pub con: DescMappedRingBuffer,
-    pub timer: DescTimerClient,
-    pub timer_thread: Thread,
 
     pub gic_dist_vaddr: usize,
     pub gic_dist_paddr: usize,

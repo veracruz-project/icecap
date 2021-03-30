@@ -13,7 +13,6 @@ host_vm = composition.component(HostVM, name='host_vm', vmm_name='host_vmm', aff
 host_vmm = host_vm.vmm
 
 timer_server.connect(serial_server)
-timer_server.connect(host_vmm)
 timer_server.connect(resource_server)
 
 resource_server.add_extern('gic_vcpu_frame', 'SmallPage', resource_server.cspace().alloc(gic_vcpu_frame, read=True, write=True))

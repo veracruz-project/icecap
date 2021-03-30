@@ -116,8 +116,6 @@ class ResourceServer(ElfComponent):
         return 'serialize-resource-server-config'
 
     def arg_json(self):
-        self._arg['timer'] = self.connections['timer']['TimerClient']
-        timer = self.connections['timer']['TimerClient']
-        self.add_extern('timer_ep_write', 'Endpoint', timer['ep_write'])
-        self.add_extern('timer_wait', 'Notification', timer['wait'])
+        self._arg['timer_ep_write'] = self.connections['timer']['TimerClient']['ep_write']
+        self._arg['timer_wait'] = self.connections['timer']['TimerClient']['wait']
         return self._arg

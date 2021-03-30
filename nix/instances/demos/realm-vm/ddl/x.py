@@ -15,18 +15,6 @@ host_rb = composition.extern_ring_buffer('host_net', 1 << 21)
 realm_vm.map_con(realm_vm_con)
 realm_vm.map_net(host_rb)
 
-def timer(self):
-    ep = self.composition.extern(ObjectType.seL4_EndpointObject, 'timer_ep_write')
-    nfn = self.composition.extern(ObjectType.seL4_NotificationObject, 'timer_wait')
-    return {
-       'ep_write': self.cspace().alloc(ep, write=True, grantreply=True),
-       'wait': self.cspace().alloc(nfn, read=True),
-       }
-
-realm_vmm.connections['timer'] = {
-    'TimerClient': timer(realm_vmm),
-    }
-
 realm_vmm.connections['con'] = {
     'MappedRingBuffer': realm_vmm.map_ring_buffer_with(realm_vmm_con, mapped=True),
     }

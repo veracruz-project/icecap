@@ -1,11 +1,7 @@
 use alloc::vec::Vec;
 
-use icecap_interfaces::{RingBuffer, RingBufferSide, Timer};
+use icecap_interfaces::{RingBuffer, RingBufferSide};
 use icecap_config::*;
-
-pub fn realize_timer_client(desc: &DescTimerClient) -> Timer {
-    Timer::new(desc.ep_write)
-}
 
 pub fn realize_mapped_ring_buffer(desc: &DescMappedRingBuffer) -> RingBuffer {
     RingBuffer::new(

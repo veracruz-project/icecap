@@ -17,7 +17,6 @@ declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
 
-    let timer = realize_timer_client(&config.timer);
     let con_rb = realize_mapped_ring_buffer(&config.con);
     let con = ConDriver::new(con_rb);
     icecap_std::set_print(con);
@@ -68,16 +67,8 @@ pub fn main(config: Config) -> Fallible<()> {
         })
     }
 
-    let timer_wait = config.timer.wait;
-    config.timer_thread.start(move || {
-        loop {
-            timer_wait.wait();
-            Event::Timeout.send(ep_write);
-        }
-    });
-
     run(
-        config.tcb, config.vcpu, cspace, fault_reply_ep, timer,
+        config.tcb, config.vcpu, cspace, fault_reply_ep,
         config.gic_dist_vaddr, config.gic_dist_paddr, // TODO rename in run args
         irqs, config.real_virtual_timer_irq, config.virtual_timer_irq,
         ep_read,

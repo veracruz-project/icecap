@@ -14,7 +14,6 @@ filterAttrs (_: v: v != null) {
 
   icecap-host = ./components/host;
   icecap-host-core = ./components/host/core;
-  icecap-resource-server-types = ./components/resource-server/types;
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
@@ -34,13 +33,6 @@ filterAttrs (_: v: v != null) {
   icecap-config = ./icecap/icecap-config;
   icecap-config-sys = ./icecap/icecap-config/sys + "/${if seL4 then "icecap" else "linux"}";
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
-
-  icecap-vmm-config = ./components/vmm/config;
-  icecap-resource-server-config = ./components/resource-server/config;
-  icecap-fault-handler-config = ./components/fault-handler/config;
-  icecap-timer-server-config = ./components/timer-server/config;
-  icecap-serial-server-config = ./components/serial-server/config;
-  icecap-qemu-ring-buffer-server-config = ./components/qemu-ring-buffer-server/config;
 
   icecap-p9 = ./9p/icecap-p9;
   icecap-p9-wire-format-derive = ./9p/icecap-p9/wire-format-derive;
@@ -68,25 +60,33 @@ filterAttrs (_: v: v != null) {
 
   vmm = seL4Only ./components/vmm;
   icecap-vmm-core = seL4Only ./components/vmm/core;
+  icecap-vmm-config = ./components/vmm/config;
 
   resource-server = seL4Only ./components/resource-server;
+  icecap-resource-server-types = ./components/resource-server/types;
   icecap-resource-server-core = seL4Only ./components/resource-server/core;
+  icecap-resource-server-config = ./components/resource-server/config;
 
   idle = seL4Only ./components/idle;
 
   fault-handler = seL4Only ./components/fault-handler;
+  icecap-fault-handler-config = ./components/fault-handler/config;
 
   timer-server = seL4Only ./components/timer-server;
   icecap-timer-server-types = seL4Only ./components/timer-server/types;
+  icecap-timer-server-config = ./components/timer-server/config;
   icecap-timer-server-client = seL4Only ./components/timer-server/client;
 
   event-server = seL4Only ./components/event-server;
   icecap-event-server-types = seL4Only ./components/event-server/types;
-  icecap-event-server-client = seL4Only ./components/event-server/client;
   icecap-event-server-config = ./components/event-server/config;
+  icecap-event-server-client = seL4Only ./components/event-server/client;
 
   serial-server = seL4Only ./components/serial-server;
+  icecap-serial-server-config = ./components/serial-server/config;
+
   qemu-ring-buffer-server = seL4Only ./components/qemu-ring-buffer-server;
+  icecap-qemu-ring-buffer-server-config = ./components/qemu-ring-buffer-server/config;
 
   mirage = seL4Only ./components/mirage;
   icecap-linux-syscall = seL4Only ./components/mirage/icecap-linux-syscall;

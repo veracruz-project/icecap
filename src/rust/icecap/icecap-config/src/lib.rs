@@ -4,17 +4,8 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_config_sys::*;
 
-// TODO remove these and propagate
-pub mod sel4 {
-    pub use icecap_config_sys::*;
-    pub use icecap_config_sys as prelude;
-}
-pub use icecap_config_sys::{
-    self as runtime,
-    Thread,
-};
+pub use icecap_config_sys::*;
 
 // TODO rename these types
 

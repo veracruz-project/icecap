@@ -6,7 +6,7 @@ use alloc::collections::btree_map::BTreeMap;
 use alloc::string::String;
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
-use icecap_config::{sel4::prelude::*, DescTimerClient, DescMappedRingBuffer, DynamicUntyped};
+use icecap_config::*;
 use dyndl_types::ExternObj;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,7 +21,8 @@ pub struct Config {
 
     pub host_ep_read: Endpoint,
     pub host_rb: DescMappedRingBuffer,
-    pub timer: DescTimerClient,
+    pub timer_ep_write: Endpoint,
+    pub timer_wait: Notification,
     pub ctrl_ep_read: Endpoint,
 }
 

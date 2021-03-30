@@ -16,6 +16,7 @@ declare_main!(main);
 
 use icecap_std::prelude::*;
 use icecap_std::config_realize::*;
+use icecap_timer_server_client::*;
 use icecap_serial_server_config::Config;
 
 use run::{run, ClientId};
@@ -23,7 +24,7 @@ use event::Event;
 
 pub fn main(config: Config) -> Fallible<()> {
 
-    let timer = realize_timer_client(&config.timer);
+    let timer = TimerClient::new(config.timer_ep_write);
     let clients = config.clients.iter().map(|client| {
         realize_mapped_ring_buffer(&client.ring_buffer)
     }).collect();
@@ -45,7 +46,7 @@ pub fn main(config: Config) -> Fallible<()> {
         }
     });
 
-    let timer_wait = config.timer.wait;
+    let timer_wait = config.timer_wait;
     config.timer_thread.start(move || {
         loop {
             timer_wait.wait();

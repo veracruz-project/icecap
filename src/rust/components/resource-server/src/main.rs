@@ -8,11 +8,12 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
-use icecap_std::config_realize::{realize_mapped_ring_buffer, realize_timer_client};
+use icecap_std::config_realize::{realize_mapped_ring_buffer};
 use icecap_std::config::{DynamicUntyped};
 use icecap_resource_server_config::*;
 use icecap_resource_server_types::*;
 use icecap_resource_server_core::*;
+use icecap_timer_server_client::*;
 use icecap_rpc_sel4::*;
 
 mod realize_config;
@@ -31,7 +32,7 @@ fn main(config: Config) -> Fallible<()> {
     host_rb.enable_notify_read();
     host_rb.enable_notify_write();
 
-    let timer = realize_timer_client(&config.timer);
+    let timer = TimerClient::new(config.timer_ep_write);
     let ctrl_ep_read = config.ctrl_ep_read;
 
     let cregion = realize_cregion(&config.allocator_cregion);

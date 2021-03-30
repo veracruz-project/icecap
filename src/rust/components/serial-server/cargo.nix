@@ -5,6 +5,7 @@ mkBin {
   localDependencies = with localCrates; [
     icecap-std
     icecap-serial-server-config
+    icecap-timer-server-client
   ];
   dependencies = {
     register = "*";

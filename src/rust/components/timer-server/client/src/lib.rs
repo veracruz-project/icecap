@@ -2,14 +2,14 @@
 
 use icecap_sel4::*;
 use icecap_rpc_sel4::*;
-use icecap_timer_server_types::{*, Result as TimerResult};
+use icecap_timer_server_types::{*, Result as TimerServerResult};
 
-#[derive(Clone)]
-pub struct Timer {
+#[derive(Clone)] // HACK
+pub struct TimerClient {
     ep: RPCClient<Request>,
 }
 
-impl Timer {
+impl TimerClient {
 
     pub fn new(ep: Endpoint)-> Self {
         Self {
@@ -17,23 +17,23 @@ impl Timer {
         }
     }
 
-    pub fn completed(&self) -> TimerResult<()> {
+    pub fn completed(&self) -> TimerServerResult<()> {
         self.ep.call(&Request::Completed)
     }
 
-    pub fn periodic(&self, tid: TimerID, ns: Nanoseconds) -> TimerResult<()> {
+    pub fn periodic(&self, tid: TimerID, ns: Nanoseconds) -> TimerServerResult<()> {
         self.ep.call(&Request::Periodic { tid, ns })
     }
 
-    pub fn oneshot_absolute(&self, tid: TimerID, ns: Nanoseconds) -> TimerResult<()> {
+    pub fn oneshot_absolute(&self, tid: TimerID, ns: Nanoseconds) -> TimerServerResult<()> {
         self.ep.call(&Request::OneshotAbsolute { tid, ns })
     }
 
-    pub fn oneshot_relative(&self, tid: TimerID, ns: Nanoseconds) -> TimerResult<()> {
+    pub fn oneshot_relative(&self, tid: TimerID, ns: Nanoseconds) -> TimerServerResult<()> {
         self.ep.call(&Request::OneshotRelative { tid, ns })
     }
 
-    pub fn stop(&self, tid: TimerID) -> TimerResult<()> {
+    pub fn stop(&self, tid: TimerID) -> TimerServerResult<()> {
         self.ep.call(&Request::Stop { tid })
     }
 

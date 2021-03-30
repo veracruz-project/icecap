@@ -74,7 +74,8 @@ class SerialServer(ElfComponent):
             'irq_nfn': self.cspace().alloc(irq_nfn, read=True),
             'irq_handler': irq_handler,
             'irq_thread': self.secondary_thread('irq_{}'.format(irq)).endpoint,
-            'timer': self.connections['timer']['TimerClient'],
+            'timer_ep_write': self.connections['timer']['TimerClient']['ep_write'],
+            'timer_wait': self.connections['timer']['TimerClient']['wait'],
             'timer_thread': self.secondary_thread('serial_timer').endpoint,
             }
 

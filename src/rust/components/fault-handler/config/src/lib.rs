@@ -5,7 +5,7 @@ extern crate alloc;
 use alloc::collections::btree_map::BTreeMap;
 use alloc::string::String;
 use serde::{Serialize, Deserialize};
-use icecap_config::sel4::prelude::*;
+use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
