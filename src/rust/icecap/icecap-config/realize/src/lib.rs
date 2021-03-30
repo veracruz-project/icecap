@@ -2,9 +2,9 @@
 
 extern crate alloc;
 
-mod interfaces;
+mod ring_buffer;
 
-pub use interfaces::{
+pub use ring_buffer::{
     realize_mapped_ring_buffer, realize_mapped_ring_buffer_resume,
     realize_mapped_ring_buffers,
 };

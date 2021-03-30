@@ -4,7 +4,7 @@ pub use alloc::vec;
 pub use crate::{
     sel4::prelude::*,
     runtime,
-    interfaces::{
+    ring_buffer::{
         RingBuffer,
         PacketRingBuffer,
         BufferedRingBuffer,

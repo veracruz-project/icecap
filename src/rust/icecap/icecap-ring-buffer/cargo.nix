@@ -1,7 +1,7 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-interfaces";
+  name = "icecap-ring-buffer";
   localDependencies = with localCrates; [
     icecap-sel4
   ];

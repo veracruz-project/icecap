@@ -41,7 +41,6 @@ pub struct TLSRegion {
 
 impl TLSRegion {
 
-
     pub fn align() -> usize {
         unsafe {
             icecap_runtime_tls_region_align

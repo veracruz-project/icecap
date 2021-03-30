@@ -2,7 +2,7 @@ use core::fmt;
 use alloc::boxed::Box;
 
 use icecap_core::sel4::debug_put_char;
-use icecap_core::interfaces::BufferedRingBuffer;
+use icecap_core::ring_buffer::BufferedRingBuffer;
 
 struct IceCapDebugWriter;
 

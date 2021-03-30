@@ -5,7 +5,7 @@ mk {
   localDependencies = with localCrates; [
     icecap-failure
     icecap-sel4
-    icecap-interfaces
+    icecap-ring-buffer
     icecap-rpc-sel4
   ];
   dependencies = {

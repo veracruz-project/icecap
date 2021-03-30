@@ -1,6 +1,6 @@
 use alloc::vec::Vec;
 
-use icecap_interfaces::{RingBuffer, RingBufferSide};
+use icecap_ring_buffer::{RingBuffer, RingBufferSide};
 use icecap_config::*;
 
 pub fn realize_mapped_ring_buffer(desc: &DescMappedRingBuffer) -> RingBuffer {

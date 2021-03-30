@@ -6,7 +6,7 @@ mk {
     icecap-sel4
     icecap-runtime
     icecap-sync
-    icecap-interfaces
+    icecap-ring-buffer
     icecap-config
     icecap-config-realize
     icecap-backtrace

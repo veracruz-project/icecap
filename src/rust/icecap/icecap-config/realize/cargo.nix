@@ -5,7 +5,7 @@ mk {
   localDependencies = with localCrates; [
     icecap-sel4
     icecap-runtime
-    icecap-interfaces
+    icecap-ring-buffer
     icecap-config
   ];
 }
