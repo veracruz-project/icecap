@@ -2,7 +2,7 @@ use core::fmt;
 use alloc::boxed::Box;
 
 use icecap_core::sel4::debug_put_char;
-use icecap_core::interfaces::ConDriver;
+use icecap_core::interfaces::BufferedRingBuffer;
 
 struct IceCapDebugWriter;
 
@@ -16,11 +16,11 @@ impl fmt::Write for IceCapDebugWriter {
 }
 
 struct IceCapConWriter {
-    driver: ConDriver,
+    driver: BufferedRingBuffer,
 }
 
 impl IceCapConWriter {
-    fn new(driver: ConDriver) -> Self {
+    fn new(driver: BufferedRingBuffer) -> Self {
         Self {
             driver,
         }
@@ -55,7 +55,7 @@ fn print_to(global_writer: &mut Option<Box<IceCapConWriter>>, args: fmt::Argumen
 // TODO synchronize with mutex from c runtime?
 static mut GLOBAL_WRITER: Option<Box<IceCapConWriter>> = None;
 
-pub fn set_print(driver: ConDriver) {
+pub fn set_print(driver: BufferedRingBuffer) {
     // TODO
     unsafe {
         GLOBAL_WRITER = Some(Box::new(IceCapConWriter::new(driver)));

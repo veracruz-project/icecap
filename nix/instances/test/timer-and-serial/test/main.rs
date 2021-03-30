@@ -26,7 +26,7 @@ fn main(config: Config) -> Fallible<()> {
     let timer = realize_timer_client(&config.timer);
 
     let rb = realize_mapped_ring_buffer(&config.con);
-    let mut con = ConDriver::new(rb);
+    let mut con = BufferedRingBuffer::new(rb);
     con.ring_buffer().enable_notify_read();
     con.ring_buffer().enable_notify_write();
 

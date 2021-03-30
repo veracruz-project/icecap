@@ -22,7 +22,7 @@ struct SerialServer<T: SerialDevice> {
 }
 
 struct Client {
-    driver: ConDriver,
+    driver: BufferedRingBuffer,
     buffer: VecDeque<u8>,
     color: &'static Color,
 }
@@ -51,7 +51,7 @@ impl<T: SerialDevice> SerialServer<T> {
         // clear_color();
 
         let clients_ = clients.into_iter().enumerate().map(|(i, client)| Client {
-            driver: ConDriver::new(client),
+            driver: BufferedRingBuffer::new(client),
             buffer: VecDeque::with_capacity(BUFFER_LIMIT),
             color: &COLORS[i],
         }).collect::<Vec<_>>();

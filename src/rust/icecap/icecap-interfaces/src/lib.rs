@@ -8,9 +8,7 @@
 extern crate alloc;
 
 mod ring_buffer;
-mod con;
-mod net;
+mod buffered_ring_buffer;
 
 pub use ring_buffer::{RingBuffer, RingBufferSide, PacketRingBuffer};
-pub use con::ConDriver;
-pub use net::NetDriver;
+pub use buffered_ring_buffer::{BufferedRingBuffer, BufferedPacketRingBuffer};

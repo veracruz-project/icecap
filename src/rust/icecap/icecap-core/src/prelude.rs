@@ -7,8 +7,8 @@ pub use crate::{
     interfaces::{
         RingBuffer,
         PacketRingBuffer,
-        ConDriver,
-        NetDriver,
+        BufferedRingBuffer,
+        BufferedPacketRingBuffer,
     },
     failure::{
         Fail, Error, Fallible, bail, ensure, format_err,

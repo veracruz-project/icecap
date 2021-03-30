@@ -18,7 +18,7 @@ declare_main!(main);
 pub fn main(config: Config) -> Fallible<()> {
 
     let con_rb = realize_mapped_ring_buffer(&config.con);
-    let con = ConDriver::new(con_rb);
+    let con = BufferedRingBuffer::new(con_rb);
     icecap_std::set_print(con);
 
     let ep_read = config.ep_read;

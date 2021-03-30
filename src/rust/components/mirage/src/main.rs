@@ -66,10 +66,10 @@ fn main(config: Config) -> Fallible<()> {
     }
 
     let con_rb = realize_mapped_ring_buffer(&config.con);
-    let con = ConDriver::new(con_rb);
+    let con = BufferedRingBuffer::new(con_rb);
     icecap_std::set_print(con);
 
-    let net = NetDriver::new(PacketRingBuffer::new(realize_mapped_ring_buffer(&config.net)));
+    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new(realize_mapped_ring_buffer(&config.net)));
     net.packet_ring_buffer().enable_notify_read();
     net.packet_ring_buffer().enable_notify_write();
 
@@ -111,8 +111,8 @@ type NetIfaceId = usize;
 pub struct State {
     event_ep: Endpoint,
     timer: Timer,
-    // con: ConDriver, // TODO
-    net_ifaces: Vec<NetDriver>,
+    // con: BufferedRingBuffer, // TODO
+    net_ifaces: Vec<BufferedPacketRingBuffer>,
 }
 
 impl State {

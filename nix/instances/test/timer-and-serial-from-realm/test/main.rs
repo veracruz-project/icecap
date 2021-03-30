@@ -30,7 +30,7 @@ fn main(config: Config) -> Fallible<()> {
     let ctrl_ep_write = config.ctrl_ep_write;
 
     let rb = realize_mapped_ring_buffer_resume(&config.con);
-    let mut con = ConDriver::new(rb);
+    let mut con = BufferedRingBuffer::new(rb);
     con.ring_buffer().enable_notify_read();
     con.ring_buffer().enable_notify_write();
 
