@@ -55,7 +55,6 @@ filterAttrs (_: v: v != null) {
   icecap-runtime = seL4Only ./icecap/icecap-runtime;
   icecap-sync = seL4Only ./icecap/icecap-sync;
   icecap-interfaces = seL4Only ./icecap/icecap-interfaces;
-  icecap-net = seL4Only ./icecap/icecap-net;
   icecap-config-realize = seL4Only ./icecap/icecap-config/realize;
   icecap-failure = seL4Only ./icecap/icecap-failure;
   icecap-failure-derive = seL4Only ./icecap/icecap-failure/derive;
