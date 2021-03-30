@@ -54,26 +54,3 @@ impl RPC for Request {
         }
     }
 }
-
-pub mod response {
-    use super::*;
-
-    pub type Basic = Result<()>;
-
-    pub struct Time {
-        pub ns: Nanoseconds,
-    }
-
-    impl RPC for Time {
-
-        fn send(&self, call: &mut impl WriteCall) {
-            call.write(self.ns);
-        }
-
-        fn recv(call: &mut impl ReadCall) -> Self {
-            Self {
-                ns: call.read(),
-            }
-        }
-    }
-}

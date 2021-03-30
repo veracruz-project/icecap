@@ -2,11 +2,11 @@
 
 extern crate alloc;
 
-pub use icecap_rpc::*;
-
-use icecap_sel4::prelude::*;
 use core::marker::PhantomData;
 use alloc::vec::Vec;
+use icecap_sel4::prelude::*;
+
+pub use icecap_rpc::*;
 
 struct ReadCallImpl {
     length: usize,
@@ -66,13 +66,13 @@ impl WriteCall for WriteCallImpl {
     }
 }
 
-#[derive(Clone)] // HACK
-pub struct RPCEndpoint<Input> {
+#[derive(Clone)]
+pub struct RPCClient<Input> {
     endpoint: Endpoint,
     phantom: PhantomData<Input>,
 }
 
-impl<Input: RPC> RPCEndpoint<Input> {
+impl<Input: RPC> RPCClient<Input> {
 
     pub fn new(endpoint: Endpoint) -> Self {
         Self {
