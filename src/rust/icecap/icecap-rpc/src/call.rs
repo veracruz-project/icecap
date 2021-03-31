@@ -5,6 +5,8 @@ pub trait ReadCall {
 
     fn read_value(&mut self) -> ParameterValue;
 
+    fn remaining(&self) -> usize;
+
     fn read<T: Parameter>(&mut self) -> T {
         T::from_value(self.read_value())
     }
@@ -35,6 +37,10 @@ impl ReadCall for SliceReader<'_> {
         let v = self.unread[0];
         self.unread = &self.unread[1..];
         v
+    }
+
+    fn remaining(&self) -> usize {
+        self.unread.len()
     }
 }
 

@@ -36,6 +36,10 @@ impl ReadCall for ReadCallImpl {
         self.cursor += 1;
         value
     }
+
+    fn remaining(&self) -> usize {
+        self.length - self.cursor
+    }
 }
 
 struct WriteCallImpl {

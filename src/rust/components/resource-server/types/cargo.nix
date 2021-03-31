@@ -2,11 +2,11 @@
 
 mk {
   name = "icecap-resource-server-types";
+  localDependencies = with localCrates; [
+    icecap-rpc
+  ];
   dependencies = {
     serde = serdeMin;
     pinecone = "*";
   };
-  localDependencies = with localCrates; [
-    icecap-rpc
-  ];
 }

@@ -1,5 +1,8 @@
+use core::mem::size_of;
+use core::convert::TryInto;
 use alloc::vec::Vec;
-use crate::{ParameterValue, Parameter, ReadCall, WriteCall, call::SliceReader};
+use serde::{Serialize, Deserialize};
+use crate::{ParameterValue, ReadCall, WriteCall, call::SliceReader};
 
 pub trait RPC: Sized {
 
@@ -20,47 +23,24 @@ pub trait RPC: Sized {
     }
 }
 
-impl RPC for () {
-
-    fn send(&self, _call: &mut impl WriteCall) {
-    }
-
-    fn recv(_call: &mut impl ReadCall) -> Self {
-        ()
-    }
-}
-
-impl<T: Parameter> RPC for T {
+impl<T: Serialize + for<'a> Deserialize<'a>> RPC for T {
 
     fn send(&self, call: &mut impl WriteCall) {
-        call.write(*self)
-    }
-
-    fn recv(call: &mut impl ReadCall) -> Self {
-        call.read()
-    }
-}
-
-impl<T: RPC, E: RPC> RPC for Result<T, E> {
-
-    fn send(&self, call: &mut impl WriteCall) {
-        match self {
-            Ok(v) => {
-                call.write(0);
-                v.send(call);
-            }
-            Err(v) => {
-                call.write(1);
-                v.send(call);
-            }
+        let mut bytes = pinecone::to_vec(self).unwrap();
+        let num_parameters = (bytes.len() + size_of::<ParameterValue>() - 1) / size_of::<ParameterValue>();
+        bytes.resize_with(num_parameters * size_of::<ParameterValue>(), || 0);
+        let chunks = bytes.chunks_exact(size_of::<ParameterValue>());
+        assert_eq!(chunks.remainder().len(), 0);
+        for chunk in chunks {
+            call.write_value(ParameterValue::from_le_bytes(chunk.try_into().unwrap()))
         }
     }
 
     fn recv(call: &mut impl ReadCall) -> Self {
-        match call.read() {
-            0 => Ok(T::recv(call)),
-            1 => Err(E::recv(call)),
-            _ => panic!(),
+        let mut bytes = Vec::new();
+        for _ in 0..call.remaining() {
+            bytes.extend_from_slice(&call.read_value().to_le_bytes());
         }
+        pinecone::from_bytes(&bytes).unwrap()
     }
 }
