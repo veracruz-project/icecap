@@ -11,7 +11,23 @@ use alloc::vec::Vec;
 use alloc::boxed::Box;
 use register::{mmio::*, register_bitfields, register_structs};
 
-use icecap_sel4::Notification;
+pub type Kick = Box<dyn Fn()>;
+
+pub trait RingBufferPointer {
+    fn from_address(address: usize) -> Self;
+}
+
+impl RingBufferPointer for *const u8 {
+    fn from_address(address: usize) -> Self {
+        address as Self
+    }
+}
+
+impl RingBufferPointer for *mut u8 {
+    fn from_address(address: usize) -> Self {
+        address as Self
+    }
+}
 
 register_bitfields! [
     u64,
@@ -77,14 +93,14 @@ pub struct RingBufferSide<T> {
     pub size: usize,
     pub ctrl: Ctrl,
     pub buf: T,
-    pub kick: Box<dyn Fn()>,
+    pub kick: Kick,
 }
 
 unsafe impl Send for RingBufferSide<*const u8> {}
 unsafe impl Send for RingBufferSide<*mut u8> {}
 
 impl<T> RingBufferSide<T> {
-    pub fn new(size: usize, ctrl_addr: usize, buf: T, kick: Box<dyn Fn()>) -> Self {
+    pub fn new(size: usize, ctrl_addr: usize, buf: T, kick: Kick) -> Self {
         Self {
             size,
             ctrl: Ctrl::new(ctrl_addr),

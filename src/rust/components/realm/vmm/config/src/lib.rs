@@ -10,7 +10,7 @@ pub type IRQ = usize;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub con: RingBufferConfig,
+    pub con: UnmanagedRingBufferConfig,
     pub cnode: CNode,
     pub gic_lock: Notification,
     pub nodes_lock: Notification,

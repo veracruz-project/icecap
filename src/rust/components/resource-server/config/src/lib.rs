@@ -24,6 +24,9 @@ pub struct Config {
     pub timer_ep_write: Endpoint,
     pub timer_wait: Notification,
     pub ctrl_ep_read: Endpoint,
+
+    pub event_server_client: Endpoint,
+    pub event_server_control: Endpoint,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

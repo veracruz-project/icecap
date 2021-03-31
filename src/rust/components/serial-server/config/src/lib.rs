@@ -13,7 +13,9 @@ pub struct Config {
     pub reply_ep: Endpoint,
     pub dev_vaddr: usize,
     pub ep: Endpoint,
-    pub clients: Vec<Client>,
+    pub event_server: Endpoint,
+    pub host_client: Client,
+    pub realm_clients: Vec<Client>,
     pub irq_nfn: Notification,
     pub irq_handler: IRQHandler,
     pub irq_thread: Thread,
@@ -25,5 +27,6 @@ pub struct Config {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Client {
     pub thread: Thread,
+    pub wait: Notification,
     pub ring_buffer: RingBufferConfig,
 }

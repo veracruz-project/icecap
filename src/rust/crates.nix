@@ -86,7 +86,7 @@ filterAttrs (_: v: v != null) {
   icecap-timer-server-client = seL4Only ./components/timer-server/client;
 
   event-server = seL4Only ./components/event-server;
-  icecap-event-server-types = seL4Only ./components/event-server/types;
+  icecap-event-server-types = ./components/event-server/types;
   icecap-event-server-config = ./components/event-server/config;
   icecap-event-server-client = seL4Only ./components/event-server/client;
 

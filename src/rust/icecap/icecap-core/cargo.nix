@@ -14,6 +14,10 @@ mk {
     icecap-failure
     icecap-logger
     icecap-start
+
+    # HACK
+    finite-set
+    biterate
   ];
   localDependencyAttributes = {
     icecap-sel4.features = [

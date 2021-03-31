@@ -22,7 +22,7 @@ use icecap_vmm::*;
 declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
-    let con = BufferedRingBuffer::new(RingBuffer::realize_resume(&config.con));
+    let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
     // icecap_std::set_print(con);
 
     let ep_writes: Arc<Vec<Endpoint>> = Arc::new(config.nodes.iter().map(|node| node.ep_write).collect());

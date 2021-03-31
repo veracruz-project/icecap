@@ -17,4 +17,8 @@ pub use icecap_failure as failure;
 pub use icecap_logger as logger;
 pub use icecap_start as start;
 
+// HACK
+pub use finite_set;
+pub use biterate;
+
 pub use start::{declare_main, declare_raw_main};

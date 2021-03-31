@@ -6,15 +6,25 @@ pub use icecap_config_sys::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RingBufferConfig {
-    pub wait: Notification,
     pub read: RingBufferSideConfig,
     pub write: RingBufferSideConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RingBufferSideConfig {
-    pub signal: Notification,
     pub size: usize,
     pub ctrl: usize,
     pub data: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RingBufferKicksConfig<T> {
+    pub read: T,
+    pub write: T,    
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UnmanagedRingBufferConfig {
+    pub ring_buffer: RingBufferConfig,
+    pub kicks: RingBufferKicksConfig<Notification>,
 }

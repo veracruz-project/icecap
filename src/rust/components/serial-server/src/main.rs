@@ -15,8 +15,14 @@ mod device;
 declare_main!(main);
 
 use icecap_std::prelude::*;
+use icecap_std::finite_set::Finite;
+use icecap_std::rpc_sel4::RPCClient;
+use icecap_std::config::RingBufferKicksConfig;
 use icecap_timer_server_client::*;
 use icecap_serial_server_config::Config;
+
+use icecap_event_server_types::calls::Client as EventServerRequest;
+use icecap_event_server_types::events;
 
 use run::{run, ClientId};
 use event::Event;
@@ -24,9 +30,39 @@ use event::Event;
 pub fn main(config: Config) -> Fallible<()> {
 
     let timer = TimerClient::new(config.timer_ep_write);
-    let clients = config.clients.iter().map(|client| {
-        RingBuffer::realize(&client.ring_buffer)
-    }).collect();
+
+    let event_server = RPCClient::<EventServerRequest>::new(config.event_server);
+    let mk_signal = move |index: events::SerialServerOut| -> icecap_std::ring_buffer::Kick {
+        let event_server = event_server.clone();
+        let index = index.to_nat();
+        Box::new(move || event_server.call::<()>(&EventServerRequest::Signal {
+            index,
+        }))
+    };
+    let mk_kicks = |rb: events::SerialServerRingBuffer| {
+        RingBufferKicksConfig {
+            read: mk_signal(events::SerialServerOut::RingBuffer(
+                rb.clone(),
+                events::RingBufferSide::Read,
+            )),
+            write: mk_signal(events::SerialServerOut::RingBuffer(
+                rb.clone(),
+                events::RingBufferSide::Write,
+            )),
+        }
+    };
+
+    let mut clients = vec![];
+    clients.push(RingBuffer::realize(
+        &config.host_client.ring_buffer,
+        mk_kicks(events::SerialServerRingBuffer::Host),
+    ));
+    for (i, realm) in config.realm_clients.iter().enumerate() {
+        clients.push(RingBuffer::realize(
+            &realm.ring_buffer,
+            mk_kicks(events::SerialServerRingBuffer::Realm(events::RealmId(i))),
+        ));
+    }
 
     let event_ep = config.ep;
 
@@ -53,8 +89,8 @@ pub fn main(config: Config) -> Fallible<()> {
         }
     });
 
-    for (i, client) in config.clients.iter().enumerate() {
-        let nfn = client.ring_buffer.wait;
+    for (i, client) in core::iter::once(&config.host_client).chain(config.realm_clients.iter()).enumerate() {
+        let nfn = client.wait;
         client.thread.start(move || {
             loop {
                 let badge = nfn.wait();

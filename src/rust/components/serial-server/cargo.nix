@@ -6,6 +6,7 @@ mkBin {
     icecap-std
     icecap-serial-server-config
     icecap-timer-server-client
+    icecap-event-server-types
   ];
   dependencies = {
     register = "*";

@@ -48,20 +48,20 @@ pub const NUM_REALMS: usize = 10;
 pub mod events {
     use super::*;
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RealmRingBufferId {
         Net,
         Con,
         Channel,
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RingBufferSide {
         Read,
         Write,
     }
 
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct RealmId(pub usize);
 
     impl Finite for RealmId {
@@ -76,7 +76,7 @@ pub mod events {
         }
     }
 
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct SPI(pub usize);
 
     impl SPI {
@@ -96,7 +96,7 @@ pub mod events {
         }
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum HostRingBuffer {
         ResourceServer,
         SerialServer,
@@ -110,39 +110,39 @@ pub mod events {
         RingBuffer(HostRingBuffer, RingBufferSide), // shared
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum HostOut {
         RingBuffer(HostRingBuffer, RingBufferSide),
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RealmRingBuffer {
         Host,
         SerialServer,
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RealmIn {
         RingBuffer(RealmRingBuffer, RingBufferSide),
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RealmOut {
         RingBuffer(RealmRingBuffer, RingBufferSide),
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum SerialServerRingBuffer {
         Host,
         Realm(RealmId),
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum SerialServerOut {
         RingBuffer(SerialServerRingBuffer, RingBufferSide),
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum ResourceServerOut {
         HostRingBuffer(RingBufferSide),
     }
