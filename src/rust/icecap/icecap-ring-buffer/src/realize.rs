@@ -1,6 +1,11 @@
 use alloc::vec::Vec;
+use alloc::boxed::Box;
 use icecap_config::*;
 use crate::{RingBuffer, RingBufferSide};
+
+fn mk_kick(nfn: Notification) -> Box<dyn Fn()> {
+    Box::new(move || nfn.signal())
+}
 
 impl RingBuffer {
 
@@ -8,15 +13,15 @@ impl RingBuffer {
         Self::new(
             RingBufferSide::new(
                 config.read.size,
-                config.read.signal,
                 config.read.ctrl,
                 config.read.data as *const u8,
+                mk_kick(config.read.signal),
             ),
             RingBufferSide::new(
                 config.write.size,
-                config.write.signal,
                 config.write.ctrl,
                 config.write.data as *mut u8,
+                mk_kick(config.write.signal),
             ),
         )
     }
@@ -25,15 +30,15 @@ impl RingBuffer {
         RingBuffer::resume(
             RingBufferSide::new(
                 config.read.size,
-                config.read.signal,
                 config.read.ctrl,
                 config.read.data as *const u8,
+                mk_kick(config.read.signal),
             ),
             RingBufferSide::new(
                 config.write.size,
-                config.write.signal,
                 config.write.ctrl,
                 config.write.data as *mut u8,
+                mk_kick(config.write.signal),
             ),
         )
     }

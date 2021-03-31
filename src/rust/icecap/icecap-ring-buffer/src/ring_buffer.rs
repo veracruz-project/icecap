@@ -8,6 +8,7 @@ use core::ptr::{read_volatile, write_volatile};
 use core::intrinsics::volatile_copy_nonoverlapping_memory;
 use core::sync::atomic::{fence, Ordering};
 use alloc::vec::Vec;
+use alloc::boxed::Box;
 use register::{mmio::*, register_bitfields, register_structs};
 
 use icecap_sel4::Notification;
@@ -72,29 +73,27 @@ fn release() {
     hack_mb();
 }
 
-#[derive(Debug)]
 pub struct RingBufferSide<T> {
     pub size: usize,
-    pub notification: Notification,
     pub ctrl: Ctrl,
     pub buf: T,
+    pub kick: Box<dyn Fn()>,
 }
 
 unsafe impl Send for RingBufferSide<*const u8> {}
 unsafe impl Send for RingBufferSide<*mut u8> {}
 
 impl<T> RingBufferSide<T> {
-    pub fn new(size: usize, notification: Notification, ctrl_addr: usize, buf: T) -> Self {
+    pub fn new(size: usize, ctrl_addr: usize, buf: T, kick: Box<dyn Fn()>) -> Self {
         Self {
             size,
-            notification,
             ctrl: Ctrl::new(ctrl_addr),
             buf: buf, // TODO
+            kick,
         }
     }
 }
 
-#[derive(Debug)]
 pub struct RingBuffer {
     pub read: RingBufferSide<*const u8>,
     pub write: RingBufferSide<*mut u8>,
@@ -207,7 +206,7 @@ impl RingBuffer {
         self.write.ctrl.offset_r.set(self.private_offset_r as u64);
         release();
         if self.read.ctrl.status.read(Status::NOTIFY_READ) == 1 {
-            self.read.notification.signal();
+            (self.read.kick)();
         }
     }
 
@@ -216,7 +215,7 @@ impl RingBuffer {
         self.write.ctrl.offset_w.set(self.private_offset_w as u64);
         release();
         if self.read.ctrl.status.read(Status::NOTIFY_WRITE) == 1 {
-            self.write.notification.signal();
+            (self.write.kick)();
         }
     }
 
