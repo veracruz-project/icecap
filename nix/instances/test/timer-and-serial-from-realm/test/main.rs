@@ -9,8 +9,7 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
-use icecap_std::config::{DescMappedRingBuffer, DescTimerClient};
-use icecap_std::config_realize::{realize_mapped_ring_buffer_resume, realize_timer_client};
+use icecap_std::config::{RingBufferConfig, DescTimerClient};
 
 use serde::{Serialize, Deserialize};
 
@@ -19,7 +18,7 @@ declare_generic_main!(main);
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
     timer: DescTimerClient,
-    con: DescMappedRingBuffer,
+    con: RingBufferConfig,
     ctrl_ep_write: Endpoint,
 }
 
@@ -29,7 +28,7 @@ fn main(config: Config) -> Fallible<()> {
     let timer_wait = config.timer.wait;
     let ctrl_ep_write = config.ctrl_ep_write;
 
-    let rb = realize_mapped_ring_buffer_resume(&config.con);
+    let rb = RingBuffer::realize_resume(&config.con);
     let mut con = BufferedRingBuffer::new(rb);
     con.ring_buffer().enable_notify_read();
     con.ring_buffer().enable_notify_write();

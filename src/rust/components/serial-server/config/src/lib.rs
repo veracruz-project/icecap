@@ -25,5 +25,5 @@ pub struct Config {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Client {
     pub thread: Thread,
-    pub ring_buffer: DescMappedRingBuffer,
+    pub ring_buffer: RingBufferConfig,
 }

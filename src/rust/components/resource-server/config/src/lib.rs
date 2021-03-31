@@ -20,7 +20,7 @@ pub struct Config {
     pub externs: ConfigExterns,
 
     pub host_ep_read: Endpoint,
-    pub host_rb: DescMappedRingBuffer,
+    pub host_rb: RingBufferConfig,
     pub timer_ep_write: Endpoint,
     pub timer_wait: Notification,
     pub ctrl_ep_read: Endpoint,
@@ -56,4 +56,12 @@ pub type ConfigExterns = BTreeMap<String, ConfigExtern>;
 pub struct ConfigExtern {
     pub ty: ExternObj,
     pub cptr: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DynamicUntyped {
+    pub slot: Untyped,
+    pub size_bits: usize,
+    pub paddr: Option<usize>,
+    pub device: bool,
 }

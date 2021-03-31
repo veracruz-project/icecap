@@ -1,5 +1,4 @@
 use core::alloc::{GlobalAlloc, Layout};
-use core::ptr;
 
 use icecap_core::{sel4, runtime};
 use icecap_core::sync::{GenericMutex, unsafe_static_mutex};

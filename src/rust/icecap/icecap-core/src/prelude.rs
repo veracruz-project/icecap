@@ -2,8 +2,9 @@ pub use alloc::prelude::v1::*;
 pub use alloc::vec;
 
 pub use crate::{
-    sel4::prelude::*,
-    runtime,
+    sel4::{
+        self, prelude::*,
+    },
     ring_buffer::{
         RingBuffer,
         PacketRingBuffer,
@@ -16,7 +17,4 @@ pub use crate::{
     start::{
         declare_main, declare_raw_main,
     },
-
-    // TODO remove
-    sel4::sys,
 };

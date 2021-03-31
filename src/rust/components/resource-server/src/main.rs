@@ -8,8 +8,6 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
-use icecap_std::config_realize::{realize_mapped_ring_buffer};
-use icecap_std::config::{DynamicUntyped};
 use icecap_resource_server_config::*;
 use icecap_resource_server_types::*;
 use icecap_resource_server_core::*;
@@ -27,7 +25,7 @@ fn main(config: Config) -> Fallible<()> {
     config.large_page.unmap()?;
 
     let host_ep_read = config.host_ep_read;
-    let mut host_rb = PacketRingBuffer::new(realize_mapped_ring_buffer(&config.host_rb));
+    let mut host_rb = PacketRingBuffer::new(RingBuffer::realize(&config.host_rb));
     let host_rb_wait = config.host_rb.wait;
     host_rb.enable_notify_read();
     host_rb.enable_notify_write();

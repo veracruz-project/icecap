@@ -12,7 +12,7 @@ pub type IRQ = usize;
 pub struct Config {
     pub cnode: CNode,
 
-    pub con: DescMappedRingBuffer,
+    pub con: RingBufferConfig,
 
     pub gic_dist_vaddr: usize,
     pub gic_dist_paddr: usize,

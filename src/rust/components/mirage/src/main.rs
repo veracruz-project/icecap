@@ -19,7 +19,6 @@ use serde::{Serialize, Deserialize};
 
 use icecap_std::prelude::*;
 use icecap_std::config::*;
-use icecap_std::config_realize::*;
 use icecap_start_generic::declare_generic_main;
 use sys::c_types::*;
 
@@ -34,8 +33,8 @@ struct Config {
     event_ep: Endpoint,
 
     timer: DescTimerClient,
-    con: DescMappedRingBuffer,
-    net: DescMappedRingBuffer,
+    con: RingBufferConfig,
+    net: RingBufferConfig,
 
     timer_thread: Thread,
     net_thread: Thread,
@@ -65,11 +64,11 @@ fn main(config: Config) -> Fallible<()> {
         });
     }
 
-    let con_rb = realize_mapped_ring_buffer(&config.con);
+    let con_rb = RingBuffer::realize(&config.con);
     let con = BufferedRingBuffer::new(con_rb);
     icecap_std::set_print(con);
 
-    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new(realize_mapped_ring_buffer(&config.net)));
+    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new(RingBuffer::realize(&config.net)));
     net.packet_ring_buffer().enable_notify_read();
     net.packet_ring_buffer().enable_notify_write();
 

@@ -15,7 +15,6 @@ mod device;
 declare_main!(main);
 
 use icecap_std::prelude::*;
-use icecap_std::config_realize::*;
 use icecap_timer_server_client::*;
 use icecap_serial_server_config::Config;
 
@@ -26,7 +25,7 @@ pub fn main(config: Config) -> Fallible<()> {
 
     let timer = TimerClient::new(config.timer_ep_write);
     let clients = config.clients.iter().map(|client| {
-        realize_mapped_ring_buffer(&client.ring_buffer)
+        RingBuffer::realize(&client.ring_buffer)
     }).collect();
 
     let event_ep = config.ep;

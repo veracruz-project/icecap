@@ -7,7 +7,6 @@ extern crate alloc;
 use alloc::collections::btree_map::BTreeMap;
 
 use icecap_std::prelude::*;
-use icecap_std::config_realize::*;
 use icecap_vmm_config::Config;
 use icecap_vmm_core::{
     run, IRQType, Event, biterate, IRQ,
@@ -17,7 +16,7 @@ declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
 
-    let con_rb = realize_mapped_ring_buffer(&config.con);
+    let con_rb = RingBuffer::realize(&config.con);
     let con = BufferedRingBuffer::new(con_rb);
     icecap_std::set_print(con);
 

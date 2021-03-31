@@ -31,5 +31,5 @@ pub struct LayoutSide {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Client {
     pub ready_wait: Option<Notification>,
-    pub rb: DescMappedRingBuffer,
+    pub rb: RingBufferConfig,
 }

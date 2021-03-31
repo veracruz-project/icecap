@@ -47,7 +47,6 @@ filterAttrs (_: v: v != null) {
   icecap-runtime = seL4Only ./icecap/icecap-runtime;
   icecap-sync = seL4Only ./icecap/icecap-sync;
   icecap-ring-buffer = seL4Only ./icecap/icecap-ring-buffer;
-  icecap-config-realize = seL4Only ./icecap/icecap-config/realize;
   icecap-failure = seL4Only ./icecap/icecap-failure;
   icecap-failure-derive = seL4Only ./icecap/icecap-failure/derive;
   icecap-start = seL4Only ./icecap/icecap-start;
