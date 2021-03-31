@@ -3,6 +3,11 @@ use alloc::boxed::Box;
 
 use icecap_core::sel4::debug_put_char;
 use icecap_core::ring_buffer::BufferedRingBuffer;
+use icecap_core::sync::{GenericMutex, unsafe_static_mutex};
+
+unsafe_static_mutex!(Lock, icecap_runtime_heap_lock);
+
+static GLOBAL_WRITER: GenericMutex<Lock, Option<Box<IceCapConWriter>>> = GenericMutex::new(Lock, None);
 
 struct IceCapDebugWriter;
 
@@ -16,56 +21,52 @@ impl fmt::Write for IceCapDebugWriter {
 }
 
 struct IceCapConWriter {
-    driver: BufferedRingBuffer,
+    ring_buffer: BufferedRingBuffer,
 }
 
 impl IceCapConWriter {
-    fn new(driver: BufferedRingBuffer) -> Self {
+    fn new(ring_buffer: BufferedRingBuffer) -> Self {
         Self {
-            driver,
+            ring_buffer,
         }
     }
 }
 
 impl fmt::Write for IceCapConWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.driver.tx(s.as_bytes());
+        self.ring_buffer.tx(s.as_bytes());
         Ok(())
     }
 }
 
-fn print_to(global_writer: &mut Option<Box<IceCapConWriter>>, args: fmt::Arguments) {
-    match {
-        match global_writer {
-            None => {
-                let mut writer = IceCapDebugWriter {};
-                fmt::write(&mut writer, args)
-            },
-            Some(b) => {
-                let writer: &mut IceCapConWriter = b;
-                fmt::write(writer, args)
-            },
-        }
-    } {
-        Ok(_) => {},
-        Err(err) => panic!("write error: {:?}", err),
+pub fn set_print(ring_buffer: BufferedRingBuffer) {
+    let mut global_writer = GLOBAL_WRITER.lock();
+    *global_writer = Some(Box::new(IceCapConWriter::new(ring_buffer)));
+}
+
+pub fn flush_print() {
+    let mut global_writer = GLOBAL_WRITER.lock();
+    if let Some(writer) = &mut *global_writer {
+        writer.ring_buffer.flush_tx();
     }
 }
 
-// TODO synchronize with mutex from c runtime?
-static mut GLOBAL_WRITER: Option<Box<IceCapConWriter>> = None;
-
-pub fn set_print(driver: BufferedRingBuffer) {
-    // TODO
-    unsafe {
-        GLOBAL_WRITER = Some(Box::new(IceCapConWriter::new(driver)));
-    }
+fn print_to(global_writer: &mut Option<Box<IceCapConWriter>>, args: fmt::Arguments) {
+    match global_writer {
+        None => {
+            let mut writer = IceCapDebugWriter {};
+            fmt::write(&mut writer, args)
+        }
+        Some(b) => {
+            let writer: &mut IceCapConWriter = b;
+            fmt::write(writer, args)
+        }
+    }.unwrap_or_else(|err| panic!("{:?}", err))
 }
 
 pub fn _print(args: fmt::Arguments) {
-    unsafe {
-        print_to(&mut GLOBAL_WRITER, args)
-    }
+    let mut global_writer = GLOBAL_WRITER.lock();
+    print_to(&mut global_writer, args)
 }
 
 #[macro_export]

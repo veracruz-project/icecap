@@ -103,6 +103,10 @@ class ElfComponent(BaseComponent):
                     'size': arg_size,
                 },
                 'fault_handling': fault_handling,
+                'print_lock': self.cspace().alloc(
+                    self.alloc(ObjectType.seL4_NotificationObject, 'print_lock'),
+                    read=True, write=True, badge=1,
+                    ),
                 'supervisor_ep': self.supervisor_ep,
             },
             'threads': [ thread.get_thread_runtime_config() for thread in self.threads() ],
