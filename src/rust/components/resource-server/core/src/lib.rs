@@ -158,6 +158,12 @@ impl ResourceServer {
         let realm = self.realms.remove(&realm_id).unwrap();
         for virtual_node in &realm.virtual_nodes {
             assert!(virtual_node.physical_node.is_none());
+            // HACK
+            for virtual_node in &realm.virtual_nodes {
+                for tcb in &virtual_node.tcbs {
+                    schedule(*tcb, None)?;
+                }
+            }
         }
         self.allocator.revoke_and_free(&realm.cnode_untyped_id)?;
         for untyped_id in &realm.object_untyped_ids {
