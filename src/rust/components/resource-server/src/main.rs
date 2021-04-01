@@ -96,7 +96,8 @@ fn main(config: Config) -> Fallible<()> {
                 Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
                     todo!();
                 }
-            };
+                Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
+            }
         }
     }
 }

@@ -23,6 +23,10 @@ fn main() -> Result<()> {
                 .arg(Arg::with_name("REALM_ID")
                     .required(true)
                     .index(1)))
+            .subcommand(SubCommand::with_name("hack-run")
+                .arg(Arg::with_name("REALM_ID")
+                    .required(true)
+                    .index(1)))
             .get_matches();
 
     let subcommand = match &matches.subcommand {
@@ -40,6 +44,10 @@ fn main() -> Result<()> {
         "destroy" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
             destroy(realm_id)?;
+        }
+        "hack-run" => {
+            let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
+            hack_run(realm_id)?;
         }
         _ => {
             panic!("{}", matches.usage())
@@ -61,3 +69,7 @@ fn destroy(realm_id: usize) -> Result<()> {
     host.destroy_realm(realm_id)
 }
 
+fn hack_run(realm_id: usize) -> Result<()> {
+    let mut host = Host::new().unwrap();
+    host.hack_run_realm(realm_id)
+}

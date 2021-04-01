@@ -99,6 +99,7 @@ in
     initramfs.profile = ''
       ic() {
         icecap-host create 0 /spec.bin file:/dev/rb_resource_server
+        icecap-host hack-run 0
       }
       id() {
         icecap-host destroy 0

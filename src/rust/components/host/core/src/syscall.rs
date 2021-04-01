@@ -53,3 +53,7 @@ pub fn realize(realm_id: usize) {
 pub fn destroy(realm_id: usize) {
     call_resource_server(&Request::Destroy { realm_id })
 }
+
+pub fn hack_run(realm_id: usize) {
+    call_resource_server(&Request::HackRun { realm_id })
+}

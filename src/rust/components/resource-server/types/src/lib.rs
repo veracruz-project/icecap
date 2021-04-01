@@ -31,6 +31,8 @@ pub enum Request {
     Realize { realm_id: RealmId },
     Destroy { realm_id: RealmId },
     YieldTo { physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds },
+
+    HackRun { realm_id: RealmId },
 }
 
 ///

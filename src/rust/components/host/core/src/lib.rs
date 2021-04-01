@@ -33,4 +33,9 @@ impl Host {
         syscall::destroy(realm_id);
         Ok(())
     }
+
+    pub fn hack_run_realm(&mut self, realm_id: usize) -> Result<()> {
+        syscall::hack_run(realm_id);
+        Ok(())
+    }
 }

@@ -271,13 +271,6 @@ impl ResourceServer {
             tcbs, physical_node: None,
         }).collect();
 
-        // HACK
-        for (i, virtual_node) in virtual_nodes.iter().enumerate() {
-            for tcb in &virtual_node.tcbs {
-                schedule(*tcb, Some(i))?;
-            }
-        }
-
         Ok(Realm {
             virtual_nodes,
             cnode_untyped_id,
@@ -342,6 +335,16 @@ impl ResourceServer {
             (self.cancel_notify_host_event)(physical_node);
             (self.cancel_timeout)(physical_node);
             (self.resume_host)(physical_node, ResumeHostCondition::HostEvent);
+        }
+        Ok(())
+    }
+
+    pub fn hack_run(&mut self, realm_id: RealmId) -> Fallible<()> {
+        let realm = self.realms.get(&realm_id).unwrap();
+        for (i, virtual_node) in realm.virtual_nodes.iter().enumerate() {
+            for tcb in &virtual_node.tcbs {
+                schedule(*tcb, Some(i))?;
+            }
         }
         Ok(())
     }
