@@ -47,6 +47,9 @@ superCallPackage ./rust {} self //
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
 
+  # TODO does this belong here?
+  mkLinuxRealm = callPackage ./capdl/mk-linux-realm {};
+
   stdenvIceCap = mkStdenv (callPackage ./sel4-user/c/libc-wrapper.nix {});
 
   libs = callPackage ./sel4-user/c {};

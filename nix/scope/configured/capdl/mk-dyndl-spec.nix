@@ -6,7 +6,7 @@
 , dyndl-serialize-spec
 }:
 
-{ cdl, root }:
+{ cdl, root, extraPassthru ? {} }:
 
 let
   json = runCommand "dyndl_spec.json" {
@@ -23,7 +23,7 @@ let
     ];
     passthru = {
       inherit json;
-    };
+    } // extraPassthru;
   } ''
     dyndl-serialize-spec ${root} < ${json} > $out
   '';
