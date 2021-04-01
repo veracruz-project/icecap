@@ -101,5 +101,5 @@ in rec {
   allDebugLinks = debugLinksOf allDebugFiles;
 
   host-dtb = "${cdl}/links/host_vm.dtb";
-  host-dts = dtb-helpers.decompile host-dtb;
+  host-dts = dtb-helpers.decompileForce host-dtb;
 }

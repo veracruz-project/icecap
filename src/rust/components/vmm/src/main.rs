@@ -16,7 +16,7 @@ declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
 
-    let con_rb = RingBuffer::realize(&config.con);
+    let con_rb = RingBuffer::realize_resume(&config.con);
     let con = BufferedRingBuffer::new(con_rb);
     icecap_std::set_print(con);
 

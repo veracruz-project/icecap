@@ -69,11 +69,8 @@ impl Node {
         return false;
     }
 
-    /// Marks an Untyped as consumed.
-    ///
-    /// panics if the Untyped is already consumed.
+    /// Marks an Untyped as consumed or unconsumed.
     pub(crate) fn set_consumed(&mut self, set_consumed: bool) {
-        assert!(!self.is_consumed());
         if self.is_accessible() {
             if let NodeType::Accessible { consumed, .. } = &mut self.node_type {
                 *consumed = set_consumed;
@@ -81,6 +78,14 @@ impl Node {
         } else {
             panic!("Attempting to set consumed on an inaccessible Node");
         }
+    }
+
+    /// Identifies if a Node is a candidate for deletion.
+    pub(crate) fn is_deletable(&self) -> bool {
+        // We can delete an accessible node that is not consumed and which has
+        // no children.
+        self.is_accessible() && !self.is_consumed() &&
+            self.left.is_none() && self.right.is_none()
     }
 
     // Gets the local local_cptr for the node.
@@ -286,6 +291,8 @@ impl LeafNodes {
 
     /// Remove an UntypedId from the LeafNodes structure.
     pub(crate) fn remove_leaf(&mut self, untyped_id_to_remove: &UntypedId) {
+        let mut empty = false;
+
         match self.leaf_nodes.get_mut(&untyped_id_to_remove.size_bits) {
             Some(untyped_ids) => {
                 // At this point, all the size_bits of Untypeds in untyped_ids
@@ -297,8 +304,22 @@ impl LeafNodes {
                         break;
                     }
                 }
+
+                // If this is the last Untyped region of the size, update leaf_nodes to reflect
+                // None.
+                if untyped_ids.len() == 0 {
+                    empty = true;
+                }
             }
-            _ => {}
+            _ => {
+                panic!("{:x?} was not in leaf_nodes", untyped_id_to_remove);
+            }
+        }
+
+        // TODO: Perform this operation in the match statement.  Currently blocked by trying to
+        // mutably borrow self.leaf_nodes twice.
+        if empty {
+            self.leaf_nodes.remove(&untyped_id_to_remove.size_bits);
         }
     }
 

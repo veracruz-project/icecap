@@ -189,8 +189,6 @@ impl Allocator {
     // slot: slot in which to create the object
     // blueprint: blueprint of the object to be created
     fn create_object(&mut self, destination_cnode: &RelativeCPtr, slot: Slot, blueprint: ObjectBlueprint) -> UntypedId {
-        let root_cnode = &self.cregion.root.clone();
-
         let phys_size_bits = blueprint.physical_size_bits();
 
         // Find a Node of Untyped to retype.
@@ -202,16 +200,14 @@ impl Allocator {
             // identifies how many times we'll have to split the Untyped.
             for _ in phys_size_bits .. untyped_id.size_bits {
                 // Split the Untyped into slots in the root CNode.
-                let (left_child_untyped_id, right_child_untyped_id) = self.split_untyped(root_cnode, untyped_id);
+                let (left_child_untyped_id, right_child_untyped_id) = self.split_untyped(untyped_id);
 
                 // Work down the right side of the tree.
                 untyped_id = right_child_untyped_id;
+                self.leaf_nodes.remove_leaf(&untyped_id);
             }
 
             // At this point, untyped_id is an Untyped of the correct size.
-            // Go back to the LeafNodes structure to get the leaf (which also
-            // removes the leaf from the structure).
-            untyped_id = self.leaf_nodes.get_leaf(&phys_size_bits);
         }
 
         // Find the Node corresponding to the untyped_id
@@ -228,13 +224,8 @@ impl Allocator {
         return untyped_id;
     }
 
-    // Splits an Untyped object.
-    // destination_cnode: RelativeCPtr to the CNode with slots into which the Untyped
-    // will be split.
-    // untyped_id: UntypedId of the Untyped to be split.
-    fn split_untyped(&mut self, destination_cnode: &RelativeCPtr,
-                     untyped_id: UntypedId) -> (UntypedId, UntypedId) {
-
+    // Splits an Untyped object and places the two new CPtrs into the CRegion's root CNode.
+    fn split_untyped(&mut self, untyped_id: UntypedId) -> (UntypedId, UntypedId) {
         // Create the blueprint for the new Untyped.
         let new_size_bits = untyped_id.size_bits - 1;
         let blueprint = ObjectBlueprint::Untyped { size_bits: new_size_bits };
@@ -251,8 +242,8 @@ impl Allocator {
         let local_cptr = node.local_cptr(&self.cregion);
 
         // Split the Untyped by retyping into two Untyped regions.
-        local_cptr.retype(blueprint, &destination_cnode, u64::try_from(left_slot).unwrap(), 1).unwrap();
-        local_cptr.retype(blueprint, &destination_cnode, u64::try_from(right_slot).unwrap(), 1).unwrap();
+        local_cptr.retype(blueprint, &self.cregion.root, u64::try_from(left_slot).unwrap(), 1).unwrap();
+        local_cptr.retype(blueprint, &self.cregion.root, u64::try_from(right_slot).unwrap(), 1).unwrap();
 
         // Add the child Nodes to the parent Node.
         node.left = Some(
@@ -282,9 +273,6 @@ impl Allocator {
                     right: None,
                 })
         );
-
-        // Remove the parent from leaf_nodes.
-        self.leaf_nodes.remove_leaf(&untyped_id);
 
         // Add the new children to leaf_nodes.
         let left_child_untyped_id = UntypedId {
@@ -326,14 +314,21 @@ impl Allocator {
     /// parent Nodes that no longer have used child Nodes.
     pub fn revoke_and_free(&mut self, untyped_id: &UntypedId) -> Fallible<()> {
         // The root node is held by the capability derivation tree
-        // TODO:  Is there a way to do this without cloning?
-        let mut node = self.cap_derivation_tree.clone();
+
+        // TODO:  Cloning here and cloning back to avoid the "you can't borrow *self mutably twice"
+        // error.  This strongly indicates a flaw in the structure or organisation and should be
+        // fixed.
+        let mut node = &mut self.cap_derivation_tree.clone();
         let low_addr = 0;
-        let high_addr = 0xFFFF_FFFF_FFFF_FFFF;  // TODO: Smarter way to do this?
+        let high_addr = 0xFFFF_FFFF_FFFF_FFFF;
         let depth_from_root = 0;
 
         self.revoke_and_free_helper(&mut node, low_addr, high_addr,
-                                    depth_from_root, untyped_id)
+                                    depth_from_root, untyped_id)?;
+
+        self.cap_derivation_tree = node.clone();
+
+        Ok(())
     }
 
     // Recursive helper function for revoke_and_free()
@@ -342,13 +337,11 @@ impl Allocator {
                               untyped_id: &UntypedId) -> Fallible<()> {
         // Check if we're at the correct level of the tree.
         if (64 - depth_from_root) == untyped_id.size_bits {
-
             // Enforce the invariant that we only revoke and free accessible,
             // consumed, nodes without children.
-            assert!(node.is_consumed());
             assert!(node.is_accessible());
-            assert!(node.left.is_none());
-            assert!(node.right.is_none());
+            assert!(node.is_consumed());
+            assert!(node.left.is_none() && node.right.is_none());
 
             // TODO: The invariant that the paddr is aligned to size bits should be
             // enforced on UntypedId.
@@ -387,30 +380,56 @@ impl Allocator {
                                             untyped_id)?;
             }
 
-            // If both children are now unconsumed (or empty), invoke revoke
-            // on this Node's capability and delete any Managed children.
-            if (node.left.is_none() || !node.left.as_ref().unwrap().is_consumed()) &&
-                (node.right.is_none() || !node.right.as_ref().unwrap().is_consumed()) {
-                // Invoke revoke() on this node's capability (to revoke it's children)
-                node.relative_cptr(&self.cregion).revoke()?;
+            // If the node is accessible and its children are deletable (or empty),
+            // revoke the Node's capability, add it to LeafNodes, and delete the children.
+            if node.is_accessible() &&
+                (node.left.is_none() || node.left.as_ref().unwrap().is_deletable()) &&
+                (node.right.is_none() || node.right.as_ref().unwrap().is_deletable()) {
 
-                if !node.left.is_none() && node.left.as_ref().unwrap().is_managed() {
-                    // Free child slots in the Managed CNode.
+                // Clean up the children.
+                if !node.left.is_none() {
+                    // Free the child's slot in the Managed CNode.
                     self.cregion.free(node.left.as_ref().unwrap().get_slot());
+
+                    // Derive the child's UntypedId and remove it from the leaf_nodes structure.
+                    let untyped_id = UntypedId {
+                        paddr: low_addr,
+                        size_bits: 64 - (depth_from_root + 1),
+                    };
+                    self.leaf_nodes.remove_leaf(&untyped_id);
 
                     // Delete child nodes.
                     node.left = None;
                 }
-                if !node.right.is_none() && node.right.as_ref().unwrap().is_managed() {
-                    // Free child slots in the Managed CNode.
+
+                if !node.right.is_none() {
+                    // Free the child's slot in the Managed CNode.
                     self.cregion.free(node.right.as_ref().unwrap().get_slot());
+
+                    // Derive the child's UntypedId and remove it from the leaf_nodes structure.
+                    let half_addr = low_addr + ((high_addr - low_addr) >> 1) + 1;
+                    let untyped_id = UntypedId {
+                        paddr: half_addr,
+                        size_bits: 64 - (depth_from_root + 1),
+                    };
+                    self.leaf_nodes.remove_leaf(&untyped_id);
 
                     // Delete child nodes.
                     node.right = None;
                 }
 
-                // Add the freed Untyped to the leaf_nodes structure.
+                // Invoke revoke() on this node's capability (to revoke it's children)
+                node.relative_cptr(&self.cregion).revoke()?;
+
+                // Derive the node's UntypedId.
+                let untyped_id = UntypedId {
+                    paddr: low_addr,
+                    size_bits: 64 - depth_from_root,
+                };
+
+                // Add the node's freed Untyped to the leaf_nodes structure.
                 self.leaf_nodes.add_leaf(&untyped_id);
+
             }
         }
         Ok(())

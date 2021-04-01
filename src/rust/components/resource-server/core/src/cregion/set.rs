@@ -1,6 +1,8 @@
 use core::ops::Range;
 use alloc::collections::BTreeMap;
 
+use icecap_core::prelude::*;
+
 #[derive(Debug)]
 pub struct Set {
     elements: BTreeMap<usize, bool>,
@@ -63,7 +65,10 @@ impl Set {
 
         if found_range {
             for key in low..high+1 {
-                self.elements.insert(key, true);
+                // Assign each key to true and verify that it wasn't already true.
+                if let Some(true) = self.elements.insert(key, true) {
+                    panic!("Attempting to withdraw a slot that is already assigned.");
+                }
             }
             return Some(low..high+1);
         } else {
