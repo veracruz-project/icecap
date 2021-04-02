@@ -9,7 +9,7 @@ fault_handler = composition.component(FaultHandler, 'fault_handler')
 timer_server = composition.component(TimerServer, 'timer_server', fault_handler=fault_handler)
 serial_server = composition.component(SerialServer, 'serial_server', fault_handler=fault_handler)
 resource_server = composition.component(ResourceServer, 'resource_server', fault_handler=fault_handler)
-host_vm = composition.component(HostVM, name='host_vm', vmm_name='host_vmm', affinity=0, gic_vcpu_frame=gic_vcpu_frame)
+host_vm = composition.component(HostVM, name='host_vm', vmm_name='host_vmm', affinities=[0, 1], gic_vcpu_frame=gic_vcpu_frame)
 host_vmm = host_vm.vmm
 
 timer_server.connect(serial_server)

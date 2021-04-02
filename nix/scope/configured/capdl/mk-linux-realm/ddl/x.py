@@ -5,7 +5,7 @@ composition = start()
 
 gic_vcpu_frame = composition.extern(ObjectType.seL4_FrameObject, 'gic_vcpu_frame')
 
-realm_vm = composition.component(VM, name='realm_vm', vmm_name='realm_vmm', affinity=1, gic_vcpu_frame=gic_vcpu_frame)
+realm_vm = composition.component(VM, name='realm_vm', vmm_name='realm_vmm', affinities=[2], gic_vcpu_frame=gic_vcpu_frame)
 realm_vmm = realm_vm.vmm
 
 realm_vmm_con = composition.extern_ring_buffer('realm_vmm_con', size=4096)
