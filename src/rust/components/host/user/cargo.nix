@@ -1,7 +1,7 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-host-core";
+  name = "icecap-host-user";
   localDependencies = with localCrates; [
     icecap-resource-server-types
     icecap-rpc

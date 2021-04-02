@@ -1,17 +1,17 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-vmm-core";
+  name = "icecap-vmm";
   localDependencies = with localCrates; [
-    icecap-failure
+    biterate
     icecap-sel4
+    icecap-failure
     icecap-ring-buffer
-    icecap-rpc-sel4
     icecap-core
+    icecap-rpc-sel4
+    icecap-vmm-gic
   ];
   dependencies = {
-    num = { version = "*"; default-features = false; };
-    register = "*";
     log = "*";
   };
 }

@@ -3,7 +3,7 @@
 mkBin {
   name = "icecap-host";
   localDependencies = with localCrates; [
-    icecap-host-core
+    icecap-host-user
   ];
   dependencies = {
     clap = "*";

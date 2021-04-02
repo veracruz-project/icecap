@@ -1,7 +1,7 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-vmm-config";
+  name = "icecap-host-vmm-config";
   localDependencies = with localCrates; [
     icecap-config
   ];

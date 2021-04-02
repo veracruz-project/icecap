@@ -12,8 +12,8 @@ filterAttrs (_: v: v != null) {
   dyndl-types-derive = ./dyndl/types/derive;
   dyndl-serialize-spec = ./dyndl/cli/dyndl-serialize-spec;
 
-  icecap-host = ./components/host;
-  icecap-host-core = ./components/host/core;
+  icecap-host = ./components/host/user/cli;
+  icecap-host-user = ./components/host/user;
 
   icecap-fdt = ./icecap/icecap-fdt;
   icecap-fdt-bindings = ./icecap/icecap-fdt/bindings;
@@ -43,6 +43,7 @@ filterAttrs (_: v: v != null) {
   finite-set = ./helpers/finite-set;
   finite-set-derive = ./helpers/finite-set/derive;
   finite-set-derive-impl = ./helpers/finite-set/derive/impl;
+  biterate = ./helpers/biterate;
 
   icecap-sel4 = seL4Only ./icecap/icecap-sel4;
   icecap-sel4-sys = seL4Only ./icecap/icecap-sel4/sys;
@@ -57,12 +58,14 @@ filterAttrs (_: v: v != null) {
   icecap-core = seL4Only ./icecap/icecap-core;
   icecap-std = seL4Only ./icecap/icecap-std;
 
+  icecap-vmm = seL4Only ./icecap/icecap-vmm;
+  icecap-vmm-gic = seL4Only ./icecap/icecap-vmm/gic;
+
   icecap-std-external = seL4Only ./std-support/icecap-std-external;
   icecap-std-impl = seL4Only ./std-support/icecap-std-impl;
 
-  vmm = seL4Only ./components/vmm;
-  icecap-vmm-core = seL4Only ./components/vmm/core;
-  icecap-vmm-config = ./components/vmm/config;
+  host-vmm = seL4Only ./components/host/vmm;
+  icecap-host-vmm-config = ./components/host/vmm/config;
 
   resource-server = seL4Only ./components/resource-server;
   icecap-resource-server-types = ./components/resource-server/types;

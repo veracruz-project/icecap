@@ -52,7 +52,7 @@ let
         resource_server.image = bins.resource-server.split;
         resource_server.heap_size = 128 * 1048576;
 
-        host_vmm.image = bins.vmm.split;
+        host_vmm.image = bins.host-vmm.split;
         host_vm.kernel = u-boot;
         host_vm.dtb = deviceTree.host.${icecapPlat};
       };

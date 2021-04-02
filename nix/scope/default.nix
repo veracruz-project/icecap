@@ -144,8 +144,8 @@ superCallPackage ./ocaml {} self //
   };
   serialize-vmm-config = mkSerializeConfig {
     name = "vmm";
-    type = "icecap_vmm_config::Config";
-    crate = outerGlobalCrates.icecap-vmm-config;
+    type = "icecap_host_vmm_config::Config";
+    crate = outerGlobalCrates.icecap-host-vmm-config;
   };
   serialize-resource-server-config = mkSerializeConfig {
     name = "resource-server";

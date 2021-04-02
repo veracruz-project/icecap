@@ -6,12 +6,13 @@ use core::fmt;
 use core::convert::TryFrom;
 use core::sync::atomic::{AtomicU32, Ordering};
 
+use biterate::biterate;
+
 // use icecap_failure::{Fallible, Error};
 
 use icecap_sel4::fault::*;
 use icecap_sel4::prelude::*; // TODO: Remove.  Just for debug.
 
-use crate::biterate::biterate;
 
 pub const GIC_DIST_SIZE: usize = 0x1000;
 

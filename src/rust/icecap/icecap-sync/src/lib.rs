@@ -4,7 +4,7 @@ mod mutex;
 
 pub use mutex::{
     GenericMutex, GenericMutexGuard, MutexNotification,
-    Mutex, MutexGuard,
+    Mutex, MutexGuard, ExplicitMutexNotification,
 };
 
 // for macro

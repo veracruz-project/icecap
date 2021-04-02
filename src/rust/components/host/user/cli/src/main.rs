@@ -4,7 +4,7 @@ use std::{
 
 use clap::{Arg, App, SubCommand};
 
-use icecap_host_core::*;
+use icecap_host_user::*;
 
 
 fn main() -> Result<()> {
