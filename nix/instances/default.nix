@@ -66,5 +66,7 @@ icecap.byIceCapPlat (plat:
       });
     };
 
+    # HACK
+    inherit mkInstance mkBasicInstance configs;
   }
 )
