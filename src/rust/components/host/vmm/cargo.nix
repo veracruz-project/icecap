@@ -6,6 +6,7 @@ mkBin {
     biterate
     icecap-host-vmm-config
     icecap-std
+    icecap-rpc-sel4
     icecap-vmm
   ];
 }

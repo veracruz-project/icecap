@@ -255,7 +255,7 @@ class VM(BaseComponent):
         self.vmm._arg['virtual_irqs'].append({
             'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True),
             'thread': self.vmm.secondary_thread('virq_{}'.format(irq)).endpoint,
-            'irqs': [irq, irq],
+            'bits': [irq, irq],
             })
 
         self.devices.append({
@@ -275,7 +275,7 @@ class VM(BaseComponent):
         self.vmm._arg['virtual_irqs'].append({
             'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True),
             'thread': self.vmm.secondary_thread('virq_{}_{}'.format(rx_irq, tx_irq)).endpoint,
-            'irqs': [rx_irq, tx_irq],
+            'bits': [rx_irq, tx_irq],
             })
 
         self.devices.append({
@@ -297,7 +297,7 @@ class VM(BaseComponent):
         self.vmm._arg['virtual_irqs'].append({
             'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True),
             'thread': self.vmm.secondary_thread('virq_{}'.format(irq)).endpoint,
-            'irqs': [irq, irq],
+            'bits': [irq, irq],
             })
 
         self.devices.append({
@@ -346,16 +346,12 @@ class VMM(ElfComponent):
 
             # Create and append a Node structure for each node
             nodes.append({
-                'thread': thread,
-                'nfn_thread': self.secondary_thread(name='node_{}_nfn'.format(node_index), affinity=node.affinity).endpoint,
-                'start_ep': start_ep_read_write,
-                'ep_write': self.cspace().alloc(ep, write=True, badge=0),
-                'ep_read': self.cspace().alloc(ep, read=True),
-                'nfn_write': self.cspace().alloc(nfn, write=True, badge=1),
-                'nfn_read': self.cspace().alloc(nfn, read=True),
-                'reply_ep': self.cspace().alloc(None),
                 'tcb': self.cspace().alloc(node.tcb, read=True, write=True, grant=True, grantreply=True),
                 'vcpu': self.cspace().alloc(node.vcpu, read=True, write=True, grant=True, grantreply=True),
+                'thread': thread,
+                'ep_read': self.cspace().alloc(ep, read=True),
+                'ep_write': self.cspace().alloc(ep, write=True, badge=0),
+                'fault_reply_slot': self.cspace().alloc(None),
                 })
 
         passthru_irqs = []
@@ -379,21 +375,16 @@ class VMM(ElfComponent):
             passthru_irqs.append({
                 'nfn': self.cspace().alloc(nfn, read=True),
                 'thread': self.secondary_thread('irq_group_{}'.format(i_group)).endpoint,
-                'irqs': x(),
+                'bits': x(),
                 })
 
         self._arg = {
             'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
-
-            'timer_thread': self.secondary_thread('timer').endpoint,
-
-            'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
-
-            'real_virtual_timer_irq': REAL_VIRTUAL_TIMER_IRQ,
-            'virtual_timer_irq': VIRTUAL_TIMER_IRQ,
+            'gic_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='gic_lock', read=True, write=True)),
+            'nodes_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='nodes_lock', read=True, write=True)),
             'virtual_irqs': [],
             'passthru_irqs': passthru_irqs,
-
+            'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
             'nodes': nodes,
         }
 

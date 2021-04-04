@@ -4,6 +4,9 @@
 #![feature(type_ascription)]
 #![feature(format_args_nl)]
 #![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
 
 extern crate alloc;
 

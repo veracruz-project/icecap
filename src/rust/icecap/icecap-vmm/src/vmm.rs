@@ -1,21 +1,22 @@
 use alloc::sync::Arc;
 use alloc::vec::Vec;
-use alloc::boxed::Box;
 use alloc::collections::BTreeMap;
 
-use icecap_sel4::*;
-use icecap_core::runtime::Thread;
-use icecap_failure::Fallible;
-use icecap_core::sync::{Mutex, ExplicitMutexNotification};
+use icecap_core::{
+    prelude::*,
+    sel4::fault::*,
+    runtime::Thread,
+    sync::{Mutex, ExplicitMutexNotification},
+};
 use icecap_vmm_gic::*;
 
 pub struct VMMConfig<E> {
     pub cnode: CNode,
-    pub gic_dist_paddr: usize,
     pub gic_lock: Notification,
     pub nodes_lock: Notification,
-    pub nodes: Vec<VMMNodeConfig<E>>,
     pub irq_handlers: BTreeMap<IRQ, IRQHandler>,
+    pub gic_dist_paddr: usize,
+    pub nodes: Vec<VMMNodeConfig<E>>,
 }
 
 pub struct VMMNodeConfig<E> {
@@ -34,21 +35,21 @@ pub trait VMMExtension: Sized {
 }
 
 pub struct VMMNode<E> {
+    pub node_index: NodeIndex,
     pub tcb: TCB,
     pub vcpu: VCPU,
     pub ep: Endpoint,
-    pub fault_reply_slot: Endpoint,
     pub cnode: CNode,
-    pub extension: E,
+    pub fault_reply_slot: Endpoint,
     pub gic_dist_paddr: usize,
-    pub node_index: NodeIndex,
     pub gic: Arc<Mutex<GIC<VMMGICCallbacks>>>,
     pub nodes: Arc<Mutex<Vec<Option<(Thread, VMMNode<E>)>>>>,
+    pub extension: E,
 }
 
 pub struct VMMGICCallbacks {
-    irq_handlers: BTreeMap<IRQ, IRQHandler>,
     vcpus: Vec<VCPU>,
+    irq_handlers: BTreeMap<IRQ, IRQHandler>,
 }
 
 impl GICCallbacks for VMMGICCallbacks {
@@ -61,7 +62,7 @@ impl GICCallbacks for VMMGICCallbacks {
         if irq < 16 {
             panic!("invalid irq: sgi {}", irq);
         } else if irq < 32 {
-            self.vcpus[node].ack_vppi(irq as u64);
+            self.vcpus[node].ack_vppi(irq as u64)?;
         } else {
             if let Some(handler) = self.irq_handlers.get(&irq) {
                 handler.ack()?;
@@ -149,14 +150,14 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                         }
                         Fault::UnknownSyscall(fault) => {
                             self.cnode.save_caller(self.fault_reply_slot).unwrap();
-                            self.handle_syscall(fault.syscall);
+                            self.handle_syscall(fault.syscall)?;
                             self.fault_reply_slot.send(MessageInfo::empty());
                         }
                         Fault::UserException(fault) => {
                             panic!("Fault::UserException({:x?})", fault);
                         }
                         Fault::VGICMaintenance(fault) => {
-                            self.gic.lock().handle_maintenance(self.node_index, fault.idx as usize);
+                            self.gic.lock().handle_maintenance(self.node_index, fault.idx as usize)?;
                             reply(MessageInfo::empty());
                         }
                         Fault::VCPUFault(fault) => {

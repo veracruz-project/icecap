@@ -85,6 +85,10 @@ impl<Input: RPC> RPCClient<Input> {
         }
     }
 
+    pub fn send(&self, input: &Input) {
+        self.endpoint.send(WriteCallImpl::complete(input))
+    }
+
     pub fn call<Output: RPC>(&self, input: &Input) -> Output {
         ReadCallImpl::complete(&self.endpoint.call(WriteCallImpl::complete(input)))
     }
