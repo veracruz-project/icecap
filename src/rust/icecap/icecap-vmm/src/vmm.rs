@@ -93,7 +93,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
 
     pub fn run(mut self) -> Fallible<()> {
         let nodes = Arc::new(Mutex::new(ExplicitMutexNotification::new(self.nodes_lock), Vec::new()));
-        let gic = GIC::new(VMMGICCallbacks {
+        let gic = GIC::new(self.nodes.len(), VMMGICCallbacks {
             irq_handlers: self.irq_handlers,
             vcpus: self.nodes.iter().map(|node| node.vcpu).collect(),
         });

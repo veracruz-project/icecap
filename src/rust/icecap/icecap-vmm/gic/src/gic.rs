@@ -1,3 +1,6 @@
+use alloc::collections::VecDeque;
+use alloc::vec::Vec;
+
 use icecap_sel4::fault::*;
 use icecap_failure::*;
 
@@ -25,7 +28,15 @@ pub trait GICCallbacks {
 }
 
 pub struct GIC<T> {
+    num_nodes: usize,
     callbacks: T,
+    dist: Distributor,
+    lrs: Vec<LR>,
+}
+
+struct LR {
+    mirror: [Option<IRQ>; 64],
+    overflow: VecDeque<IRQ>,
 }
 
 impl<T> GIC<T> {
@@ -35,9 +46,17 @@ impl<T> GIC<T> {
 
 impl<T: GICCallbacks> GIC<T> {
 
-    pub fn new(callbacks: T) -> Self {
+    pub fn new(num_nodes: usize, callbacks: T) -> Self {
         Self {
+            num_nodes,
             callbacks,
+            dist: Distributor::new(num_nodes),
+            lrs: (0..num_nodes).map(|_| {
+                LR {
+                    mirror: [None; 64],
+                    overflow: VecDeque::new(),
+                }
+            }).collect(),
         }
     }
 
