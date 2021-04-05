@@ -9,7 +9,12 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
+use icecap_event_server_types::*;
 use icecap_event_server_config::Config;
+
+mod server;
+
+use server::*;
 
 declare_main!(main);
 
