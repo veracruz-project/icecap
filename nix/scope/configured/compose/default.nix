@@ -18,7 +18,7 @@ let
 
   components = lib.fix (self: with self; {
 
-    loader-elf = stripElfSplit "${loader}/bin/elfloader";
+    loader-elf = stripElfSplit "${loader}/boot/elfloader";
 
     loader = elfloader {
       inherit kernel-dtb;

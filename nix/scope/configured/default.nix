@@ -37,9 +37,7 @@ superCallPackage ./rust {} self //
   object-sizes = callPackage ./sel4-kernel/object-sizes.nix {};
 
   elfloader = callPackage ./elfloader {
-    # HACK
-    inherit (sel4test) runCMake;
-    inherit (sel4test.remoteLibs) libcpio;
+    libcpio = libs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare metal?
   };
 
   capdl-loader-lib = callPackage ./capdl/capdl-loader-lib.nix {};

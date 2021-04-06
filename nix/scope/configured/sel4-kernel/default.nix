@@ -1,4 +1,4 @@
-{ lib, writeText, runCommand
+{ lib, writeText, runCommand, linkFarm
 , cmake, ninja, rsync
 , dtc, libxml2, python3, python3Packages
 
@@ -96,19 +96,17 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
     # would fixupPhase be safe and beneficial?
   ];
 
-  cmakeDir =
-    let
-      lists = writeText "CMakeLists.txt" ''
+  cmakeDir = linkFarm "x" [
+    { name = "CMakeLists.txt";
+      path = writeText "CMakeLists.txt" ''
         cmake_minimum_required(VERSION 3.13)
         project(seL4 ASM C)
         add_subdirectory(${source} kernel)
         add_subdirectory(${source}/libsel4 libsel4)
         install(TARGETS sel4 ARCHIVE DESTINATION lib)
       '';
-    in runCommand "cmake-top" {} ''
-      mkdir p $out
-      ln -s ${lists} $out/CMakeLists.txt
-    '';
+    }
+  ];
 
   # TODO
   cmakeBuildType = "Debug";
