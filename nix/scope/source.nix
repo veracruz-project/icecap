@@ -32,19 +32,6 @@ let
       ref = "sel4";
       rev = "a0a3af0e3a54fb3985352b4a3160503ecc8c260c";
     };
-
-    # the rest are used for sel4test only
-
-    sel4test = mk "minor-patches/seL4/sel4test" {} "4c0f47de17ee5809475d130db3a388c3b589261c";
-    sel4runtime = mk "minor-patches/seL4/sel4runtime" {} "ce396febfa11ea95b5852cbc84fd2d5c78e5226f";
-    util_libs = mk "minor-patches/seL4/util_libs" {} "554bbfaa2a7b2e274e45c85c0a78f5d914a24dbb";
-    seL4_projects_libs = mk "minor-patches/seL4/seL4_projects_libs" {} "3734540ffa22d430efb1ca4de1535bf681dbd183";
-
-    seL4_libs = fetchSeL4 {
-      repo = "seL4_libs";
-      rev = "7ae68ec7f731156efb3bc52e9ff9795c50ca641f";
-    };
-
   };
 
   mkAttrs = repos: {

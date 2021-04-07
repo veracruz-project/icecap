@@ -44,7 +44,6 @@ icecap.byIceCapPlat (plat:
   in {
 
     test = {
-      sel4test = mkBasicInstance configs.sel4test ./test/sel4test;
       host = mkBasicInstance configs.icecap ./test/host;
       host-and-adjacent-vm = mkBasicInstance configs.icecap ./test/host-and-adjacent-vm;
       timer-and-serial = mkBasicInstance configs.icecap ./test/timer-and-serial;

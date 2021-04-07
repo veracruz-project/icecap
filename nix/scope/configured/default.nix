@@ -53,6 +53,4 @@ superCallPackage ./rust {} self //
   libs = callPackage ./sel4-user/c {};
   bins = callPackage ./sel4-user/rust.nix {};
   inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
-
-  sel4test = lib.makeScope newScope (callPackage ./sel4test {});
 }

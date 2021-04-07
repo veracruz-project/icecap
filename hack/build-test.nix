@@ -4,7 +4,6 @@ let
   inherit (top.none.icecap) icecapPlats;
 in
   lib.concatMap (plat: [
-    instances.${plat}.test.sel4test.run
     instances.${plat}.test.host.run
     instances.${plat}.test.host-and-adjacent-vm.run
     instances.${plat}.test.timer-and-serial.run

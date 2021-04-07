@@ -39,6 +39,8 @@ in {
 
   sel4test = common // {
     KernelDomainSchedule = STRING (repos.rel.sel4test "domain_schedule.c");
+
+    # TODO
     Sel4testHaveCache = {
       virt = OFF;
       rpi4 = ON;

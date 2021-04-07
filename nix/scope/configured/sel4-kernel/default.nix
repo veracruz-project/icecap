@@ -157,7 +157,7 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
     mkdir -p $out/debug-aux/src
     cp -r kernel libsel4 $out/debug-aux/src
 
-    # HACK propagate config for sel4test
+    # HACK propagate config for other CMake-built components
 
     $AR r $out/lib/libsel4_autoconf.a
 
@@ -174,7 +174,6 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
 
   passthru = {
     inherit dts source;
-    providesLibs = [ "sel4" ]; # HACK for sel4test
   };
 
 }) {
