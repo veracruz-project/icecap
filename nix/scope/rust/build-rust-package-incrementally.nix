@@ -198,35 +198,44 @@ in let
     '';
 
     shellHook = ''
+      clean() {
+        rm -rf nix-shell.tmp
+      }
+
       setup() {
         mkdir -p nix-shell.tmp
         cd nix-shell.tmp
         configure
       }
-      clean() {
-        rm -rf nix-shell.tmp
-      }
+
       configure() {
         eval "$configurePhase"
       }
+
+      invoke_cargo() {
+        cmd="$1"
+        shift
+        cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
+          ${lib.optionalString (!debug) "--release"} \
+          --target ${hostPlatform.config} \
+          ${lib.concatStringsSep " " (extraArgs.cargoBuildFlags or [])} \
+          "$@"
+      }
+
       cs() {
         mv nix-shell.tmp/target .
         clean && setup
         mv ../target .
       }
+
       b() {
-        cargo build -j $NIX_BUILD_CORES --offline --frozen \
-          ${lib.optionalString (!debug) "--release"} \
-          --target ${hostPlatform.config} \
-          ${lib.concatStringsSep " " (extraArgs.cargoBuildFlags or [])} \
-          "$@"
+        invoke_cargo build "$@"
+      }
+      t() {
+        invoke_cargo test "$@"
       }
       r() {
-        cargo run -j $NIX_BUILD_CORES --offline --frozen \
-          ${lib.optionalString (!debug) "--release"} \
-          --target ${hostPlatform.config} \
-          ${lib.concatStringsSep " " (extraArgs.cargoBuildFlags or [])} \
-          "$@"
+        invoke_cargo run "$@"
       }
     '' + extraShellHook;
   });
