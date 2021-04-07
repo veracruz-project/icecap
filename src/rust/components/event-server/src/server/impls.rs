@@ -146,6 +146,7 @@ impl InSpace {
         Ok(())
     }
 
+    // HACK
     pub fn notify_if_necessary(&mut self) -> Fallible<()> {
         for entry in &self.entries {
             if let Some(entry) = entry {

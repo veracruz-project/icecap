@@ -54,37 +54,38 @@ pub struct VMMGICCallbacks {
 
 impl GICCallbacks for VMMGICCallbacks {
 
-    fn event(&mut self, node: NodeIndex, target_node: NodeIndex) -> Fallible<()> {
+    fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()> {
         Ok(())
     }
 
-    fn ack(&mut self, node: NodeIndex, irq: IRQ) -> Fallible<()> {
-        if irq < 16 {
-            panic!("invalid irq: sgi {}", irq);
-        } else if irq < 32 {
-            self.vcpus[node].ack_vppi(irq as u64)?;
-        } else {
-            if let Some(handler) = self.irq_handlers.get(&irq) {
-                handler.ack()?;
+    fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
+        match irq {
+            QualifiedIRQ::QualifiedPPI { node, irq } => {
+                self.vcpus[node].ack_vppi(irq as u64)?;
+            }
+            QualifiedIRQ::SPI { irq } => {
+                if let Some(handler) = self.irq_handlers.get(&irq) {
+                    handler.ack()?;
+                }
             }
         }
         Ok(())
     }
 
-    fn vcpu_inject_irq(&mut self, node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()> {
-        self.vcpus[node].inject_irq(irq as u16, priority as u8, 0, index as u8)?;
+    fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()> {
+        self.vcpus[target_node].inject_irq(irq as u16, priority as u8, 0, index as u8)?;
         Ok(())
     }
 
-    fn set_affinity(&mut self, node: NodeIndex, irq: IRQ, target_node: NodeIndex) -> Fallible<()> {
+    fn set_affinity(&mut self, calling_node: NodeIndex, irq: SPI, affinity: NodeIndex) -> Fallible<()> {
         Ok(())
     }
 
-    fn set_priority(&mut self, node: NodeIndex, irq: IRQ, priority: usize) -> Fallible<()> {
+    fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()> {
         Ok(())
     }
 
-    fn set_enabled(&mut self, node: NodeIndex, irq: IRQ, enabled: bool) -> Fallible<()> {
+    fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()> {
         Ok(())
     }
 }
@@ -139,6 +140,13 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 BADGE_EXTERNAL => {
                     // HACK
                     let irq = MR_0.get() as IRQ;
+                    let irq = if irq < 16 {
+                        panic!("")
+                    } else if irq < 32 {
+                        QualifiedIRQ::QualifiedPPI { node: self.node_index, irq }
+                    } else {
+                        QualifiedIRQ::SPI { irq }
+                    };
                     self.gic.lock().handle_irq(self.node_index, irq)?;
                 }
                 BADGE_VM => {
@@ -165,7 +173,10 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             E::handle_wfe(self)?;
                         }
                         Fault::VPPIEvent(fault) => {
-                            self.gic.lock().handle_irq(self.node_index, fault.irq as usize)?;
+                            self.gic.lock().handle_irq(self.node_index, QualifiedIRQ::QualifiedPPI {
+                                node: self.node_index,
+                                irq: fault.irq as usize,
+                            })?;
                             reply(MessageInfo::empty());
                         }
                         _ => {

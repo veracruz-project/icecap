@@ -11,20 +11,27 @@ use crate::distributor::{
 
 pub type NodeIndex = usize;
 pub type IRQ = usize;
+pub type PPI = usize;
+pub type SPI = usize;
+
+pub enum QualifiedIRQ {
+    QualifiedPPI { node: NodeIndex, irq: PPI },
+    SPI { irq: PPI },
+}
 
 pub trait GICCallbacks {
 
-    fn event(&mut self, node: NodeIndex, target_node: NodeIndex) -> Fallible<()>;
+    fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()>;
 
-    fn ack(&mut self, node: NodeIndex, irq: IRQ) -> Fallible<()>;
+    fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()>;
 
-    fn vcpu_inject_irq(&mut self, node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()>;
+    fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()>;
 
-    fn set_affinity(&mut self, node: NodeIndex, irq: IRQ, target_node: NodeIndex) -> Fallible<()>;
+    fn set_affinity(&mut self, calling_node: NodeIndex, spi: SPI, affinity: NodeIndex) -> Fallible<()>;
 
-    fn set_priority(&mut self, node: NodeIndex, irq: IRQ, priority: usize) -> Fallible<()>;
+    fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()>;
 
-    fn set_enabled(&mut self, node: NodeIndex, irq: IRQ, enabled: bool) -> Fallible<()>;
+    fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()>;
 }
 
 pub struct GIC<T> {
@@ -60,19 +67,19 @@ impl<T: GICCallbacks> GIC<T> {
         }
     }
 
-    pub fn handle_irq(&mut self, node: NodeIndex, irq: IRQ) -> Fallible<()> {
+    pub fn handle_irq(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         todo!()
     }
 
-    pub fn handle_maintenance(&mut self, node: NodeIndex, index: usize) -> Fallible<()> {
+    pub fn handle_maintenance(&mut self, calling_node: NodeIndex, index: usize) -> Fallible<()> {
         todo!()
     }
 
-    pub fn handle_read(&mut self, node: NodeIndex, offset: usize, width: VMFaultWidth) -> Fallible<VMFaultData> {
+    pub fn handle_read(&mut self, calling_node: NodeIndex, offset: usize, width: VMFaultWidth) -> Fallible<VMFaultData> {
         todo!()
     }
 
-    pub fn handle_write(&mut self, node: NodeIndex, offset: usize, data: VMFaultData) -> Fallible<()> {
+    pub fn handle_write(&mut self, calling_node: NodeIndex, offset: usize, data: VMFaultData) -> Fallible<()> {
         todo!()
     }
 }

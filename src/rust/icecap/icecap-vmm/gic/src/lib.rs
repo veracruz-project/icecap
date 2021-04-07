@@ -14,5 +14,5 @@ mod gic;
 mod distributor;
 
 pub use gic::{
-    GIC, GICCallbacks, NodeIndex, IRQ,
+    GIC, GICCallbacks, NodeIndex, IRQ, PPI, SPI, QualifiedIRQ,
 };
