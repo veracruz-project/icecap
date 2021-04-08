@@ -40,10 +40,9 @@ filterAttrs (_: v: v != null) {
   icecap-p9-server-linux-cli = ./9p/icecap-p9-server-linux/cli;
 
   generated-module-hack = ./helpers/generated-module-hack;
+  biterate = ./helpers/biterate;
   finite-set = ./helpers/finite-set;
   finite-set-derive = ./helpers/finite-set/derive;
-  finite-set-derive-impl = ./helpers/finite-set/derive/impl;
-  biterate = ./helpers/biterate;
 
   icecap-sel4 = seL4Only ./icecap/icecap-sel4;
   icecap-sel4-sys = seL4Only ./icecap/icecap-sel4/sys;
