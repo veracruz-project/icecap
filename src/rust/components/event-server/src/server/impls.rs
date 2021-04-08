@@ -4,7 +4,7 @@ use core::{
 use alloc::{
     vec::Vec,
     collections::BTreeMap,
-    rc::Rc,
+    sync::Arc,
 };
 
 use icecap_std::prelude::*;
@@ -28,19 +28,29 @@ impl EventServer {
 
     pub fn host_subscribe(&mut self, nid: NodeIndex, rid: RealmId, realm_nid: NodeIndex) -> Fallible<()> {
         let in_space = &mut self.realms.get_mut(&rid).unwrap().in_spaces[realm_nid];
-        let slot: SubscriptionSlot = in_space.subscription_slot.clone();
+        let slot: SubscriptionSlot = in_space.borrow().subscription_slot.clone();
         let old = slot.replace(Some(self.host_subscriptions[nid].subscriber.clone()));
         assert!(old.is_none());
         assert!(self.host_subscriptions[nid].slot.is_none());
         self.host_subscriptions[nid].slot = Some(slot.clone());
-        in_space.notify_if_necessary() // HACK
+        in_space.borrow_mut().notify_if_necessary() // HACK
+    }
+
+    pub fn resource_server_subscribe(&mut self, nid: NodeIndex, host_nid: NodeIndex) -> Fallible<()> {
+        let in_space = &mut self.host.in_spaces[host_nid];
+        let slot: SubscriptionSlot = in_space.borrow().subscription_slot.clone();
+        let old = slot.replace(Some(self.resource_server_subscriptions[nid].subscriber.clone()));
+        assert!(old.is_none());
+        assert!(self.resource_server_subscriptions[nid].slot.is_none());
+        self.resource_server_subscriptions[nid].slot = Some(slot.clone());
+        in_space.borrow_mut().notify_if_necessary() // HACK
     }
 }
 
 impl Client {
 
     pub fn sev(&mut self, nid: NodeIndex) -> Fallible<()> {
-        self.in_spaces[nid].notify_subscriber()
+        self.in_spaces[nid].borrow_mut().notify_subscriber()
     }
 
     pub fn signal(&mut self, index: OutIndex) -> Fallible<()> {
@@ -48,15 +58,15 @@ impl Client {
     }
 
     pub fn poll(&mut self, nid: NodeIndex) -> Fallible<Option<InIndex>> {
-        self.in_spaces[nid].poll()
+        self.in_spaces[nid].borrow_mut().poll()
     }
 
     pub fn end(&mut self, nid: NodeIndex, index: InIndex) -> Fallible<()> {
-        self.in_spaces[nid].end(index)
+        self.in_spaces[nid].borrow_mut().end(index)
     }
 
     pub fn configure(&mut self, nid: NodeIndex, index: InIndex, action: ConfigureAction) -> Fallible<()> {
-        self.in_spaces[nid].configure(index, action)
+        self.in_spaces[nid].borrow_mut().configure(index, action)
     }
 
     pub fn move_(&mut self, src_nid: NodeIndex, src_index: InIndex, dst_nid: NodeIndex, dst_index: InIndex) -> Fallible<()> {
@@ -64,17 +74,21 @@ impl Client {
             let mut tmp = None;
             core::mem::swap(
                 &mut tmp,
-                &mut self.in_spaces[src_nid].entries[src_index],
+                &mut self.in_spaces[src_nid].borrow_mut().entries[src_index],
             );
             core::mem::swap(
                 &mut tmp,
-                &mut self.in_spaces[dst_nid].entries[dst_index],
+                &mut self.in_spaces[dst_nid].borrow_mut().entries[dst_index],
             );
             core::mem::swap(
                 &mut tmp,
-                &mut self.in_spaces[src_nid].entries[src_index],
+                &mut self.in_spaces[src_nid].borrow_mut().entries[src_index],
             );
-            if let Some(entry) = self.in_spaces[dst_nid].entries[dst_index].as_ref() {
+            if let Some(entry) = self.in_spaces[dst_nid].borrow_mut().entries[dst_index].as_mut() {
+                entry.event.borrow_mut().target = Some(EventTarget {
+                    in_space: self.in_spaces[dst_nid].clone(),
+                    index: dst_index,
+                });
                 if let Some(irq) = entry.irq.as_ref() {
                     irq.handler.set_notification(irq.notifications[dst_index])?;
                 }
@@ -138,7 +152,7 @@ impl InSpace {
         }
         self.notify_if_necessary()
     }
-    
+
     pub fn notify_subscriber(&self) -> Fallible<()> {
         if let Some(subscriber) = self.subscription_slot.replace(None) {
             subscriber.signal()?;
@@ -183,12 +197,13 @@ impl InactiveRealm {
         Ok(Client {
             out_space: self.out_space.clone(),
             in_spaces: (0..num_nodes).map(|nid| {
-                InSpace {
+                Arc::new(RefCell::new(InSpace {
                     notification: self.in_notifications[nid],
-                    subscription_slot: Rc::new(RefCell::new(None)),
+                    subscription_slot: Arc::new(RefCell::new(None)),
                     entries: self.out_space.iter().map(|event| {
                         if nid == 0 {
                             Some(InSpaceEntry {
+                                event: event.clone(),
                                 irq: None,
                                 enabled: true,
                                 priority: 0,
@@ -199,7 +214,7 @@ impl InactiveRealm {
                             None
                         }
                     }).collect(),
-                }
+                }))
             }).collect(),
         })
     }
@@ -214,9 +229,8 @@ impl IRQThread {
             let badge = self.notification.wait();
             let server = self.server.lock();
             for i in biterate(badge) {
-                if let Some(j) = self.events[i as usize] {
-                    server.irq_events[j].borrow().signal()?;
-                }
+                let j = self.events[i as usize];
+                server.irq_events[j].borrow().signal()?;
             }
         }
     }

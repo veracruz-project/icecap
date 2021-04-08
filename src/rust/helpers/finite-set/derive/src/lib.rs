@@ -38,7 +38,7 @@ decl_derive!([Finite] => derive_finite_impl);
 
 fn derive_finite_impl(input: Structure) -> syn::Result<TokenStream> {
     let cardinality = cardinality_of_structure(&input);
-    
+
     let to_nat = {
         let mut n_past_variants = quote! {
             0
