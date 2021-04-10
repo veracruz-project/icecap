@@ -73,8 +73,10 @@ impl Notification {
 
     pub fn wait(&self) -> Badge {
         let mut badge = 0;
+        let null = core::ptr::null_mut();
         unsafe {
-            sys::seL4_Wait(self.raw(), &mut badge);
+            // HACK
+            sys::seL4_RecvWithMRs(self.raw(), &mut badge, null, null, null, null);
         }
         badge
     }
