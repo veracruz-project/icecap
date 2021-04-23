@@ -67,6 +67,9 @@ filterAttrs (_: v: v != null) {
   host-vmm = seL4Only ./components/host/vmm;
   icecap-host-vmm-config = ./components/host/vmm/config;
 
+  realm-vmm = seL4Only ./components/realm/vmm;
+  icecap-realm-vmm-config = ./components/realm/vmm/config;
+
   resource-server = seL4Only ./components/resource-server;
   icecap-resource-server-types = ./components/resource-server/types;
   icecap-resource-server-core = seL4Only ./components/resource-server/core;

@@ -78,7 +78,7 @@ class VM(BaseComponent):
     def set_chosen_default(self):
         return True
 
-    def __init__(self, composition, name, vmm_name, affinities, gic_vcpu_frame):
+    def __init__(self, composition, name, vmm_name, affinities, gic_vcpu_frame, is_host=False):
         super().__init__(composition, name)
         self.kernel_fname = self.composition.register_file('{}_kernel.img'.format(self.name), self.config()['kernel'])
         if 'initrd' in self.config():
@@ -135,7 +135,7 @@ class VM(BaseComponent):
 
             self.nodes.append(VMNode(tcb=tcb, vcpu=vcpu, affinity=affinity))
 
-        self.vmm = self.composition.component(VMM, vmm_name, gic_vcpu_frame=gic_vcpu_frame, vm=self)
+        self.vmm = self.composition.component(VMM, vmm_name, gic_vcpu_frame=gic_vcpu_frame, vm=self, is_host=is_host)
 
     def device_tree(self):
         # TODO
@@ -312,11 +312,12 @@ class VM(BaseComponent):
 
 class VMM(ElfComponent):
 
-    def __init__(self, *args, gic_vcpu_frame, vm, **kwargs):
+    def __init__(self, *args, gic_vcpu_frame, vm, is_host, **kwargs):
         super().__init__(*args, **kwargs)
         self.heap_size = 0x400000
         self.gic_vcpu_frame = gic_vcpu_frame
         self.vm = vm
+        self.is_host = is_host
 
         # The primary vmm thread will be associated with the 0th VM thread
         # managed by vm.tcb[0].
@@ -350,7 +351,7 @@ class VMM(ElfComponent):
                 'vcpu': self.cspace().alloc(node.vcpu, read=True, write=True, grant=True, grantreply=True),
                 'thread': thread,
                 'ep_read': self.cspace().alloc(ep, read=True),
-                'ep_write': self.cspace().alloc(ep, write=True, badge=0),
+                'ep_write': self.cspace().alloc(ep, write=True, grantreply=True, badge=0),
                 'fault_reply_slot': self.cspace().alloc(None),
                 })
 
@@ -380,8 +381,8 @@ class VMM(ElfComponent):
 
         self._arg = {
             'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
-            'gic_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='gic_lock', read=True, write=True)),
-            'nodes_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='nodes_lock', read=True, write=True)),
+            'gic_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='gic_lock'), read=True, write=True),
+            'nodes_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='nodes_lock'), read=True, write=True),
             'virtual_irqs': [],
             'passthru_irqs': passthru_irqs,
             'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
@@ -389,7 +390,10 @@ class VMM(ElfComponent):
         }
 
     def serialize_arg(self):
-        return 'serialize-vmm-config'
+        if self.is_host:
+            return 'serialize-host-vmm-config'
+        else:
+            return 'serialize-realm-vmm-config'
 
     def arg_json(self):
         self._arg['con'] = self.connections['con']['MappedRingBuffer']
@@ -397,6 +401,9 @@ class VMM(ElfComponent):
 
 
 class HostVM(VM):
+
+    def __init__(self, composition, name, vmm_name, affinities, gic_vcpu_frame):
+        super().__init__(composition, name, vmm_name, affinities, gic_vcpu_frame, is_host=True)
 
     def get_addrs(self):
         return Addrs(self.composition.plat, is_host=True)

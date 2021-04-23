@@ -1,6 +1,4 @@
 use alloc::vec::Vec; // GOAL: Only used during initial distributor allocation.
-// use core::ops::Deref;
-// use core::ptr::write_bytes;
 use core::mem;
 use core::fmt;
 use core::convert::TryFrom;
@@ -8,11 +6,10 @@ use core::sync::atomic::{AtomicU32, Ordering};
 
 use biterate::biterate;
 
-// use icecap_failure::{Fallible, Error};
-
 use icecap_sel4::fault::*;
 use icecap_sel4::prelude::*; // TODO: Remove.  Just for debug.
 
+use crate::error::*;
 
 pub const GIC_DIST_SIZE: usize = 0x1000;
 
@@ -20,55 +17,11 @@ pub type IRQ = usize;
 pub type CPU = usize;
 
 #[derive(Debug)]
-pub enum IRQType {
+pub(crate) enum IRQType {
     Passthru(IRQHandler),
     Virtual,
     Timer,
     SGI,
-}
-
-// Support errors associated with IRQs.
-enum IRQErrorType {
-    InvalidCPU(CPU),
-    InvalidIRQ(IRQ),
-}
-
-struct IRQError {
-    irq_error_type: IRQErrorType,
-}
-
-impl IRQError {
-    fn new(irq_error_type: IRQErrorType) -> IRQError {
-        IRQError {
-            irq_error_type,
-        }
-    }
-}
-
-impl fmt::Display for IRQError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.irq_error_type {
-            IRQErrorType::InvalidCPU(CPU) => {
-                write!(f, "Accessing IRQ state for an invalid CPU: {}", CPU)
-            }
-            _ => {
-                write!(f, "Unknown IRQ error")
-            }
-        }
-    }
-}
-
-impl fmt::Debug for IRQError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.irq_error_type {
-            IRQErrorType::InvalidCPU(CPU) => {
-                write!(f, "Accessing IRQ state for an invalid CPU: {}", CPU)
-            }
-            _ => {
-                write!(f, "Unknown IRQ error")
-            }
-        }
-    }
 }
 
 pub enum WriteAction {
@@ -80,36 +33,11 @@ pub enum ReadAction {
     NoAction,
 }
 
-pub enum PPIAction {
-    NoAction,
-    InjectIRQ,
-}
-
-pub enum SGIAction {
-    NoAction,
-    InjectIRQ,
-}
-
-pub enum SPIAction {
-    NoAction,
-    InjectIRQ,
-}
-
-pub enum AckAction {
-    NoAction,
-}
-
-// GIC Distributor Register Map
-// ARM Generic Interrupt Controller (Architecture version 2.0)
-// Architecture Specification (Issue B.b)
-// Chapter 4 Programmers' Model - Table 4.1
-//
-// API:
-// handle_write()
-// handle_read()
-// handle_spi()
-// handle_ppi()
-#[derive(Debug)]
+/// GIC Distributor Register Map
+/// ARM Generic Interrupt Controller (Architecture version 2.0)
+/// Architecture Specification (Issue B.b)
+/// Chapter 4 Programmers' Model - Table 4.1
+#[derive(Debug, Fail)]
 pub struct Distributor {
     num_nodes: usize,
 
@@ -159,6 +87,8 @@ pub struct Distributor {
 
     // GICD_ICFGRn (RW): provide a 2-bit Int_config field for each interrupt.
     // NOTE: Register 0 is RO.
+    config0: AtomicU32,
+    config1: Vec<AtomicU32>,
     config: Vec<AtomicU32>,
 
     // GICD_NSACRn (RW): enable Secure software to permit Non-secure software on a
@@ -181,6 +111,12 @@ pub struct Distributor {
     // Identification registers (RO).
     periph_id: Vec<AtomicU32>,
     component_id: Vec<AtomicU32>,
+}
+
+impl fmt::Display for Distributor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Trivial implementation of Display for Distributor")
+    }
 }
 
 impl Distributor {
@@ -221,8 +157,11 @@ impl Distributor {
                 .collect(),
             targets: (0..247).map(|_| AtomicU32::new(0)).collect(),
 
-            // TODO: The PPIs should be banked (i.e., config1)
-            config: (0..64).map(|_| AtomicU32::new(0)).collect(),
+            // config0 is RO.
+            // config1 is one banked register per node.
+            config0: AtomicU32::new(0),
+            config1: (0..num_nodes).map(|_| AtomicU32::new(0)).collect(),
+            config: (0..62).map(|_| AtomicU32::new(0)).collect(),
 
             // sgi_pending is 4 banked registers for each node
             sgi_pending: (0..num_nodes)
@@ -237,8 +176,55 @@ impl Distributor {
         gic_dist
     }
 
-    // TODO: Return a Result.
-    pub fn handle_write(&self, offset: usize, node_index: usize, val: VMFaultData) -> WriteAction {
+    // Sweep specified IRQs for all nodes and identify irq/node pairs that should be either injected or
+    // acknowledged.  This is used, for example, after writes to the Distributor enabling IRQs,
+    // setting IRQs to pending, or changing IRQ targets.
+    fn sweep_irqs_to_inject(&self, base_irq: IRQ, num_irqs: usize) -> Vec<(IRQ, CPU)> {
+        let mut to_inject: Vec<(IRQ, CPU)> = Vec::new();
+
+        for irq in base_irq..(base_irq + num_irqs) {
+            for node_index in 0..self.num_nodes {
+                if self.should_inject(irq, node_index) {
+                    to_inject.push((irq, node_index));
+                    // For SPIs, only push for the first identified target.
+                    if irq >= 32 {
+                        break;
+                    }
+                }
+            }
+        }
+
+        to_inject
+    }
+
+    // Sweep specified IRQs for all nodes and identify irq/node pairs that should be acknowledged.
+    // This is used, for example, after writes to the Distributor enabling specified IRQs.
+    //
+    // This is necessary to put IRQs in a known state.  After enabling an IRQ (or the whole GIC),
+    // unless we are going to inject the IRQ, we want to make sure the IRQ is not tracked as
+    // pending, otherwise, the next time the IRQ fires, we will ignore it.  Therefore, during this
+    // sweep we will find any IRQ that should not be injected but IS enabled and pass it back to
+    // the GIC to be handled by callbacks.
+    fn sweep_irqs_to_ack(&self, base_irq: IRQ, num_irqs: usize) -> Vec<(IRQ, CPU)> {
+        let mut to_ack: Vec<(IRQ, CPU)> = Vec::new();
+
+        for irq in base_irq..(base_irq + num_irqs) {
+            for node_index in 0..self.num_nodes {
+                if !self.should_inject(irq, node_index) && self.is_enabled(irq, node_index) {
+                    to_ack.push((irq, node_index));
+
+                    // For SPIs, only push for the first identified target.
+                    if irq >= 32 {
+                        break;
+                    }
+                }
+            }
+        }
+
+        to_ack
+    }
+
+    pub fn handle_write(&self, offset: usize, node_index: usize, val: VMFaultData) -> Result<WriteAction, IRQError> {
         match val {
             VMFaultData::Word(val) => {
                 let reg = GICDistRegWord::from_offset(offset);
@@ -249,45 +235,39 @@ impl Distributor {
                         if val == 1 {
                             let prev = self.control.fetch_or(val, Ordering::SeqCst);
                             if prev == 0 {
-                                // Identify newly enabled IRQs and check if any are
-                                // pending and should be injected into CPUs.
-                                // For newly enabled IRQs that are NOT pending, we tell
-                                // the VMM to ack them in case an IRQ was signaled before
-                                // we were paying attention...
-                                // NOTE: We focus only on the current node_index
-                                // and assume other nodes will enable and check
-                                // their own interrupts when they come online.
-                                // For SPIs, only one core is expected to ack anyway.
-                                let mut to_inject: Vec<(IRQ, CPU)> = Vec::new();
-                                let mut to_ack: Vec<(IRQ, CPU)> = Vec::new();
-                                for irq in 0..1020 {
-                                    if self.should_inject(irq, node_index) {
-                                        to_inject.push((irq, node_index));
-                                    } else if self.is_enabled(irq, node_index) {
-                                        to_ack.push((irq, node_index));
-                                    }
-                                }
+
+                                // Identify newly enabled IRQs and either inject or acknowledge them.
+                                let base_irq = 0;
+                                let num_irqs = 1020;
+                                let to_inject = self.sweep_irqs_to_inject(base_irq, num_irqs);
+                                let to_ack = self.sweep_irqs_to_ack(base_irq, num_irqs);
 
                                 if to_inject.len() == 0 && to_ack.len() == 0 {
-                                    return WriteAction::NoAction;
+                                    return Ok(WriteAction::NoAction);
                                 } else {
-                                    return WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack)));
+                                    return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
                                 }
                             }
                         } else if val == 0 {
                             let prev = self.control.fetch_and(val, Ordering::SeqCst);
                             if prev == 1 {
-                                return WriteAction::NoAction;
+                                return Ok(WriteAction::NoAction);
                             }
                         } else {
-                            panic!("Unknown control register encoding 0{:x}", val);
+                            // Invalid encoding.
+                            return Err( IRQError{ irq_error_type:
+                                IRQErrorType::InvalidRegisterWrite, });
                         }
 
                         // If the state hasn't changed, take no action.
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
-                    GICDistRegWord::GICD_TYPER => panic!("Writing to read only register {:?}", reg),
-                    GICDistRegWord::GICD_IIDR => panic!("Writing to read only register {:?}", reg),
+                    GICDistRegWord::GICD_IIDR |
+                        GICDistRegWord::GICD_TYPER => {
+                            // These are read-only.
+                            return Err( IRQError{ irq_error_type:
+                                IRQErrorType::InvalidRegisterWrite, });
+                    }
                     GICDistRegWord::GICD_IGROUPRn(reg_num) => {
                         // Set group registers.
                         // - NOTE: Register 0 is banked for each CPU.
@@ -299,8 +279,7 @@ impl Distributor {
                         }
                         group_reg.store(val, Ordering::SeqCst);
 
-                        // TODO: Action required if the group changes? C VMM does nothing.
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_ISENABLERn(reg_num) => {
                         // Set enable registers.
@@ -308,7 +287,7 @@ impl Distributor {
                         // - Writing 0 to an IRQ bit has no effect.
                         // - NOTE: Register 0 is banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let enable_reg;
@@ -319,31 +298,16 @@ impl Distributor {
                         }
                         let prev = enable_reg.fetch_or(val, Ordering::SeqCst);
 
-                        // Identify newly enabled IRQs and check if any are
-                        // pending and should be injected into CPUs.
-                        // For newly enabled IRQs that are NOT pending, we tell
-                        // the VMM to ack them in case an IRQ was signaled before
-                        // we were paying attention...
-                        // NOTE: We focus only on the current node_index
-                        // and assume other nodes will enable and check
-                        // their own interrupts when they come online.
-                        // For SPIs, only one core is expected to ack anyway.
-                        let newly_enabled = val & !prev;
-                        let mut to_inject: Vec<(IRQ, CPU)> = Vec::new();
-                        let mut to_ack: Vec<(IRQ, CPU)> = Vec::new();
-                        for i in biterate(newly_enabled) {
-                            let irq = (usize::try_from(i).unwrap() + reg_num * 32) as IRQ;
-                            if self.should_inject(irq, node_index) {
-                                to_inject.push((irq, node_index));
-                            } else {
-                                to_ack.push((irq, node_index));
-                            }
-                        }
+                        // Identify newly enabled IRQs and either inject or acknowledge them.
+                        let num_irqs = 32;
+                        let base_irq = (reg_num * num_irqs) as IRQ;
+                        let to_inject = self.sweep_irqs_to_inject(base_irq, num_irqs);
+                        let to_ack = self.sweep_irqs_to_ack(base_irq, num_irqs);
 
                         if to_inject.len() == 0 && to_ack.len() == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         } else {
-                            return WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack)));
+                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
                         }
                     }
                     GICDistRegWord::GICD_ICENABLERn(reg_num) => {
@@ -352,7 +316,7 @@ impl Distributor {
                         // - Writing 0 to an IRQ bit has no effect.
                         // - NOTE: Register 0 is banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let enable_reg;
@@ -363,7 +327,7 @@ impl Distributor {
                         }
                         enable_reg.fetch_and(!val, Ordering::SeqCst);
 
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_ISPENDRn(reg_num) => {
                         // Set pending registers.
@@ -374,7 +338,7 @@ impl Distributor {
                         //   interrupt being injected.
                         // - NOTE: Register 0 is banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let pending_reg;
@@ -382,7 +346,7 @@ impl Distributor {
                             // IRQs 0->15 are SGIs and are RO.
                             // Writes are ignored.
                             if val & 0xFFFF != 0 {
-                                return WriteAction::NoAction;
+                                return Ok(WriteAction::NoAction);
                             }
                             pending_reg = &self.pending0[node_index];
                         } else {
@@ -390,24 +354,17 @@ impl Distributor {
                         }
                         let prev = pending_reg.fetch_or(val, Ordering::SeqCst);
 
-                        // Identify newly pending IRQs and check if any are
-                        // not active and should be injected into CPUs.
-                        // NOTE: We focus only on the current node_index
-                        // as either the write was to a banked register or
-                        // to an SPI, for which only one core is expected
-                        // to ack anyway.
-                        let newly_pending = val & !prev;
-                        let mut to_inject: Vec<(IRQ, CPU)> = Vec::new();
-                        for i in biterate(newly_pending) {
-                            let irq = (usize::try_from(i).unwrap() + reg_num * 32) as IRQ;
-                            if self.should_inject(irq, node_index) {
-                                to_inject.push((irq, node_index));
-                            }
-                        }
+                        // Identify newly pending IRQs and inject them.
+                        // NOTE: We do not need to acknowledge any IRQs here because none of these
+                        // will be newly enabled.
+                        let num_irqs = 32;
+                        let base_irq = (reg_num * num_irqs) as IRQ;
+                        let to_inject = self.sweep_irqs_to_inject(base_irq, num_irqs);
+
                         if to_inject.len() == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         } else {
-                            return WriteAction::InjectAndAckIRQs((Some(to_inject), None));
+                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), None)));
                         }
                     }
                     GICDistRegWord::GICD_ICPENDRn(reg_num) => {
@@ -419,15 +376,15 @@ impl Distributor {
                         //   immediate effect.
                         // - NOTE: Register 0 is banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let pending_reg;
                         if reg_num == 0 {
                             // IRQs 0->15 are SGIs and are RO.
-                            // Writes are ignored.
                             if val & 0xFFFF != 0 {
-                                panic!("Writing to read only register {:?}", reg);
+                                return Err( IRQError{ irq_error_type:
+                                    IRQErrorType::InvalidRegisterWrite, });
                             }
                             pending_reg = &self.pending0[node_index];
                         } else {
@@ -435,7 +392,7 @@ impl Distributor {
                         }
                         pending_reg.fetch_and(!val, Ordering::SeqCst);
 
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_ISACTIVERn(reg_num) => {
                         // Set active registers.
@@ -446,7 +403,7 @@ impl Distributor {
                         //   immediate effect.
                         // - NOTE: Register 0 is banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let active_reg;
@@ -457,7 +414,7 @@ impl Distributor {
                         }
                         active_reg.fetch_or(val, Ordering::SeqCst);
 
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_ICACTIVERn(reg_num) => {
                         // Clear active registers.
@@ -468,7 +425,7 @@ impl Distributor {
                         //   immediate effect.
                         // - NOTE: Register 0 is banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let active_reg;
@@ -479,7 +436,7 @@ impl Distributor {
                         }
                         active_reg.fetch_and(!val, Ordering::SeqCst);
 
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_IPRIORITYRn(reg_num) => {
                         // Set priority registers.
@@ -495,7 +452,7 @@ impl Distributor {
                         }
                         priority_reg.store(val, Ordering::SeqCst);
 
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_ITARGETSRn(reg_num) => {
                         // Set target registers.
@@ -508,9 +465,9 @@ impl Distributor {
                         // - NOTE: Registers 0 to 7 banked for each CPU and are RO.
                         let targets_reg;
                         if reg_num < 8 {
-                            // TODO: Should writing to an RO register panic?
-                            panic!("Writing to a read-only GIC register {:?}", reg);
-                            // return WriteAction::NoAction;
+                            // These are read-only.
+                            return Err( IRQError{ irq_error_type:
+                                IRQErrorType::InvalidRegisterWrite, });
                         } else {
                             targets_reg = &self.targets[reg_num - 8];
                         }
@@ -518,34 +475,19 @@ impl Distributor {
 
                         let new_cpus = val & !prev;
                         if new_cpus == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
-                        // Iterate through the four IRQs and the eight CPUs
-                        // in the register.  If the IRQ is pending for that CPU
-                        // and not yet active, add it to a vector of IRQs to inject.
-                        // For newly targeted IRQs that are NOT pending, we tell
-                        // the VMM to ack them in case an IRQ was signaled before
-                        // we were paying attention...
-                        // NOTE: We focus only on the current node_index
-                        // and assume other nodes will check
-                        // their own interrupts when they come online.
-                        // For SPIs, only one core is expected to ack anyway.
-                        let mut to_inject: Vec<(IRQ, CPU)> = Vec::new();
-                        let mut to_ack: Vec<(IRQ, CPU)> = Vec::new();
-                        let base_irq = (reg_num * 4) as IRQ;
-                        for irq in base_irq..base_irq + 4 {
-                            if self.should_inject(irq, node_index) {
-                                to_inject.push((irq, node_index));
-                            } else {
-                                to_ack.push((irq, node_index));
-                            }
-                        }
+                        // Identify newly targeted IRQs and inject or ack them.
+                        let num_irqs = 4;
+                        let base_irq = (reg_num * num_irqs) as IRQ;
+                        let to_inject = self.sweep_irqs_to_inject(base_irq, num_irqs);
+                        let to_ack = self.sweep_irqs_to_ack(base_irq, num_irqs);
 
                         if to_inject.len() == 0 && to_ack.len() == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         } else {
-                            return WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack)));
+                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
                         }
                     }
                     GICDistRegWord::GICD_ICFGRn(reg_num) => {
@@ -554,26 +496,28 @@ impl Distributor {
                         //   level or edge triggered.
                         // - This logic block writes an entire word, including
                         //   config fields for eight IRQs.
-                        // - SGI configuration fields are RO.
                         // - An IRQ must be disabled to change its config, or
                         //   the GIC behaviour is UNPREDICTABLE.
+                        // - NOTE: SGI configuration fields (config0) are RO.
+                        // - NOTE: PPI configuration fields (config1) are banked.
 
                         let config_reg;
                         if reg_num == 0 {
                             // SGI IRQ #s are 0-15 and fill the 0th register.
                             // As these are RO, writing has no effect.
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
+                        } else if reg_num == 1 {
+                            config_reg = &self.config1[node_index];
                         } else {
-                            config_reg = &self.config[reg_num];
+                            config_reg = &self.config[reg_num - 2];
                         }
                         config_reg.store(val, Ordering::SeqCst);
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_NSACRn(reg_num) => {
                         // Set non-secure access control registers.
                         // - Not implemented.  The VM is not in Secure mode.
-                        panic!("Illegal attempt to modify non-secure access \
-                               control register");
+                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterWrite, });
                     }
                     GICDistRegWord::GICD_SGIR => {
                         // Inject SGIs into one or more CPU interfaces.
@@ -619,13 +563,13 @@ impl Distributor {
                             }
                         } else {
                             // 0b11 is Reserved.  Take no action.
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         if to_inject.len() == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         } else {
-                            return WriteAction::InjectAndAckIRQs((Some(to_inject), None));
+                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), None)));
                         }
                     }
                     GICDistRegWord::GICD_CPENDSGIRn(reg_num) => {
@@ -634,7 +578,7 @@ impl Distributor {
                         // - Writing 0 to an IRQ bit has no effect.
                         // - NOTE: Registers are banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let sgi_pending_reg;
@@ -654,7 +598,7 @@ impl Distributor {
                             }
                         }
 
-                        return WriteAction::NoAction;
+                        return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_SPENDSGIRn(reg_num) => {
                         // Set SGI pending registers.
@@ -662,14 +606,15 @@ impl Distributor {
                         // - Writing 0 to an IRQ bit has no effect.
                         // - NOTE: All registers are banked for each CPU.
                         if val == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         }
 
                         let sgi_pending_reg;
                         sgi_pending_reg  = &self.sgi_pending[node_index][reg_num];
                         let prev = sgi_pending_reg.fetch_or(val, Ordering::SeqCst);
 
-                        let base_irq = (reg_num * 4) as IRQ;
+                        let num_irqs = 4;
+                        let base_irq = (reg_num * num_irqs) as IRQ;
 
                         // Identify any newly pending IRQs for this node
                         // and set the pending register to support
@@ -683,40 +628,36 @@ impl Distributor {
                             }
                         }
 
-                        // Identify newly pending IRQs in the four IRQs in the
-                        // register, and check if any are not active and should
-                        // be injected into CPUs.
-                        let mut to_inject: Vec<(IRQ, CPU)> = Vec::new();
-                        for irq in base_irq..base_irq + 4 {
-                            if self.should_inject(irq, node_index) {
-                                to_inject.push((irq, node_index));
-                            }
-                        }
+                        // Identify newly pending IRQs and inject them.
+                        let to_inject = self.sweep_irqs_to_inject(base_irq, num_irqs);
+
                         if to_inject.len() == 0 {
-                            return WriteAction::NoAction;
+                            return Ok(WriteAction::NoAction);
                         } else {
-                            return WriteAction::InjectAndAckIRQs((Some(to_inject), None));
+                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), None)));
                         }
                     }
-                    GICDistRegWord::ICPIDRn(reg_num) => panic!("Writing to read only register {:?}", reg),
-                    GICDistRegWord::ICCIDRn(reg_num) => panic!("Writing to read only register {:?}", reg),
-                    _ => panic!("Writing to an undefined register {:?}", reg)
+                    GICDistRegWord::ICPIDRn(reg_num) |
+                        GICDistRegWord::ICCIDRn(reg_num) => {
+                            // These are read-only.
+                            return Err( IRQError{ irq_error_type:
+                                IRQErrorType::InvalidRegisterWrite, });
+                        }
+                    _ => {
+                        // Invalid register.
+                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterWrite, });
+                    }
                 }
             }
             VMFaultData::Byte(val) => {
                 let reg = GICDistRegByte::from_offset(offset);
                 panic!("Byte-accessible writes to GIC not yet implemented.");
-                // match reg {
-                //     _ => panic!("Why are we writing bytes to the GIC?")
-                // }
             }
             _ => panic!("Writes to GIC distributor registers must by byte- or word-aligned.")
         }
     }
 
-    // TODO: Return a Result.
-    // Will always return a VMFaultData of width VMFaultWidth
-    pub fn handle_read(&self, offset: usize, node_index: usize, width: VMFaultWidth) -> (VMFaultData, ReadAction) {
+    pub fn handle_read(&self, offset: usize, node_index: usize, width: VMFaultWidth) -> Result<(VMFaultData, ReadAction), IRQError> {
         match width {
             VMFaultWidth::Word => {
                 let reg = GICDistRegWord::from_offset(offset);
@@ -724,17 +665,17 @@ impl Distributor {
                     GICDistRegWord::GICD_CTLR => {
                         // Read the control register.
                         let val = self.control.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_TYPER => {
                         // Read the interrupt controller type register.
                         let val = self.ic_type.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_IIDR => {
                         // Read the implementer identification register.
                         let val = self.dist_ident.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_IGROUPRn(reg_num) => {
                         // Read group registers.
@@ -746,7 +687,7 @@ impl Distributor {
                             group_reg = &self.irq_group[reg_num - 1];
                         }
                         let val = group_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ISENABLERn(reg_num) |
                         GICDistRegWord::GICD_ICENABLERn(reg_num) => {
@@ -759,13 +700,12 @@ impl Distributor {
                             enable_reg = &self.enable[reg_num];
                         }
                         let val = enable_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ISPENDRn(reg_num) |
                         GICDistRegWord::GICD_ICPENDRn(reg_num) => {
                         // Read pending registers.
                         // NOTE: Register 0 is banked for each CPU.
-                        // TODO: SGI should read (or mirror) status from SGI pending registers.
                         let pending_reg;
                         if reg_num == 0 {
                             pending_reg = &self.pending0[node_index];
@@ -773,7 +713,7 @@ impl Distributor {
                             pending_reg = &self.pending[reg_num - 1];
                         }
                         let val = pending_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ISACTIVERn(reg_num) |
                         GICDistRegWord::GICD_ICACTIVERn(reg_num) => {
@@ -786,7 +726,7 @@ impl Distributor {
                             active_reg = &self.active[reg_num - 1];
                         }
                         let val = active_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_IPRIORITYRn(reg_num) => {
                         // Read register priorities.
@@ -800,7 +740,7 @@ impl Distributor {
                             priority_reg = &self.priority[reg_num - 8];
                         }
                         let val = priority_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ITARGETSRn(reg_num) => {
                         // Read target registers.
@@ -814,22 +754,31 @@ impl Distributor {
                             targets_reg = &self.targets[reg_num - 8];
                         }
                         let val = targets_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ICFGRn(reg_num) => {
                         // Read trigger configuration registers.
+                        // NOTE: Register 1 is banked for each CPU.
                         let config;
-                        config = &self.config[reg_num];
+                        if reg_num == 0 {
+                            config = &self.config0;
+                        } else if reg_num == 1 {
+                            config = &self.config1[node_index];
+                        } else {
+                            config = &self.config[reg_num - 2];
+                        }
                         let val = config.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_NSACRn(reg_num) => {
                         // Read non-secure access control registers.
                         // - Not implemented.  The VM is not in Secure mode.
-                        panic!("Illegal attempt to read non-secure access \
-                               control register");
+                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterRead, });
                     }
-                    GICDistRegWord::GICD_SGIR => panic!("Reading from a write only register {:?}", reg),
+                    GICDistRegWord::GICD_SGIR => {
+                        // This is write-only.
+                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterRead, });
+                    }
                     GICDistRegWord::GICD_CPENDSGIRn(reg_num) |
                         GICDistRegWord::GICD_SPENDSGIRn(reg_num) => {
                         // Read sgi pending registers.
@@ -837,37 +786,37 @@ impl Distributor {
                         let sgi_pending_reg;
                         sgi_pending_reg = &self.sgi_pending[node_index][reg_num];
                         let val = sgi_pending_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::ICPIDRn(reg_num) => {
                         // Read peripheral ID registers.
                         let periph_id_reg;
                         periph_id_reg = &self.periph_id[reg_num];
                         let val = periph_id_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::ICCIDRn(reg_num) => {
                         // Read component ID registers.
                         let component_id_reg;
                         component_id_reg = &self.component_id[reg_num];
                         let val = component_id_reg.load(Ordering::SeqCst);
-                        return (VMFaultData::Word(val), ReadAction::NoAction);
+                        return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
-                    _ => panic!("Writing to an undefined register {:?}", reg)
+                    _ => {
+                        // Invalid register.
+                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterRead, });
+                    }
                 }
             }
             VMFaultWidth::Byte => {
                 let reg = GICDistRegByte::from_offset(offset);
                 panic!("Byte-accessible reads from GIC not yet implemented.");
-                // match reg {
-                //     _ => panic!("Why are we reading bytes from the GIC?")
-                // }
             }
             _ => panic!("Reads from GIC distributor registers must by byte- or word-aligned.")
         }
     }
 
-    fn should_inject(&self, irq: IRQ, cpu: CPU) -> bool {
+    pub(crate) fn should_inject(&self, irq: IRQ, cpu: CPU) -> bool {
         self.is_gic_enabled() && self.is_enabled(irq, cpu) &&
             self.is_target(irq, cpu) && self.is_pending(irq, cpu) &&
             !self.is_active(irq, cpu)
@@ -879,6 +828,27 @@ impl Distributor {
         } else {
             return false;
         }
+    }
+
+    /// Get the priority of the given irq for the given cpu.
+    pub(crate) fn get_priority(&self, irq: IRQ, cpu: CPU) -> Result<u32, IRQError> {
+        if usize::try_from(cpu).unwrap() >= self.num_nodes {
+            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+        }
+
+        let priority_reg;
+        let reg_num = irq / 4;
+        if reg_num < 8 {
+            priority_reg = &self.priority0[cpu][reg_num];
+        } else {
+            priority_reg = &self.priority[reg_num - 8];
+        }
+
+        let mask = 0xFF << ((irq % 4) * 8);
+        let val = priority_reg.load(Ordering::SeqCst);
+        let priority = (val & mask) >> ((irq % 4) * 8);
+
+        Ok(priority)
     }
 
     fn is_enabled(&self, irq: IRQ, cpu: CPU) -> bool {
@@ -901,7 +871,23 @@ impl Distributor {
         }
     }
 
-    fn is_target(&self, irq: IRQ, cpu: CPU) -> bool {
+    // Gets the bit-packed list of target nodes for the given irq.
+    //
+    // This is only applicable to SPIs, which are shared between nodes.  For SGIs and PPIs, which
+    // are node-specific, `is_target()` should be used instead.
+    pub(crate) fn get_spi_targets(&self, irq: IRQ) -> u32 {
+        assert!(irq >= 32);
+
+        let reg = &self.targets[(irq / 4) - 8];
+        let val = reg.load(Ordering::SeqCst);
+        let shift = (irq % 4) * 8;
+        let cpus = (val >> shift) & 0xFF;
+
+        cpus
+    }
+
+    // Identifies if the given cpu is a target of the given irq.
+    pub(crate) fn is_target(&self, irq: IRQ, cpu: CPU) -> bool {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return false;
         }
@@ -961,7 +947,7 @@ impl Distributor {
 		Ok(())
     }
 
-    fn set_pending(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
+    pub(crate) fn set_pending(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
@@ -1087,7 +1073,10 @@ impl Distributor {
 		Ok(())
     }
 
-    fn set_active(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
+    // The seL4 API does not tell userland when an interrupt is acknowledged (i.e., transitioned
+    // from pending to active).  Therefore, the GIC must infer the state transition and should do
+    // so as soon as the seL4 API call to inject an IRQ is invoked.
+    pub(crate) fn set_active(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
@@ -1106,50 +1095,25 @@ impl Distributor {
 		Ok(())
     }
 
-    pub fn handle_spi(&self, irq: IRQ) -> SPIAction {
-        // SPIs are shared, so we provide a dummy CPU value.
-        let cpu = 0 as CPU;
-        self.set_pending(irq, cpu).unwrap();
-        if self.should_inject(irq, cpu) {
-            return SPIAction::InjectIRQ;
-        } else {
-            return SPIAction::NoAction;
-        }
-    }
-
-    pub fn handle_ppi(&self, irq: IRQ, node_index: usize) -> PPIAction {
+    // The seL4 API does not tell userland when an interrupt is acknowledged (i.e., transitioned
+    // from pending to active).  In seL4 API terms, an ack is equivalent to an end-of-interrupt
+    // (EOI), which should clear the pending state rather than setting the active state.
+    pub fn ack(&self, irq: IRQ, node_index: usize) -> Result<(), IRQError> {
         let cpu = node_index as CPU;
-        self.set_pending(irq, cpu).unwrap();
-        if self.should_inject(irq, cpu) {
-            return PPIAction::InjectIRQ;
-        } else {
-            return PPIAction::NoAction;
-        }
-    }
 
-    pub fn handle_sgi(&self, irq: IRQ, target_cpu: usize) -> SGIAction {
-        // seL4 API does not give us source cpu information for an SGI,
-        // so we just default to 0.
-        self.set_sgi_pending(irq, 0, target_cpu).unwrap();
-        if self.should_inject(irq, target_cpu as CPU) {
-            return SGIAction::InjectIRQ;
-        } else {
-            return SGIAction::NoAction;
+        if usize::try_from(cpu).unwrap() >= self.num_nodes {
+            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
-    }
 
-    // The seL4 API does not appear to distinguish between an ack and an
-    // eoi.  I.e., there is no expectation of a transition from pending->active.
-    // Therefore, we treat an ack like an eoi and clear the pending state, but
-    // do not set the active state.
-    pub fn handle_ack(&self, irq: IRQ, node_index: usize) -> AckAction {
-        let cpu = node_index as CPU;
         if irq < 16 {
-            self.clear_sgi_pending(irq, 0, cpu);
+            self.clear_sgi_pending(irq, 0, cpu)?;
         } else {
-            self.clear_pending(irq, cpu).unwrap();
+            self.clear_pending(irq, cpu)?;
         }
-        AckAction::NoAction
+
+        self.clear_active(irq, cpu)?;
+
+        Ok(())
     }
 
     // Returns a list of vCPU targets for a given IRQ.
@@ -1175,9 +1139,14 @@ impl Distributor {
             self.enable0[i].store(0x0000ffff, Ordering::SeqCst); // 16-bit RO
         }
 
-        // Reset value depends on GIC configuration
-        self.config[0].store(0xaaaaaaaa, Ordering::SeqCst); // RO
-        self.config[1].store(0x55540000, Ordering::SeqCst);
+        // Reset values for interrupt configuration registers.
+        // PPIs in config1 are banked per-CPU.
+        self.config0.store(0xaaaaaaaa, Ordering::SeqCst); // RO
+        for i in 0..self.num_nodes {
+            self.config1[i].store(0x55540000, Ordering::SeqCst);
+        }
+        self.config[0].store(0x55555555, Ordering::SeqCst);
+        self.config[1].store(0x55555555, Ordering::SeqCst);
         self.config[2].store(0x55555555, Ordering::SeqCst);
         self.config[3].store(0x55555555, Ordering::SeqCst);
         self.config[4].store(0x55555555, Ordering::SeqCst);
@@ -1190,8 +1159,6 @@ impl Distributor {
         self.config[11].store(0x55555555, Ordering::SeqCst);
         self.config[12].store(0x55555555, Ordering::SeqCst);
         self.config[13].store(0x55555555, Ordering::SeqCst);
-        self.config[14].store(0x55555555, Ordering::SeqCst);
-        self.config[15].store(0x55555555, Ordering::SeqCst);
 
         // Configure per-CPU SGI/PPI target registers
         // 1. Reset each register to 0x0.
@@ -1331,17 +1298,6 @@ fn calc_reg_byte_offset(offset: usize, base: usize) -> IRQRegByte {
     reg_byte
 }
 
-// TODO: Is this necessary anymore?
-// impl Deref for Distributor {
-//     type Target = DistributorRegisterBlock;
-
-//     fn deref(&self) -> &Self::Target {
-//         unsafe {
-//             &*self.ptr()
-//         }
-//     }
-// }
-
 fn irq_idx(irq: IRQ) -> usize {
     irq / 32
 }
@@ -1359,41 +1315,3 @@ fn reg_word_to_irqs(reg_num: IRQRegNum, irq_bits: u32) -> Vec<IRQ> {
     }
     irqs
 }
-
-
-// #[derive(Debug)]
-// pub enum Action {
-//     ReadOnly,
-//     Passthru,
-//     Enable,
-//     EnableSet,
-//     EnableClr,
-//     PendingSet,
-//     PendingClr,
-//     SGI,
-//     SGIPendingSet,
-//     SGIPendingClear,
-// }
-
-// impl Action {
-//     pub fn at(offset: usize) -> Self {
-//         // The only fields we care about are enable/clr
-//         // We have 2 options for other registers:
-//         //  a) ignore writes and hope the VM acts appropriately (ReadOnly)
-//         //  b) allow write access so the VM thinks there is no problem,
-//         //     but do not honour them (Passthru)
-//         match offset {
-//             0x000..0x004 => Action::Enable, // enable
-//             0x080..0x100 => Action::Passthru, // security
-//             0x100..0x180 => Action::EnableSet, // enable
-//             0x180..0x200 => Action::EnableClr, // enable_clr
-//             0x200..0x280 => Action::PendingSet, // pending_set
-//             0x280..0x300 => Action::PendingClr, // pending_clr
-//             0xC00..0xD00 => Action::Passthru, // config
-//             0xF00..0xF04 => Action::SGI, // sgi
-//             0xF10..0xF20 => Action::SGIPendingClear, // sgi_pending_clr
-//             0xF20..0xF30 => Action::SGIPendingSet, // sgi_pending_set
-//             _ => Action::ReadOnly,
-//         }
-//     }
-// }

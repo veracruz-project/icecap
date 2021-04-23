@@ -1,6 +1,4 @@
-use std::{
-    io, env, fs,
-};
+use std::fs;
 
 use clap::{Arg, App, SubCommand};
 

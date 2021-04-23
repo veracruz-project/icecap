@@ -6,8 +6,6 @@ use core::mem;
 use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
-use icecap_rpc::*;
-
 pub type RealmId = usize;
 pub type PhysicalNodeIndex = usize;
 pub type VirtualNodeIndex = usize;

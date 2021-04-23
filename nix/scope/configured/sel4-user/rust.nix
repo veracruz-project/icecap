@@ -6,10 +6,8 @@
 let
   mk = crateName: overrides: buildIceCapCrateBin {
     rootCrate = globalCrates.${crateName};
-    debug = true;
-    extraLayers = [ [ "icecap-std" ] ];
-    # debug = true;
     debug = false;
+    extraLayers = [ [ "icecap-std" ] ];
     extraManifest = {
       profile.release = {
         codegen-units = 1;
@@ -32,6 +30,7 @@ lib.mapAttrs mk {
   event-server = {};
   resource-server = {};
   host-vmm = {};
+  realm-vmm = {};
   qemu-ring-buffer-server = {};
   idle = {};
 

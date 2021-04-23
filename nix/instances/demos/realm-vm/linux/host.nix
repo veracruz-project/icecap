@@ -113,6 +113,9 @@ in
       cr() {
         icecap-host file:/dev/rb_resource_server /spec.bin
       }
+      s() {
+        while true; do sha256sum /mnt/${pkgs.pkgs_none.icecap.linuxKernel.host.virt}/vmlinux-5.6.0-rc2; done
+      }
     '';
 
   };

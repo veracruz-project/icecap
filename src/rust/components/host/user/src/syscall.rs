@@ -1,9 +1,7 @@
-use libc::{syscall, c_long};
 use std::fs::File;
 use std::os::unix::io::AsRawFd;
 use icecap_resource_server_types::*;
 use icecap_rpc::*;
-use crate::{Result, ensure};
 
 const ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU: u64 = 1338;
 

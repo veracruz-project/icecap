@@ -139,7 +139,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             match badge {
                 BADGE_EXTERNAL => {
                     // HACK
-                    let irq = MR_0.get() as IRQ;
+                    let irq: IRQ = icecap_rpc_sel4::rpc_server::recv(&info);
                     let irq = if irq < 16 {
                         panic!("")
                     } else if irq < 32 {
@@ -148,6 +148,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                         QualifiedIRQ::SPI { irq }
                     };
                     self.gic.lock().handle_irq(self.node_index, irq)?;
+                    icecap_rpc_sel4::rpc_server::reply(&());
                 }
                 BADGE_VM => {
                     let fault = Fault::get(info);

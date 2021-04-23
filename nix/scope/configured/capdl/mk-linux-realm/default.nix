@@ -10,7 +10,7 @@ let
     src = ./ddl;
     config = {
       components = {
-        realm_vmm.image = bins.vmm.split;
+        realm_vmm.image = bins.realm-vmm.split;
         realm_vm.bootargs = bootargs;
         realm_vm.kernel = kernel;
         realm_vm.initrd = initrd;

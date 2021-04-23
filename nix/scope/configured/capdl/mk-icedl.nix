@@ -12,7 +12,8 @@
 , serialize-timer-server-config
 , serialize-serial-server-config
 , serialize-qemu-ring-buffer-server-config
-, serialize-vmm-config
+, serialize-host-vmm-config
+, serialize-realm-vmm-config
 , serialize-resource-server-config
 
 , dyndl-serialize-spec
@@ -42,7 +43,8 @@ let
       serialize-timer-server-config
       serialize-serial-server-config
       serialize-qemu-ring-buffer-server-config
-      serialize-vmm-config
+      serialize-host-vmm-config
+      serialize-realm-vmm-config
       serialize-resource-server-config
 
       dyndl-serialize-spec
