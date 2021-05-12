@@ -6,6 +6,13 @@ mk {
     icecap-sel4
     icecap-runtime
   ];
+  localDependencyAttributes = {
+    icecap-sel4 = {
+      features = [
+        "use-serde"
+      ];
+    };
+  };
   dependencies = {
     serde = serdeMin;
   };

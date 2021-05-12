@@ -236,6 +236,7 @@ pub struct PT(CPtr);
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct IRQHandler(CPtr);
 #[derive(Copy, Clone, LocalCPtr)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct ASIDPool(CPtr);
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, LocalCPtr)]

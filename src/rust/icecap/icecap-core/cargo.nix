@@ -12,4 +12,11 @@ mk {
     icecap-failure
     icecap-start
   ];
+  localDependencyAttributes = {
+    icecap-sel4 = {
+      features = [
+        "use-serde"
+      ];
+    };
+  };
 }
