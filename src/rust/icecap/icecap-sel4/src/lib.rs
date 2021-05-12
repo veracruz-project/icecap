@@ -3,6 +3,9 @@
 #![feature(const_if_match)]
 #![feature(format_args_nl)]
 
+// TODO remove or guard with feature
+extern crate alloc;
+
 #[macro_use]
 extern crate icecap_sel4_derive;
 

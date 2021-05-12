@@ -3,6 +3,7 @@
 , globalArgs ? {}
 , globalExtraCargoConfig ? {}
 , callPackage
+, strace
 }:
 
 let
@@ -143,11 +144,13 @@ let
           ln -s ${lock} Cargo.lock
         '';
 
+        # HACK "-Z avoid-dev-deps" for deps of std
         buildPhase = ''
           cargo build -j $NIX_BUILD_CORES --offline --frozen \
             --target ${hostPlatform.config} \
             ${lib.optionalString (!debug) "--release"} \
             -Z unstable-options --dependencies \
+            -Z avoid-dev-deps \
             --target-dir $out
         '';
 
@@ -247,6 +250,8 @@ buildRustPackage (extraArgs // {
   inherit cargoVendorConfig;
   extraCargoConfig = allExtraCargoConfig;
 
+  nativeBuildInputs = [ strace ];
+
   dontUnpack = true;
 
   preConfigure = ''
@@ -257,6 +262,11 @@ buildRustPackage (extraArgs // {
     ln -s ${workspace} Cargo.toml
     ln -s ${lock} Cargo.lock
   '';
+
+  # buildPhase = ''
+  #   strace -f cargo build -j $NIX_BUILD_CORES --offline --frozen \
+  #     --target ${hostPlatform.config}
+  # '';
 
   passthru = (extraArgs.passthru or {}) // {
     inherit lastLayer env src workspace lock;

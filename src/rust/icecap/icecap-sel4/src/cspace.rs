@@ -1,4 +1,5 @@
 use core::fmt;
+#[cfg(feature = "use-serde")]
 use serde::{Serialize, Deserialize};
 use crate::{
     sys, Result,
@@ -6,7 +7,8 @@ use crate::{
 
 pub type RawCPtr = sys::seL4_CPtr; // u64
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct CPtr(RawCPtr);
 
 impl CPtr {
@@ -191,39 +193,55 @@ pub trait ObjectVariableSize {
     fn object_type() -> ObjectType;
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectVariableSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectVariableSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Untyped(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Endpoint(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Notification(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct TCB(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct VCPU(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectVariableSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectVariableSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct CNode(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct SmallPage(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct LargePage(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct HugePage(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct PGD(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct PUD(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct PD(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr, ObjectFixedSize)]
+#[derive(Copy, Clone, LocalCPtr, ObjectFixedSize)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct PT(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr)]
+#[derive(Copy, Clone, LocalCPtr)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct IRQHandler(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr)]
+#[derive(Copy, Clone, LocalCPtr)]
 pub struct ASIDPool(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
+#[derive(Copy, Clone, LocalCPtr)]
 pub struct Unspecified(CPtr);
-#[derive(Copy, Clone, Serialize, Deserialize, LocalCPtr)]
+#[derive(Copy, Clone, LocalCPtr)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Null(CPtr);
 
 #[derive(Clone, Debug)]

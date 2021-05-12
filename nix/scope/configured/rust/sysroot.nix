@@ -71,14 +71,24 @@ let
   } // {
     "CC_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}cc";
   };
-  cargoConfig = nixToToml ((fetchCrates lock).config // {
-    build.rustflags = [ "-Z" "force-unstable-if-unmarked" "--sysroot" "/dev/null" ];
-    target = {
-      ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
-    } // {
-      ${hostPlatform.config}.linker = "${stdenv.cc.targetPrefix}cc";
-    };
-  });
+
+  cargoConfig = nixToToml (crateUtils.clobber [
+    (fetchCrates lock).config
+    {
+      build.rustflags = [ "-Z" "force-unstable-if-unmarked" "--sysroot" "/dev/null" ];
+      target = {
+        ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
+      } // {
+        ${hostPlatform.config}.linker = "${stdenv.cc.targetPrefix}cc";
+      };
+    }
+    {
+      target.${hostPlatform.config} = crateUtils.clobber (map (crate:
+      if crate.buildScript == null then {} else {
+        ${"dummy-link-${crate.name}"} = crate.buildScript;
+      }) allImplCrates);
+    }
+  ]);
 
   workspace = nixToToml (recursiveUpdate {
     package = {
@@ -132,6 +142,9 @@ stdenv.mkDerivation ({
     d=$out/lib/rustlib/${hostPlatform.config}/lib
     mkdir -p $d
     mv target/${hostPlatform.config}/${if release then "release" else "debug"}/deps/* $d
+    d=$out/lib/rustlib/${buildPlatform.config}/lib
+    mkdir -p $d
+    mv target/${if release then "release" else "debug"}/deps/* $d
   '';
 
   # TODO clean up

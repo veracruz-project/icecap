@@ -14,6 +14,7 @@ rec {
     { name, src
     , isBin ? false, isStaticlib ? false
     , localDependencies ? [], phantomLocalDependencies ? []
+    , localDependencyAttributes ? {} # HACK
     , propagate ? {}
     , buildScript ? null
     , ...
@@ -27,9 +28,9 @@ rec {
             version = "0.1.0";
             edition = "2018";
           };
-          dependencies = listToAttrs (map (crate: nameValuePair crate.name {
+          dependencies = listToAttrs (map (crate: nameValuePair crate.name ({
             path = "../${crate.name}";
-          }) localDependencies);
+          } // (localDependencyAttributes.${crate.name} or {}))) localDependencies);
         }
 
         (if isBin then {
@@ -48,7 +49,7 @@ rec {
         (removeAttrs args [
           "name" "src" "srcLocal"
           "isBin" "isStaticlib"
-          "localDependencies" "phantomLocalDependencies"
+          "localDependencies" "phantomLocalDependencies" "localDependencyAttributes"
           "propagate" "buildScript"
         ])
 
