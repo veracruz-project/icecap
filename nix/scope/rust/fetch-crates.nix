@@ -19,7 +19,7 @@ let
       name = url;
       value = {
         git = url;
-        inherit rev;
+        "${param.key}" = param.value;
         replace-with = "vendored-sources";
       };
     }) (lib.filter (crateMeta: crateMeta.source == "git") (lib.mapAttrsToList (k: v: v.crateMeta) lock.source)));

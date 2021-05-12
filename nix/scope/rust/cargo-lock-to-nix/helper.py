@@ -13,7 +13,7 @@ Checksum = namedtuple('Checksum', ['package', 'sha256'])
 
 package_re = re.compile(r'(?P<name>[^ ]+)( (?P<version>[^ ]+)( \((?P<raw_source>[^ ]+)\))?)?')
 source_re = re.compile(r'(?P<type>[^+]+)\+(?P<value>.+)')
-git_re = re.compile(r'(?P<url>[^?]+)\?rev=(?P<rev>[^#]+)#.*')
+git_re = re.compile(r'(?P<url>[^?]+)\?(?P<param_key>rev|branch|tag)=(?P<param_value>[^#]+)#(?P<actual_rev>[0-9a-f]{40})')
 
 allowed_entry_keys = frozenset(('name', 'version', 'source', 'dependencies', 'checksum'))
 
@@ -88,7 +88,8 @@ def gen_nix(lock):
                 yield '      name = "{}";'.format(package.name)
                 yield '      version = "{}";'.format(package.version)
                 yield '      url = "{}";'.format(m['url'])
-                yield '      rev = "{}";'.format(m['rev'])
+                yield '      rev = "{}";'.format(m['actual_rev'])
+                yield '      param = {{ key = "{}"; value = "{}"; }};'.format(m['param_key'], m['param_value'])
                 yield '    };'
             else:
                 assert False

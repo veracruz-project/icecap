@@ -24,7 +24,7 @@ let
 
     rust = mkIceCapSrc {
       repo = "rust";
-      rev = "b9e0af6a4b772d0723781bc4dbf06e2288325714"; # branch: icecap-sysroot
+      rev = "fedfbd2f6e0cb037d737c6aee15f7402e1b49a4c"; # branch: icecap-sysroot
 
       submodules = true;
       # local = true;
@@ -37,7 +37,9 @@ let
 
     dlmalloc = mkIceCapSrc {
       repo = "minor-patches/rust/dlmalloc";
-      rev = "412ba0f99f5fc1dcd28865988f838db197604e49"; # branch: icecap-supervisee
+      # rev = "412ba0f99f5fc1dcd28865988f838db197604e49"; # branch: icecap-supervisee
+      rev = "f6759cfed44dc4135eaa43c8c26599357749af39"; # branch: icecap
+      # local = true;
     };
 
     icecap = {

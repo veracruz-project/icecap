@@ -4,6 +4,7 @@ mk {
   name = "icecap-std-impl";
   localDependencies = with localCrates; [
     icecap-sel4
+    icecap-runtime
     icecap-sync
   ];
   dependencies = {
@@ -28,6 +29,7 @@ mk {
       "alloc"
       "compiler_builtins/rustc-dep-of-std"
       "icecap-sel4/rustc-dep-of-std"
+      "icecap-runtime/rustc-dep-of-std"
       "icecap-sync/rustc-dep-of-std"
     ];
   };

@@ -5,6 +5,7 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
+#[cfg(feature = "use-serde")]
 use serde::{Serialize, Deserialize};
 
 use icecap_sel4::*;
@@ -12,6 +13,8 @@ use icecap_sel4::*;
 extern "C" {
     #[thread_local]
     static icecap_runtime_tcb: u64;
+
+    static icecap_runtime_supervisor_ep: u64;
 
     fn icecap_runtime_exit() -> !;
 
@@ -31,6 +34,13 @@ pub fn exit() -> ! {
 pub fn tcb() -> TCB {
     TCB::from_raw(unsafe {
         icecap_runtime_tcb
+    })
+}
+
+#[inline]
+pub fn supervisor() -> Endpoint {
+    Endpoint::from_raw(unsafe {
+        icecap_runtime_supervisor_ep
     })
 }
 
@@ -89,7 +99,8 @@ impl TLSRegion {
 
 }
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Thread(Endpoint);
 
 impl From<Endpoint> for Thread {

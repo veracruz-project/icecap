@@ -13,10 +13,11 @@ mk {
     icecap-start
   ];
   localDependencyAttributes = {
-    icecap-sel4 = {
-      features = [
-        "use-serde"
-      ];
-    };
+    icecap-sel4.features = [
+      "use-serde"
+    ];
+    icecap-runtime.features = [
+      "use-serde"
+    ];
   };
 }
