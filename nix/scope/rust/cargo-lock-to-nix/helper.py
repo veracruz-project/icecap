@@ -3,6 +3,8 @@ import sys
 import toml
 from collections import namedtuple
 
+# TODO handle [[patch.unused]]
+
 Lock = namedtuple('Lock', ['packages', 'checksums'])
 
 Package = namedtuple('Package', ['name', 'version', 'source'])
@@ -67,32 +69,35 @@ def parse_lock(d):
             checksums[checksum.package] = checksum.sha256
     return Lock(packages, checksums)
 
+def emit_package(package):
+    if package.source is not None:
+        if package.source.type == 'registry':
+            assert package.source.value == 'https://github.com/rust-lang/crates.io-index'
+            yield '    "{}-{}" = fetchCratesIOCrate {{'.format(package.name, package.version)
+            yield '      name = "{}";'.format(package.name)
+            yield '      version = "{}";'.format(package.version)
+            yield '      sha256 = "{}";'.format(lock.checksums[package])
+            yield '    };'
+        elif package.source.type == 'git':
+            m = git_re.fullmatch(package.source.value)
+            assert m is not None
+            yield '    "{}-{}#{}" = fetchGitCrate {{'.format(package.name, package.version, m['actual_rev']) # HACK
+            yield '      name = "{}";'.format(package.name)
+            yield '      version = "{}";'.format(package.version)
+            yield '      url = "{}";'.format(m['url'])
+            yield '      rev = "{}";'.format(m['actual_rev'])
+            yield '      param = {{ key = "{}"; value = "{}"; }};'.format(m['param_key'], m['param_value'])
+            yield '    };'
+        else:
+            assert False
+
 def gen_nix(lock):
     yield '{ fetchCratesIOCrate, fetchGitCrate }:'
     yield ''
     yield '{'
     yield '  source = {'
     for package in lock.packages:
-        if package.source is not None:
-            if package.source.type == 'registry':
-                assert package.source.value == 'https://github.com/rust-lang/crates.io-index'
-                yield '    "{}-{}" = fetchCratesIOCrate {{'.format(package.name, package.version)
-                yield '      name = "{}";'.format(package.name)
-                yield '      version = "{}";'.format(package.version)
-                yield '      sha256 = "{}";'.format(lock.checksums[package])
-                yield '    };'
-            elif package.source.type == 'git':
-                m = git_re.fullmatch(package.source.value)
-                assert m is not None
-                yield '    "{}-{}" = fetchGitCrate {{'.format(package.name, package.version)
-                yield '      name = "{}";'.format(package.name)
-                yield '      version = "{}";'.format(package.version)
-                yield '      url = "{}";'.format(m['url'])
-                yield '      rev = "{}";'.format(m['actual_rev'])
-                yield '      param = {{ key = "{}"; value = "{}"; }};'.format(m['param_key'], m['param_value'])
-                yield '    };'
-            else:
-                assert False
+        yield from emit_package(package)
     yield '  };'
     yield ''
     yield '  graph = {'
