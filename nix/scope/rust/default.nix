@@ -14,6 +14,7 @@ self: with self; {
 
   buildRustPackage = callPackage ./build-rust-package.nix {};
   buildRustPackageIncrementally = callPackage ./build-rust-package-incrementally.nix {};
+  buildHeterogeneousRustPackage = callPackage ./build-heterogeneous-rust-package.nix {};
 
   mkRustPrebuilt = callPackage ./prebuilt {};
 
