@@ -126,6 +126,7 @@ let
       lock() {
         rm Cargo.lock
         cargo generate-lockfile
+        cp Cargo.lock ${lock.env}
       }
 
       cs() {
