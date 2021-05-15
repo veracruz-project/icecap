@@ -24,7 +24,7 @@ let
 
     rust = mkIceCapSrc {
       repo = "rust";
-      rev = "fedfbd2f6e0cb037d737c6aee15f7402e1b49a4c"; # branch: icecap-sysroot
+      rev = "d23fbea08fc8e0cedd885187910077c97a87262e"; # branch: icecap-sysroot
 
       submodules = true;
       # local = true;
