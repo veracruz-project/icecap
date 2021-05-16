@@ -14,6 +14,7 @@
 , extraManifestLocal ? {}
 , extraCargoConfig ? {}
 , extraCargoConfigLink ? {}
+, extraShellHook ? ""
 , extraArgs
 }:
 let
@@ -136,7 +137,7 @@ let
       }
 
       b() {
-        invoke_cargo build "$@"
+        invoke_cargo ${extraArgs.cargoBuildAction or "build"} "$@"
       }
       t() {
         invoke_cargo test "$@"
@@ -144,7 +145,7 @@ let
       r() {
         invoke_cargo run "$@"
       }
-    '';
+    '' + extraShellHook;
   } // extraArgs);
 
 in

@@ -11,6 +11,7 @@ let
 in
 
 { cargoBuildFlags ? []
+, cargoBuildAction ? "build" # HACK?
 , cargoVendorConfig ? null
 , cargoVendorConfigRaw ? null
 , cargoVendorDir ? null
@@ -85,7 +86,7 @@ in stdenv.mkDerivation ({
   # TODO Is --offline necessary? Does it change the build in undesirable ways?
   buildPhase = ''
     runHook preBuild
-    cargo build -j $NIX_BUILD_CORES ${lib.optionalString offline "--offline --frozen"} \
+    cargo ${cargoBuildAction} -j $NIX_BUILD_CORES ${lib.optionalString offline "--offline --frozen"} \
       ${lib.optionalString (!debug) "--release"} \
       --target ${stdenv.hostPlatform.config} \
       ${lib.concatStringsSep " " cargoBuildFlags}
