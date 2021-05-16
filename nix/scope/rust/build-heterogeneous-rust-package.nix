@@ -77,6 +77,7 @@ let
 
   build = buildRustPackage ({
     inherit (rootCrate) name;
+    inherit debug;
     extraCargoConfig = allExtraCargoConfig;
 
     src = topSrc;
