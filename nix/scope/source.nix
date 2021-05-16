@@ -67,7 +67,7 @@ let
       remote = "${remoteTop}${suffix}";
       local = lib.cleanSourceWith {
         # TODO generalize
-        filter = name: type: builtins.match ".*dist-newstyle.*" name == null;
+        filter = name: type: builtins.match ".*nix-shell.tmp.*" name == null && builtins.match ".*dist-newstyle.*" name == null;
         src = lib.cleanSource (mkIceCapLocalPath repo ref + "/${suffix}");
       };
       store = (if local_ then local else remote) + postfix;
