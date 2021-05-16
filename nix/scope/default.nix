@@ -42,7 +42,7 @@ superCallPackage ./ocaml {} self //
   icecapSrcRel = suffix: (icecapSrcRelSplit suffix).store;
   icecapSrcAbs = src: (icecapSrcAbsSplit src).store;
   icecapSrcRelRaw = suffix: ../../src + "/${suffix}";
-  icecapSrcFilter = name: type: true; # TODO
+  icecapSrcFilter = name: type: builtins.match ".*nix-shell\\.tmp.*" name == null; # TODO
   icecapSrcRelSplit = suffix: icecapSrcAbsSplit (icecapSrcRelRaw suffix);
   icecapSrcAbsSplit = src: {
     store = lib.cleanSourceWith {
