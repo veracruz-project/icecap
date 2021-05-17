@@ -15,7 +15,6 @@ pub mod _fmt;
 
 pub use icecap_core::*;
 
-pub mod logger;
 pub mod prelude;
 
 pub use _fmt::{set_print, flush_print};

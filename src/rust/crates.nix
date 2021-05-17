@@ -52,6 +52,7 @@ filterAttrs (_: v: v != null) {
   icecap-ring-buffer = seL4Only ./icecap/icecap-ring-buffer;
   icecap-failure = seL4Only ./icecap/icecap-failure;
   icecap-failure-derive = seL4Only ./icecap/icecap-failure/derive;
+  icecap-logger = seL4Only ./icecap/icecap-logger;
   icecap-start = seL4Only ./icecap/icecap-start;
   icecap-start-generic = seL4Only ./icecap/icecap-start/generic;
   icecap-core = seL4Only ./icecap/icecap-core;

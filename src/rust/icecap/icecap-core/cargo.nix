@@ -10,6 +10,7 @@ mk {
     icecap-config
     icecap-backtrace
     icecap-failure
+    icecap-logger
     icecap-start
   ];
   localDependencyAttributes = {
