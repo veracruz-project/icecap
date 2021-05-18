@@ -10,7 +10,7 @@ let
   callPackage_ = callPackage;
 in
 
-{ rootCrate
+{ rootCrate, lock ? null
 , layers ? []
 , debug ? true
 , extraCargoConfig ? {}
@@ -31,6 +31,7 @@ with lib;
 let
   extraManifest_ = extraManifest;
   extraManifestLocal_ = extraManifestLocal;
+  lock_ = lock;
 in
 
 let
@@ -77,7 +78,7 @@ let
 
   lastLayer = f allAccumulatedLayers;
 
-  lock = generateLockfileInternal {
+  lock = if lock_ != null then lock_ else generateLockfileInternal {
     inherit rootCrate extraManifest;
   };
   cargoVendorConfig = fetchCrates lock;
