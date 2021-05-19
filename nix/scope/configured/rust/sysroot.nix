@@ -1,4 +1,4 @@
-{ lib, stdenv, buildPackages, buildPlatform, hostPlatform, runCommand, linkFarm
+{ lib, stdenv, buildPackages, buildPlatform, hostPlatform, runCommand, linkFarm, writeText
 , rustc, cargo
 , fetchCrates, cratesIOIndexCache
 , nixToToml, crateUtils, rustTargets, globalCrates
@@ -98,7 +98,13 @@ let
       version = "0.0.0";
     };
 
-    lib.path = crateUtils.dummySrc.lib;
+    lib.path = "${linkFarm "dummy-src" [
+      (rec {
+        name = "lib.rs";
+        path = writeText name ''
+        '';
+      })
+    ]}/lib.rs";
 
     dependencies.std = {
       features = [ "panic-unwind" ];

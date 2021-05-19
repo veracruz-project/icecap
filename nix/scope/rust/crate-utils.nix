@@ -1,6 +1,6 @@
 # TODO camlCase
 
-{ lib, runCommand, linkFarm, emptyFile
+{ lib, runCommand, writeText, linkFarm, emptyFile
 , nixToToml
 }:
 
@@ -65,7 +65,7 @@ rec {
       inherit name;
       src = mkLink (mk src.store);
       srcLocal = mkLink (mk src.env);
-      srcDummy = mkLink (mk dummySrc);
+      srcDummy = mkLink (mk (if isBin then dummySrcBin else dummySrcLib));
       localDependencies = localDependencies ++ phantomLocalDependencies;
       inherit propagate buildScript;
     };
@@ -79,12 +79,29 @@ rec {
     buildScript = null;
   };
 
-  dummySrc = lib.fix (self: runCommand "src" {
-    passthru.lib = "${self.outPath}/lib.rs";
-  } ''
-    mkdir $out
-    touch $out/lib.rs
-  '');
+  dummySrcLib = linkFarm "dummy-src" [
+    (rec {
+      name = "lib.rs";
+      path = writeText name ''
+        #![no_std]
+      '';
+    })
+  ];
+
+  dummySrcBin = linkFarm "dummy-src" [
+    (rec {
+      name = "main.rs";
+      path = writeText name ''
+        #![no_std]
+        #![no_main]
+
+        #[panic_handler]
+        extern fn panic_handler(_: &core::panic::PanicInfo) -> ! {
+          todo!()
+        }
+      '';
+    })
+  ];
 
   mkLink = manifest: linkFarm "crate" [
     { name = "Cargo.toml"; path = manifest; }

@@ -1,4 +1,4 @@
-{ lib, hostPlatform
+{ lib, hostPlatform, linkFarm
 , cargo, emptyDirectory, buildRustPackage, fetchCrates, nixToToml, generateLockfileInternal, crateUtils
 , globalArgs ? {}
 , globalExtraCargoConfig ? {}
@@ -121,10 +121,17 @@ let
       dummies = listMinus allCrates layer;
       src = crateUtils.collectDummies layer dummies;
 
+      manifestDir = linkFarm "x" [
+        { name = "Cargo.toml"; path = workspace; }
+        { name = "src"; path = src; }
+        { name = "Cargo.lock"; path = lock; }
+      ];
+
       workspace = nixToToml (crateUtils.clobber [
         {
-          workspace.members = map (crate: "src/${crate.name}") dummies;
-          workspace.exclude = map (crate: "src/${crate.name}") layer;
+          workspace.members = [ "src/${rootCrate.name}" ];
+          # workspace.members = map (crate: "src/${crate.name}") dummies;
+          # workspace.exclude = map (crate: "src/${crate.name}") layer;
         }
         extraManifest
       ]);
@@ -140,9 +147,6 @@ let
         preConfigure = ''
           cp -r --preserve=timestamps ${prev} $out
           chmod -R +w $out
-          ln -s ${src} src
-          ln -s ${workspace} Cargo.toml
-          ln -s ${lock} Cargo.lock
         '';
 
         # HACK "-Z avoid-dev-deps" for deps of std
@@ -150,8 +154,8 @@ let
           cargo build -j $NIX_BUILD_CORES --offline --frozen \
             --target ${hostPlatform.config} \
             ${lib.optionalString (!debug) "--release"} \
-            -Z unstable-options --dependencies \
             -Z avoid-dev-deps \
+            --manifest-path ${manifestDir}/Cargo.toml \
             --target-dir $out
         '';
 
@@ -171,7 +175,6 @@ in let
   workspace = nixToToml (crateUtils.clobber [
     {
       workspace.members = [ "src/${rootCrate.name}" ];
-      workspace.exclude = [ "src/*" ];
     }
     extraManifest
   ]);
@@ -179,11 +182,22 @@ in let
   workspaceLocal = nixToToml (crateUtils.clobber [
     {
       workspace.members = [ "src/${rootCrate.name}" ];
-      workspace.exclude = [ "src/*" ];
     }
     extraManifest
     extraManifestLocal
   ]);
+
+  manifestDir = linkFarm "x" [
+    { name = "Cargo.toml"; path = workspace; }
+    { name = "src"; path = src; }
+    { name = "Cargo.lock"; path = lock; }
+  ];
+
+  manifestDirLocal = linkFarm "x" [
+    { name = "Cargo.toml"; path = workspaceLocal; }
+    { name = "src"; path = srcLocal; }
+    { name = "Cargo.lock"; path = lock; }
+  ];
 
   env = buildRustPackage (extraArgs // {
     inherit cargoVendorConfig;
@@ -196,10 +210,7 @@ in let
       # chmod -R +w target
     preConfigure = ''
       ${extraArgs.preConfigure or ""}
-      ln -s ${srcLocal} src
-      ln -s ${workspaceLocal} Cargo.toml
-      ln -s ${lock} Cargo.lock
-    '';
+     '';
 
     shellHook = ''
       clean() {
@@ -259,15 +270,11 @@ buildRustPackage (extraArgs // {
     ${extraArgs.preConfigure or ""}
     cp -r --preserve=timestamps ${lastLayer} target
     chmod -R +w target
-    ln -s ${src} src
-    ln -s ${workspace} Cargo.toml
-    ln -s ${lock} Cargo.lock
   '';
 
-  # buildPhase = ''
-  #   strace -f cargo build -j $NIX_BUILD_CORES --offline --frozen \
-  #     --target ${hostPlatform.config}
-  # '';
+  cargoBuildFlags = (extraArgs.cargoBuildFlags or []) ++ [
+    "--manifest-path" "${manifestDir}/Cargo.toml" "--target-dir=target"
+  ];
 
   passthru = (extraArgs.passthru or {}) // {
     inherit lastLayer env src workspace lock;
