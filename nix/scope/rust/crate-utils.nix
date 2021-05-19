@@ -2,6 +2,9 @@
 
 { lib, runCommand, writeText, linkFarm, emptyFile
 , nixToToml
+, rustTargets
+, stdenv, buildPackages, buildPlatform, hostPlatform
+, rustc
 }:
 
 with lib;
@@ -92,12 +95,23 @@ rec {
     (rec {
       name = "main.rs";
       path = writeText name ''
-        #![no_std]
-        #![no_main]
+        #![cfg_attr(target_os = "icecap", no_std)]
+        #![cfg_attr(target_os = "icecap", no_main)]
+        #![cfg_attr(target_os = "icecap", feature(lang_items))]
 
+        #[cfg(target_os = "icecap")]
         #[panic_handler]
         extern fn panic_handler(_: &core::panic::PanicInfo) -> ! {
           todo!()
+        }
+
+        #[cfg(target_os = "icecap")]
+        #[lang = "eh_personality"]
+        extern fn eh_personality() {
+        }
+
+        #[cfg(not(target_os = "icecap"))]
+        fn main() {
         }
       '';
     })
@@ -148,4 +162,38 @@ rec {
   }) dummies);
 
   kebabToCaml = lib.replaceStrings [ "-" ] [ "_" ];
+
+  ccEnv = {
+    "CC_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
+    "CXX_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}c++";
+  } // {
+    "CC_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}cc";
+    "CXX_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}c++";
+  };
+
+  linkerCargoConfig = {
+    target = {
+      ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
+    } // {
+      ${hostPlatform.config}.linker =
+        if hostPlatform.isWasm
+        then "${buildPackages.icecap.rustc}/lib/rustlib/${buildPlatform.config}/bin/rust-lld"
+        else
+          if hostPlatform.system == "aarch64-none"
+          then "${stdenv.cc.targetPrefix}ld"
+          else "${stdenv.cc.targetPrefix}cc";
+        # NOTE if not useing rust-lld, then the following is necessary for WASM:
+        #   linker = "wasm-ld";
+        #   rustflags = [ "-C" "linker-flavor=wasm-ld" ];
+    };
+  };
+
+  baseEnv = ccEnv // {
+    RUST_TARGET_PATH = rustTargets;
+  };
+
+  baseCargoConfig = linkerCargoConfig // {
+    build.rustc = "${rustc.nativeDrv or rustc}/bin/rustc";
+  };
+
 }

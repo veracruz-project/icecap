@@ -1,27 +1,19 @@
 { lib, hostPlatform, linkFarm
 , cargo, emptyDirectory, buildRustPackage, fetchCrates, nixToToml, generateLockfileInternal, crateUtils
-, globalArgs ? {}
-, globalExtraCargoConfig ? {}
-, callPackage
 , strace
+, buildPackages, stdenv
 }:
 
-let
-  callPackage_ = callPackage;
-in
-
-{ rootCrate, lock ? null
+{ rootCrate
 , layers ? []
 , debug ? true
 , extraCargoConfig ? {}
-, extraCargoConfigLink ? {}
 , extraManifest ? {}
 , extraManifestLocal ? {}
 , extraShellHook ? ""
-, callPackage ? callPackage_
 , extraLastLayerBuildInputs ? [] # TODO generalize
-, ...
-} @ origArgs:
+, extraArgs ? {}
+}:
 
 # NOTE Use this to debug dirty fingerprints
 # CARGO_LOG = "cargo::core::compiler::fingerprint=trace";
@@ -31,12 +23,10 @@ with lib;
 let
   extraManifest_ = extraManifest;
   extraManifestLocal_ = extraManifestLocal;
-  lock_ = lock;
+  release = !debug;
 in
 
 let
-  args = globalArgs // origArgs;
-
   allCratesAttrs = crateUtils.flatDepsWithRoot rootCrate;
   allCrates = lib.attrValues allCratesAttrs;
   allPropagate = crateUtils.clobber (map (x: x.propagate or {}) allCrates);
@@ -78,28 +68,21 @@ let
 
   lastLayer = f allAccumulatedLayers;
 
-  lock = if lock_ != null then lock_ else generateLockfileInternal {
+  lock = generateLockfileInternal {
     inherit rootCrate extraManifest;
   };
   cargoVendorConfig = fetchCrates lock;
 
-  extraArgs = builtins.removeAttrs args [
-    "layers" "rootCrate" "extraShellHook" "extraManifest" "extraManifestLocal" "extraCargoConfig" "extraCargoConfigLink" "extraLastLayerBuildInputs"
-    "callPackage"
-  ] // {
-    name = rootCrate.name;
-    inherit lock;
-  };
-
-  baseExtraCargoConfig = crateUtils.clobber [
-    (allPropagate.extraCargoConfig or {})
-    globalExtraCargoConfig
-    extraCargoConfig
+  baseCargoConfig = crateUtils.clobber [
+    cargoVendorConfig.config
+    crateUtils.baseCargoConfig
     (optionalAttrs (hostPlatform.system == "aarch64-none") { profile.release.panic = "abort"; }) # HACK
+    (allPropagate.extraCargoConfig or {})
+    extraCargoConfig
   ];
 
-  extraCargoConfigFor = layer: crateUtils.clobber [
-    baseExtraCargoConfig
+  cargoConfigFor = layer: nixToToml (crateUtils.clobber [
+    baseCargoConfig
     {
       target.${hostPlatform.config} = crateUtils.clobber (map (crate:
       if crate.buildScript == null then {} else {
@@ -112,6 +95,20 @@ let
         ${"dummy-link-${crate.name}"} = crate.buildScript;
       }) layer);
     }
+  ]);
+
+  baseCommonArgs = crateUtils.baseEnv // {
+    name = rootCrate.name;
+    depsBuildBuild = [ buildPackages.stdenv.cc ] ++ (extraArgs.depsBuildBuild or []);
+    nativeBuildInputs = [ cargo ] ++ (extraArgs.nativeBuildInputs or []);
+  };
+
+  commonArgsFor = layer: baseCommonArgs // {
+    NIX_HACK_CARGO_CONFIG = cargoConfigFor layer;
+  };
+
+  commonArgsAfter = builtins.removeAttrs extraArgs [
+    "depsBuildBuild" "nativeBuildInputs"
   ];
 
   f = accumulatedLayers: if length accumulatedLayers == 0 then emptyDirectory else
@@ -130,27 +127,18 @@ let
       workspace = nixToToml (crateUtils.clobber [
         {
           workspace.members = [ "src/${rootCrate.name}" ];
-          # workspace.members = map (crate: "src/${crate.name}") dummies;
-          # workspace.exclude = map (crate: "src/${crate.name}") layer;
         }
         extraManifest
       ]);
     in
-      buildRustPackage (extraArgs // {
-        inherit cargoVendorConfig;
-        extraCargoConfig = extraCargoConfigFor layer;
-
-        dontUnpack = true;
-        dontInstall = true;
-        dontFixup = true;
-
-        preConfigure = ''
-          cp -r --preserve=timestamps ${prev} $out
-          chmod -R +w $out
-        '';
+      stdenv.mkDerivation (commonArgsFor layer // {
+        phases = [ "buildPhase" ];
 
         # HACK "-Z avoid-dev-deps" for deps of std
         buildPhase = ''
+          cp -r --preserve=timestamps ${prev} $out
+          chmod -R +w $out
+
           cargo build -j $NIX_BUILD_CORES --offline --frozen \
             --target ${hostPlatform.config} \
             ${lib.optionalString (!debug) "--release"} \
@@ -162,15 +150,11 @@ let
         passthru = {
           inherit prev;
         };
-      });
+      } // commonArgsAfter);
 
 in let
   src = crateUtils.collect allCrates;
   srcLocal = crateUtils.collectLocal allCrates;
-  allExtraCargoConfig = crateUtils.clobber [
-    (extraCargoConfigFor allCrates)
-    extraCargoConfigLink
-  ];
 
   workspace = nixToToml (crateUtils.clobber [
     {
@@ -199,85 +183,30 @@ in let
     { name = "Cargo.lock"; path = lock; }
   ];
 
-  env = buildRustPackage (extraArgs // {
-    inherit cargoVendorConfig;
-    extraCargoConfig = allExtraCargoConfig;
-
-    dontUnpack = true;
-
-    # TODO cache at least external deps
-      # cp -r --preserve=timestamps ${lastLayer} target
-      # chmod -R +w target
-    preConfigure = ''
-      ${extraArgs.preConfigure or ""}
-     '';
-
-    shellHook = ''
-      clean() {
-        rm -rf nix-shell.tmp
-      }
-
-      setup() {
-        mkdir -p nix-shell.tmp
-        cd nix-shell.tmp
-        configure
-      }
-
-      configure() {
-        eval "$configurePhase"
-      }
-
-      invoke_cargo() {
-        cmd="$1"
-        shift
-        cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
-          ${lib.optionalString (!debug) "--release"} \
-          --target ${hostPlatform.config} \
-          ${lib.concatStringsSep " " (extraArgs.cargoBuildFlags or [])} \
-          "$@"
-      }
-
-      cs() {
-        mv nix-shell.tmp/target .
-        clean && setup
-        mv ../target .
-      }
-
-      b() {
-        invoke_cargo build "$@"
-      }
-      t() {
-        invoke_cargo test "$@"
-      }
-      r() {
-        invoke_cargo run "$@"
-      }
-    '' + extraShellHook;
-  });
-
 in
-buildRustPackage (extraArgs // {
-  buildInputs = (extraArgs.buildInputs or []) ++ extraLastLayerBuildInputs;
-} // {
-  inherit cargoVendorConfig;
-  extraCargoConfig = allExtraCargoConfig;
+stdenv.mkDerivation (commonArgsFor allCrates // {
+  phases = [ "buildPhase" "installPhase" ];
 
-  nativeBuildInputs = [ strace ];
-
-  dontUnpack = true;
-
-  preConfigure = ''
-    ${extraArgs.preConfigure or ""}
+  buildPhase = ''
     cp -r --preserve=timestamps ${lastLayer} target
     chmod -R +w target
+
+    cargo build -j $NIX_BUILD_CORES --offline --frozen \
+      --target ${hostPlatform.config} \
+      ${lib.optionalString (!debug) "--release"} \
+      -Z avoid-dev-deps \
+      --target-dir=target \
+      --manifest-path ${manifestDir}/Cargo.toml
   '';
 
-  cargoBuildFlags = (extraArgs.cargoBuildFlags or []) ++ [
-    "--manifest-path" "${manifestDir}/Cargo.toml" "--target-dir=target"
-  ];
+  installPhase = ''
+    lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\)'
+    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 -type f -executable -not -regex "$lib_re" | xargs -r install -D -t $out/bin
+    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1                          -regex "$lib_re" | xargs -r install -D -t $out/lib
+  '';
 
   passthru = (extraArgs.passthru or {}) // {
     inherit lastLayer env src workspace lock;
     inherit allPropagate;
   };
-})
+} // commonArgsAfter)

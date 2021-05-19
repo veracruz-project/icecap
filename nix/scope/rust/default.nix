@@ -14,7 +14,6 @@ self: with self; {
 
   buildRustPackage = callPackage ./build-rust-package.nix {};
   buildRustPackageIncrementally = callPackage ./build-rust-package-incrementally.nix {};
-  buildHeterogeneousRustPackage = callPackage ./build-heterogeneous-rust-package.nix {};
 
   mkRustPrebuilt = callPackage ./prebuilt {};
 
@@ -49,12 +48,10 @@ self: with self; {
   # rustc = if hostPlatform.config != targetPlatform.config then pkgsBuildHostScope.rustc else rustc0;
   rustc = rustc0;
 
-  cargo0 = callPackage ./cargo.nix {
-    buildRustPackage = buildRustPackage.override (with pkgsBuildHostScope; {
-      rustc = rustc0;
-      cargo = cargoPrebuilt;
-    });
-  };
+  cargo0 = callPackage ./cargo.nix (with pkgsBuildHostScope; {
+    rustc = rustc0;
+    cargo = cargoPrebuilt;
+  });
 
   cargo = cargo0;
 

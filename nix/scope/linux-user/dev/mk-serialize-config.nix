@@ -42,5 +42,4 @@ buildRustPackageIncrementally rec {
   ];
 
   debug = true;
-  doCheck = false;
 }

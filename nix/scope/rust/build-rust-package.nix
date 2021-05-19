@@ -1,124 +1,55 @@
 { stdenv, lib, buildPackages, buildPlatform, hostPlatform
 , cargo, rustc
 , nixToToml, crateUtils, rustTargets
-
-# TODO unnecissary
-, cacert, git
 }:
 
-let
-  stdenv_ = stdenv;
-in
-
-{ cargoBuildFlags ? []
-, cargoBuildAction ? "build" # HACK?
-, cargoVendorConfig ? null
-, cargoVendorConfigRaw ? null
-, cargoVendorDir ? null
-, debug ? false # TODO release ? true
-, doc ? false, cargoDocFlags ? []
-, offline ? true
-, stdenv ? stdenv_
+{ cargoVendorConfig ? null # TODO remove
+, release ? true
 , extraCargoConfig ? {}
 , ...
 } @ args:
 
-assert cargoVendorConfig == null || cargoVendorDir == null;
-
 let
 
-  # TODO rename
-  releaseDir = "target/${stdenv.hostPlatform.config}/${if debug then "debug" else "release"}";
-
-  ccEnv = {
-    "CC_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
-    "CXX_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}c++";
-  } // {
-    "CC_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}cc";
-    "CXX_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}c++";
-  };
-
-  cargoVendorDirConfig = {
-    source.crates-io.replace-with = "vendored-sources";
-    source.vendored-sources.directory = cargoVendorDir;
-  };
-
   cargoConfig = crateUtils.clobber [
-    # TODO HACK
-    (lib.optionalAttrs (cargoVendorConfigRaw != null) (builtins.fromTOML (builtins.readFile cargoVendorConfigRaw)))
+    crateUtils.baseCargoConfig
     (lib.optionalAttrs (cargoVendorConfig != null) cargoVendorConfig.config)
-    (lib.optionalAttrs (cargoVendorDir != null) cargoVendorDirConfig)
-
-    {
-      target = {
-        ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
-      } // {
-        ${hostPlatform.config}.linker =
-          if hostPlatform.isWasm
-          then "${buildPackages.icecap.rustc}/lib/rustlib/${buildPlatform.config}/bin/rust-lld"
-          else
-            if hostPlatform.system == "aarch64-none"
-            then "${stdenv.cc.targetPrefix}ld"
-            else "${stdenv.cc.targetPrefix}cc";
-          # NOTE if not useing rust-lld, then the following is necessary for WASM:
-          #   linker = "wasm-ld";
-          #   rustflags = [ "-C" "linker-flavor=wasm-ld" ];
-      };
-    }
-
     extraCargoConfig
   ];
 
-in stdenv.mkDerivation ({
+in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   depsBuildBuild = [ buildPackages.stdenv.cc ] ++ (args.depsBuildBuild or []);
-  nativeBuildInputs = [ cargo rustc git cacert ] ++ (args.nativeBuildInputs or []);
+  nativeBuildInputs = [ cargo ] ++ (args.nativeBuildInputs or []);
 
-  RUST_TARGET_PATH = rustTargets;
-
-  configurePhase = ''
-    runHook preConfigure
-    mkdir -p .cargo
-    ln -s ${nixToToml cargoConfig} .cargo/config
-    runHook postConfigure
-  '';
+  NIX_HACK_CARGO_CONFIG = nixToToml cargoConfig;
 
   # TODO Is --offline necessary? Does it change the build in undesirable ways?
   buildPhase = ''
     runHook preBuild
-    cargo ${cargoBuildAction} -j $NIX_BUILD_CORES ${lib.optionalString offline "--offline --frozen"} \
-      ${lib.optionalString (!debug) "--release"} \
+    cargo build --offline --frozen \
+      ${lib.optionalString (release) "--release"} \
       --target ${stdenv.hostPlatform.config} \
-      ${lib.concatStringsSep " " cargoBuildFlags}
-    ${lib.optionalString doc ''
-      cargo doc -j $NIX_BUILD_CORES ${lib.optionalString offline "--offline --frozen"} \
-        ${lib.optionalString (!debug) "--release"} \
-        --target ${stdenv.hostPlatform.config} \
-        ${lib.concatStringsSep " " cargoDocFlags}
-    ''}
+      -j $NIX_BUILD_CORES
     runHook postBuild
   '';
 
   # TODO cargoBuildFlags
   checkPhase = ''
     runHook preCheck
-    cargo test ${lib.optionalString offline "--offline --frozen"} \
-      ${lib.concatStringsSep " " cargoBuildFlags}
+    cargo test --offline --frozen \
+      -j $NIX_BUILD_CORES 
     runHook postCheck
   '';
 
-  # TODO --out-dir
   installPhase = ''
     runHook preInstall
     lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\)'
-    find ${releaseDir} -maxdepth 1 -type f -executable -not -regex "$lib_re" | xargs -r install -D -t $out/bin
-    find ${releaseDir} -maxdepth 1                          -regex "$lib_re" | xargs -r install -D -t $out/lib
-    ${lib.optionalString doc ''
-      mkdir -p $out/share
-      mv target/${stdenv.hostPlatform.config}/doc $out/share
-    ''}
+    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 -type f -executable -not -regex "$lib_re" | xargs -r install -D -t $out/bin
+    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1                          -regex "$lib_re" | xargs -r install -D -t $out/lib
     runHook postInstall
   '';
-    # lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\|rlib\)'
 
-} // ccEnv // builtins.removeAttrs args [ "depsBuildBuild" "nativeBuildInputs" "extraCargoConfig" "debug" "doc" ])
+} // builtins.removeAttrs args [
+  "depsBuildBuild" "nativeBuildInputs"
+])

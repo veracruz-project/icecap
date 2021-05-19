@@ -9,5 +9,4 @@ buildRustPackageIncrementally rec {
   layers =  [ [] ];
 
   debug = true;
-  doCheck = false;
 }

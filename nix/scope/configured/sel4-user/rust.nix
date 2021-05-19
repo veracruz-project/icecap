@@ -1,13 +1,13 @@
 { lib
-, buildIceCapCrateBin, globalCrates
+, buildIceCapCrate, globalCrates
 , libs, liboutline
 }:
 
 let
-  mk = crateName: overrides: buildIceCapCrateBin {
+  mk = crateName: overrides: buildIceCapCrate {
     rootCrate = globalCrates.${crateName};
     debug = false;
-    extraLayers = [ [ "icecap-std" ] ];
+    layers = [ [ "icecap-sel4-sys" ] [ "icecap-std" ] ];
     extraManifest = {
       profile.release = {
         codegen-units = 1;
@@ -15,9 +15,11 @@ let
         lto = true;
       };
     };
-    buildInputs = with libs; [
-      liboutline
-    ] ++ (overrides.buildInputs or []);
+    extraArgs = {
+      buildInputs = with libs; [
+        liboutline
+      ] ++ (overrides.buildInputs or []);
+    };
   };
 
 in

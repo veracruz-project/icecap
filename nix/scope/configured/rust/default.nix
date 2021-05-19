@@ -1,4 +1,4 @@
-{ hostPlatform
+{ lib, hostPlatform
 , buildRustPackageIncrementally, crateUtils
 , mkGlobalCrates
 , stripElfSplit
@@ -22,34 +22,31 @@ self: with self; {
     release = true;
   };
 
-  buildIceCapCrate = { rootCrate, extraLayers ? [], thirdPartyCrates ? [], extraPassthru ? {}, requiresLibs ? [], ... }@args:
+  buildIceCapCrate = args:
     # TODO profile abort
-    buildRustPackageIncrementally ({
-      inherit callPackage;
-      extraCargoConfig = {
-        target.${hostPlatform.config}.rustflags = [ "--cfg=icecap_plat=\"${icecapPlat}\"" ];
-      };
+    lib.fix (self: buildRustPackageIncrementally ({
+      extraCargoConfig = crateUtils.clobber [
+        {
+          target.${hostPlatform.config}.rustflags = [ "--cfg=icecap_plat=\"${icecapPlat}\"" ];
+        }
+        (args.extraCargoConfig or {})
+      ];
       layers = with globalCrates; [
-        thirdPartyCrates
         [ icecap-sel4-sys ]
-      ] ++ extraLayers;
+      ];
       debug = false;
-      dontStrip = true;
-      dontPatchELF = true;
-      hardeningDisable = [ "all" ];
-      passthru = {
-        graph = {
-          "${crateUtils.kebabToCaml rootCrate.name}_rs" = [ "outline" ] ++ requiresLibs;
-        };
-      } // extraPassthru;
-    } // builtins.removeAttrs args [ "extraLayers" "thirdPartyCrates" "extraPassthru" "requiresLibs" ]);
-
-  buildIceCapCrateBin = { rootCrate, ... }@args:
-    let
-      self = buildIceCapCrate args;
-    in
-      self // {
-        split = stripElfSplit "${self}/bin/${rootCrate.name}.elf";
-      };
+      extraArgs = ({
+        dontStrip = true;
+        dontPatchELF = true;
+        hardeningDisable = [ "all" ];
+        passthru = {
+          split = stripElfSplit "${self}/bin/${args.rootCrate.name}.elf";
+        } // ((args.extraArgs or {}).passthru or {});
+      } // builtins.removeAttrs (args.extraArgs or {}) [
+        "passthru"
+      ]);
+    } // builtins.removeAttrs args [
+      "extraCargoConfig" "layers" "extraArgs"
+    ]));
 
 }
