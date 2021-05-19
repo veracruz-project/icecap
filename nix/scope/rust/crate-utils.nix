@@ -73,15 +73,6 @@ rec {
       inherit propagate buildScript;
     };
 
-  mkFromToml = { name, src, srcDummy ? null, phantomLocalDependencies ? [] }: {
-    type = "path";
-    inherit name srcDummy;
-    src = src.store;
-    srcLocal = src.env;
-    localDependencies = phantomLocalDependencies;
-    buildScript = null;
-  };
-
   dummySrcLib = linkFarm "dummy-src" [
     (rec {
       name = "lib.rs";
@@ -137,11 +128,14 @@ rec {
               ext = attrsOf queue.${head queueNames}.localDependencies;
             in
               go (seen // ext) (queue' // ext);
-    in root: go {} (attrsOf [ root ]);
+    in roots: go {} (attrsOf roots);
 
-  flatDepsWithRoot = rootCrate: flatDeps rootCrate // {
-    ${rootCrate.name} = rootCrate;
-  };
+  flatDepsWithRoot = rootCrate: flatDepsWithRoots  [ rootCrate ];
+
+  flatDepsWithRoots = roots: flatDeps roots // lib.listToAttrs (map (root: {
+    inherit (root) name;
+    value = root;
+  }) roots);
 
   collect = crates: linkFarm "crates" (map (crate: {
     name = crate.name;
