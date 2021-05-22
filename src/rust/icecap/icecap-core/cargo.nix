@@ -7,6 +7,8 @@ mk {
     icecap-runtime
     icecap-sync
     icecap-ring-buffer
+    icecap-rpc
+    icecap-rpc-sel4
     icecap-config
     icecap-backtrace
     icecap-failure
