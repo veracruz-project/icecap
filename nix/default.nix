@@ -7,7 +7,8 @@ let
 
   crossSystems = {
     dev = null;
-    linux.config = "aarch64-unknown-linux-gnu"; # TODO how much effort would s/-gnu/-musl take?
+    linux.config = "aarch64-unknown-linux-gnu";
+    musl.config = "aarch64-unknown-linux-musl";
     none = {
       config = "aarch64-none-elf"; # TODO or aarch64-unknown-none
       platform = {

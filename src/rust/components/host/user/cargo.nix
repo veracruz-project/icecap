@@ -8,5 +8,6 @@ mk {
   ];
   dependencies = {
     libc = "*";
+    cfg-if = "*";
   };
 }

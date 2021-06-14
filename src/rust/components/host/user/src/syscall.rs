@@ -1,11 +1,12 @@
 use std::fs::File;
 use std::os::unix::io::AsRawFd;
+use std::convert::TryInto;
 use icecap_resource_server_types::*;
 use icecap_rpc::*;
 
 const ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU: u64 = 1338;
 
-const ICECAP_VMM_PASSTHRU: u64 = 0xc0403300;
+const ICECAP_VMM_PASSTHRU: u32 = 0xc0403300;
 
 #[repr(C)]
 struct Passthru {
@@ -15,8 +16,18 @@ struct Passthru {
 
 fn ioctl_passthru(passthru: &mut Passthru) {
     let f = File::open("/sys/kernel/debug/icecap_vmm").unwrap();
+    let request = {
+        // HACK
+        cfg_if::cfg_if! {
+            if #[cfg(target_env = "gnu")] {
+                ICECAP_VMM_PASSTHRU as u64
+            } else if #[cfg(target_env = "musl")] {
+                ICECAP_VMM_PASSTHRU as i32
+            }
+        }
+    };
     let ret = unsafe {
-        libc::ioctl(f.as_raw_fd(), ICECAP_VMM_PASSTHRU, passthru as *mut Passthru)
+        libc::ioctl(f.as_raw_fd(), request, passthru as *mut Passthru)
     };
     assert_eq!(ret, 0);
 }
