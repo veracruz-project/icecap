@@ -10,12 +10,14 @@ buildRustPackageIncrementally rec {
 
   debug = true;
 
-  PKG_CONFIG_ALLOW_CROSS = 1;
+  extraArgs = {
+    PKG_CONFIG_ALLOW_CROSS = 1;
 
-  nativeBuildInputs = [ pkgconfig ];
-  buildInputs = [ dbus ];
+    nativeBuildInputs = [ pkgconfig ];
+    buildInputs = [ dbus ];
 
-  passthru = {
-    exe = rootCrate.name;
+    passthru = {
+      exe = rootCrate.name;
+    };
   };
 }

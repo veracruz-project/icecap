@@ -1,13 +1,14 @@
-let
-  top = import ../nix;
-  components = top.none.icecap.configured.virt.icecapFirmware.components;
+{ pkgs, configured }:
 
-  size = path: import (top.dev.runCommand "size.nix" {} ''
+let
+  components = configured.virt.icecapFirmware.components;
+
+  size = path: import (pkgs.dev.runCommand "size.nix" {} ''
     stat --format="%s" ${path} > $out
   '');
 
-  kb = bytes: import (top.dev.runCommand "size.nix" {
-    nativeBuildInputs = [ top.dev.python ];
+  kb = bytes: import (pkgs.dev.runCommand "size.nix" {
+    nativeBuildInputs = [ pkgs.dev.python ];
   } ''
     python -c 'print("\"{}K\"".format(${toString bytes} // 1024))' > $out
   '');

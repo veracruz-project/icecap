@@ -19,17 +19,6 @@ superCallPackage ./ocaml {} self //
   configure = icecapConfig: lib.makeScope newScope (callPackage ./configured {} icecapConfig);
 
   # HACK
-  configured = byIceCapPlat (plat: configure {
-    inherit plat;
-    profile = "icecap";
-  }) // {
-    sel4test = byIceCapPlat (plat: configure {
-      inherit plat;
-      profile = "sel4test";
-    });
-  };
-
-  # HACK
   runPkgs = buildPackages;
 
   # TODO name

@@ -5,8 +5,6 @@ self: super: with self;
 
   nixosLite = lib.makeScope newScope (callPackage ../nixos-lite {});
 
-  instances = icecap.callPackage ../instances {};
-
   inherit (callPackage ./lib.nix {}) makeSplicedScope makeSplicedScopeOf makeOverridable';
 
   # Global overrides

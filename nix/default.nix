@@ -47,7 +47,4 @@ let
   pkgs = makeOverridableWith lib.id mkPkgs baseArgs;
 
 in
-  pkgs // {
-    # HACK
-    inherit (pkgs.none) instances;
-  }
+import ./targets pkgs
