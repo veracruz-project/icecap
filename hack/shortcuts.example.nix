@@ -1,14 +1,14 @@
 let
-  topBase = import ./nix;
+  topBase = import ../.;
 
   top = topBase.override (args: args // {
     overlays = args.overlays ++ (
       let scratch = ./scratch/overlay.nix;
-      in with topBase.lib; optional (pathExists scratch) (import scratch)
+      in with topBase.pkgs.lib; optional (pathExists scratch) (import scratch)
     );
   });
 
-in top.none.lib.fix (self: top.none // top.none.icecap // top.none.instances // top // (with self; {
+in top.pkgs.none.lib.fix (self: top.pkgs.none // top.pkgs.none.icecap // top.instances // top.pkgs // top // (with self; {
   b = buildPackages;
   v = virt;
   r = rpi4;

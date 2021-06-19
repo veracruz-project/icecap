@@ -1,6 +1,5 @@
-/default.nix
 /config.nix
-/scratch
+/local
 /mnt
 /tmp
 

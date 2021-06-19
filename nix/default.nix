@@ -31,12 +31,14 @@ let
     overlays = [
       (import ./nix-linux/overlay.nix)
       (import ./overlay)
-      (self: super: lib.mapAttrs' (k: lib.nameValuePair "pkgs_${k}") pkgs)
+      (self: super: lib.mapAttrs' (k: lib.nameValuePair "pkgs_${k}") basePkgs) # HACK doesn't incorporate overrides
     ];
     config = {
       allowUnfree = true;
     };
   };
+
+  basePkgs = mkPkgs baseArgs;
 
   mkPkgs = args: lib.mapAttrs (_: crossSystem:
     import ../nixpkgs ({ inherit crossSystem; } // args)
@@ -44,7 +46,10 @@ let
     inherit lib;
   };
 
-  pkgs = makeOverridableWith lib.id mkPkgs baseArgs;
+  mkTargets = args: import ./targets (mkPkgs args);
+
+  targets = makeOverridableWith lib.id mkTargets baseArgs;
 
 in
-import ./targets pkgs
+  # TODO call this file from ./targets instead
+  targets

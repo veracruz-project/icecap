@@ -1,8 +1,10 @@
-alias n='nix-build -A'
-alias nn='nix-build --no-out-link -A'
-alias ne='nix-instantiate --eval . -A'
-alias nes='nix-instantiate --eval --strict . -A'
-alias r='./result/run'
+__icecap_shortcuts=./tmp/shortcuts.nix
+
+alias n="nix-build ${__icecap_shortcuts} -A"
+alias nn="nix-build --no-out-link ${__icecap_shortcuts} -A"
+alias ne="nix-instantiate --eval ${__icecap_shortcuts} -A"
+alias nes="nix-instantiate --eval --strict ${__icecap_shortcuts} -A"
+alias r="./result/run"
 
 k() {
     remote="$1"

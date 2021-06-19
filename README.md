@@ -22,32 +22,21 @@ out to project lead [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spin
 
 ## Quick Start
 
-The IceCap build system is based on [Nix](https://nixos.org/nix/). A Linux
-system with Nix [installed](https://nixos.org/download.html#nix-quick-install)
-is the only requirement for building and developing IceCap. If you encounter
-problems, please raise an issue or reach out to
+The easiest way to build and develop on IceCap is using Docker. If you
+encounter problems, please raise an issue or reach out to
 [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
 First, clone this respository and its submodules:
 
 ```bash
-$ git clone https://gitlab.com/arm-research/security/icecap/icecap
+$ git clone --recursive https://gitlab.com/arm-research/security/icecap/icecap
 $ cd icecap
-$ git submodule update --init
 ```
 
-Next, build Nix with bleeding edge features:
+Next, build, run, and enter a Docker container for development:
 
 ```bash
-$ pushd hack/nix
-$ nix-build
-$ popd
-```
-
-From now on, use the Nix binaries in `./hack/nix/result/bin`:
-
-```bash
-export PATH="$(pwd)/hack/nix/result/bin:$PATH"
+$ make -C docker run && make -C docker exec
 ```
 
 Note that the initial build of IceCap may take hours and will consume around
