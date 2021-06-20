@@ -7,9 +7,8 @@ RUN apt-get update && apt-get install -y \
     curl git man make \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -u $UID -g $GID -m -p deadbeef -s /bin/bash x
+RUN useradd -u $UID -g $GID -m -p x -s /bin/bash x
 USER x
-WORKDIR /home/x
 
 ENV PATH="/home/x/hack/nix/bin:/nix/env/bin:${PATH}"
 ENV MANPATH="/home/x/hack/nix/share/man:/nix/env/share/man:${MANPATH}"
@@ -20,4 +19,6 @@ ENV NIX_SSL_CERT_FILE=/nix/env/etc/ssl/certs/ca-bundle.crt
 ENV XDG_CACHE_HOME=/nix/cache
 
 COPY nix.conf /etc/nix/
-COPY setup.sh .
+COPY setup.sh /
+
+WORKDIR /icecap

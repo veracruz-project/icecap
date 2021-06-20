@@ -19,20 +19,20 @@ $(nix_root):
 	mkdir -p $@
 
 $(nix_root)/.installed: build $(nix_root)
-	docker run --privileged --rm --label $(label) \
+	docker run --privileged --rm --label $(label) -w /home/x \
 		--mount type=bind,src=$(abspath $(nix_root)),dst=/nix \
-		$(image_tag) flock /nix/.installed.lock bash setup.sh
+		$(image_tag) flock /nix/.installed.lock bash /setup.sh
 
 .PHONY:
 run: build $(nix_root)/.installed
-	docker run -d --privileged --name $(container_name) --label $(label) \
+	docker run --privileged -d --name $(container_name) --label $(label) \
 		--mount type=bind,src=$(abspath $(nix_root)),dst=/nix \
 		--mount type=bind,src=$(abspath $(icecap_root)),dst=/icecap \
 		$(image_tag) sleep inf
 
 .PHONY:
 exec:
-	docker exec -it -w /icecap $(container_name) bash
+	docker exec -it $(container_name) bash
 
 .PHONY:
 logs:
@@ -48,4 +48,7 @@ clean:
 
 .PHONY:
 deep-clean: clean
-	rm -rf $(nix_root)
+	if [ -d $(nix_root) ]; then \
+		chmod -R u+w $(nix_root); \
+		rm -rf $(nix_root); \
+	fi
