@@ -9,5 +9,3 @@ if [ ! -f /nix/.installed ]; then
     touch /nix/.installed
     echo "Done"
 fi
-
-sleep inf

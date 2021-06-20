@@ -20,5 +20,4 @@ ENV NIX_SSL_CERT_FILE=/nix/env/etc/ssl/certs/ca-bundle.crt
 ENV XDG_CACHE_HOME=/nix/cache
 
 COPY nix.conf /etc/nix/
-COPY entrypoint.sh .
-ENTRYPOINT ["bash", "entrypoint.sh"]
+COPY setup.sh .
