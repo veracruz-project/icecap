@@ -5,6 +5,7 @@ image_tag := icecap
 container_name := icecap
 
 uid := $(shell id -u)
+gid := $(shell id -g)
 
 .PHONY:
 all: run
@@ -14,7 +15,7 @@ $(nix_root):
 
 .PHONY:
 build:
-	docker build --build-arg UID=$(uid) -t $(image_tag) .
+	docker build --build-arg UID=$(uid) --build-arg GID=$(gid) -t $(image_tag) .
 
 .PHONY:
 run: build $(nix_root)

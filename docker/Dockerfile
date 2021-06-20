@@ -1,13 +1,13 @@
 FROM debian:buster
 
 ARG UID
+ARG GID
 
 RUN apt-get update && apt-get install -y \
-    curl git \
-    make \
+    curl git man make \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -u $UID -m -p deadbeef -s /bin/bash x
+RUN useradd -u $UID -g $GID -m -p deadbeef -s /bin/bash x
 USER x
 WORKDIR /home/x
 
