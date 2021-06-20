@@ -22,9 +22,9 @@ out to project lead [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spin
 
 ## Quick Start
 
-The easiest way to build and develop on IceCap is using Docker. If you
-encounter problems, please raise an issue or reach out to
-[Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
+The easiest way to start building and hacking on IceCap is using Docker. If you
+encounter problems, please raise an issue or reach out to [Nick Spinale
+&lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
 First, clone this respository and its submodules:
 
@@ -39,56 +39,35 @@ Next, build, run, and enter a Docker container for development:
 $ make -C docker run && make -C docker exec
 ```
 
-Note that the initial build of IceCap may take hours and will consume around
-20GB of disk space.
-
-Build a minimal seL4 "Hello, World!", and run it on QEMU:
-
-```bash
-$ nix-build nix/ -A instances.virt.demos.minimal-root.run # optional: -j$(nproc)
-$ ./result/run
-# 'ctrl-a x' quits QEMU
-```
-
-Build and run a demo where a host virtual machine spawns a confidential virtual
-machine called a realm, and then communicates with it via the virtual network:
+Finally, build and run a demo where a host virtual machine spawns a confidential
+virtual machine called a realm, and then communicates with it via the virtual
+network:
 
 ```bash
-$ nix-build nix/ -A instances.virt.demos.realm-vm.run # optional: -j$(nproc)
-$ ./result/run
+$(container) nix-build -A instances.virt.demos.realm-vm.run # optional: -j$(nproc)
+$(container) ./result/run
 # ... wait for the host VM to boot to a shell ...
-# Spawn a VM in a realm (this will take some time on QEMU):
-$(host) icecap-host file:/dev/rb_resource_server /spec.bin
+# Spawn a VM in a realm:
+$(host) icecap-host create 0 /spec.bin file:/dev/rb_resource_server
+$(host) icecap-host hack-run 0
 # ... wait for the realm VM to boot to a shell ...
 # Type '@?' for console multiplexer help.
 # The host VM uses virtual console 0, and the realm VM uses virtual console 1.
 # Switch to the realm VM virtual console by typing '@1'
 # Access the internet from within the real VM via the host VM:
 $(realm) curl http://example.com
-# 'ctrl-a x' quits QEMU
-```
-
-Build and run a demo where a host virtual machine runs alongside a simple
-MirageOS unikernel which acts as a TCP echo server, and then communicates with
-it via the virtual network:
-
-```bash
-$ nix-build nix/ -A instances.virt.demos.mirage.run # optional: -j$(nproc)
-$ ./result/run
-# ... wait for the host VM to boot to a shell ...
-# Interact with the MirageOS unikernel from inside the host VM:
-$(host) nc 192.168.1.2 8080
-# ... enter some characters followed by a new line...
+# Destroy the realm:
+$(host) icecap-host destroy 0
 # 'ctrl-a x' quits QEMU
 ```
 
 #### Raspberry Pi 4
 
-The following steps to run the MirageOS demo on the Raspberry Pi 4 expand on the
-instructions above, and can be adapted to any of the other demos.  Note that we
-have only tested on a Raspberry Pi 4 with 4GB of RAM. Some hard-coded physical
-address space constants would likely need to be changed to get IceCap running on
-a Raspberry Pi 4 with less than 4GB of RAM. Please reach out to [Nick Spinale
+The following steps to run the demo on the Raspberry Pi 4 expand on the
+instructions above.  Note that we have only tested on a Raspberry Pi 4 with 4GB
+of RAM. Some hard-coded physical address space constants would likely need to be
+changed to get IceCap running on a Raspberry Pi 4 with less than 4GB of RAM.
+Please reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
 work together to do so.
 
@@ -112,7 +91,7 @@ $ screen /dev/ttyUSB0 115200
 Build the demo and copy it to the boot partition of your SD card:
 
 ```bash
-$ nix-build nix/ -A instances.rpi4.demos.mirage.run
+$(container) nix-build -A instances.rpi4.demos.realm-vm.run
 $ ls -l ./result/boot/
 # ./result/boot and its subdirectories contain symlinks which are to be resolved
 # and copied to the boot partition of your SD card. For example:
