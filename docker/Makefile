@@ -1,10 +1,9 @@
-nix_root := ./nix-root
 icecap_root := ../
+nix_root := ./nix-root
 
+label := icecap
 image_tag := icecap
 container_name := icecap
-setup_container_name := $(container_name)_setup
-label := icecap
 
 uid := $(shell id -u)
 gid := $(shell id -g)
@@ -20,7 +19,7 @@ $(nix_root):
 	mkdir -p $@
 
 $(nix_root)/.installed: build $(nix_root)
-	docker run --privileged --rm  --label $(label) \
+	docker run --privileged --rm --label $(label) \
 		--mount type=bind,src=$(abspath $(nix_root)),dst=/nix \
 		$(image_tag) flock /nix/.installed.lock bash setup.sh
 
@@ -33,7 +32,7 @@ run: build $(nix_root)/.installed
 
 .PHONY:
 exec:
-	docker exec -it -w /icecap $(container_name) /bin/bash
+	docker exec -it -w /icecap $(container_name) bash
 
 .PHONY:
 logs:
@@ -44,8 +43,7 @@ logs:
 .PHONY:
 clean:
 	for id in $$(docker ps -aq -f "label=$(label)"); do \
-		docker kill $$id || true; \
-		docker rm $$id || true; \
+		docker rm -f $$id; \
 	done
 
 .PHONY:
