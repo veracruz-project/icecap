@@ -2,8 +2,8 @@ let
   system = builtins.currentSystem;
 
   src = builtins.fetchGit rec {
-    url = "https://gitlab.com/arm-research/security/icecap/nix.git";
-    ref = "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";
+    url = "https://github.com/NixOS/nix.git";
+    ref = "master";
     rev = "f4a9fb67da5bc55221be451556710dfacb39eda0";
   };
 
