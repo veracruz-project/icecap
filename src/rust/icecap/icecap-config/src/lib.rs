@@ -20,7 +20,7 @@ pub struct RingBufferSideConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RingBufferKicksConfig<T> {
     pub read: T,
-    pub write: T,    
+    pub write: T,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -38,7 +38,7 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   checkPhase = ''
     runHook preCheck
     cargo test --offline --frozen \
-      -j $NIX_BUILD_CORES 
+      -j $NIX_BUILD_CORES
     runHook postCheck
   '';
 
