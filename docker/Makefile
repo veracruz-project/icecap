@@ -52,3 +52,22 @@ deep-clean: clean
 		chmod -R u+w $(nix_root); \
 		rm -rf $(nix_root); \
 	fi
+
+
+stateful_image_tag := $(image_tag)_stateful
+stateful_container_name := $(container_name)_stateful
+stateful_dockerfile := Dockerfile.stateful
+
+.PHONY:
+build-stateful:
+	docker build --build-arg UID=$(uid) --build-arg GID=$(gid) --label $(label) -t $(stateful_image_tag) -f $(stateful_dockerfile) .
+
+.PHONY:
+run-stateful: build-stateful
+	docker run --privileged -d --name $(stateful_container_name) --label $(label) \
+		--mount type=bind,src=$(abspath $(icecap_root)),dst=/icecap \
+		$(stateful_image_tag) sleep inf
+
+.PHONY:
+exec-stateful:
+	docker exec -it $(stateful_container_name) bash
