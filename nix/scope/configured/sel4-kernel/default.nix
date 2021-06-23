@@ -157,19 +157,21 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
     mkdir -p $out/debug-aux/src
     cp -r kernel libsel4 $out/debug-aux/src
 
-    # HACK propagate config for other CMake-built components
-
-    $AR r $out/lib/libsel4_autoconf.a
+    # HACK export and propagate config in generic and CMake formats
 
     mkdir -p $out/sel4-config
-    sed -n '/^\([A-Za-z0-9][^:]*\):\([^=]*\)=\(.*\)$/p' CMakeCache.txt \
-      | (grep -e '$.^' ${lib.concatMapStringsSep " " (prefix: "-e ^${prefix}") configPrefixes} || true) \
+
+    sed -n 's,^\([A-Za-z0-9][^:]*\):\([^=]*\)=\(.*\)$,\1:\2=\3,p' CMakeCache.txt \
+      | grep -e '$.^' ${lib.concatMapStringsSep " " (prefix: "-e ^${prefix}") configPrefixes} \
       | sort \
-      | tee $out/sel4-config/kernel.txt \
-      | sed 's/^\([^:]*\):\([^=]*\)=\(.*\)$/set(\1 "\3" CACHE \2 "")/' \
+      > $out/sel4-config/kernel.txt
+
+    sed 's/^\([^:]*\):\([^=]*\)=\(.*\)$/set(\1 "\3" CACHE \2 "")/' $out/sel4-config/kernel.txt \
       > $out/sel4-config/kernel.cmake
 
     cat ${writeText "x" extraConfig} >> $out/sel4-config/kernel.cmake
+  
+    $AR r $out/lib/libsel4_autoconf.a
   '';
 
   passthru = {
