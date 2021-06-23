@@ -1,12 +1,13 @@
 FROM debian:buster
 
 ARG UID
+ARG GID
 
 RUN apt-get update && apt-get install -y \
     curl git man make \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -u $UID -m -p x -s /bin/bash x
+RUN groupadd -f -g $GID x && useradd -u $UID -g $GID -m -p x x
 USER x
 
 ENV PATH="/home/x/hack/nix/bin:/nix/env/bin:${PATH}"

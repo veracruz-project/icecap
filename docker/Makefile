@@ -13,13 +13,13 @@ all: run
 
 .PHONY:
 build:
-	docker build --build-arg UID=$(uid) --label $(label) -t $(image_tag) .
+	docker build --build-arg UID=$(uid) --build-arg GID=$(gid) --label $(label) -t $(image_tag) .
 
 $(nix_root):
-	mkdir -p $@
+	mkdir -p -m 0755 $@
 
 $(nix_root)/.installed: build $(nix_root)
-	docker run --privileged --label $(label) -w /home/x \
+	docker run --privileged --rm --label $(label) -w /home/x \
 		--mount type=bind,src=$(abspath $(nix_root)),dst=/nix \
 		$(image_tag) flock /nix/.installed.lock bash /setup.sh
 
