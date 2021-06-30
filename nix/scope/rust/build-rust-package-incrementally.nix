@@ -1,7 +1,7 @@
 { lib, hostPlatform, linkFarm
 , cargo, emptyDirectory, buildRustPackage, fetchCrates, nixToToml, generateLockfileInternal, crateUtils
 , strace
-, buildPackages, stdenv
+, buildPackages, stdenv, mkShell
 }:
 
 { rootCrate
@@ -108,7 +108,7 @@ let
   };
 
   commonArgsAfter = builtins.removeAttrs extraArgs [
-    "depsBuildBuild" "nativeBuildInputs"
+    "depsBuildBuild" "nativeBuildInputs" "passthru"
   ];
 
   f = accumulatedLayers: if length accumulatedLayers == 0 then emptyDirectory else
@@ -182,6 +182,32 @@ in let
     { name = "src"; path = srcLocal; }
     { name = "Cargo.lock"; path = lock; }
   ];
+
+  env = mkShell (commonArgsFor allCrates // {
+    shellHook = ''
+      invoke_cargo() {
+        cmd="$1"
+        shift
+        cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
+          --target ${hostPlatform.config} \
+          ${lib.optionalString (!debug) "--release"} \
+          -Z avoid-dev-deps \
+          --target-dir=target \
+          --manifest-path ${manifestDirLocal}/Cargo.toml \
+          "$@"
+      }
+
+      b() {
+        invoke_cargo build "$@"
+      }
+      t() {
+        invoke_cargo test "$@"
+      }
+      r() {
+        invoke_cargo run "$@"
+      }
+    '' + extraShellHook;
+  } // commonArgsAfter);
 
 in
 stdenv.mkDerivation (commonArgsFor allCrates // {
