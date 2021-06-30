@@ -8,11 +8,16 @@
 extern crate alloc;
 
 use icecap_std::prelude::*;
+use icecap_std::finite_set::Finite;
+use icecap_std::config::RingBufferKicksConfig;
 use icecap_resource_server_config::*;
 use icecap_resource_server_types::*;
 use icecap_resource_server_core::*;
 use icecap_timer_server_client::*;
 use icecap_rpc_sel4::*;
+
+use icecap_event_server_types::calls::Client as EventServerRequest;
+use icecap_event_server_types::events;
 
 mod realize_config;
 use realize_config::*;
@@ -24,9 +29,21 @@ fn main(config: Config) -> Fallible<()> {
     config.small_page.unmap()?;
     config.large_page.unmap()?;
 
+    let event_server_client = config.event_server_client;
+
     let host_ep_read = config.host_ep_read;
-    let mut host_rb = PacketRingBuffer::new(RingBuffer::realize(&config.host_rb));
-    let host_rb_wait = config.host_rb.wait;
+    let mut host_rb = PacketRingBuffer::new(RingBuffer::realize(&config.host_rb, RingBufferKicksConfig {
+        read: Box::new(move || {
+            RPCClient::<EventServerRequest>::new(event_server_client).call(&EventServerRequest::Signal {
+                index: events::ResourceServerOut::HostRingBuffer(events::RingBufferSide::Read).to_nat(),
+            })
+        }),
+        write: Box::new(move || {
+            RPCClient::<EventServerRequest>::new(event_server_client).call(&EventServerRequest::Signal {
+                index: events::ResourceServerOut::HostRingBuffer(events::RingBufferSide::Write).to_nat(),
+            })
+        }),
+    }));
     host_rb.enable_notify_read();
     host_rb.enable_notify_write();
 
