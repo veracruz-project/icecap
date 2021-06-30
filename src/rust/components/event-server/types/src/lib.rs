@@ -25,7 +25,7 @@ pub mod calls {
         Signal { index: OutIndex },
         SEV { nid: NodeIndex },
         Poll { nid: NodeIndex },
-        End { nid: NodeIndex, index: OutIndex },
+        End { nid: NodeIndex, index: InIndex },
         Configure { nid: NodeIndex, index: InIndex, action: ConfigureAction },
         Move { src_nid: NodeIndex, src_index: InIndex, dst_nid: NodeIndex, dst_index: InIndex },
     }
