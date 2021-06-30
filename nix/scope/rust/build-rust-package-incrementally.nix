@@ -210,3 +210,10 @@ stdenv.mkDerivation (commonArgsFor allCrates // {
     inherit allPropagate;
   };
 } // commonArgsAfter)
+
+    # echo '${
+    #   with lib;
+    #   concatMapStrings
+    #     (accLayer: concatStringsSep " " (map (x: x.name) accLayer))
+    #     allAccumulatedLayers
+    # }'

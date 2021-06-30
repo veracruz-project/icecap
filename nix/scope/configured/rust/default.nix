@@ -33,7 +33,7 @@ self: with self; {
       ];
       layers = with globalCrates; [
         [ icecap-sel4-sys ]
-      ];
+      ] ++ (args.extraLayers or []);
       debug = false;
       extraArgs = ({
         dontStrip = true;
@@ -46,7 +46,7 @@ self: with self; {
         "passthru"
       ]);
     } // builtins.removeAttrs args [
-      "extraCargoConfig" "layers" "extraArgs"
+      "extraCargoConfig" "extraLayers" "extraArgs"
     ]));
 
 }
