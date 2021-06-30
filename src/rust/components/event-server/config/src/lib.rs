@@ -31,15 +31,7 @@ pub struct IRQThreadConfig {
     pub thread: Thread,
     pub notification: Notification,
     pub irqs: Vec<usize>, // per bit
-    // pub irqs: Vec<IRQConfig>, // per bit
 }
-
-// #[derive(Debug, Clone, Serialize, Deserialize)]
-// pub struct IRQConfig {
-//     pub irq: usize,
-//     pub handler: IRQHandler,
-//     pub notifications: Vec<Notification>, // per node
-// }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ClientId {
