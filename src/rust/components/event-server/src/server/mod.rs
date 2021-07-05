@@ -36,7 +36,7 @@ pub struct EventServer {
     pub resource_server_subscriptions: Vec<SubscriptionEntry>,
     pub host_subscriptions: Vec<SubscriptionEntry>,
 
-    pub irq_events: Vec<Arc<RefCell<Event>>>,
+    pub irq_events: BTreeMap<usize, Arc<RefCell<Event>>>,
 }
 
 pub struct Client {
@@ -54,7 +54,6 @@ pub struct InSpace {
 
 pub struct InSpaceEntry {
     pub event: Arc<RefCell<Event>>,
-    pub irq: Option<EventIRQ>,
     pub enabled: bool,
     pub priority: usize,
     pub active: bool,
@@ -63,6 +62,7 @@ pub struct InSpaceEntry {
 
 pub struct Event {
     pub target: Option<EventTarget>,
+    pub irq: Option<EventIRQ>,
 }
 
 pub struct EventTarget {
@@ -96,6 +96,6 @@ pub struct InactiveRealm {
 
 pub struct IRQThread {
     pub notification: Notification,
-    pub events: Vec<usize>,
+    pub irqs: Vec<usize>,
     pub server: Arc<Mutex<EventServer>>,
 }

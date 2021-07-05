@@ -97,9 +97,14 @@ pub mod events {
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Finite)]
-    pub enum HostRingBuffer {
+    pub enum HostRingBufferIn {
         ResourceServer,
         SerialServer,
+        Realm(RealmId),
+    }
+
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    pub enum HostRingBufferOut {
         Realm(RealmId),
     }
 
@@ -107,28 +112,33 @@ pub mod events {
     pub enum HostIn {
         RealmEvent, // private
         SPI(SPI), // shared
-        RingBuffer(HostRingBuffer, RingBufferSide), // shared
+        RingBuffer(HostRingBufferIn, RingBufferSide), // shared
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum HostOut {
-        RingBuffer(HostRingBuffer, RingBufferSide),
+        RingBuffer(HostRingBufferOut, RingBufferSide),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Finite)]
-    pub enum RealmRingBuffer {
+    pub enum RealmRingBufferIn {
         Host,
         SerialServer,
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    pub enum RealmRingBufferOut {
+        Host,
+    }
+
+    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RealmIn {
-        RingBuffer(RealmRingBuffer, RingBufferSide),
+        RingBuffer(RealmRingBufferIn, RingBufferSide),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Finite)]
     pub enum RealmOut {
-        RingBuffer(RealmRingBuffer, RingBufferSide),
+        RingBuffer(RealmRingBufferOut, RingBufferSide),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Finite)]

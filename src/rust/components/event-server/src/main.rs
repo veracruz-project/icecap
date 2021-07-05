@@ -41,7 +41,7 @@ const BADGE_TYPE_CONTROL: Badge = 1;
 
 pub fn main(config: Config) -> Fallible<()> {
 
-    let (server, irq_events) = EventServerConfig {
+    let server = EventServerConfig {
         host_notifications: config.host_notifications,
         realm_notifications: config.realm_notifications,
         resource_server_subscriptions: config.resource_server_subscriptions,
@@ -53,7 +53,7 @@ pub fn main(config: Config) -> Fallible<()> {
         irq_thread_config.thread.start({
             let irq_thread = IRQThread {
                 notification: irq_thread_config.notification,
-                events: irq_thread_config.irqs.iter().map(|irq| *irq_events.get(&irq).unwrap()).collect(),
+                irqs: irq_thread_config.irqs.clone(),
                 server: server.clone(),
             };
             move || {
