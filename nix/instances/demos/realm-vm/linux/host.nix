@@ -84,8 +84,8 @@ in
       ln -s /mnt/spec.bin /spec.bin
     '';
 
+      # copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
     initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
       copy_bin_and_libs ${pkgs.strace}/bin/strace
       copy_bin_and_libs ${pkgs.iproute}/bin/ip
       copy_bin_and_libs ${pkgs.nftables}/bin/nft

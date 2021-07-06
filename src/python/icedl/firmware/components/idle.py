@@ -1,5 +1,5 @@
 from capdl import ObjectType
-from icedl.components.elf import ElfComponent
+from icedl.common import ElfComponent
 
 class Idle(ElfComponent):
 

@@ -8,13 +8,10 @@ use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub cnode: CNode,
-    pub reply_ep: Endpoint,
+    pub lock: Notification,
     pub dev_vaddr: usize,
-    pub ep_read: Endpoint,
-    pub ep_write: Endpoint,
+    pub irq_handlers: Vec<IRQHandler>,
     pub clients: Vec<Notification>,
-    pub irq_thread: Thread,
-    pub irq_nfn: Notification,
-    pub irq_handler: IRQHandler,
+    pub endpoints: Vec<Endpoint>,
+    pub secondary_threads: Vec<Thread>,
 }

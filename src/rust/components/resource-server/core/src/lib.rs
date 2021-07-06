@@ -73,12 +73,12 @@ pub struct ResourceServer {
 
     physical_nodes: [Option<(RealmId, VirtualNodeIndex)>; NUM_NODES],
 
-    resume_host: Box<dyn Fn(PhysicalNodeIndex, ResumeHostCondition)>,
+    resume_host: Box<dyn Fn(PhysicalNodeIndex, ResumeHostCondition) + Send>,
 
-    set_timeout: Box<dyn Fn(PhysicalNodeIndex, Nanoseconds)>,
-    cancel_timeout: Box<dyn Fn(PhysicalNodeIndex)>,
-    set_notify_host_event: Box<dyn Fn(PhysicalNodeIndex)>,
-    cancel_notify_host_event: Box<dyn Fn(PhysicalNodeIndex)>,
+    set_timeout: Box<dyn Fn(PhysicalNodeIndex, Nanoseconds) + Send>,
+    cancel_timeout: Box<dyn Fn(PhysicalNodeIndex) + Send>,
+    set_notify_host_event: Box<dyn Fn(PhysicalNodeIndex) + Send>,
+    cancel_notify_host_event: Box<dyn Fn(PhysicalNodeIndex) + Send>,
 }
 
 struct Realm {

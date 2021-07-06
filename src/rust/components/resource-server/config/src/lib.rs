@@ -11,6 +11,8 @@ use dyndl_types::ExternObj;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    pub lock: Notification,
+
     pub initialization_resources: ConfigRealmObjectInitializationResources,
     pub small_page: SmallPage,
     pub large_page: LargePage,
@@ -19,12 +21,17 @@ pub struct Config {
     pub untyped: Vec<DynamicUntyped>,
     pub externs: ConfigExterns,
 
-    pub host_ep_read: Endpoint,
-    pub host_rb: RingBufferConfig,
-    pub timer_ep_write: Endpoint,
-    pub timer_wait: Notification,
-    pub ctrl_ep_read: Endpoint,
+    pub host_bulk_region_start: usize,
+    pub host_bulk_region_size: usize,
 
+    pub local: Vec<Local>,
+    pub secondary_threads: Vec<Thread>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Local {
+    pub endpoint: Endpoint,
+    pub timer_server_client: Endpoint,
     pub event_server_client: Endpoint,
     pub event_server_control: Endpoint,
 }

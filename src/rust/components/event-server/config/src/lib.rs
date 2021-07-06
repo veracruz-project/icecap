@@ -13,17 +13,24 @@ use icecap_event_server_types::*;
 pub struct Config {
     pub lock: Notification,
 
-    pub ep: Endpoint,
-    pub client_badges: Vec<ClientId>,
-    pub resource_server_badge: Badge,
-    pub host_badge: Badge,
+    pub endpoints: Vec<Endpoint>,
+    pub secondary_threads: Vec<Thread>,
+
+    pub badges: Badges,
 
     pub host_notifications: Vec<Notification>,
     pub realm_notifications: Vec<Vec<Notification>>,
     pub resource_server_subscriptions: Vec<Notification>,
-    pub irqs: BTreeMap<usize, (IRQHandler, Vec<Notification>)>,
 
+    pub irqs: BTreeMap<usize, (IRQHandler, Vec<Notification>)>,
     pub irq_threads: Vec<IRQThreadConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Badges {
+    pub client_badges: Vec<ClientId>,
+    pub resource_server_badge: Badge,
+    pub host_badge: Badge,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

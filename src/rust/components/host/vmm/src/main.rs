@@ -15,6 +15,7 @@ use alloc::sync::Arc;
 use biterate::biterate;
 
 use icecap_std::prelude::*;
+use icecap_std::finite_set::Finite;
 use icecap_rpc_sel4::*;
 use icecap_host_vmm_config::*;
 use icecap_vmm::*;
@@ -22,64 +23,27 @@ use icecap_vmm::*;
 declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
-    let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
+    // let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
     // icecap_std::set_print(con);
 
-    let ep_writes: Arc<Vec<Endpoint>> = Arc::new(config.nodes.iter().map(|node| node.ep_write).collect());
+    let resource_server_ep = config.resource_server_ep;
+    let event_server_client_ep = config.event_server_client_ep;
+    let event_server_control_ep = config.event_server_control_ep;
 
-    let mut irq_handlers = BTreeMap::new();
-
-    for group in config.passthru_irqs {
-        for irq in &group.bits {
-            if let Some(irq) = irq {
-                irq.handler.ack().unwrap();
-                irq_handlers.insert(irq.irq, irq.handler);
-            }
-        }
-        group.thread.start({
-            let nfn = group.nfn;
-            let bits: Vec<Option<IRQ>> = group.bits.iter().map(|bit| bit.as_ref().map(|x| x.irq)).collect();
-            let ep_writes = Arc::clone(&ep_writes);
-            move || {
-                loop {
-                    let badge = nfn.wait();
-                    for i in biterate(badge) {
-                        let node = 0;
-                        let spi = bits[i as usize].unwrap();
-                        RPCClient::<usize>::new(ep_writes[node]).call::<()>(&spi);
-                    }
-                }
-            }
-        })
-    }
-
-    for group in config.virtual_irqs {
-        group.thread.start({
-            let nfn = group.nfn;
-            let bits = group.bits.clone();
-            let ep_writes = Arc::clone(&ep_writes);
-            move || {
-                loop {
-                    let badge = nfn.wait();
-                    for i in biterate(badge) {
-                        let node = 0; // TODO
-                        let spi = bits[i as usize].unwrap();
-                        RPCClient::<usize>::new(ep_writes[node]).call::<()>(&spi);
-                    }
-                }
-            }
-        })
-    }
-
-    let resource_server_ep_write = config.resource_server_ep_write;
+    let irq_map = IRQMap {
+        ppi: config.ppi_map.into_iter().map(|(ppi, in_index)| (ppi, in_index.to_nat())).collect(),
+        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid))| (spi, (in_index.to_nat(), nid))).collect(),
+    };
 
     VMMConfig {
         cnode: config.cnode,
         gic_lock: config.gic_lock,
         nodes_lock: config.nodes_lock,
-        irq_handlers: irq_handlers,
+        event_server_client_ep,
+        irq_map,
         gic_dist_paddr: config.gic_dist_paddr,
-        nodes: config.nodes.iter().map(|node| {
+        kicks: vec![], // TODO
+        nodes: config.nodes.iter().enumerate().map(|(i, node)| {
             VMMNodeConfig {
                 tcb: node.tcb,
                 vcpu: node.vcpu,
@@ -87,7 +51,8 @@ pub fn main(config: Config) -> Fallible<()> {
                 fault_reply_slot: node.fault_reply_slot,
                 thread: node.thread,
                 extension: Extension {
-                    resource_server_ep_write,
+                    resource_server_ep: resource_server_ep[i],
+                    event_server_control_ep: event_server_control_ep[i],
                 },
             }
         }).collect(),
@@ -95,7 +60,8 @@ pub fn main(config: Config) -> Fallible<()> {
 }
 
 struct Extension {
-    resource_server_ep_write: Endpoint,
+    resource_server_ep: Endpoint,
+    event_server_control_ep: Endpoint,
 }
 
 const SYS_RESOURCE_SERVER_PASSTHRU: Word = 1338;
@@ -131,7 +97,7 @@ impl Extension {
         let mut ctx = node.tcb.read_all_registers(false)?;
         let length = ctx.x0 as usize;
         let parameters = &[ctx.x1, ctx.x2, ctx.x3, ctx.x4, ctx.x5, ctx.x6][..length];
-        let recv_info = node.extension.resource_server_ep_write.call(proxy::up(parameters));
+        let recv_info = node.extension.resource_server_ep.call(proxy::up(parameters));
         let mut r = proxy::down(&recv_info);
         assert!(r.len() <= 6);
         ctx.x0 = r.len() as u64;

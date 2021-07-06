@@ -6,7 +6,7 @@ from elftools.elf.elffile import ELFFile
 from capdl import ObjectType, ELF, Cap
 
 from icedl.utils import PAGE_SIZE, BLOCK_SIZE, vaddr_at_block, align_up, mk_fill, as_list
-from icedl.components.base import BaseComponent
+from icedl.common.components.base import BaseComponent
 
 DEFAULT_STATIC_HEAP_SIZE = 4 * BLOCK_SIZE
 
@@ -195,15 +195,12 @@ class ElfComponent(BaseComponent):
         tx_badge = 2;
 
         return {
-            'wait': self.cspace().alloc(read.nfn, read=True),
             'read': {
-                'signal': self.cspace().alloc(write.nfn, write=True, badge=rx_badge),
                 'size': read.size,
                 'ctrl': self.map_region(read.ctrl, mapped, read=True, cached=cached),
                 'data': self.map_region(read.data, mapped, read=True, cached=cached),
                 },
             'write': {
-                'signal': self.cspace().alloc(write.nfn, write=True, badge=tx_badge),
                 'size': write.size,
                 'ctrl': self.map_region(write.ctrl, mapped, read=True, write=True, cached=cached),
                 'data': self.map_region(write.data, mapped, read=True, write=True, cached=cached),
@@ -216,7 +213,7 @@ class ElfComponent(BaseComponent):
     def grant_ring_buffer(self, objs, cached=True):
         return self.map_ring_buffer_with(objs, mapped=False, cached=cached)
 
-    def map_region(self, region, mapped, **perms):
+    def map_region(self, region, mapped=True, **perms):
         if mapped:
             self.skip(4096)
             self.align(1 << region[0][1]) # HACK

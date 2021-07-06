@@ -5,12 +5,14 @@ from collections import namedtuple
 
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.components.base import BaseComponent
-from icedl.components.elf import ElfComponent
+from icedl.common import BaseComponent
+from icedl.common import ElfComponent
 from icedl.utils import *
 
 REAL_VIRTUAL_TIMER_IRQ = 27
 VIRTUAL_TIMER_IRQ = 27
+
+HACK_PRIO = 101
 
 class Addrs:
 
@@ -78,7 +80,7 @@ class VM(BaseComponent):
     def set_chosen_default(self):
         return True
 
-    def __init__(self, composition, name, vmm_name, affinities, gic_vcpu_frame, is_host=False):
+    def __init__(self, composition, name, vmm_name, is_host=False):
         super().__init__(composition, name)
         self.kernel_fname = self.composition.register_file('{}_kernel.img'.format(self.name), self.config()['kernel'])
         if 'initrd' in self.config():
@@ -94,12 +96,13 @@ class VM(BaseComponent):
 
         self.map_passthru_devices()
 
-        self.addr_space().add_hack_page(self.addrs.gic_cpu_paddr, PAGE_SIZE, Cap(gic_vcpu_frame, read=True, write=True, cached=False))
+        self.addr_space().add_hack_page(self.addrs.gic_cpu_paddr, PAGE_SIZE, Cap(self.composition.gic_vcpu_frame(), read=True, write=True, cached=False))
 
         SPSR_EL1 = 0x5
 
         # Establish IPC buffers, TCBs, and vCPUs for each node in the list of affinities.
-        for (node_index, affinity) in enumerate(affinities):
+        for node_index in range(self.composition.num_nodes()):
+            affinity = node_index
             ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame_{}'.format(self.name, node_index), size=PAGE_SIZE)
             ipc_buffer_addr = vaddr_at_page(4, 0, 0, node_index)
             ipc_buffer_cap = Cap(ipc_buffer_frame, read=True, write=True)
@@ -123,7 +126,7 @@ class VM(BaseComponent):
             tcb.prio = 99
             tcb.max_prio = 0
             tcb.affinity = affinity
-            tcb.spsr = SPSR_EL1;
+            tcb.spsr = SPSR_EL1
 
             tcb.init.append(self.addrs.dtb_addr)
 
@@ -135,7 +138,7 @@ class VM(BaseComponent):
 
             self.nodes.append(VMNode(tcb=tcb, vcpu=vcpu, affinity=affinity))
 
-        self.vmm = self.composition.component(VMM, vmm_name, gic_vcpu_frame=gic_vcpu_frame, vm=self, is_host=is_host)
+        self.vmm = self.composition.component(VMM, vmm_name, vm=self, is_host=is_host)
 
     def device_tree(self):
         # TODO
@@ -212,18 +215,16 @@ class VM(BaseComponent):
         read = objs.read
         write = objs.write
 
-        rx_badge = 1;
-        tx_badge = 2;
+        rx_badge = 1
+        tx_badge = 2
 
         return {
             'read': {
-                'signal': self.cspace().alloc(write.nfn, write=True, badge=rx_badge),
                 'size': read.size,
                 'ctrl': self.map_region(read.ctrl, read=True),
                 'data': self.map_region(read.data, read=True),
                 },
             'write': {
-                'signal': self.cspace().alloc(write.nfn, write=True, badge=tx_badge),
                 'size': write.size,
                 'ctrl': self.map_region(write.ctrl, read=True, write=True),
                 'data': self.map_region(write.data, read=True, write=True),
@@ -247,33 +248,31 @@ class VM(BaseComponent):
             }
 
     def map_con(self, objs):
-        rx_badge = 1;
-        tx_badge = 2;
+        rx_badge = 1
+        tx_badge = 2
 
         irq = self.next_virq()
 
-        self.vmm._arg['virtual_irqs'].append({
-            'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True),
-            'thread': self.vmm.secondary_thread('virq_{}'.format(irq)).endpoint,
-            'bits': [irq, irq],
-            })
+        ring_buffer = self.map_ring_buffer(objs)
+        ring_buffer['read']['signal'] = 0
+        ring_buffer['write']['signal'] = 0
 
         self.devices.append({
             'Con': {
-                'ring_buffer': self.map_ring_buffer(objs),
+                'ring_buffer': ring_buffer,
                 'irq': irq - 32,
                 },
             })
 
     def map_net(self, objs):
-        rx_badge = 1;
-        tx_badge = 2;
+        rx_badge = 1
+        tx_badge = 2
 
         rx_irq = self.next_virq()
         tx_irq = self.next_virq()
 
         self.vmm._arg['virtual_irqs'].append({
-            'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True),
+            # 'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True), # XXX
             'thread': self.vmm.secondary_thread('virq_{}_{}'.format(rx_irq, tx_irq)).endpoint,
             'bits': [rx_irq, tx_irq],
             })
@@ -289,13 +288,13 @@ class VM(BaseComponent):
             })
 
     def map_rb(self, objs, id, name):
-        rx_badge = 1;
-        tx_badge = 2;
+        rx_badge = 1
+        tx_badge = 2
 
         irq = self.next_virq()
 
         self.vmm._arg['virtual_irqs'].append({
-            'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True),
+            # 'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True), # XXX
             'thread': self.vmm.secondary_thread('virq_{}'.format(irq)).endpoint,
             'bits': [irq, irq],
             })
@@ -312,16 +311,14 @@ class VM(BaseComponent):
 
 class VMM(ElfComponent):
 
-    def __init__(self, *args, gic_vcpu_frame, vm, is_host, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, vm, is_host, **kwargs):
+        super().__init__(*args, affinity=0, prio=HACK_PRIO, **kwargs)
         self.heap_size = 0x400000
-        self.gic_vcpu_frame = gic_vcpu_frame
         self.vm = vm
         self.is_host = is_host
 
         # The primary vmm thread will be associated with the 0th VM thread
         # managed by vm.tcb[0].
-        self.primary_thread.tcb.affinity = self.vm.nodes[0].affinity
         self.primary_thread.tcb.prio = 101 # TODO
 
         nodes = []
@@ -351,42 +348,22 @@ class VMM(ElfComponent):
                 'vcpu': self.cspace().alloc(node.vcpu, read=True, write=True, grant=True, grantreply=True),
                 'thread': thread,
                 'ep_read': self.cspace().alloc(ep, read=True),
-                'ep_write': self.cspace().alloc(ep, write=True, grantreply=True, badge=0),
                 'fault_reply_slot': self.cspace().alloc(None),
-                })
-
-        passthru_irqs = []
-
-        for i_group, group in enumerate(groups_of(48, self.vm.get_passthru_irqs())):
-            nfn = self.alloc(ObjectType.seL4_NotificationObject, 'vmm_irq_group_{}_nfn'.format(i_group))
-
-            @as_list
-            def x():
-                for i, (irq, trigger) in enumerate(group):
-                    badge = 1 << i
-                    cap = Cap(nfn, badge=badge, write=True, grant=True, grantreply=True)
-                    handler = self.cspace().alloc(
-                        self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=cap)
-                        )
-                    yield {
-                        'irq': irq,
-                        'handler': handler,
-                        }
-
-            passthru_irqs.append({
-                'nfn': self.cspace().alloc(nfn, read=True),
-                'thread': self.secondary_thread('irq_group_{}'.format(i_group)).endpoint,
-                'bits': x(),
                 })
 
         self._arg = {
             'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
             'gic_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='gic_lock'), read=True, write=True),
             'nodes_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='nodes_lock'), read=True, write=True),
-            'virtual_irqs': [],
-            'passthru_irqs': passthru_irqs,
             'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
             'nodes': nodes,
+
+            'event_server_client_ep': self.composition.event_server.register_client(self, 'Host'),
+            'event_server_control_ep': self.composition.event_server.register_control_host(self),
+            'resource_server_ep': list(self.composition.resource_server.register_host(self)),
+
+            'ppi_map': {},
+            'spi_map': {},
         }
 
     def serialize_arg(self):
@@ -396,14 +373,14 @@ class VMM(ElfComponent):
             return 'serialize-realm-vmm-config'
 
     def arg_json(self):
-        self._arg['con'] = self.connections['con']['MappedRingBuffer']
+        # self._arg['con'] = self.connections['con']['MappedRingBuffer']
         return self._arg
 
 
 class HostVM(VM):
 
-    def __init__(self, composition, name, vmm_name, affinities, gic_vcpu_frame):
-        super().__init__(composition, name, vmm_name, affinities, gic_vcpu_frame, is_host=True)
+    def __init__(self, composition, name, vmm_name):
+        super().__init__(composition, name, vmm_name, is_host=True)
 
     def get_addrs(self):
         return Addrs(self.composition.plat, is_host=True)
@@ -413,23 +390,6 @@ class HostVM(VM):
 
     def map_phys(self):
         return True
-
-    def get_passthru_irqs(self):
-        if self.composition.plat == 'virt':
-            edge_triggered = frozenset([78, 79])
-            no = frozenset()
-            whole = [78, 79]
-        elif self.composition.plat == 'rpi4':
-            edge_triggered = frozenset()
-            no = frozenset([96, 97, 98, 99, 125])
-            whole = range(32, 256)
-        for irq in whole:
-            if irq not in no:
-                if irq in edge_triggered:
-                    trigger = ARMIRQMode.seL4_ARM_IRQ_EDGE
-                else:
-                    trigger = ARMIRQMode.seL4_ARM_IRQ_LEVEL
-                yield irq, trigger
 
     def map_passthru_devices(self):
         def dev():

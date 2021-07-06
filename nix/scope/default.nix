@@ -141,6 +141,11 @@ superCallPackage ./ocaml {} self //
     type = "icecap_resource_server_config::Config";
     crate = outerGlobalCrates.icecap-resource-server-config;
   };
+  serialize-event-server-config = mkSerializeConfig {
+    name = "event-server";
+    type = "icecap_event_server_config::Config";
+    crate = outerGlobalCrates.icecap-event-server-config;
+  };
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};
   inherit (callPackage ./nix-utils/trivial-builders.nix {})

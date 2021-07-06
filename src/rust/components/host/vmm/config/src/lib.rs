@@ -3,22 +3,25 @@
 extern crate alloc;
 
 use alloc::vec::Vec;
+use alloc::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
 use icecap_config::*;
-
-pub type IRQ = usize;
+use icecap_event_server_types::events::HostIn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub con: UnmanagedRingBufferConfig,
+    // pub con: UnmanagedRingBufferConfig,
     pub cnode: CNode,
     pub gic_lock: Notification,
     pub nodes_lock: Notification,
-    pub virtual_irqs: Vec<IRQGroup<IRQ>>,
-    pub passthru_irqs: Vec<IRQGroup<PassthruIRQ>>,
     pub gic_dist_paddr: usize,
     pub nodes: Vec<Node>,
-    pub resource_server_ep_write: Endpoint,
+    pub event_server_client_ep: Vec<Endpoint>,
+    pub event_server_control_ep: Vec<Endpoint>,
+    pub resource_server_ep: Vec<Endpoint>,
+
+    pub ppi_map: BTreeMap<usize, HostIn>,
+    pub spi_map: BTreeMap<usize, (HostIn, usize)>, // in_index, nid
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -27,20 +30,5 @@ pub struct Node {
     pub vcpu: VCPU,
     pub thread: Thread,
     pub ep_read: Endpoint,
-    pub ep_write: Endpoint,
     pub fault_reply_slot: Endpoint,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct IRQGroup<T> {
-    pub nfn: Notification,
-    pub thread: Thread,
-    // always length 64, but serde doesn't provide instances for statically sized arrays of length > 32
-    pub bits: Vec<Option<T>>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PassthruIRQ {
-    pub irq: IRQ,
-    pub handler: IRQHandler,
 }

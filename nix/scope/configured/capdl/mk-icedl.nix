@@ -14,6 +14,7 @@
 , serialize-host-vmm-config
 , serialize-realm-vmm-config
 , serialize-resource-server-config
+, serialize-event-server-config
 
 , dyndl-serialize-spec
 }:
@@ -44,6 +45,7 @@ let
       serialize-host-vmm-config
       serialize-realm-vmm-config
       serialize-resource-server-config
+      serialize-event-server-config
 
       dyndl-serialize-spec
     ] ++ (with python3Packages; [
@@ -61,6 +63,9 @@ let
     shellHook = ''
       eval "$setup"
       export OUT_DIR=.
+      b() {
+        python3 -m x
+      }
     '';
   } ''
     eval "$setup"

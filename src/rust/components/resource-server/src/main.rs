@@ -1,13 +1,17 @@
 #![no_std]
 #![no_main]
 #![feature(format_args_nl)]
+#![feature(never_type)]
 #![allow(unused_variables)]
 #![allow(unused_imports)]
 
 #[macro_use]
 extern crate alloc;
 
-use icecap_std::prelude::*;
+use icecap_std::{
+    prelude::*,
+    sync::*,
+};
 use icecap_std::finite_set::Finite;
 use icecap_std::config::RingBufferKicksConfig;
 use icecap_resource_server_config::*;
@@ -22,33 +26,19 @@ use icecap_event_server_types::events;
 mod realize_config;
 use realize_config::*;
 
+use alloc::{
+    vec::Vec,
+    collections::BTreeMap,
+    rc::Rc,
+    sync::Arc,
+};
+
 declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
     // Unmap dummy pages in the ResourceServer CNode.
     config.small_page.unmap()?;
     config.large_page.unmap()?;
-
-    let event_server_client = config.event_server_client;
-
-    let host_ep_read = config.host_ep_read;
-    let mut host_rb = PacketRingBuffer::new(RingBuffer::realize(&config.host_rb, RingBufferKicksConfig {
-        read: Box::new(move || {
-            RPCClient::<EventServerRequest>::new(event_server_client).call(&EventServerRequest::Signal {
-                index: events::ResourceServerOut::HostRingBuffer(events::RingBufferSide::Read).to_nat(),
-            })
-        }),
-        write: Box::new(move || {
-            RPCClient::<EventServerRequest>::new(event_server_client).call(&EventServerRequest::Signal {
-                index: events::ResourceServerOut::HostRingBuffer(events::RingBufferSide::Write).to_nat(),
-            })
-        }),
-    }));
-    host_rb.enable_notify_read();
-    host_rb.enable_notify_write();
-
-    let timer = TimerClient::new(config.timer_ep_write);
-    let ctrl_ep_read = config.ctrl_ep_read;
 
     let cregion = realize_cregion(&config.allocator_cregion);
     let allocator = {
@@ -68,52 +58,54 @@ fn main(config: Config) -> Fallible<()> {
     let initialization_resources = realize_initialization_resources(&config.initialization_resources);
     let externs = realize_externs(&config.externs);
 
-    let mut resource_server = ResourceServer::new(initialization_resources, allocator, externs);
+    let server = ResourceServer::new(initialization_resources, allocator, externs);
+    let server = Arc::new(Mutex::new(ExplicitMutexNotification::new(config.lock), server));
 
-    let err = |err| format_err!("failed to parse packet: {}", err);
+    for (local, thread) in config.local.iter().skip(1).zip(&config.secondary_threads) {
+        thread.start({
+            let server = server.clone();
+            let local = local.clone();
+            move || {
+                run(&server, &local).unwrap()
+            }
+        })
+    }
 
-    let mut state: Option<Message> = None;
+    run(&server, &config.local[0])?;
+    
+    Ok(())
+}
+
+fn run(server: &Mutex<ResourceServer>, local: &Local) -> Fallible<!> {
+
+    let event_server_client = local.event_server_client;
+    let endpoint = local.endpoint;
+    let timer = TimerClient::new(local.timer_server_client);
 
     loop {
-        let (info, badge) = host_ep_read.recv();
+        let (info, badge) = endpoint.recv();
 
-        let mut notify = false;
-        loop {
-            if let Some(packet) = host_rb.read() {
-                notify = true;
-                match state {
-                    None => {
-                        state = Some(Message::parse(&packet).map_err(err)?);
-                    }
-                    Some(message) => {
-                        state = None;
-                        match message {
-                            Message::SpecChunk { realm_id, offset } => {
-                                resource_server.incorporate_spec_chunk(realm_id, offset, &packet)?;
-                            }
-                            Message::FillChunk { realm_id, .. } => {
-                                todo!()
-                            }
-                        }
-                    }
-                }
-            } else {
-                break
-            }
-        }
-        if notify {
-            host_rb.notify_read();
-        }
+        {
+            let mut resource_server = server.lock();
 
-        if badge == 0 {
-            match rpc_server::recv(&info) {
-                Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
-                Request::Realize { realm_id } => rpc_server::reply::<()>(&resource_server.realize(realm_id)?),
-                Request::Destroy { realm_id } => rpc_server::reply::<()>(&resource_server.destroy(realm_id)?),
-                Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
-                    todo!();
+            if badge == 0 {
+                match rpc_server::recv(&info) {
+                    Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
+                    Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset } => {
+                        todo!()
+                        // resource_server.incorporate_spec_chunk(realm_id, offset, &packet)?;
+                    },
+                    Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset } => {
+                        todo!()
+                    },
+                    Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
+                    Request::Realize { realm_id } => rpc_server::reply::<()>(&resource_server.realize(realm_id)?),
+                    Request::Destroy { realm_id } => rpc_server::reply::<()>(&resource_server.destroy(realm_id)?),
+                    Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
+                        todo!();
+                    }
+                    Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
                 }
-                Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
             }
         }
     }

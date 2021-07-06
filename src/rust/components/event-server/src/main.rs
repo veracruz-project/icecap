@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(drain_filter)]
 #![feature(format_args_nl)]
+#![feature(never_type)]
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
@@ -62,15 +63,34 @@ pub fn main(config: Config) -> Fallible<()> {
         })
     }
 
+    let badges = Arc::new(config.badges);
+
+    for (endpoint, thread) in config.endpoints.iter().skip(1).zip(&config.secondary_threads) {
+        thread.start({
+            let server = server.clone();
+            let badges = badges.clone();
+            let endpoint = *endpoint;
+            move || {
+                run(&server, endpoint, &badges).unwrap()
+            }
+        })
+    }
+
+    run(&server, config.endpoints[0], &badges)?;
+    
+    Ok(())
+}
+
+fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fallible<!> {
     loop {
-        let (info, badge) = config.ep.recv();
+        let (info, badge) = endpoint.recv();
         let badge_type = badge >> 11;
         let badge_value = badge & !BADGE_TYPE_MASK;
         match badge_type {
             BADGE_TYPE_CLIENT => {
                 let req = rpc_server::recv::<calls::Client>(&info);
                 let mut server = server.lock();
-                let client = match config.client_badges[badge_value as usize] {
+                let client = match badges.client_badges[badge_value as usize] {
                     ClientId::ResourceServer => {
                         &mut server.resource_server
                     }
@@ -106,7 +126,7 @@ pub fn main(config: Config) -> Fallible<()> {
                 }
             }
             BADGE_TYPE_CONTROL => {
-                if badge_value == config.resource_server_badge {
+                if badge_value == badges.resource_server_badge {
                     let req = rpc_server::recv::<calls::ResourceServer>(&info);
                     let mut server = server.lock();
                     match req {
@@ -120,7 +140,7 @@ pub fn main(config: Config) -> Fallible<()> {
                             rpc_server::reply(&server.destroy_realm(realm_id)?)
                         }
                     }
-                } else if badge_value == config.host_badge {
+                } else if badge_value == badges.host_badge {
                     let req = rpc_server::recv::<calls::Host>(&info);
                     let mut server = server.lock();
                     match req {

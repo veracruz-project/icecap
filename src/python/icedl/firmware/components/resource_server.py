@@ -1,14 +1,15 @@
 from pathlib import Path
 from capdl import ObjectType, Cap
-from icedl.components.elf import ElfComponent
+from icedl.common import ElfComponent
 from icedl.utils import BLOCK_SIZE, PAGE_SIZE
 
-HACK_AFFINITY = 2 # HACK
+HACK_TIMER_BADGE = 0x100 # HACK
+HACK_HOST_BULK_REGION_SIZE = 2**21
 
 class ResourceServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, affinity=HACK_AFFINITY, max_prio=255, update_guard_size=False, **kwargs)
+        super().__init__(*args, affinity=0, update_guard_size=False, **kwargs)
 
         # HACK
         root_cnode_size_bits = 14
@@ -46,7 +47,42 @@ class ResourceServer(ElfComponent):
         large_frame = self.cspace().alloc(large_frame_obj)
         self.addr_space().add_hack_page(large_frame_addr, BLOCK_SIZE, Cap(large_frame_obj, read=True, write=True))
 
+        self.endpoints = [
+            self.alloc(ObjectType.seL4_EndpointObject, 'ep_{}'.format(i))
+            for i in range(self.composition.num_nodes())
+            ]
+        self.bound_notifications = [
+            self.alloc(ObjectType.seL4_NotificationObject, 'nfn_{}'.format(i))
+            for i in range(self.composition.num_nodes())
+            ]
+
+        event_server_client = self.composition.event_server.register_client(self, 'ResourceServer')
+        event_server_control = self.composition.event_server.register_control_resource_server(self)
+
+        local = []
+        secondary_threads = []
+        for i in range(self.composition.num_nodes()):
+            if i != 0:
+                thread = self.secondary_thread('secondary_thread_{}'.format(i), prio=self.primary_thread.tcb.prio)
+                secondary_threads.append(thread.endpoint)
+            else:
+                thread = self.primary_thread
+
+            thread.tcb['bound_notification'] = Cap(self.bound_notifications[i], read=True)
+
+            local.append({
+                'endpoint': self.cspace().alloc(self.endpoints[i], read=True),
+                'timer_server_client': self.composition.timer_server.connect(self, i, self.bound_notifications[i], HACK_TIMER_BADGE),
+                'event_server_client': event_server_client[i],
+                'event_server_control': event_server_control[i],
+                })
+
+        self.host_bulk_region_size = HACK_HOST_BULK_REGION_SIZE
+        self.host_bulk_region_frames = list(self.composition.alloc_region('host_bulk_region', self.host_bulk_region_size))
+
         self._arg = {
+            'lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='lock'), read=True, write=True),
+
             'initialization_resources': {
                 'pgd': self.cspace().alloc(self.pd(), write=True),
                 'asid_pool': self.cspace().alloc(self.alloc(ObjectType.seL4_ASID_Pool, 'asid_pool_{}'.format(self.name))),
@@ -73,13 +109,13 @@ class ResourceServer(ElfComponent):
                     'cptr': self.cspace().alloc(ctrl_ep, write=True, grantreply=True),
                     },
                 },
-            'host_ep_read': self.cspace().alloc(self.host_ep, read=True),
-            'ctrl_ep_read': self.cspace().alloc(ctrl_ep, read=True),
-            }
 
-    def map_host(self, objs):
-        self._arg['host_rb'] = self.map_ring_buffer(objs)
-        self.primary_thread.tcb['bound_notification'] = Cap(objs.read.nfn, read=True)
+            'host_bulk_region_start': self.map_region(self.host_bulk_region_frames, read=True),
+            'host_bulk_region_size': self.host_bulk_region_size,
+
+            'local': local,
+            'secondary_threads': secondary_threads,
+            }
 
     def add_extern(self, ident, ty, cptr):
         self._arg['externs'][ident] = {
@@ -100,9 +136,6 @@ class ResourceServer(ElfComponent):
                 ty = 'LargePage'
             add(frame, ty, *segs, **cap_kwargs)
 
-        add(objs.read.nfn, 'Notification', 'read', 'nfn', read=True)
-        add(objs.write.nfn, 'Notification', 'write', 'nfn', write=True)
-
         for i, obj in enumerate(objs.read.ctrl):
             add_frame(obj, 'read', 'ctrl', i, read=True)
         for i, obj in enumerate(objs.write.ctrl):
@@ -112,10 +145,12 @@ class ResourceServer(ElfComponent):
         for i, obj in enumerate(objs.write.data):
             add_frame(obj, 'write', 'data', i, read=True, write=True)
 
+    def register_host(self, host):
+        for ep in self.endpoints:
+            yield host.cspace().alloc(ep, badge=0, write=True, grantreply=True)
+
     def serialize_arg(self):
         return 'serialize-resource-server-config'
 
     def arg_json(self):
-        self._arg['timer_ep_write'] = self.connections['timer']['TimerClient']['ep_write']
-        self._arg['timer_wait'] = self.connections['timer']['TimerClient']['wait']
         return self._arg

@@ -48,20 +48,20 @@ pub const NUM_REALMS: usize = 10;
 pub mod events {
     use super::*;
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmRingBufferId {
         Net,
         Con,
         Channel,
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RingBufferSide {
         Read,
         Write,
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
     pub struct RealmId(pub usize);
 
     impl Finite for RealmId {
@@ -76,7 +76,7 @@ pub mod events {
         }
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
     pub struct SPI(pub usize);
 
     impl SPI {
@@ -96,63 +96,63 @@ pub mod events {
         }
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostRingBufferIn {
         ResourceServer,
         SerialServer,
         Realm(RealmId),
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostRingBufferOut {
         Realm(RealmId),
     }
 
-    #[derive(Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostIn {
         RealmEvent, // private
         SPI(SPI), // shared
         RingBuffer(HostRingBufferIn, RingBufferSide), // shared
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostOut {
         RingBuffer(HostRingBufferOut, RingBufferSide),
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmRingBufferIn {
         Host,
         SerialServer,
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmRingBufferOut {
         Host,
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmIn {
         RingBuffer(RealmRingBufferIn, RingBufferSide),
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmOut {
         RingBuffer(RealmRingBufferOut, RingBufferSide),
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum SerialServerRingBuffer {
         Host,
         Realm(RealmId),
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum SerialServerOut {
         RingBuffer(SerialServerRingBuffer, RingBufferSide),
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Finite)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum ResourceServerOut {
         HostRingBuffer(RingBufferSide),
     }

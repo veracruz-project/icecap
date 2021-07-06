@@ -1,11 +1,10 @@
 from capdl import ObjectType
-from icedl.components.elf import ElfComponent
+from icedl.common.components.elf import ElfComponent
 
 class FaultHandler(ElfComponent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.primary_thread.tcb.affinity = 1
         self.ep = self.alloc(ObjectType.seL4_EndpointObject, name='{}_ep'.format(self.name))
         self.ep_slot = self.cspace().alloc(self.ep, read=True)
         self.cur_badge = 16

@@ -78,6 +78,11 @@ impl<T: GICCallbacks> GIC<T> {
         }
     }
 
+    // HACK?
+    pub fn callbacks(&self) -> &T {
+        &self.callbacks
+    }
+
     /// Handles externally-generated PPIs and SPIs.
     /// SGIs are handled within the GIC and are initiated by writes to the GIC Distributor.
     pub fn handle_irq(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {

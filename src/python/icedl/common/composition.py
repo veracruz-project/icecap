@@ -1,8 +1,11 @@
+import os
+import json
+import yaml
 import shutil
 from collections import namedtuple
 from pathlib import Path
 
-from capdl import ObjectType, ObjectAllocator, CSpaceAllocator, AddressSpaceAllocator, lookup_architecture
+from capdl import ObjectType, ObjectAllocator, CSpaceAllocator, AddressSpaceAllocator, lookup_architecture, register_object_sizes
 from capdl.Allocator import RenderState, Cap, ASIDTableAllocator, BestFitAllocator, RenderState
 
 from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
@@ -10,9 +13,18 @@ from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PA
 ARCH = 'aarch64'
 
 RingBufferObjects = namedtuple('RingBufferObjects', 'read write')
-RingBufferSideObjects = namedtuple('RingBufferSideObjects', 'nfn size ctrl data')
+RingBufferSideObjects = namedtuple('RingBufferSideObjects', 'size ctrl data')
 
 class Composition:
+
+    @classmethod
+    def from_env(cls):
+        with open(os.environ['CONFIG']) as f:
+            config = json.load(f)
+        with open(config['object_sizes']) as f:
+            object_sizes = yaml.load(f, Loader=yaml.FullLoader)
+        register_object_sizes(object_sizes)
+        return cls(out_dir=os.environ['OUT_DIR'], config=config)
 
     def __init__(self, out_dir, config):
         self.arch = lookup_architecture(ARCH)
@@ -26,6 +38,8 @@ class Composition:
 
         self.components = set()
         self.files = {}
+
+        self._gic_vcpu_frame = None # allocate lazily
 
     def register_component(self, component):
         self.components.add(component)
@@ -93,12 +107,12 @@ class Composition:
 
         ctrl_size_bits = 12
 
-        @as_(RingBufferSideObjects)
         def mk(x_name, y_name, x_size_bits):
-            yield self.alloc(ObjectType.seL4_NotificationObject, 'ring_buffer_signal_{}_to_{}'.format(x_name, y_name))
-            yield 1 << x_size_bits
-            yield tuple(self.alloc_region('ring_buffer_ctrl_{}_to_{}'.format(x_name, y_name), 1 << ctrl_size_bits))
-            yield tuple(self.alloc_region('ring_buffer_data_{}_to_{}'.format(x_name, y_name), 1 << x_size_bits))
+            return RingBufferSideObjects(
+                size=1 << x_size_bits,
+                ctrl=tuple(self.alloc_region('ring_buffer_ctrl_{}_to_{}'.format(x_name, y_name), 1 << ctrl_size_bits)),
+                data=tuple(self.alloc_region('ring_buffer_data_{}_to_{}'.format(x_name, y_name), 1 << x_size_bits)),
+            )
 
         a_to_b = mk(a_name, b_name, a_size_bits)
         b_to_a = mk(b_name, a_name, b_size_bits)
@@ -111,7 +125,7 @@ class Composition:
         b_objs = RingBufferObjects(write=b_to_a, read=a_to_b)
         return a_objs, b_objs
 
-    def gic_vcpu_frame(self):
+    def create_gic_vcpu_frame(self):
         if self.plat == 'virt':
             GIC_PADDR = 0x8000000
             GIC_VCPU_PADDR = GIC_PADDR + 0x40000
@@ -119,6 +133,11 @@ class Composition:
             GIC_VCPU_PADDR = 0xff846000
         frame = self.alloc(ObjectType.seL4_FrameObject, name='gic_vcpu', paddr=GIC_VCPU_PADDR, size=4096)
         return frame
+
+    def gic_vcpu_frame(self):
+        if self._gic_vcpu_frame is None:
+            self._gic_vcpu_frame = self.create_gic_vcpu_frame()
+        return self._gic_vcpu_frame
 
     # extern
 
@@ -143,13 +162,11 @@ class Composition:
         return RingBufferObjects(
             read=RingBufferSideObjects(
                 size=data_size,
-                nfn=self.extern(ObjectType.seL4_NotificationObject, '{}_read_nfn'.format(tag)),
                 ctrl=self.extern_region('{}_read_ctrl'.format(tag), PAGE_SIZE_BITS, ctrl_size),
                 data=self.extern_region('{}_read_data'.format(tag), frame_size_bits, data_size),
                 ),
             write=RingBufferSideObjects(
                 size=data_size,
-                nfn=self.extern(ObjectType.seL4_NotificationObject, '{}_write_nfn'.format(tag)),
                 ctrl=self.extern_region('{}_write_ctrl'.format(tag), PAGE_SIZE_BITS, ctrl_size),
                 data=self.extern_region('{}_write_data'.format(tag), frame_size_bits, data_size),
                 ),

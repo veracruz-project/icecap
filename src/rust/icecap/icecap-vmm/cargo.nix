@@ -10,6 +10,7 @@ mk {
     icecap-core
     icecap-rpc-sel4
     icecap-vmm-gic
+    icecap-event-server-types
   ];
   dependencies = {
     log = "*";
