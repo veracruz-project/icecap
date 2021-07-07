@@ -1,7 +1,5 @@
-{ lib, hostPlatform, linkFarm
-, cargo, emptyDirectory, buildRustPackage, fetchCrates, nixToToml, generateLockfileInternal, crateUtils
-, strace
-, buildPackages, stdenv, mkShell
+{ lib, hostPlatform, buildPlatform, linkFarm, buildPackages, stdenv, mkShell
+, cargo, rustc, emptyDirectory, fetchCrates, nixToToml, generateLockfileInternal, crateUtils
 }:
 
 { rootCrate
@@ -100,7 +98,7 @@ let
   baseCommonArgs = crateUtils.baseEnv // {
     name = rootCrate.name;
     depsBuildBuild = [ buildPackages.stdenv.cc ] ++ (extraArgs.depsBuildBuild or []);
-    nativeBuildInputs = [ cargo ] ++ (extraArgs.nativeBuildInputs or []);
+    nativeBuildInputs = [ cargo rustc /* rustc for rustdoc */ ] ++ (extraArgs.nativeBuildInputs or []);
   };
 
   commonArgsFor = layer: baseCommonArgs // {
@@ -183,6 +181,30 @@ in let
     { name = "Cargo.lock"; path = lock; }
   ];
 
+  doc = stdenv.mkDerivation (commonArgsFor allCrates // {
+    phases = [ "buildPhase" "installPhase" ];
+
+    buildPhase = ''
+      cp -r --preserve=timestamps ${lastLayer} target
+      chmod -R +w target
+
+      cargo doc -j $NIX_BUILD_CORES --offline --frozen \
+        --target ${hostPlatform.config} \
+        ${lib.optionalString (!debug) "--release"} \
+        -Z avoid-dev-deps \
+        --target-dir=target \
+        --manifest-path ${manifestDir}/Cargo.toml
+    '';
+
+    installPhase = ''
+      mkdir $out
+      d=target/doc
+      [ -d $d ] && mv $d $out/${buildPlatform.config}
+      d=target/${hostPlatform.config}/doc
+      [ -d $d ] && mv $d $out/${hostPlatform.config}
+    '';
+  } // commonArgsAfter);
+
   env = mkShell (commonArgsFor allCrates // {
     shellHook = ''
       invoke_cargo() {
@@ -232,7 +254,7 @@ stdenv.mkDerivation (commonArgsFor allCrates // {
   '';
 
   passthru = (extraArgs.passthru or {}) // {
-    inherit lastLayer env src workspace lock;
+    inherit lastLayer env doc src workspace lock;
     inherit allPropagate;
   };
 } // commonArgsAfter)
