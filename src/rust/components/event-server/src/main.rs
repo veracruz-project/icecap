@@ -90,7 +90,8 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
             BADGE_TYPE_CLIENT => {
                 let req = rpc_server::recv::<calls::Client>(&info);
                 let mut server = server.lock();
-                let client = match badges.client_badges[badge_value as usize] {
+                let client_badge = &badges.client_badges[badge_value as usize];
+                let client = match client_badge {
                     ClientId::ResourceServer => {
                         &mut server.resource_server
                     }
@@ -104,6 +105,7 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                         server.realms.get_mut(&rid).unwrap()
                     }
                 };
+                // debug_println!("event-server: {:?} sent {:?}", client_badge, req);
                 match req {
                     calls::Client::Signal { index } => {
                         rpc_server::reply(&client.signal(index)?)

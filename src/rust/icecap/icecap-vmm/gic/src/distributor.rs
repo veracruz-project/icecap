@@ -228,6 +228,7 @@ impl Distributor {
         match val {
             VMFaultData::Word(val) => {
                 let reg = GICDistRegWord::from_offset(offset);
+                // debug_println!("gic write {:?}: {}", reg, val);
                 match reg {
                     GICDistRegWord::GICD_CTLR => {
                         // Set or clear the control register.

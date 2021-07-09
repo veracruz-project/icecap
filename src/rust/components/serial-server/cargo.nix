@@ -1,4 +1,4 @@
-{ mkBin, localCrates }:
+{ mkBin, localCrates, serdeMin }:
 
 mkBin {
   name = "serial-server";
@@ -10,5 +10,6 @@ mkBin {
   ];
   dependencies = {
     register = "*";
+    serde = serdeMin;
   };
 }

@@ -73,23 +73,23 @@ impl EventServerConfig {
 
         for (out_index, event) in resource_server.out_space.iter().enumerate() {
             match events::ResourceServerOut::from_nat(out_index) {
-                events::ResourceServerOut::HostRingBuffer(side) =>
+                events::ResourceServerOut::HostRingBuffer =>
                     Event::connect(
                         event,
                         &host.in_spaces[PRIMARY_HOST_NODE],
-                        events::HostIn::RingBuffer(events::HostRingBufferIn::ResourceServer, side).to_nat(), // TODO opposite side?
+                        events::HostIn::RingBuffer(events::HostRingBufferIn::ResourceServer).to_nat(),
                     ),
             }
         }
 
         for (out_index, event) in serial_server.out_space.iter().enumerate() {
             match events::SerialServerOut::from_nat(out_index) {
-                events::SerialServerOut::RingBuffer(ring_buffer, side) => match ring_buffer {
+                events::SerialServerOut::RingBuffer(ring_buffer) => match ring_buffer {
                     events::SerialServerRingBuffer::Host =>
                         Event::connect(
                             event,
                             &host.in_spaces[PRIMARY_HOST_NODE],
-                            events::HostIn::RingBuffer(events::HostRingBufferIn::SerialServer, side).to_nat(), // TODO opposite side?
+                            events::HostIn::RingBuffer(events::HostRingBufferIn::SerialServer).to_nat(),
                         ),
                     events::SerialServerRingBuffer::Realm(realm_id) =>
                         (),
@@ -99,7 +99,7 @@ impl EventServerConfig {
 
         for (out_index, event) in host.out_space.iter().enumerate() {
             match events::HostOut::from_nat(out_index) {
-                events::HostOut::RingBuffer(ring_buffer, side) => match ring_buffer {
+                events::HostOut::RingBuffer(ring_buffer) => match ring_buffer {
                     events::HostRingBufferOut::Realm(realm_id) =>
                         (),
                 }
@@ -109,12 +109,12 @@ impl EventServerConfig {
         for (realm_id, inactive_realm) in inactive_realms.iter() {
             for (out_index, event) in inactive_realm.out_space.iter().enumerate() {
                 match events::RealmOut::from_nat(out_index) {
-                    events::RealmOut::RingBuffer(ring_buffer, side) => match ring_buffer {
+                    events::RealmOut::RingBuffer(ring_buffer) => match ring_buffer {
                         events::RealmRingBufferOut::Host =>
                             Event::connect(
                                 event,
                                 &host.in_spaces[PRIMARY_HOST_NODE],
-                                events::HostIn::RingBuffer(events::HostRingBufferIn::Realm(events::RealmId::from_nat(*realm_id)), side).to_nat(), // TODO opposite side?
+                                events::HostIn::RingBuffer(events::HostRingBufferIn::Realm(events::RealmId::from_nat(*realm_id))).to_nat(),
                             ),
                     }
                 }

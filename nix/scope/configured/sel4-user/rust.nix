@@ -6,8 +6,8 @@
 let
   mk = crateName: overrides: buildIceCapCrate {
     rootCrate = globalCrates.${crateName};
-    # debug = false;
-    debug = true;
+    debug = false;
+    # debug = true;
     extraLayers = [ [ globalCrates.icecap-std ] ];
     extraManifest = {
       profile.release = {

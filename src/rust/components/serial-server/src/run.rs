@@ -1,10 +1,11 @@
 use core::fmt::Write;
 use alloc::collections::VecDeque;
 use icecap_std::prelude::*;
+use icecap_std::rpc_sel4::{rpc_server, RPCClient};
 use icecap_timer_server_client::*;
 
 use crate::{
-    event::{Event, RingBufferEvent},
+    event::{Event},
     color::{Color, COLORS},
     device::SerialDevice,
     out,
@@ -84,7 +85,7 @@ impl<T: SerialDevice> SerialServer<T> {
             let (info, _) = event_ep.recv();
             cspace.relative(reply_ep).save_caller().unwrap();
 
-            match Event::get(info) {
+            match rpc_server::recv::<Event>(&info) {
                 Event::Interrupt => {
                     self.dev.handle_irq();
                     loop {
@@ -99,15 +100,13 @@ impl<T: SerialDevice> SerialServer<T> {
                 Event::Timeout => {
                     self.handle_timeout();
                 }
-                Event::Con(client_id, ev) => {
-                    match ev {
-                        RingBufferEvent::Rx => self.handle_rx(client_id),
-                        RingBufferEvent::Tx => self.handle_tx(client_id),
-                    }
+                Event::Con(client_id) => {
+                    self.handle_rx(client_id);
+                    self.handle_tx(client_id);
                 }
             }
 
-            reply_ep.send(MessageInfo::empty());
+            RPCClient::<()>::new(reply_ep).send(&());
         }
     }
 

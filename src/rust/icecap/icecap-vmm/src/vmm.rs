@@ -68,6 +68,39 @@ pub struct VMMGICCallbacks {
     irq_map: IRQMap,
 }
 
+impl VMMGICCallbacks {
+
+    fn configure(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, action: event_server::ConfigureAction) -> Fallible<()> {
+        debug_println!("XXXXXXX configure: {} {:?} {:?}", calling_node, irq, action);
+        match irq {
+            QualifiedIRQ::QualifiedPPI { node, irq } => {
+                // assert_eq!(calling_node, node); // TODO HACK
+                if let Some(in_index) = self.irq_map.ppi.get(&irq) {
+                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
+                        nid: calling_node,
+                        index: *in_index,
+                        action,
+                    });
+                } else {
+                    self.vcpus[node].ack_vppi(irq as u64)?;
+                }
+            }
+            QualifiedIRQ::SPI { irq } => {
+                if let Some((in_index, nid)) = self.irq_map.spi.get(&irq) {
+                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
+                        nid: *nid,
+                        index: *in_index,
+                        action,
+                    });
+                } else {
+                    // panic!("unbound irq: {}", irq); // TODO HACK
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 impl GICCallbacks for VMMGICCallbacks {
 
     fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()> {
@@ -77,7 +110,7 @@ impl GICCallbacks for VMMGICCallbacks {
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
-                assert_eq!(calling_node, node);
+                // assert_eq!(calling_node, node); // TODO HACK
                 if let Some(in_index) = self.irq_map.ppi.get(&irq) {
                     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
                         nid: calling_node,
@@ -94,7 +127,7 @@ impl GICCallbacks for VMMGICCallbacks {
                         index: *in_index,
                     });
                 } else {
-                    panic!();
+                    // panic!("unbound irq: {}", irq); // TODO HACK
                 }
             }
         }
@@ -111,11 +144,11 @@ impl GICCallbacks for VMMGICCallbacks {
     }
 
     fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()> {
-        Ok(())
+        self.configure(calling_node, irq, event_server::ConfigureAction::SetPriority(priority))
     }
 
     fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()> {
-        Ok(())
+        self.configure(calling_node, irq, event_server::ConfigureAction::SetEnabled(enabled))
     }
 }
 
@@ -170,8 +203,10 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             let (info, badge) = self.ep.recv();
             match badge {
                 BADGE_EXTERNAL => {
+                    // debug_println!("badge external");
                     // TODO should the poll be atomic w.r.t. GIC with rest of block?
                     while let Some(in_index) = self.event_server_client.call::<Option<event_server::InIndex>>(&event_server::calls::Client::Poll { nid: self.node_index }) {
+                        // debug_println!("poll: {:?}", event_server::events::HostIn::from_nat(in_index));
                         let mut gic = self.gic.lock();
                         let irq = {
                             let mut irq = None;

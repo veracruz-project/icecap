@@ -12,7 +12,7 @@ NUM_CORES = 3 # HACK
 class EventServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, affinity=0, update_guard_size=False, **kwargs)
+        super().__init__(*args, affinity=0, **kwargs)
 
         self.endpoints = [
             self.alloc(ObjectType.seL4_EndpointObject, 'ep_{}'.format(i))
@@ -50,7 +50,7 @@ class EventServer(ElfComponent):
                 'host_badge': host_badge,
                 },
 
-            'host_notifications': [],
+            'host_notifications': None,
             'realm_notifications': [],
             'resource_server_subscriptions': [],
 
@@ -63,6 +63,18 @@ class EventServer(ElfComponent):
 
     def arg_json(self):
         return self._arg
+
+    def register_host_notifications(self, nfns_and_badges):
+        nfns = []
+        for (nfn, badge) in nfns_and_badges:
+            nfns.append(self.cspace().alloc(nfn, badge=badge, write=True))
+        self._arg['host_notifications'] = nfns
+
+    def register_realm_notifications(self, nfns_and_badges):
+        nfns = []
+        for (nfn, badge) in nfns_and_badges:
+            nfns.append(self.cspace().alloc(nfn, badge=badge, write=True))
+        self._arg['realm_notifications'].append(nfns)
 
     def register_client(self, client, id):
         client_badges = self._arg['badges']['client_badges']
@@ -121,10 +133,10 @@ class EventServer(ElfComponent):
                 bits.append(irq)
                 badge = 1 << i_group
                 caps = [
-                    self.cspace().alloc(nfns[i_core], badge=badge, write=True, grant=True, grantreply=True)
+                    self.cspace().alloc(nfns[i_core], badge=badge, read=True)
                     for i_core in range(NUM_CORES)
                     ]
-                initial_cap = Cap(nfns[0], badge=badge, write=True, grant=True, grantreply=True) # HACK
+                initial_cap = Cap(nfns[0], badge=badge, write=True) # HACK
                 handler = self.cspace().alloc(
                     self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=initial_cap)
                     )

@@ -15,17 +15,6 @@ class TimerServer(ElfComponent):
         self.cur_client_badge = INTERRUPT_BADGE + 1
         self.clients = []
 
-    def connect(self, client, node_index, nfn, nfn_badge):
-        badge = self.cur_client_badge
-        self.cur_client_badge += 1
-        client_endpoint_cap = client.cspace().alloc(self.endpoints[node_index], badge=badge, write=True, grantreply=True)
-        self.clients.append(self.cspace().alloc(nfn, badge=nfn_badge, write=True))
-        return client_endpoint_cap
-
-    def serialize_arg(self):
-        return 'serialize-timer-server-config'
-
-    def arg_json(self):
         if self.composition.plat == 'virt':
             paddr = 0x9090000
             irq = 208
@@ -62,13 +51,27 @@ class TimerServer(ElfComponent):
                 irq_handler = 0
             irq_handlers.append(irq_handler)
 
-        config = {
+        self._arg = {
             'lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='lock'), read=True, write=True),
             'dev_vaddr': vaddr,
             'irq_handlers': irq_handlers,
-            'clients': self.clients,
+            
             'endpoints': [ self.cspace().alloc(ep, read=True) for ep in self.endpoints ],
             'secondary_threads': secondary_threads,
             }
 
-        return config
+    def connect(self, client, node_index, nfn, nfn_badge):
+        badge = self.cur_client_badge
+        self.cur_client_badge += 1
+        client_endpoint_cap = client.cspace().alloc(self.endpoints[node_index], badge=badge, write=True, grantreply=True)
+        self.clients.append(self.cspace().alloc(nfn, badge=nfn_badge, write=True))
+        return client_endpoint_cap
+
+    def serialize_arg(self):
+        return 'serialize-timer-server-config'
+
+    def arg_json(self):
+        self._arg.update({
+            'clients': self.clients,
+        })
+        return self._arg

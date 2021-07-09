@@ -4,7 +4,8 @@
 
 let
   virtualIface = "eth0";
-  physicalIface = "eth1";
+  # physicalIface = "eth1";
+  physicalIface = "eth0";
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
 
@@ -51,6 +52,7 @@ in
   config = {
 
     net.interfaces.${virtualIface}.static = "${hostAddr}/24";
+    net.interfaces.lo = { static = "127.0.0.1"; };
 
     initramfs.extraInitCommands = ''
       mkdir -p /etc /bin /mnt/nix/store
@@ -63,7 +65,7 @@ in
       udhcpc --quit --now -i ${physicalIface} -O staticroutes --script ${udhcpcScript}
       nft -f ${nftScript}
       physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
-      nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
+      # nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
 
       mount -t debugfs none /sys/kernel/debug/
 

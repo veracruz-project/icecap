@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(format_args_nl)]
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
@@ -41,14 +42,8 @@ pub fn main(config: Config) -> Fallible<()> {
     };
     let mk_kicks = |rb: events::SerialServerRingBuffer| {
         RingBufferKicksConfig {
-            read: mk_signal(events::SerialServerOut::RingBuffer(
-                rb.clone(),
-                events::RingBufferSide::Read,
-            )),
-            write: mk_signal(events::SerialServerOut::RingBuffer(
-                rb.clone(),
-                events::RingBufferSide::Write,
-            )),
+            read: mk_signal(events::SerialServerOut::RingBuffer(rb.clone())),
+            write: mk_signal(events::SerialServerOut::RingBuffer(rb.clone())),
         }
     };
 
@@ -75,9 +70,9 @@ pub fn main(config: Config) -> Fallible<()> {
     let irq_handler = config.irq_handler;
     config.irq_thread.start(move || {
         loop {
-            irq_nfn.wait();
-            Event::Interrupt.send(&event_ep);
             irq_handler.ack().unwrap();
+            irq_nfn.wait();
+            RPCClient::<Event>::new(event_ep).call::<()>(&Event::Interrupt);
         }
     });
 
@@ -85,7 +80,7 @@ pub fn main(config: Config) -> Fallible<()> {
     config.timer_thread.start(move || {
         loop {
             timer_wait.wait();
-            Event::Timeout.send(&event_ep);
+            RPCClient::<Event>::new(event_ep).call::<()>(&Event::Timeout);
         }
     });
 
@@ -93,8 +88,8 @@ pub fn main(config: Config) -> Fallible<()> {
         let nfn = client.wait;
         client.thread.start(move || {
             loop {
-                let badge = nfn.wait();
-                Event::for_badge(badge, |ev| Event::Con(i as ClientId, ev).send(&event_ep));
+                nfn.wait();
+                RPCClient::<Event>::new(event_ep).call::<()>(&Event::Con(i as ClientId));
             }
         });
     }

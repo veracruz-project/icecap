@@ -115,7 +115,8 @@ impl Event {
         assert!(event.borrow().target.is_none());
         in_space.borrow_mut().entries[in_index] = Some(InSpaceEntry {
             event: event.clone(),
-            enabled: false,
+            // enabled: false,
+            enabled: true, // TODO HACK
             priority: 1, // TODO
             active: false,
             pending: false,
@@ -197,6 +198,7 @@ impl InSpace {
     }
 
     pub fn notify(&self) -> Fallible<()> {
+        // debug_println!("signalling {:?}", self.notification);
         self.notification.signal();
         self.notify_subscriber()
     }

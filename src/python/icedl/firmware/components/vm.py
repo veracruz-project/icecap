@@ -68,9 +68,6 @@ class VM(BaseComponent):
     def map_passthru_devices(self):
         pass
 
-    def get_passthru_irqs(self):
-        yield from []
-
     def map_phys(self):
         return False
 
@@ -247,15 +244,14 @@ class VM(BaseComponent):
             'end': vaddr,
             }
 
-    def map_con(self, objs):
-        rx_badge = 1
-        tx_badge = 2
+    def map_con(self, objs, kick):
 
         irq = self.next_virq()
+        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': { 'SerialServer': None } }, 0)
 
         ring_buffer = self.map_ring_buffer(objs)
-        ring_buffer['read']['signal'] = 0
-        ring_buffer['write']['signal'] = 0
+        ring_buffer['read']['signal'] = kick
+        ring_buffer['write']['signal'] = kick
 
         self.devices.append({
             'Con': {
@@ -322,6 +318,7 @@ class VMM(ElfComponent):
         self.primary_thread.tcb.prio = 101 # TODO
 
         nodes = []
+        self.event_server_targets = []
 
         # Perform node-specific assignments:
         # each idx of self.vm.tcb corresponds to one node with a vm and a vmm thread.
@@ -335,12 +332,17 @@ class VMM(ElfComponent):
             nfn = self.alloc(ObjectType.seL4_NotificationObject, name='vmm_event_nfn_{}'.format(node_index))
 
             if node_index != 0:
-                thread = self.secondary_thread(name='node_{}'.format(node_index), affinity=node.affinity, prio=self.primary_thread.tcb.prio).endpoint
+                full_thread = self.secondary_thread(name='node_{}'.format(node_index), affinity=node.affinity, prio=self.primary_thread.tcb.prio)
+                thread = full_thread.endpoint
                 start_ep = self.alloc(ObjectType.seL4_EndpointObject, name='vmm_start_ep_{}'.format(node_index))
                 start_ep_read_write = self.cspace().alloc(start_ep, read=True, write=True)
             else:
+                full_thread = self.primary_thread
                 thread = 0
                 start_ep_read_write = 0
+
+            full_thread.tcb['bound_notification'] = Cap(nfn, read=True)
+            self.event_server_targets.append((nfn, 0))
 
             # Create and append a Node structure for each node
             nodes.append({
@@ -363,7 +365,7 @@ class VMM(ElfComponent):
             'resource_server_ep': list(self.composition.resource_server.register_host(self)),
 
             'ppi_map': {},
-            'spi_map': {},
+            'spi_map': { i: ({ 'SPI': i }, 0) for i in range(32, 1020) },
         }
 
     def serialize_arg(self):

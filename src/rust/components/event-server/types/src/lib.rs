@@ -55,12 +55,6 @@ pub mod events {
         Channel,
     }
 
-    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
-    pub enum RingBufferSide {
-        Read,
-        Write,
-    }
-
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
     pub struct RealmId(pub usize);
 
@@ -112,12 +106,12 @@ pub mod events {
     pub enum HostIn {
         RealmEvent, // private
         SPI(SPI), // shared
-        RingBuffer(HostRingBufferIn, RingBufferSide), // shared
+        RingBuffer(HostRingBufferIn), // shared
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostOut {
-        RingBuffer(HostRingBufferOut, RingBufferSide),
+        RingBuffer(HostRingBufferOut,),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
@@ -133,12 +127,12 @@ pub mod events {
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmIn {
-        RingBuffer(RealmRingBufferIn, RingBufferSide),
+        RingBuffer(RealmRingBufferIn),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmOut {
-        RingBuffer(RealmRingBufferOut, RingBufferSide),
+        RingBuffer(RealmRingBufferOut),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
@@ -149,11 +143,11 @@ pub mod events {
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum SerialServerOut {
-        RingBuffer(SerialServerRingBuffer, RingBufferSide),
+        RingBuffer(SerialServerRingBuffer),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum ResourceServerOut {
-        HostRingBuffer(RingBufferSide),
+        HostRingBuffer,
     }
 }
