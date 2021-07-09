@@ -34,7 +34,6 @@ lib.mapAttrs mk {
   resource-server = {};
   host-vmm = {};
   realm-vmm = {};
-  qemu-ring-buffer-server = {};
   idle = {};
 
 }

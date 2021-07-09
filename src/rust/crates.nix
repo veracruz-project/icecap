@@ -93,9 +93,6 @@ filterAttrs (_: v: v != null) {
   serial-server = seL4Only ./components/serial-server;
   icecap-serial-server-config = ./components/serial-server/config;
 
-  qemu-ring-buffer-server = seL4Only ./components/qemu-ring-buffer-server;
-  icecap-qemu-ring-buffer-server-config = ./components/qemu-ring-buffer-server/config;
-
   mirage = seL4Only ./components/mirage;
   icecap-linux-syscall = seL4Only ./components/mirage/icecap-linux-syscall;
 

@@ -126,11 +126,6 @@ superCallPackage ./ocaml {} self //
     type = "icecap_serial_server_config::Config";
     crate = outerGlobalCrates.icecap-serial-server-config;
   };
-  serialize-qemu-ring-buffer-server-config = mkSerializeConfig {
-    name = "qemu-ring-buffer-server";
-    type = "icecap_qemu_ring_buffer_server_config::Config";
-    crate = outerGlobalCrates.icecap-qemu-ring-buffer-server-config;
-  };
   serialize-host-vmm-config = mkSerializeConfig {
     name = "host-vmm";
     type = "icecap_host_vmm_config::Config";
