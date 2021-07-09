@@ -2,6 +2,8 @@ from capdl import ObjectType, Cap, ARMIRQMode
 from icedl.common import ElfComponent
 from icedl.utils import *
 
+INTERRUPT_BADGE = 1
+
 class TimerServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
@@ -10,8 +12,7 @@ class TimerServer(ElfComponent):
             self.alloc(ObjectType.seL4_EndpointObject, name='{}_ep_for_node_{}'.format(self.name, i))
             for i in range(self.composition.num_nodes())
             ]
-        self.self_badge = 1
-        self.cur_client_badge = self.self_badge + 1
+        self.cur_client_badge = INTERRUPT_BADGE + 1
         self.clients = []
 
     def connect(self, client, node_index, nfn, nfn_badge):
@@ -53,7 +54,7 @@ class TimerServer(ElfComponent):
             # HACK
             if i == 0:
                 irq_nfn = self.alloc(ObjectType.seL4_NotificationObject, name='irq_{}_nfn'.format(irq))
-                thread.tcb['bound_notification'] = Cap(irq_nfn, read=True)
+                thread.tcb['bound_notification'] = Cap(irq_nfn, badge=INTERRUPT_BADGE, read=True)
                 irq_handler = self.cspace().alloc(
                         self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=Cap(irq_nfn, badge=1))
                         )
