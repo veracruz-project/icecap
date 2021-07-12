@@ -6,7 +6,7 @@ use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
 use icecap_config::*;
-use icecap_event_server_types::events::HostIn;
+use icecap_event_server_types::events::{HostIn, HostOut};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -19,6 +19,7 @@ pub struct Config {
     pub event_server_client_ep: Vec<Endpoint>,
     pub event_server_control_ep: Vec<Endpoint>,
     pub resource_server_ep: Vec<Endpoint>,
+    pub kicks: Vec<KickConfig>,
 
     pub ppi_map: BTreeMap<usize, HostIn>,
     pub spi_map: BTreeMap<usize, (HostIn, usize)>, // in_index, nid
@@ -31,4 +32,10 @@ pub struct Node {
     pub thread: Thread,
     pub ep_read: Endpoint,
     pub fault_reply_slot: Endpoint,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum KickConfig {
+    Notification(Notification),
+    OutIndex(HostOut),
 }

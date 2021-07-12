@@ -254,10 +254,11 @@ class VM(BaseComponent):
 
         irq = self.next_virq()
         self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': { 'SerialServer': None } }, 0)
+        kick_index = self.vmm.register_kick(kick)
 
         ring_buffer = self.map_ring_buffer(objs)
-        ring_buffer['read']['signal'] = kick
-        ring_buffer['write']['signal'] = kick
+        ring_buffer['read']['signal'] = kick_index
+        ring_buffer['write']['signal'] = kick_index
 
         self.devices.append({
             'Con': {
@@ -359,6 +360,8 @@ class VMM(ElfComponent):
                 'fault_reply_slot': self.cspace().alloc(None),
                 })
 
+        self.kicks = []
+
         self._arg = {
             'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
             'gic_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='gic_lock'), read=True, write=True),
@@ -374,6 +377,11 @@ class VMM(ElfComponent):
             'spi_map': { i: ({ 'SPI': i }, 0) for i in range(32, 1020) },
         }
 
+    def register_kick(self, kick):
+        kick_index = len(self.kicks)
+        self.kicks.append(kick)
+        return kick_index
+
     def serialize_arg(self):
         if self.is_host:
             return 'serialize-host-vmm-config'
@@ -381,7 +389,7 @@ class VMM(ElfComponent):
             return 'serialize-realm-vmm-config'
 
     def arg_json(self):
-        # self._arg['con'] = self.connections['con']['MappedRingBuffer']
+        self._arg['kicks'] = self.kicks
         return self._arg
 
 

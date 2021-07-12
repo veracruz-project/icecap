@@ -15,12 +15,12 @@ mkInstance (self: with self; {
     ln -s ${spec} $out/spec.bin
   '';
 
-  spec = host.linuxImage;
-  # spec = mkLinuxRealm {
-  #   bootargs = realm.bootargs;
-  #   kernel = realm.linuxImage;
-  #   initrd = realm.initrd;
-  # };
+  # spec = host.linuxImage;
+  spec = mkLinuxRealm {
+    bootargs = realm.bootargs;
+    kernel = realm.linuxImage;
+    initrd = realm.initrd;
+  };
 
   payload = uBoot.${icecapPlat}.mkDefaultPayload {
     linuxImage = host.linuxImage;

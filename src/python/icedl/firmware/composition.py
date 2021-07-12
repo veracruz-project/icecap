@@ -30,8 +30,8 @@ class Composition(BaseComposition):
         self.serial_server = self.component(SerialServer, 'serial_server', affinity=1, prio=180, fault_handler=self.fault_handler)
         self.host_vm = self.component(HostVM, name='host_vm', vmm_name='host_vmm')
 
-        cfg = self.serial_server.register_host(self.host_vm)
-        self.host_vm.map_con(cfg['ring_buffer_objs'], cfg['kick'])
+        cfg = self.serial_server.register_host(self.host_vm.vmm)
+        self.host_vm.map_con(cfg['ring_buffer_objs'], { 'Notification': cfg['kick'] })
 
         self.event_server.register_host_notifications(self.host_vm.vmm.event_server_targets)
 

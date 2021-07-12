@@ -15,6 +15,7 @@ use alloc::sync::Arc;
 use biterate::biterate;
 
 use icecap_std::prelude::*;
+use icecap_std::finite_set::Finite;
 use icecap_rpc_sel4::*;
 use icecap_realm_vmm_config::*;
 use icecap_vmm::*;
@@ -22,37 +23,24 @@ use icecap_vmm::*;
 declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
-    let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
+    // let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
     // icecap_std::set_print(con);
 
-    let ep_writes: Arc<Vec<Endpoint>> = Arc::new(config.nodes.iter().map(|node| node.ep_write).collect());
+    let event_server_client_ep = config.event_server_client_ep;
 
-    let irq_handlers = BTreeMap::new();
-
-    for group in config.virtual_irqs {
-        group.thread.start({
-            let nfn = group.nfn;
-            let bits = group.bits.clone();
-            let ep_writes = Arc::clone(&ep_writes);
-            move || {
-                loop {
-                    let badge = nfn.wait();
-                    for i in biterate(badge) {
-                        let node = 0; // TODO
-                        let spi = bits[i as usize].unwrap();
-                        RPCClient::<usize>::new(ep_writes[node]).call::<()>(&spi);
-                    }
-                }
-            }
-        })
-    }
+    let irq_map = IRQMap {
+        ppi: config.ppi_map.into_iter().map(|(ppi, in_index)| (ppi, in_index.to_nat())).collect(),
+        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid))| (spi, (in_index.to_nat(), nid))).collect(),
+    };
 
     VMMConfig {
         cnode: config.cnode,
         gic_lock: config.gic_lock,
         nodes_lock: config.nodes_lock,
-        irq_handlers: irq_handlers,
+        event_server_client_ep,
+        irq_map,
         gic_dist_paddr: config.gic_dist_paddr,
+        kicks: vec![], // TODO
         nodes: config.nodes.iter().map(|node| {
             VMMNodeConfig {
                 tcb: node.tcb,

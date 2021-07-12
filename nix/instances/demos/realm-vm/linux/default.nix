@@ -39,7 +39,8 @@ in rec {
   realm = rec {
     bootargs = commonBootargs;
     initrd = nx.config.build.initramfs;
-    linuxImage = linuxKernel.guest.kernel;
+    # linuxImage = linuxKernel.guest.kernel;
+    linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
     nx = nixosLite.mk1Stage {
       modules = [
         ./realm.nix

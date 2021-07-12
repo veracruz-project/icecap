@@ -10,6 +10,7 @@ let
     src = ./ddl;
     config = {
       components = {
+        fault_handler.image = bins.fault-handler.split;
         realm_vmm.image = bins.realm-vmm.split;
         realm_vm.bootargs = bootargs;
         realm_vm.kernel = kernel;

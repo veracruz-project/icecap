@@ -29,7 +29,7 @@ pub struct VMMConfig<E> {
     pub event_server_client_ep: Vec<Endpoint>, // HACK per node
     pub irq_map: IRQMap,
     pub gic_dist_paddr: usize,
-    pub kicks: Vec<Kick>,
+    pub kicks: Vec<Box<dyn Fn(&VMMNode<E>) -> Fallible<()> + Send + Sync>>,
     pub nodes: Vec<VMMNodeConfig<E>>,
 }
 
@@ -56,6 +56,7 @@ pub struct VMMNode<E> {
     pub cnode: CNode,
     pub fault_reply_slot: Endpoint,
     pub event_server_client: RPCClient<event_server::calls::Client>,
+    pub kicks: Arc<Vec<Box<dyn Fn(&VMMNode<E>) -> Fallible<()> + Send + Sync>>>,
     pub gic_dist_paddr: usize,
     pub gic: Arc<Mutex<GIC<VMMGICCallbacks>>>,
     pub nodes: Arc<Mutex<Vec<Option<(Thread, VMMNode<E>)>>>>,
@@ -163,6 +164,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
             irq_map: self.irq_map,
         });
         let gic = Arc::new(Mutex::new(ExplicitMutexNotification::new(self.gic_lock), gic));
+        let kicks = Arc::new(self.kicks);
         for (i, node_config) in self.nodes.drain(..).enumerate() {
             let node = VMMNode {
                 tcb: node_config.tcb,
@@ -174,6 +176,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 extension: node_config.extension,
                 gic_dist_paddr: self.gic_dist_paddr,
                 node_index: i,
+                kicks: kicks.clone(),
                 gic: gic.clone(),
                 nodes: nodes.clone(),
             };
@@ -192,8 +195,9 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
 pub const BADGE_EXTERNAL: Badge = 0;
 pub const BADGE_VM: Badge = 1;
 
-const SYS_PUTCHAR: Word = 1337;
 const SYS_PSCI: Word = 0;
+const SYS_PUTCHAR: Word = 1337;
+const SYS_KICK: Word = 1347;
 
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
@@ -310,6 +314,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             SYS_PSCI => {
                 self.sys_psci()?;
             }
+            SYS_KICK => {
+                self.sys_kick()?;
+            }
             _ => {
                 E::handle_syscall(self, syscall)?;
             }
@@ -378,6 +385,19 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 panic!("psci fid {:x}", fid);
             }
         }
+        ctx.pc += 4;
+        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+        Ok(())
+    }
+
+    fn kick(&self, kick_index: usize) -> Fallible<()> {
+        (self.kicks[kick_index])(self)
+    }
+
+    fn sys_kick(&mut self) -> Fallible<()> {
+        let mut ctx = self.tcb.read_all_registers(false).unwrap();
+        let kick_index = ctx.x0 as usize;
+        self.kick(kick_index)?;
         ctx.pc += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
         Ok(())

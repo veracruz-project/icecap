@@ -19,6 +19,7 @@ use icecap_std::finite_set::Finite;
 use icecap_rpc_sel4::*;
 use icecap_host_vmm_config::*;
 use icecap_vmm::*;
+use icecap_event_server_types as event_server;
 
 declare_main!(main);
 
@@ -42,7 +43,24 @@ pub fn main(config: Config) -> Fallible<()> {
         event_server_client_ep,
         irq_map,
         gic_dist_paddr: config.gic_dist_paddr,
-        kicks: vec![], // TODO
+        kicks: config.kicks.iter().map(|kick_config| {
+            match kick_config {
+                KickConfig::Notification(nfn) => {
+                    let nfn = *nfn;
+                    Box::new(move |node: &VMMNode<Extension>| {
+                        Ok(nfn.signal())
+                    }) as Box<dyn for<'r> Fn(&'r VMMNode<Extension>) -> Fallible<()> + Send + Sync>
+                }
+                KickConfig::OutIndex(index) => {
+                    let index = index.clone();
+                    Box::new(move |node: &VMMNode<Extension>| {
+                        Ok(node.event_server_client.call::<()>(&event_server::calls::Client::Signal {
+                            index: index.to_nat(),
+                        }))
+                    })
+                }
+            }
+        }).collect(),
         nodes: config.nodes.iter().enumerate().map(|(i, node)| {
             VMMNodeConfig {
                 tcb: node.tcb,
