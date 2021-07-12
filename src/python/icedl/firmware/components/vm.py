@@ -137,6 +137,12 @@ class VM(BaseComponent):
 
         self.vmm = self.composition.component(VMM, vmm_name, vm=self, is_host=is_host)
 
+        self.devices.append({
+            'ResourceServer': {
+                'bulk_region': self.map_region(self.composition.resource_server.host_bulk_region_frames, write=True),
+            }
+        })
+
     def device_tree(self):
         # TODO
         mod = {

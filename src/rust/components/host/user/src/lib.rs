@@ -8,7 +8,7 @@ pub use error::{
     LameError, Result,
 };
 pub use bulk_transport::{
-    BulkTransport, BulkTransportSpec,
+    BulkTransport,
 };
 
 pub struct Host {
@@ -21,9 +21,9 @@ impl Host {
         })
     }
 
-    pub fn create_realm(&mut self, realm_id: usize, spec: &[u8], bulk_transport_spec: &BulkTransportSpec, bulk_transport_chunk_size: usize) -> Result<()> {
+    pub fn create_realm(&mut self, realm_id: usize, spec: &[u8], bulk_transport_chunk_size: usize) -> Result<()> {
         syscall::declare(realm_id, spec.len());
-        let mut bulk_transport = bulk_transport_spec.open()?;
+        let mut bulk_transport = BulkTransport::open()?;
         bulk_transport.send_spec(realm_id, spec, bulk_transport_chunk_size)?;
         syscall::realize(realm_id);
         Ok(())

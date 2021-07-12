@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(format_args_nl)]
 #![feature(never_type)]
+#![feature(core_intrinsics)]
 #![allow(unused_variables)]
 #![allow(unused_imports)]
 
@@ -26,6 +27,7 @@ use icecap_event_server_types::events;
 mod realize_config;
 use realize_config::*;
 
+use core::intrinsics::volatile_copy_nonoverlapping_memory;
 use alloc::{
     vec::Vec,
     collections::BTreeMap,
@@ -61,26 +63,31 @@ fn main(config: Config) -> Fallible<()> {
     let server = ResourceServer::new(initialization_resources, allocator, externs);
     let server = Arc::new(Mutex::new(ExplicitMutexNotification::new(config.lock), server));
 
+    let bulk_region = config.host_bulk_region_start;
+    let bulk_region_size = config.host_bulk_region_size;
+
     for (local, thread) in config.local.iter().skip(1).zip(&config.secondary_threads) {
         thread.start({
             let server = server.clone();
             let local = local.clone();
             move || {
-                run(&server, &local).unwrap()
+                run(&server, &local, bulk_region, bulk_region_size).unwrap()
             }
         })
     }
 
-    run(&server, &config.local[0])?;
+    run(&server, &config.local[0], bulk_region, bulk_region_size)?;
     
     Ok(())
 }
 
-fn run(server: &Mutex<ResourceServer>, local: &Local) -> Fallible<!> {
+fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_region_size: usize) -> Fallible<!> {
 
     let event_server_client = local.event_server_client;
     let endpoint = local.endpoint;
     let timer = TimerClient::new(local.timer_server_client);
+
+    let bulk_region = bulk_region as *const u8;
 
     loop {
         let (info, badge) = endpoint.recv();
@@ -92,8 +99,13 @@ fn run(server: &Mutex<ResourceServer>, local: &Local) -> Fallible<!> {
                 match rpc_server::recv(&info) {
                     Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
                     Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset } => {
-                        todo!()
-                        // resource_server.incorporate_spec_chunk(realm_id, offset, &packet)?;
+                        assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
+                        let mut content = vec![0; bulk_data_size];
+                        unsafe {
+                            volatile_copy_nonoverlapping_memory(content.as_mut_ptr(), bulk_region.offset(bulk_data_offset as isize), bulk_data_size);
+                        }
+                        resource_server.incorporate_spec_chunk(realm_id, offset, &content)?;
+                        rpc_server::reply::<()>(&());
                     },
                     Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset } => {
                         todo!()

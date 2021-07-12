@@ -15,7 +15,7 @@ mkInstance (self: with self; {
     ln -s ${spec} $out/spec.bin
   '';
 
-  spec = emptyFile;
+  spec = host.linuxImage;
   # spec = mkLinuxRealm {
   #   bootargs = realm.bootargs;
   #   kernel = realm.linuxImage;

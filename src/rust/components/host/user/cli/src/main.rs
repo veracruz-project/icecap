@@ -13,10 +13,7 @@ fn main() -> Result<()> {
                     .index(1))
                 .arg(Arg::with_name("SPEC")
                     .required(true)
-                    .index(2))
-                .arg(Arg::with_name("BULK_TRANSPORT")
-                    .required(true)
-                    .index(3)))
+                    .index(2)))
             .subcommand(SubCommand::with_name("destroy")
                 .arg(Arg::with_name("REALM_ID")
                     .required(true)
@@ -36,8 +33,7 @@ fn main() -> Result<()> {
         "create" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
             let spec = subcommand.matches.value_of("SPEC").unwrap();
-            let bulk_transport = BulkTransportSpec::parse(subcommand.matches.value_of("BULK_TRANSPORT").unwrap())?;
-            create(realm_id, spec, bulk_transport)?;
+            create(realm_id, spec)?;
         }
         "destroy" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
@@ -55,11 +51,11 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn create(realm_id: usize, spec_path: &str, bulk_transport_spec: BulkTransportSpec) -> Result<()> {
+fn create(realm_id: usize, spec_path: &str) -> Result<()> {
     let spec = fs::read(spec_path)?;
     let bulk_transport_chunk_size: usize = 4096 * 64; // TODO make configurable
     let mut host = Host::new().unwrap();
-    host.create_realm(realm_id, &spec, &bulk_transport_spec, bulk_transport_chunk_size)
+    host.create_realm(realm_id, &spec, bulk_transport_chunk_size)
 }
 
 fn destroy(realm_id: usize) -> Result<()> {

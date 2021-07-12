@@ -25,8 +25,8 @@ in rec {
       "spec=${spec}"
     ];
     initrd = nx.config.build.initramfs;
-    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
-    # linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
+    # linuxImage = linuxKernel.host.${icecapPlat}.kernel;
+    linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
     nx = nixosLite.mk1Stage {
       modules = [
         (import ./host.nix {

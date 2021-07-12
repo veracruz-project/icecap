@@ -55,6 +55,14 @@ pub fn declare(realm_id: usize, spec_size: usize) {
     call_resource_server(&Request::Declare { realm_id, spec_size })
 }
 
+pub fn spec_chunk(realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, offset: usize) {
+    call_resource_server(&Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset })
+}
+
+pub fn fill_chunk(realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, object_index: usize, fill_entry_index: usize, offset: usize) {
+    call_resource_server(&Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset })
+}
+
 pub fn realize(realm_id: usize) {
     call_resource_server(&Request::Realize { realm_id })
 }

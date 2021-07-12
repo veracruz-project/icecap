@@ -32,9 +32,6 @@ class ResourceServer(ElfComponent):
             'device': False,
         }
 
-        self.host_ep = self.alloc(ObjectType.seL4_EndpointObject, 'host_ep')
-        ctrl_ep = self.alloc(ObjectType.seL4_EndpointObject, 'ctrl_ep')
-
         self.align(BLOCK_SIZE)
         large_frame_addr = self.cur_vaddr
         self.skip(BLOCK_SIZE)
@@ -103,12 +100,7 @@ class ResourceServer(ElfComponent):
                 'slots_size_bits': allocator_cnode_size_bits,
             },
             'untyped': [ut],
-            'externs': {
-                'ctrl_ep_write': {
-                    'ty': 'Endpoint',
-                    'cptr': self.cspace().alloc(ctrl_ep, write=True, grantreply=True),
-                    },
-                },
+            'externs': {},
 
             'host_bulk_region_start': self.map_region(self.host_bulk_region_frames, read=True),
             'host_bulk_region_size': self.host_bulk_region_size,

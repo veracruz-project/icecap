@@ -32,7 +32,7 @@ fn main() -> Result<(), std::io::Error> {
         device.apply(&mut dt);
     }
 
-    let mut cpus = dt.root.get_child_mut("cpus").unwrap();
+    let cpus = dt.root.get_child_mut("cpus").unwrap();
     let cpu_0 = cpus.get_child("cpu@0").unwrap().clone();
     for i in 1..input.num_cpus {
         let mut cpu_n = cpu_0.clone();
