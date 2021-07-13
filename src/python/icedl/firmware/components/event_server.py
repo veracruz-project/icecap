@@ -127,9 +127,9 @@ class EventServer(ElfComponent):
                 ]
 
             bits = []
-            for i_group, (irq, trigger) in enumerate(group):
+            for i_irq, (irq, trigger) in enumerate(group):
                 bits.append(irq)
-                badge = 1 << i_group
+                badge = 1 << i_irq
                 caps = [
                     self.cspace().alloc(nfns[i_core], badge=badge, read=True)
                     for i_core in range(NUM_CORES)
