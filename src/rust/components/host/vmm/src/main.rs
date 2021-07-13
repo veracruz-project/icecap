@@ -37,6 +37,7 @@ pub fn main(config: Config) -> Fallible<()> {
     };
 
     VMMConfig {
+        debug: false,
         cnode: config.cnode,
         gic_lock: config.gic_lock,
         nodes_lock: config.nodes_lock,

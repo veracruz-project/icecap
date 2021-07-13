@@ -83,6 +83,12 @@ class VM(BaseComponent):
         if 'initrd' in self.config():
             self.initrd_fname = self.composition.register_file('{}_initrd.img'.format(self.name), self.config()['initrd'])
 
+        # HACK cnodes have minimum size
+        self.cspace().alloc(None)
+        self.cspace().alloc(None)
+
+        self.is_host = is_host
+
         self.devices = []
         self.nodes = []
 
@@ -100,6 +106,11 @@ class VM(BaseComponent):
         # Establish IPC buffers, TCBs, and vCPUs for each node in the list of affinities.
         for node_index in range(self.composition.num_nodes()):
             affinity = node_index
+            # MEGA HACK
+            if not is_host:
+                assert node_index == 0
+                affinity = 3
+
             ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame_{}'.format(self.name, node_index), size=PAGE_SIZE)
             ipc_buffer_addr = vaddr_at_page(4, 0, 0, node_index)
             ipc_buffer_cap = Cap(ipc_buffer_frame, read=True, write=True)
@@ -137,11 +148,12 @@ class VM(BaseComponent):
 
         self.vmm = self.composition.component(VMM, vmm_name, vm=self, is_host=is_host)
 
-        self.devices.append({
-            'ResourceServer': {
-                'bulk_region': self.map_region(self.composition.resource_server.host_bulk_region_frames, write=True),
-            }
-        })
+        if self.is_host:
+            self.devices.append({
+                'ResourceServer': {
+                    'bulk_region': self.map_region(self.composition.resource_server.host_bulk_region_frames, write=True),
+                    }
+                })
 
     def device_tree(self):
         # TODO
@@ -250,10 +262,9 @@ class VM(BaseComponent):
             'end': vaddr,
             }
 
-    def map_con(self, objs, kick):
-
+    def map_con(self, objs, kick, event):
         irq = self.next_virq()
-        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': { 'SerialServer': None } }, 0)
+        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0)
         kick_index = self.vmm.register_kick(kick)
 
         ring_buffer = self.map_ring_buffer(objs)
@@ -267,26 +278,21 @@ class VM(BaseComponent):
                 },
             })
 
-    def map_net(self, objs):
-        rx_badge = 1
-        tx_badge = 2
+    def map_net(self, objs, kick, event):
+        irq = self.next_virq()
+        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0)
+        kick_index = self.vmm.register_kick(kick)
 
-        rx_irq = self.next_virq()
-        tx_irq = self.next_virq()
-
-        self.vmm._arg['virtual_irqs'].append({
-            # 'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True), # XXX
-            'thread': self.vmm.secondary_thread('virq_{}_{}'.format(rx_irq, tx_irq)).endpoint,
-            'bits': [rx_irq, tx_irq],
-            })
+        ring_buffer = self.map_ring_buffer(objs)
+        ring_buffer['read']['signal'] = kick_index
+        ring_buffer['write']['signal'] = kick_index
 
         self.devices.append({
             'Net': {
-                'ring_buffer': self.map_ring_buffer(objs),
+                'ring_buffer': ring_buffer,
                 'mtu': 65536,
                 'mac_address': [0, 1] + list((abs(hash(self.name)) & ((1 << (8 * 4)) - 1)).to_bytes(4, 'little')), # HACK
-                'irq_read': rx_irq - 32,
-                'irq_write': tx_irq - 32,
+                'irq': irq - 32,
                 },
             })
 
@@ -336,7 +342,10 @@ class VMM(ElfComponent):
             ep = self.alloc(ObjectType.seL4_EndpointObject, name='vmm_event_ep_{}'.format(node_index))
             node.tcb.fault_ep_slot = self.vm.cspace().alloc(ep, badge=1, write=True, grant=True)
 
-            nfn = self.alloc(ObjectType.seL4_NotificationObject, name='vmm_event_nfn_{}'.format(node_index))
+            if self.is_host:
+                nfn = self.alloc(ObjectType.seL4_NotificationObject, name='vmm_event_nfn_{}'.format(node_index))
+            else:
+                nfn = self.composition.extern(ObjectType.seL4_NotificationObject, 'realm_{}_nfn_for_core_{}'.format(self.composition.realm_id(), node_index))
 
             if node_index != 0:
                 full_thread = self.secondary_thread(name='node_{}'.format(node_index), affinity=node.affinity, prio=self.primary_thread.tcb.prio)
@@ -369,13 +378,24 @@ class VMM(ElfComponent):
             'gic_dist_paddr': self.vm.addrs.gic_dist_paddr,
             'nodes': nodes,
 
-            'event_server_client_ep': self.composition.event_server.register_client(self, 'Host'),
-            'event_server_control_ep': self.composition.event_server.register_control_host(self),
-            'resource_server_ep': list(self.composition.resource_server.register_host(self)),
 
             'ppi_map': {},
-            'spi_map': { i: ({ 'SPI': i }, 0) for i in range(32, 1020) },
+            'spi_map': { i: ({ 'SPI': i }, 0) for i in range(32, 1020) } if self.is_host else {},
         }
+
+        if self.is_host:
+            self._arg.update({
+                'event_server_client_ep': self.composition.event_server.register_client(self, { 'Host': None }),
+                'event_server_control_ep': self.composition.event_server.register_control_host(self),
+                'resource_server_ep': list(self.composition.resource_server.register_host(self)),
+                })
+        else:
+            self._arg.update({
+                'event_server_client_ep': [
+                    self.cspace().alloc(self.composition.extern(ObjectType.seL4_EndpointObject, 'realm_{}_event_server_client_endpoint_0'.format(self.composition.realm_id())), write=True, grantreply=True)
+                    for j in range(self.composition.num_nodes())
+                    ],
+                })
 
     def register_kick(self, kick):
         kick_index = len(self.kicks)

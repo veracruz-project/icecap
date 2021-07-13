@@ -90,6 +90,7 @@ pub mod obj {
         pub ipc_buffer: cap::SmallPage,
         pub ipc_buffer_addr: u64,
         pub vcpu: Option<cap::VCPU>,
+        pub bound_notification: Option<cap::Notification>,
 
         pub affinity: u64,
         pub prio: u8,

@@ -126,48 +126,9 @@ class Composition:
         return a_objs, b_objs
 
     def create_gic_vcpu_frame(self):
-        if self.plat == 'virt':
-            GIC_PADDR = 0x8000000
-            GIC_VCPU_PADDR = GIC_PADDR + 0x40000
-        elif self.plat == 'rpi4':
-            GIC_VCPU_PADDR = 0xff846000
-        frame = self.alloc(ObjectType.seL4_FrameObject, name='gic_vcpu', paddr=GIC_VCPU_PADDR, size=4096)
-        return frame
+        raise NotImplementedError
 
     def gic_vcpu_frame(self):
         if self._gic_vcpu_frame is None:
             self._gic_vcpu_frame = self.create_gic_vcpu_frame()
         return self._gic_vcpu_frame
-
-    # extern
-
-    def extern(self, ty, name, **obj_kwargs):
-        return self.alloc(ty, name='extern_{}'.format(name), **obj_kwargs)
-
-    @as_list
-    def extern_region(self, name, size_bits, region_size):
-        ty = ObjectType.seL4_FrameObject
-        size = 1 << size_bits
-        for i in range(region_size // (1 << size_bits)):
-            yield self.extern(ty, '{}_{}'.format(name, i), size=size), size_bits
-
-    def extern_ring_buffer(self, tag, size):
-        ctrl_size = 4096
-        data_size = size
-        # HACK
-        if size & (BLOCK_SIZE - 1) == 0:
-            frame_size_bits = BLOCK_SIZE_BITS
-        else:
-            frame_size_bits = PAGE_SIZE_BITS
-        return RingBufferObjects(
-            read=RingBufferSideObjects(
-                size=data_size,
-                ctrl=self.extern_region('{}_read_ctrl'.format(tag), PAGE_SIZE_BITS, ctrl_size),
-                data=self.extern_region('{}_read_data'.format(tag), frame_size_bits, data_size),
-                ),
-            write=RingBufferSideObjects(
-                size=data_size,
-                ctrl=self.extern_region('{}_write_ctrl'.format(tag), PAGE_SIZE_BITS, ctrl_size),
-                data=self.extern_region('{}_write_data'.format(tag), frame_size_bits, data_size),
-                ),
-            )

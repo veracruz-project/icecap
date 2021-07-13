@@ -79,9 +79,7 @@ class EventServer(ElfComponent):
     def register_client(self, client, id):
         client_badges = self._arg['badges']['client_badges']
         badge = BADGE_TYPE_CLIENT | len(client_badges)
-        client_badges.append({
-            id: None,
-        })
+        client_badges.append(id)
         return [
             client.cspace().alloc(ep, badge=badge, write=True, grantreply=True)
             for ep in self.endpoints

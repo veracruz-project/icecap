@@ -4,8 +4,7 @@
 
 let
   virtualIface = "eth0";
-  # physicalIface = "eth1";
-  physicalIface = "eth0";
+  physicalIface = "eth10";
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
 
@@ -65,14 +64,15 @@ in
       udhcpc --quit --now -i ${physicalIface} -O staticroutes --script ${udhcpcScript}
       nft -f ${nftScript}
       physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
-      # nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
+      nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
 
       mount -t debugfs none /sys/kernel/debug/
 
       mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
       spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
       echo "cp -L /mnt/$spec /spec.bin..."
-      cp -L "/mnt/$spec" /spec.bin
+      # cp -L "/mnt/$spec" /spec.bin
+      ln -s "/mnt/$spec" /spec.bin
       echo "...done"
 
     '' + lib.optionalString (icecapPlat == "rpi4") ''
@@ -84,6 +84,8 @@ in
 
       mount -o ro /dev/mmcblk0p1 mnt/
       ln -s /mnt/spec.bin /spec.bin
+    '' + ''
+      # icecap-host create 0 /spec.bin && icecap-host hack-run 0
     '';
 
     initramfs.extraUtilsCommands = ''

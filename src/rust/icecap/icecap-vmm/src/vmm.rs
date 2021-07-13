@@ -31,6 +31,8 @@ pub struct VMMConfig<E> {
     pub gic_dist_paddr: usize,
     pub kicks: Vec<Box<dyn Fn(&VMMNode<E>) -> Fallible<()> + Send + Sync>>,
     pub nodes: Vec<VMMNodeConfig<E>>,
+
+    pub debug: bool,
 }
 
 pub struct VMMNodeConfig<E> {
@@ -61,6 +63,8 @@ pub struct VMMNode<E> {
     pub gic: Arc<Mutex<GIC<VMMGICCallbacks>>>,
     pub nodes: Arc<Mutex<Vec<Option<(Thread, VMMNode<E>)>>>>,
     pub extension: E,
+
+    pub debug: bool,
 }
 
 pub struct VMMGICCallbacks {
@@ -179,6 +183,8 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 kicks: kicks.clone(),
                 gic: gic.clone(),
                 nodes: nodes.clone(),
+
+                debug: self.debug,
             };
             nodes.lock().push(Some((node_config.thread, node)));
         }
@@ -207,7 +213,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             let (info, badge) = self.ep.recv();
             match badge {
                 BADGE_EXTERNAL => {
-                    // debug_println!("badge external");
+                    // if self.debug {
+                    //     debug_println!("badge external");
+                    // }
                     // TODO should the poll be atomic w.r.t. GIC with rest of block?
                     while let Some(in_index) = self.event_server_client.call::<Option<event_server::InIndex>>(&event_server::calls::Client::Poll { nid: self.node_index }) {
                         // debug_println!("poll: {:?}", event_server::events::HostIn::from_nat(in_index));

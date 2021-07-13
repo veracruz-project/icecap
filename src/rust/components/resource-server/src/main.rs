@@ -22,7 +22,7 @@ use icecap_timer_server_client::*;
 use icecap_rpc_sel4::*;
 
 use icecap_event_server_types::calls::Client as EventServerRequest;
-use icecap_event_server_types::events;
+use icecap_event_server_types::{self as event_server, events};
 
 mod realize_config;
 use realize_config::*;
@@ -84,6 +84,7 @@ fn main(config: Config) -> Fallible<()> {
 fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_region_size: usize) -> Fallible<!> {
 
     let event_server_client = local.event_server_client;
+    let event_server_control = local.event_server_control;
     let endpoint = local.endpoint;
     let timer = TimerClient::new(local.timer_server_client);
 
@@ -111,7 +112,14 @@ fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_r
                         todo!()
                     },
                     Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
-                    Request::Realize { realm_id } => rpc_server::reply::<()>(&resource_server.realize(realm_id)?),
+                    Request::Realize { realm_id } => {
+                        // HACK
+                        RPCClient::<event_server::calls::ResourceServer>::new(event_server_control).call::<()>(&event_server::calls::ResourceServer::CreateRealm {
+                            realm_id,
+                            num_nodes: 1,
+                        });
+                        rpc_server::reply::<()>(&resource_server.realize(realm_id)?)
+                    }
                     Request::Destroy { realm_id } => rpc_server::reply::<()>(&resource_server.destroy(realm_id)?),
                     Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
                         todo!();

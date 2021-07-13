@@ -15,7 +15,7 @@ use super::*;
 impl EventServer {
 
     pub fn create_realm(&mut self, rid: RealmId, num_nodes: usize) -> Fallible<()> {
-        assert!(self.realms.contains_key(&rid));
+        assert!(!self.realms.contains_key(&rid));
         let inactive = self.inactive_realms.get(&rid).unwrap();
         let client = inactive.create_client(num_nodes)?;
         self.realms.insert(rid, client);

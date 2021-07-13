@@ -197,6 +197,11 @@ impl<'a> Initialize<'a> {
             vcpu.set_tcb(tcb)?;
         }
 
+        if let Some(bound_notification) = &obj.bound_notification {
+            let bound_notification: Notification = self.cap(bound_notification.obj);
+            tcb.bind_notification(bound_notification)?;
+        }
+
         tcb.configure(fault_ep, cspace, cspace_root_data, vspace, obj.ipc_buffer_addr, ipc_buffer_frame)?;
         tcb.set_sched_params(self.initialization_resources.tcb_authority, obj.max_prio as u64, obj.prio as u64)?;
         schedule(tcb, None)?;

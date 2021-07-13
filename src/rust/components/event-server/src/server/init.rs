@@ -60,7 +60,7 @@ impl EventServerConfig {
             }).collect(),
         };
 
-        let inactive_realms: BTreeMap<usize, InactiveRealm> = (0..NUM_REALMS).map(|realm_id|
+        let mut inactive_realms: BTreeMap<usize, InactiveRealm> = (0..NUM_REALMS).map(|realm_id|
             (
                 realm_id,
                 InactiveRealm {
@@ -91,8 +91,9 @@ impl EventServerConfig {
                             &host.in_spaces[PRIMARY_HOST_NODE],
                             events::HostIn::RingBuffer(events::HostRingBufferIn::SerialServer).to_nat(),
                         ),
-                    events::SerialServerRingBuffer::Realm(realm_id) =>
-                        (),
+                    events::SerialServerRingBuffer::Realm(realm_id) => {
+                        inactive_realms.get_mut(&realm_id.0).unwrap().in_entries[events::RealmIn::RingBuffer(events::RealmRingBufferIn::SerialServer).to_nat()] = Some(event.clone());
+                    }
                 }
             }
         }
@@ -100,8 +101,9 @@ impl EventServerConfig {
         for (out_index, event) in host.out_space.iter().enumerate() {
             match events::HostOut::from_nat(out_index) {
                 events::HostOut::RingBuffer(ring_buffer) => match ring_buffer {
-                    events::HostRingBufferOut::Realm(realm_id) =>
-                        (),
+                    events::HostRingBufferOut::Realm(realm_id) => {
+                        inactive_realms.get_mut(&realm_id.0).unwrap().in_entries[events::RealmIn::RingBuffer(events::RealmRingBufferIn::Host).to_nat()] = Some(event.clone());
+                    }
                 }
             }
         }

@@ -146,6 +146,11 @@ impl TCB {
         })
     }
 
+    pub fn bind_notification(&self, notification: Notification) -> Result<()> {
+        Error::wrap(unsafe {
+            sys::seL4_TCB_BindNotification(self.raw(), notification.raw())
+        })
+    }
 }
 
 impl VCPU {

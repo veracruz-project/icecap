@@ -111,7 +111,7 @@ pub mod events {
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostOut {
-        RingBuffer(HostRingBufferOut,),
+        RingBuffer(HostRingBufferOut),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]

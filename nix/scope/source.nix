@@ -21,7 +21,7 @@ let
   repos = mk: {
 
     seL4 = mk "seL4" {} "d3e8190a4f92a10686abc14fce38e7be7b3eadb3";
-    capdl = mk "capdl" {} "c956b07360daaf03735cd9e85c0a60cc92ded17d";
+    capdl = mk "capdl" {} "e4541e4e838ccdec1d98a6052718ec11fc1ec4ca";
 
     # for elfloader
     seL4_tools = mk "minor-patches/seL4/seL4_tools" {} "e211b270066fd5841d4ea994df077583a9d99126";
