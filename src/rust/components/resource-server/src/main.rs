@@ -120,7 +120,14 @@ fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_r
                         });
                         rpc_server::reply::<()>(&resource_server.realize(realm_id)?)
                     }
-                    Request::Destroy { realm_id } => rpc_server::reply::<()>(&resource_server.destroy(realm_id)?),
+                    Request::Destroy { realm_id } => {
+                        let response = rpc_server::reply::<()>(&resource_server.destroy(realm_id)?);
+                        // HACK
+                        RPCClient::<event_server::calls::ResourceServer>::new(event_server_control).call::<()>(&event_server::calls::ResourceServer::DestroyRealm {
+                            realm_id,
+                        });
+                        response
+                    }
                     Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
                         todo!();
                     }
