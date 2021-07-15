@@ -85,7 +85,10 @@ in
       mount -o ro /dev/mmcblk0p1 mnt/
       ln -s /mnt/spec.bin /spec.bin
     '' + ''
-      icecap-host create 0 /spec.bin && taskset 0x4 icecap-host run 0 0
+      affinity=0x4
+      # taskset $affinity /bin/sh -c "while true; do true; done" &
+      # taskset $affinity /bin/sh -c "while true; do sleep 1; echo awake; done" &
+      icecap-host create 0 /spec.bin && taskset $affinity icecap-host run 0 0 &
     '';
 
     initramfs.extraUtilsCommands = ''

@@ -24,6 +24,7 @@ pub struct Config {
     pub host_bulk_region_start: usize,
     pub host_bulk_region_size: usize,
 
+    pub cnode: CNode,
     pub local: Vec<Local>,
     pub secondary_threads: Vec<Thread>,
 }
@@ -31,6 +32,7 @@ pub struct Config {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Local {
     pub endpoint: Endpoint,
+    pub reply_slot: Endpoint,
     pub timer_server_client: Endpoint,
     pub event_server_client: Endpoint,
     pub event_server_control: Endpoint,

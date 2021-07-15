@@ -229,6 +229,7 @@ impl<T: GICCallbacks> GIC<T> {
             self.callbacks.vcpu_inject_irq(calling_node, target_node, index, irq, priority)?;
             self.dist.set_active(irq, target_node)?;
             self.lrs[target_node].mirror[index] = Some(irq);
+            self.callbacks.event(calling_node, target_node)?;
         }
 
         Ok(())

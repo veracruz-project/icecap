@@ -4,6 +4,7 @@ let
   clean = remote // {
     inherit (local)
       # capdl
+      # seL4
     ;
   };
 

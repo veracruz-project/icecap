@@ -3,6 +3,8 @@
 , compose, mkLinuxRealm
 , icecapPlat
 , emptyFile
+
+, kernel, repos
 }:
 
 mkInstance (self: with self; {
@@ -28,5 +30,13 @@ mkInstance (self: with self; {
     bootargs = host.bootargs;
     dtb = composition.host-dtb;
   };
+
+  # composition = compose {
+  #   kernel = kernel.override' (attrs: {
+  #     source = attrs.source.override' (attrs': {
+  #       src = with repos; local.seL4;
+  #     });
+  #   });
+  # };
 
 })

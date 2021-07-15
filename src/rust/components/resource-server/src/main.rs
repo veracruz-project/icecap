@@ -21,7 +21,7 @@ use icecap_resource_server_core::*;
 use icecap_timer_server_client::*;
 use icecap_rpc_sel4::*;
 
-use icecap_event_server_types::calls::Client as EventServerRequest;
+use icecap_event_server_types::calls::ResourceServer as EventServerRequest;
 use icecap_event_server_types::{self as event_server, events};
 
 mod realize_config;
@@ -60,33 +60,36 @@ fn main(config: Config) -> Fallible<()> {
     let initialization_resources = realize_initialization_resources(&config.initialization_resources);
     let externs = realize_externs(&config.externs);
 
-    let server = ResourceServer::new(initialization_resources, allocator, externs);
+    let server = ResourceServer::new(
+        initialization_resources, allocator, externs,
+        config.cnode,
+        config.local.iter().map(|local| NodeLocal {
+            reply_slot: local.reply_slot,
+            timer_server_client: TimerClient::new(local.timer_server_client),
+            event_server_control: RPCClient::<EventServerRequest>::new(local.event_server_control),
+        }).collect(),
+    );
     let server = Arc::new(Mutex::new(ExplicitMutexNotification::new(config.lock), server));
 
     let bulk_region = config.host_bulk_region_start;
     let bulk_region_size = config.host_bulk_region_size;
 
-    for (local, thread) in config.local.iter().skip(1).zip(&config.secondary_threads) {
+    for ((node_index, local), thread) in config.local.iter().enumerate().skip(1).zip(&config.secondary_threads) {
         thread.start({
             let server = server.clone();
             let local = local.clone();
             move || {
-                run(&server, &local, bulk_region, bulk_region_size).unwrap()
+                run(&server, node_index, local.endpoint, bulk_region, bulk_region_size).unwrap()
             }
         })
     }
 
-    run(&server, &config.local[0], bulk_region, bulk_region_size)?;
+    run(&server, 0, config.local[0].endpoint, bulk_region, bulk_region_size)?;
     
     Ok(())
 }
 
-fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_region_size: usize) -> Fallible<!> {
-
-    let event_server_client = local.event_server_client;
-    let event_server_control = local.event_server_control;
-    let endpoint = local.endpoint;
-    let timer = TimerClient::new(local.timer_server_client);
+fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bulk_region: usize, bulk_region_size: usize) -> Fallible<!> {
 
     let bulk_region = bulk_region as *const u8;
 
@@ -113,27 +116,25 @@ fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_r
                     },
                     Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
                     Request::Realize { realm_id } => {
-                        // HACK
-                        RPCClient::<event_server::calls::ResourceServer>::new(event_server_control).call::<()>(&event_server::calls::ResourceServer::CreateRealm {
-                            realm_id,
-                            num_nodes: 1,
-                        });
-                        rpc_server::reply::<()>(&resource_server.realize(realm_id)?)
+                        rpc_server::reply::<()>(&resource_server.realize(node_index, realm_id)?)
                     }
                     Request::Destroy { realm_id } => {
-                        let response = rpc_server::reply::<()>(&resource_server.destroy(realm_id)?);
-                        // HACK
-                        RPCClient::<event_server::calls::ResourceServer>::new(event_server_control).call::<()>(&event_server::calls::ResourceServer::DestroyRealm {
-                            realm_id,
-                        });
-                        response
+                        rpc_server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
                     }
                     Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
-                        // save reply ep in node-specific slot
+                        assert_eq!(physical_node, node_index);
+                        // debug_println!("yield to, timout = {}", timeout);
+                        // save reply ep in node-specific slot here instead
                         resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
                     }
                     Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
                 }
+            } else if badge == 0x100 {
+                // debug_println!("timeout on {}", node_index);
+                resource_server.timeout(node_index)?;
+            } else if badge == 0x101 {
+                // debug_println!("sub on {}", node_index);
+                resource_server.host_event(node_index)?;
             } else {
                 panic!("badge: {}", badge)
             }

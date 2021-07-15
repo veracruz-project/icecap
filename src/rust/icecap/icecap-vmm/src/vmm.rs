@@ -108,9 +108,14 @@ impl VMMGICCallbacks {
     }
 }
 
+const CNTFRQ: u32 = 62500000;
+
 impl GICCallbacks for VMMGICCallbacks {
 
     fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()> {
+        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::SEV {
+            nid: target_node,
+        });
         Ok(())
     }
 
@@ -210,6 +215,7 @@ const SYS_KICK: Word = 1347;
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn run(&mut self) -> Fallible<()> {
+        // self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?;
         self.tcb.resume()?;
         loop {
             let (info, badge) = self.ep.recv();
@@ -424,13 +430,13 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     }
 
     pub fn upper_ns_bound_interrupt(&mut self) -> Fallible<Option<i64>> {
+        // assert_eq!(self.vcpu.read_regs(VCPUReg::CNTVOFF)?, 0);
+        assert_eq!(asm::read_cntfrq_el0(), CNTFRQ);
         let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL)?;
         Ok(if (cntv_ctl & asm::CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & asm::CNTV_CTL_EL0_IMASK) == 0 {
-            // TODO use tval?
-            let cntv_cval = self.vcpu.read_regs(VCPUReg::CNTV_CVAL)? as i128;
-            let cntfrq = asm::read_cntfrq_el0() as i128;
-            let cntvct = asm::read_cntvct_el0() as i128;
-            let ns = (((cntv_cval - cntvct) * 1_000_000_000) / cntfrq) as i64;
+            let cntv_cval = self.vcpu.read_regs(VCPUReg::CNTV_CVAL)?;
+            let cntvct = asm::read_cntvct_el0();
+            let ns = ((((cntv_cval - cntvct) as i128) * 1_000_000_000) / (CNTFRQ as i128)) as i64;
             Some(ns)
         } else {
             None

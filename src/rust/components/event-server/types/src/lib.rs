@@ -33,6 +33,7 @@ pub mod calls {
     #[derive(Debug, Clone, Serialize, Deserialize)]
     pub enum ResourceServer {
         Subscribe { nid: NodeIndex, host_nid: NodeIndex },
+        Unsubscribe { nid: NodeIndex, host_nid: NodeIndex },
         CreateRealm { realm_id: RealmId, num_nodes: usize },
         DestroyRealm { realm_id: RealmId },
     }

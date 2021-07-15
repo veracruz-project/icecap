@@ -12,7 +12,10 @@ extern crate alloc;
 use alloc::prelude::v1::*;
 use alloc::collections::btree_map::BTreeMap;
 use icecap_core::prelude::*;
+use icecap_core::rpc_sel4::*;
 use icecap_resource_server_types::*;
+use icecap_event_server_types as event_server;
+use icecap_timer_server_client::TimerClient;
 use dyndl_types::*;
 
 mod cregion;
@@ -73,12 +76,14 @@ pub struct ResourceServer {
 
     physical_nodes: [Option<(RealmId, VirtualNodeIndex)>; NUM_NODES],
 
-    resume_host: Box<dyn Fn(PhysicalNodeIndex, ResumeHostCondition) + Send>,
+    cnode: CNode,
+    node_local: Vec<NodeLocal>,
+}
 
-    set_timeout: Box<dyn Fn(PhysicalNodeIndex, Nanoseconds) + Send>,
-    cancel_timeout: Box<dyn Fn(PhysicalNodeIndex) + Send>,
-    set_notify_host_event: Box<dyn Fn(PhysicalNodeIndex) + Send>,
-    cancel_notify_host_event: Box<dyn Fn(PhysicalNodeIndex) + Send>,
+pub struct NodeLocal {
+    pub reply_slot: Endpoint,
+    pub timer_server_client: TimerClient,
+    pub event_server_control: RPCClient::<event_server::calls::ResourceServer>,
 }
 
 struct Realm {
@@ -108,6 +113,9 @@ impl ResourceServer {
         initialization_resources: RealmObjectInitializationResources,
         allocator: Allocator,
         externs: Externs,
+
+        cnode: CNode,
+        node_local: Vec<NodeLocal>,
     ) -> Self {
         ResourceServer {
             initialization_resources,
@@ -119,12 +127,8 @@ impl ResourceServer {
 
             physical_nodes: [None; NUM_NODES],
 
-            resume_host: Box::new(|_, _| ()),
-
-            set_timeout: Box::new(|_, _| ()),
-            cancel_timeout: Box::new(|_| ()),
-            set_notify_host_event: Box::new(|_| ()),
-            cancel_notify_host_event: Box::new(|_| ()),
+            cnode,
+            node_local,
         }
     }
 
@@ -144,17 +148,22 @@ impl ResourceServer {
         Ok(())
     }
 
-    pub fn realize(&mut self, realm_id: RealmId) -> Fallible<()> {
+    pub fn realize(&mut self, node_index: usize, realm_id: RealmId) -> Fallible<()> {
         let raw = self.partial_specs.remove(&realm_id).unwrap();
         let model = pinecone::from_bytes(&raw).unwrap();
         let realm = self.realize_inner(&model)?;
 
         self.realms.insert(realm_id, realm);
 
+        self.node_local[node_index].event_server_control.call::<()>(&event_server::calls::ResourceServer::CreateRealm {
+            realm_id,
+            num_nodes: 1,
+        });
+
         Ok(())
     }
 
-    pub fn destroy(&mut self, realm_id: RealmId) -> Fallible<()> {
+    pub fn destroy(&mut self, node_index: usize, realm_id: RealmId) -> Fallible<()> {
         if let Some(realm) = self.realms.remove(&realm_id) {
             for virtual_node in &realm.virtual_nodes {
                 assert!(virtual_node.physical_node.is_none());
@@ -170,6 +179,11 @@ impl ResourceServer {
                 self.allocator.revoke_and_free(&untyped_id)?;
             }
             self.externs.extend(realm.externs);
+
+            // HACK
+            self.node_local[node_index].event_server_control.call::<()>(&event_server::calls::ResourceServer::DestroyRealm {
+                realm_id,
+            });
         } else {
             // HACK
         }
@@ -291,6 +305,9 @@ impl ResourceServer {
     // CPU resources
 
     pub fn yield_to(&mut self, physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds) -> Fallible<()> {
+        // HACK
+        self.cnode.save_caller(self.node_local[physical_node].reply_slot)?;
+
         assert!(self.physical_nodes[physical_node].is_none());
         self.physical_nodes[physical_node] = Some((realm_id, virtual_node));
         let realm = self.realms.get_mut(&realm_id).unwrap();
@@ -300,8 +317,8 @@ impl ResourceServer {
         for tcb in &virtual_node.tcbs {
             schedule(*tcb, Some(physical_node))?;
         }
-        (self.set_notify_host_event)(physical_node);
-        (self.set_timeout)(physical_node, timeout);
+        self.set_notify_host_event(physical_node)?;
+        self.set_timeout(physical_node, timeout)?;
         Ok(())
     }
 
@@ -312,9 +329,9 @@ impl ResourceServer {
         for tcb in &virtual_node.tcbs {
             schedule(*tcb, None)?;
         }
-        (self.cancel_notify_host_event)(physical_node);
-        (self.cancel_timeout)(physical_node);
-        (self.resume_host)(physical_node, ResumeHostCondition::RealmYieldedBack(condition));
+        self.cancel_notify_host_event(physical_node)?;
+        self.cancel_timeout(physical_node)?;
+        self.resume_host(physical_node, ResumeHostCondition::RealmYieldedBack(condition))?;
         Ok(())
     }
 
@@ -326,9 +343,9 @@ impl ResourceServer {
             for tcb in &virtual_node.tcbs {
                 schedule(*tcb, None)?;
             }
-            (self.cancel_notify_host_event)(physical_node);
-            (self.cancel_timeout)(physical_node);
-            (self.resume_host)(physical_node, ResumeHostCondition::HostEvent);
+            self.cancel_notify_host_event(physical_node)?;
+            self.cancel_timeout(physical_node)?;
+            self.resume_host(physical_node, ResumeHostCondition::HostEvent)?;
         }
         Ok(())
     }
@@ -341,9 +358,9 @@ impl ResourceServer {
             for tcb in &virtual_node.tcbs {
                 schedule(*tcb, None)?;
             }
-            (self.cancel_notify_host_event)(physical_node);
-            (self.cancel_timeout)(physical_node);
-            (self.resume_host)(physical_node, ResumeHostCondition::HostEvent);
+            self.cancel_notify_host_event(physical_node)?;
+            self.cancel_timeout(physical_node)?;
+            self.resume_host(physical_node, ResumeHostCondition::HostEvent)?;
         }
         Ok(())
     }
@@ -358,4 +375,31 @@ impl ResourceServer {
         Ok(())
     }
 
+    ///
+
+    fn set_timeout(&mut self, physical_node: PhysicalNodeIndex, ns: Nanoseconds) -> Fallible<()> {
+        self.node_local[physical_node].timer_server_client.oneshot_relative(0, ns as u64).unwrap();
+        Ok(())
+    }
+
+    fn cancel_timeout(&mut self, physical_node: PhysicalNodeIndex) -> Fallible<()> {
+        self.node_local[physical_node].timer_server_client.stop(0).unwrap();
+        Ok(())
+    }
+
+    fn set_notify_host_event(&mut self, physical_node: PhysicalNodeIndex) -> Fallible<()> {
+        self.node_local[physical_node].event_server_control.call::<()>(&event_server::calls::ResourceServer::Subscribe { nid: physical_node, host_nid: physical_node });
+        Ok(())
+    }
+
+    fn cancel_notify_host_event(&mut self, physical_node: PhysicalNodeIndex) -> Fallible<()> {
+        self.node_local[physical_node].event_server_control.call::<()>(&event_server::calls::ResourceServer::Unsubscribe { nid: physical_node, host_nid: physical_node });
+        Ok(())
+    }
+
+    fn resume_host(&mut self, physical_node: PhysicalNodeIndex, condition: ResumeHostCondition) -> Fallible<()> {
+        // debug_println!("resuming with {:?}", condition);
+        RPCClient::<ResumeHostCondition>::new(self.node_local[physical_node].reply_slot).send(&condition);
+        Ok(())
+    }
 }

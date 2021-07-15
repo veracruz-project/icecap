@@ -10,6 +10,8 @@ pub fn read_cntfrq_el0() -> u32 {
     }
 }
 
+#[inline(never)] // TODO bug in rust compiler causes truncation to 32 bits when inlined
+// #[no_mangle]
 pub fn read_cntvct_el0() -> u64 {
     unsafe {
         let mut r: u64;

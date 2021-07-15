@@ -41,7 +41,10 @@ impl Host {
 
     pub fn run_realm_node(&mut self, realm_id: usize, virtual_node: usize) -> Result<()> {
         loop {
+            // println!("yielding");
             syscall::yield_to(realm_id, virtual_node);
+            // println!("sleeping");
+            // std::thread::sleep(std::time::Duration::from_millis(1));
         }
         Ok(())
     }

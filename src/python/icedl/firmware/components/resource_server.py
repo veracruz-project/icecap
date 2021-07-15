@@ -4,6 +4,7 @@ from icedl.common import ElfComponent
 from icedl.utils import BLOCK_SIZE, PAGE_SIZE
 
 HACK_TIMER_BADGE = 0x100 # HACK
+HACK_SUBSCRIPTION_BADGE = 0x101 # HACK
 HACK_HOST_BULK_REGION_SIZE = 2**21
 
 class ResourceServer(ElfComponent):
@@ -66,9 +67,11 @@ class ResourceServer(ElfComponent):
                 thread = self.primary_thread
 
             thread.tcb['bound_notification'] = Cap(self.bound_notifications[i], read=True)
+            self.composition.event_server.register_resource_server_subscription(self.bound_notifications[i], HACK_SUBSCRIPTION_BADGE)
 
             local.append({
                 'endpoint': self.cspace().alloc(self.endpoints[i], read=True),
+                'reply_slot': self.cspace().alloc(None),
                 'timer_server_client': self.composition.timer_server.connect(self, i, self.bound_notifications[i], HACK_TIMER_BADGE),
                 'event_server_client': event_server_client[i],
                 'event_server_control': event_server_control[i],
@@ -105,6 +108,7 @@ class ResourceServer(ElfComponent):
             'host_bulk_region_start': self.map_region(self.host_bulk_region_frames, read=True),
             'host_bulk_region_size': self.host_bulk_region_size,
 
+            'cnode': self.cspace().alloc(self.cspace().cnode, write=True, update_guard_size=False),
             'local': local,
             'secondary_threads': secondary_threads,
             }

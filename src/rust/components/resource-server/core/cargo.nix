@@ -6,6 +6,8 @@ mk {
     dyndl-types
     icecap-core
     icecap-resource-server-types
+    icecap-event-server-types
+    icecap-timer-server-client
   ];
   dependencies = {
     log = "*";

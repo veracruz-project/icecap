@@ -48,6 +48,14 @@ impl EventServer {
         self.resource_server_subscriptions[nid].slot = Some(slot.clone());
         in_space.borrow_mut().notify_if_necessary() // HACK
     }
+
+    pub fn resource_server_unsubscribe(&mut self, nid: NodeIndex, host_nid: NodeIndex) -> Fallible<()> {
+        let in_space = &mut self.host.in_spaces[host_nid];
+        let slot: SubscriptionSlot = in_space.borrow().subscription_slot.clone();
+        let old = slot.replace(None);
+        self.resource_server_subscriptions[nid].slot = None;
+        Ok(())
+    }
 }
 
 impl Client {

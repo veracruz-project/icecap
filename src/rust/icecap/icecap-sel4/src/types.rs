@@ -222,5 +222,6 @@ pub enum VCPUReg {
     SPSR_EL1 = sys::seL4_VCPUReg_SPSR_EL1 as isize,
     CNTV_CTL = sys::seL4_VCPUReg_CNTV_CTL as isize,
     CNTV_CVAL = sys::seL4_VCPUReg_CNTV_CVAL as isize,
-    CNTVOFF = sys::seL4_VCPUReg_CNTVOFF as isize,
+    // CNTV_TVAL = sys::seL4_VCPUReg_CNTV_TVAL as isize,
+    // CNTVOFF = sys::seL4_VCPUReg_CNTVOFF as isize,
 }

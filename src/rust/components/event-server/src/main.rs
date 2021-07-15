@@ -135,6 +135,9 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                         calls::ResourceServer::Subscribe { nid, host_nid } => {
                             rpc_server::reply(&server.resource_server_subscribe(nid, host_nid)?)
                         }
+                        calls::ResourceServer::Unsubscribe { nid, host_nid } => {
+                            rpc_server::reply(&server.resource_server_unsubscribe(nid, host_nid)?)
+                        }
                         calls::ResourceServer::CreateRealm { realm_id, num_nodes } => {
                             rpc_server::reply(&server.create_realm(realm_id, num_nodes)?)
                         }
