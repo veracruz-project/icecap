@@ -17,6 +17,8 @@ use icecap_event_server_types::{
     InIndex,
 };
 
+use crate::asm;
+
 pub struct IRQMap {
     pub ppi: BTreeMap<usize, InIndex>,
     pub spi: BTreeMap<usize, (InIndex, usize)>, // (in_index, nid)
@@ -419,5 +421,19 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         let mut ctx = self.tcb.read_all_registers(false).unwrap();
         ctx.pc += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
+    }
+
+    pub fn upper_ns_bound_interrupt(&mut self) -> Fallible<Option<i64>> {
+        let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL)?;
+        Ok(if (cntv_ctl & asm::CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & asm::CNTV_CTL_EL0_IMASK) == 0 {
+            // TODO use tval?
+            let cntv_cval = self.vcpu.read_regs(VCPUReg::CNTV_CVAL)? as i128;
+            let cntfrq = asm::read_cntfrq_el0() as i128;
+            let cntvct = asm::read_cntvct_el0() as i128;
+            let ns = (((cntv_cval - cntvct) * 1_000_000_000) / cntfrq) as i64;
+            Some(ns)
+        } else {
+            None
+        })
     }
 }

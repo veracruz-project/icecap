@@ -9,5 +9,6 @@ mkBin {
     icecap-rpc-sel4
     icecap-vmm
     icecap-event-server-types
+    icecap-resource-server-types
   ];
 }

@@ -20,6 +20,7 @@ use icecap_rpc_sel4::*;
 use icecap_host_vmm_config::*;
 use icecap_vmm::*;
 use icecap_event_server_types as event_server;
+use icecap_resource_server_types as resource_server;
 
 declare_main!(main);
 
@@ -84,6 +85,7 @@ struct Extension {
 }
 
 const SYS_RESOURCE_SERVER_PASSTHRU: Word = 1338;
+const SYS_YIELD_TO: Word = 1339;
 
 impl VMMExtension for Extension {
 
@@ -96,6 +98,9 @@ impl VMMExtension for Extension {
         match syscall {
             SYS_RESOURCE_SERVER_PASSTHRU => {
                 Self::sys_resource_server_passthru(node)?;
+            }
+            SYS_YIELD_TO => {
+                Self::sys_yield_to(node)?;
             }
             _ => {
                 panic!("unknown syscall");
@@ -127,6 +132,25 @@ impl Extension {
         ctx.x4 = r[3];
         ctx.x5 = r[4];
         ctx.x6 = r[5];
+        ctx.pc += 4;
+        node.tcb.write_all_registers(false, &mut ctx)?;
+        Ok(())
+    }
+
+    fn sys_yield_to(node: &mut VMMNode<Self>) -> Fallible<()> {
+        let bound = node.upper_ns_bound_interrupt()?;
+        let mut ctx = node.tcb.read_all_registers(false)?;
+        let realm_id = ctx.x0 as usize;
+        let virtual_node = ctx.x1 as usize;
+        let resp = RPCClient::new(node.extension.resource_server_ep).call::<resource_server::ResumeHostCondition>(&resource_server::Request::YieldTo {
+            physical_node: node.node_index,
+            realm_id,
+            virtual_node,
+            timeout: {
+                let bound = bound.unwrap();
+                if bound < 0 { 0 } else { bound }
+            } as usize,
+        });
         ctx.pc += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
         Ok(())

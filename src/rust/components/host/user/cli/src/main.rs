@@ -18,6 +18,13 @@ fn main() -> Result<()> {
                 .arg(Arg::with_name("REALM_ID")
                     .required(true)
                     .index(1)))
+            .subcommand(SubCommand::with_name("run")
+                .arg(Arg::with_name("REALM_ID")
+                    .required(true)
+                    .index(1))
+                .arg(Arg::with_name("VIRTUAL_NODE")
+                    .required(true)
+                    .index(2)))
             .subcommand(SubCommand::with_name("hack-run")
                 .arg(Arg::with_name("REALM_ID")
                     .required(true)
@@ -38,6 +45,11 @@ fn main() -> Result<()> {
         "destroy" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
             destroy(realm_id)?;
+        }
+        "run" => {
+            let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
+            let virtual_node = subcommand.matches.value_of("VIRTUAL_NODE").unwrap().parse()?;
+            run(realm_id, virtual_node)?;
         }
         "hack-run" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
@@ -61,6 +73,11 @@ fn create(realm_id: usize, spec_path: &str) -> Result<()> {
 fn destroy(realm_id: usize) -> Result<()> {
     let mut host = Host::new().unwrap();
     host.destroy_realm(realm_id)
+}
+
+fn run(realm_id: usize, virtual_node: usize) -> Result<()> {
+    let mut host = Host::new().unwrap();
+    host.run_realm_node(realm_id, virtual_node)
 }
 
 fn hack_run(realm_id: usize) -> Result<()> {

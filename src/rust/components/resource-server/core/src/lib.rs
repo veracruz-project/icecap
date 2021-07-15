@@ -119,12 +119,12 @@ impl ResourceServer {
 
             physical_nodes: [None; NUM_NODES],
 
-            resume_host: Box::new(|_, _| todo!()),
+            resume_host: Box::new(|_, _| ()),
 
-            set_timeout: Box::new(|_, _| todo!()),
-            cancel_timeout: Box::new(|_| todo!()),
-            set_notify_host_event: Box::new(|_| todo!()),
-            cancel_notify_host_event: Box::new(|_| todo!()),
+            set_timeout: Box::new(|_, _| ()),
+            cancel_timeout: Box::new(|_| ()),
+            set_notify_host_event: Box::new(|_| ()),
+            cancel_notify_host_event: Box::new(|_| ()),
         }
     }
 

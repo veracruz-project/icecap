@@ -107,9 +107,9 @@ class VM(BaseComponent):
         for node_index in range(self.composition.num_nodes()):
             affinity = node_index
             # MEGA HACK
-            if not is_host:
-                assert node_index == 0
-                affinity = 3
+            # if not is_host:
+            #     assert node_index == 0
+            #     affinity = 3
 
             ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame_{}'.format(self.name, node_index), size=PAGE_SIZE)
             ipc_buffer_addr = vaddr_at_page(4, 0, 0, node_index)

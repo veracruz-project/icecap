@@ -7,11 +7,18 @@ use icecap_rpc::*;
 const ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU: u64 = 1338;
 
 const ICECAP_VMM_PASSTHRU: u32 = 0xc0403300;
+const ICECAP_VMM_YIELD_TO: u32 = 0xc0103301;
 
 #[repr(C)]
 struct Passthru {
     sys_id: u64,
     regs: [u64; 7],
+}
+
+#[repr(C)]
+struct YieldTo {
+    realm_id: u64,
+    virtual_node: u64,
 }
 
 fn ioctl_passthru(passthru: &mut Passthru) {
@@ -73,4 +80,32 @@ pub fn destroy(realm_id: usize) {
 
 pub fn hack_run(realm_id: usize) {
     call_resource_server(&Request::HackRun { realm_id })
+}
+
+///
+
+fn ioctl_yield_to(yield_to: &mut YieldTo) {
+    let f = File::open("/sys/kernel/debug/icecap_vmm").unwrap();
+    let request = {
+        // HACK
+        cfg_if::cfg_if! {
+            if #[cfg(target_env = "gnu")] {
+                ICECAP_VMM_YIELD_TO as u64
+            } else if #[cfg(target_env = "musl")] {
+                ICECAP_VMM_YIELD_TO as i32
+            }
+        }
+    };
+    let ret = unsafe {
+        libc::ioctl(f.as_raw_fd(), request, yield_to as *mut YieldTo)
+    };
+    assert_eq!(ret, 0);
+}
+
+pub fn yield_to(realm_id: usize, virtual_node: usize) {
+    let mut yield_to = YieldTo {
+        realm_id: realm_id as u64,
+        virtual_node: virtual_node as u64,
+    };
+    ioctl_yield_to(&mut yield_to);
 }

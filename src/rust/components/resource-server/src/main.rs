@@ -129,10 +129,13 @@ fn run(server: &Mutex<ResourceServer>, local: &Local, bulk_region: usize, bulk_r
                         response
                     }
                     Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
-                        todo!();
+                        // save reply ep in node-specific slot
+                        resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
                     }
                     Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
                 }
+            } else {
+                panic!("badge: {}", badge)
             }
         }
     }

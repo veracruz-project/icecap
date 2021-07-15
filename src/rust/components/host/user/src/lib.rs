@@ -38,4 +38,11 @@ impl Host {
         syscall::hack_run(realm_id);
         Ok(())
     }
+
+    pub fn run_realm_node(&mut self, realm_id: usize, virtual_node: usize) -> Result<()> {
+        loop {
+            syscall::yield_to(realm_id, virtual_node);
+        }
+        Ok(())
+    }
 }

@@ -12,11 +12,13 @@ pub type VirtualNodeIndex = usize;
 
 pub type Nanoseconds = usize;
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum YieldBackCondition {
     WFE { timeout: Nanoseconds },
     // Message,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ResumeHostCondition {
     Timeout,
     HostEvent,

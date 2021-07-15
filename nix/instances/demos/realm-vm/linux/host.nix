@@ -85,7 +85,7 @@ in
       mount -o ro /dev/mmcblk0p1 mnt/
       ln -s /mnt/spec.bin /spec.bin
     '' + ''
-      # icecap-host create 0 /spec.bin && icecap-host hack-run 0
+      icecap-host create 0 /spec.bin && taskset 0x4 icecap-host run 0 0
     '';
 
     initramfs.extraUtilsCommands = ''
@@ -102,7 +102,7 @@ in
 
     initramfs.profile = ''
       ic() {
-        icecap-host create 0 /spec.bin && icecap-host hack-run 0
+        icecap-host create 0 /spec.bin && icecap-host run 0 0
       }
       id() {
         icecap-host destroy 0

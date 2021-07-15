@@ -22,7 +22,7 @@ class Composition(BaseComposition):
         self.compose()
 
     def compose(self):
-        # self.idle = self.component(Idle, 'idle', affinity=3, prio=255)
+        self.idle = self.component(Idle, 'idle', affinity=3, prio=255)
         self.fault_handler = self.component(FaultHandler, 'fault_handler', affinity=1, prio=250)
         self.timer_server = self.component(TimerServer, 'timer_server', prio=175, fault_handler=self.fault_handler)
         self.event_server = self.component(EventServer, 'event_server', prio=200, fault_handler=self.fault_handler)
