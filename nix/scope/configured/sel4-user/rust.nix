@@ -1,6 +1,6 @@
 { lib
 , buildIceCapCrate, globalCrates
-, libs, liboutline
+, libs, liboutline, libsel4
 }:
 
 let

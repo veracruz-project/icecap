@@ -42,13 +42,13 @@ pub struct CapFault {
 impl IsFault for CapFault {
     fn get() -> Self {
         Self {
-            ip: get(sys::seL4_CapFault_IP),
-            addr: get(sys::seL4_CapFault_Addr),
-            in_recv_phase: get(sys::seL4_CapFault_InRecvPhase),
-            lookup_failure_type: get(sys::seL4_CapFault_LookupFailureType),
-            bits_left: get(sys::seL4_CapFault_BitsLeft),
-            guard_mismatch_guard_found: get(sys::seL4_CapFault_GuardMismatch_GuardFound),
-            guard_mismatch_bits_found: get(sys::seL4_CapFault_GuardMismatch_BitsFound),
+            ip: get(sys::seL4_CapFault_Msg_seL4_CapFault_IP),
+            addr: get(sys::seL4_CapFault_Msg_seL4_CapFault_Addr),
+            in_recv_phase: get(sys::seL4_CapFault_Msg_seL4_CapFault_InRecvPhase),
+            lookup_failure_type: get(sys::seL4_CapFault_Msg_seL4_CapFault_LookupFailureType),
+            bits_left: get(sys::seL4_CapFault_Msg_seL4_CapFault_BitsLeft),
+            guard_mismatch_guard_found: get(sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_GuardFound),
+            guard_mismatch_bits_found: get(sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_BitsFound),
         }
     }
 }
@@ -73,19 +73,19 @@ pub struct UnknownSyscall {
 impl IsFault for UnknownSyscall {
     fn get() -> Self {
         Self {
-            x0: get(sys::seL4_UnknownSyscall_X0),
-            x1: get(sys::seL4_UnknownSyscall_X1),
-            x2: get(sys::seL4_UnknownSyscall_X2),
-            x3: get(sys::seL4_UnknownSyscall_X3),
-            x4: get(sys::seL4_UnknownSyscall_X4),
-            x5: get(sys::seL4_UnknownSyscall_X5),
-            x6: get(sys::seL4_UnknownSyscall_X6),
-            x7: get(sys::seL4_UnknownSyscall_X7),
-            fault_ip: get(sys::seL4_UnknownSyscall_FaultIP),
-            sp: get(sys::seL4_UnknownSyscall_SP),
-            lr: get(sys::seL4_UnknownSyscall_LR),
-            spsr: get(sys::seL4_UnknownSyscall_SPSR),
-            syscall: get(sys::seL4_UnknownSyscall_Syscall),
+            x0: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0),
+            x1: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X1),
+            x2: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X2),
+            x3: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X3),
+            x4: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X4),
+            x5: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X5),
+            x6: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X6),
+            x7: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X7),
+            fault_ip: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP),
+            sp: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_SP),
+            lr: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_LR),
+            spsr: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_SPSR),
+            syscall: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_Syscall),
         }
     }
 }
@@ -102,11 +102,11 @@ pub struct UserException {
 impl IsFault for UserException {
     fn get() -> Self {
         Self {
-            fault_ip: get(sys::seL4_UserException_FaultIP),
-            sp: get(sys::seL4_UserException_SP),
-            spsr: get(sys::seL4_UserException_SPSR),
-            number: get(sys::seL4_UserException_Number),
-            code: get(sys::seL4_UserException_Code),
+            fault_ip: get(sys::seL4_UserException_Msg_seL4_UserException_FaultIP),
+            sp: get(sys::seL4_UserException_Msg_seL4_UserException_SP),
+            spsr: get(sys::seL4_UserException_Msg_seL4_UserException_SPSR),
+            number: get(sys::seL4_UserException_Msg_seL4_UserException_Number),
+            code: get(sys::seL4_UserException_Msg_seL4_UserException_Code),
         }
     }
 }
@@ -128,10 +128,10 @@ impl VMFault {
 impl IsFault for VMFault {
     fn get() -> Self {
         Self {
-            ip: get(sys::seL4_VMFault_IP),
-            addr: get(sys::seL4_VMFault_Addr),
-            prefetch_fault: get(sys::seL4_VMFault_PrefetchFault),
-            fsr: get(sys::seL4_VMFault_FSR),
+            ip: get(sys::seL4_VMFault_Msg_seL4_VMFault_IP),
+            addr: get(sys::seL4_VMFault_Msg_seL4_VMFault_Addr),
+            prefetch_fault: get(sys::seL4_VMFault_Msg_seL4_VMFault_PrefetchFault),
+            fsr: get(sys::seL4_VMFault_Msg_seL4_VMFault_FSR),
         }
     }
 }
@@ -144,7 +144,7 @@ pub struct VGICMaintenance {
 impl IsFault for VGICMaintenance {
     fn get() -> Self {
         Self {
-            idx: get(sys::seL4_VGICMaintenance_IDX),
+            idx: get(sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_IDX),
         }
     }
 }
@@ -157,7 +157,7 @@ pub struct VCPUFault {
 impl IsFault for VCPUFault {
     fn get() -> Self {
         Self {
-            hsr: get(sys::seL4_VCPUFault_HSR),
+            hsr: get(sys::seL4_VCPUFault_Msg_seL4_VCPUFault_HSR),
         }
     }
 }
@@ -170,7 +170,7 @@ pub struct VPPIEvent {
 impl IsFault for VPPIEvent {
     fn get() -> Self {
         Self {
-            irq: get(sys::seL4_VPPIEvent_IRQ),
+            irq: get(sys::seL4_VPPIEvent_Msg_seL4_VPPIEvent_IRQ),
         }
     }
 }
@@ -201,23 +201,23 @@ impl Fault {
                 Fault::CapFault(CapFault::get())
             }
             sys::seL4_Fault_tag_seL4_Fault_UnknownSyscall => {
-                assert!(tag.length() == sys::seL4_UnknownSyscall_Length);
+                assert!(tag.length() == sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_Length);
                 Fault::UnknownSyscall(UnknownSyscall::get())
             }
             sys::seL4_Fault_tag_seL4_Fault_UserException => {
-                assert!(tag.length() == sys::seL4_UserException_Length);
+                assert!(tag.length() == sys::seL4_UserException_Msg_seL4_UserException_Length);
                 Fault::UserException(UserException::get())
             }
             sys::seL4_Fault_tag_seL4_Fault_VMFault => {
-                assert!(tag.length() == sys::seL4_VMFault_Length);
+                assert!(tag.length() == sys::seL4_VMFault_Msg_seL4_VMFault_Length);
                 Fault::VMFault(VMFault::get())
             }
             sys::seL4_Fault_tag_seL4_Fault_VGICMaintenance => {
-                assert!(tag.length() == sys::seL4_VGICMaintenance_Length);
+                assert!(tag.length() == sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_Length);
                 Fault::VGICMaintenance(VGICMaintenance::get())
             }
             sys::seL4_Fault_tag_seL4_Fault_VCPUFault => {
-                assert!(tag.length() == sys::seL4_VCPUFault_Length);
+                assert!(tag.length() == sys::seL4_VCPUFault_Msg_seL4_VCPUFault_Length);
                 Fault::VCPUFault(VCPUFault::get())
             }
             sys::seL4_Fault_tag_seL4_Fault_VPPIEvent => {

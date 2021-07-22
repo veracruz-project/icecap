@@ -6,6 +6,9 @@
 #define ICECAP_ROUND_UP(n, b) ((n) + ((n) % (b) == 0 ? 0 : ((b) - ((n) % (b)))))
 #define ICECAP_GAP_ABOVE_TPIDR 16
 
+// HACK
+__thread __attribute__((weak)) seL4_IPCBuffer *__sel4_ipc_buffer;
+
 seL4_Word icecap_runtime_heap_start = 0;
 seL4_Word icecap_runtime_heap_end = 0;
 seL4_CPtr icecap_runtime_heap_lock = 0;
@@ -130,7 +133,7 @@ void icecap_runtime_tls_region_insert_ipc_buffer(void *dst_tls_region, void *ipc
         (void *)&__sel4_ipc_buffer,
         (void *)&ipc_buffer,
         sizeof(&ipc_buffer)
-        );
+    );
 }
 
 void icecap_runtime_tls_region_insert_tcb(void *dst_tls_region, seL4_CPtr tcb)
@@ -140,7 +143,7 @@ void icecap_runtime_tls_region_insert_tcb(void *dst_tls_region, seL4_CPtr tcb)
         (void *)&icecap_runtime_tcb,
         (void *)&tcb,
         sizeof(&tcb)
-        );
+    );
 }
 
 static void debug_print(const char *s); // HACK

@@ -21,7 +21,7 @@ let
 
   repos = mk: {
 
-    seL4 = mk "seL4" {} "d3e8190a4f92a10686abc14fce38e7be7b3eadb3";
+    seL4 = mk "seL4" {} "29bb6cddaec46d3eae8e7e11bc8c5f43bf88156d";
     capdl = mk "capdl" {} "e4541e4e838ccdec1d98a6052718ec11fc1ec4ca";
 
     # for elfloader

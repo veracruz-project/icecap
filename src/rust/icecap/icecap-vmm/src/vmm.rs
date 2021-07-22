@@ -215,7 +215,7 @@ const SYS_KICK: Word = 1347;
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn run(&mut self) -> Fallible<()> {
-        // self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?;
+        self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?;
         self.tcb.resume()?;
         loop {
             let (info, badge) = self.ep.recv();
@@ -430,7 +430,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     }
 
     pub fn upper_ns_bound_interrupt(&mut self) -> Fallible<Option<i64>> {
-        // assert_eq!(self.vcpu.read_regs(VCPUReg::CNTVOFF)?, 0);
+        assert_eq!(self.vcpu.read_regs(VCPUReg::CNTVOFF)?, 0);
         assert_eq!(asm::read_cntfrq_el0(), CNTFRQ);
         let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL)?;
         Ok(if (cntv_ctl & asm::CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & asm::CNTV_CTL_EL0_IMASK) == 0 {
