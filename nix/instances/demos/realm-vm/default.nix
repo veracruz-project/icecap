@@ -4,7 +4,7 @@
 , icecapPlat
 , emptyFile
 
-, kernel, repos
+, kernel, repos, pkgs_linux
 }:
 
 mkInstance (self: with self; {
@@ -30,6 +30,9 @@ mkInstance (self: with self; {
     bootargs = host.bootargs;
     dtb = composition.host-dtb;
   };
+
+  c-helper = pkgs_linux.icecap.callPackage ./helpers/c-helper {};
+  rust-helper = pkgs_linux.icecap.callPackage ./helpers/rust-helper {};
 
   # composition = compose {
   #   kernel = kernel.override' (attrs: {

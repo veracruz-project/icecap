@@ -3,6 +3,7 @@
 , icecapPlat, icecapExtraConfig
 , pkgs_linux
 
+, c-helper, rust-helper
 , spec
 }:
 
@@ -33,6 +34,12 @@ in rec {
         (import ./host.nix {
           inherit icecapPlat spec;
         })
+       ({ ... }: {
+          initramfs.extraUtilsCommands = ''
+            copy_bin_and_libs ${c-helper}/bin/c-helper
+            copy_bin_and_libs ${rust-helper}/bin/rust-helper
+          '';
+        })
       ];
     };
   };
@@ -47,6 +54,12 @@ in rec {
     nx = nixosLite.mk1Stage {
       modules = [
         ./realm.nix
+        ({ ... }: {
+          initramfs.extraUtilsCommands = ''
+            copy_bin_and_libs ${c-helper}/bin/c-helper
+            copy_bin_and_libs ${rust-helper}/bin/rust-helper
+          '';
+        })
       ];
     };
   };
