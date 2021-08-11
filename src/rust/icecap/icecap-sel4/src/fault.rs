@@ -138,13 +138,16 @@ impl IsFault for VMFault {
 
 #[derive(Debug)]
 pub struct VGICMaintenance {
-    pub idx: Word,
+    pub idx: Option<Word>,
 }
 
 impl IsFault for VGICMaintenance {
     fn get() -> Self {
         Self {
-            idx: get(sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_IDX),
+            idx: match get(sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_IDX) {
+                Word::MAX => None,
+                idx => Some(idx),
+            },
         }
     }
 }

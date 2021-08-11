@@ -266,7 +266,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             panic!("Fault::UserException({:x?})", fault);
                         }
                         Fault::VGICMaintenance(fault) => {
-                            self.gic.lock().handle_maintenance(self.node_index, fault.idx as usize)?;
+                            self.gic.lock().handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
                             reply(MessageInfo::empty());
                         }
                         Fault::VCPUFault(fault) => {
