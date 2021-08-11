@@ -108,7 +108,10 @@ impl VMMGICCallbacks {
     }
 }
 
+#[cfg(icecap_plat = "virt")]
 const CNTFRQ: u32 = 62500000;
+#[cfg(icecap_plat = "rpi4")]
+const CNTFRQ: u32 = 54000000;
 
 impl GICCallbacks for VMMGICCallbacks {
 
