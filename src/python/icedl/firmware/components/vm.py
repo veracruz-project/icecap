@@ -392,7 +392,7 @@ class VMM(ElfComponent):
         else:
             self._arg.update({
                 'event_server_client_ep': [
-                    self.cspace().alloc(self.composition.extern(ObjectType.seL4_EndpointObject, 'realm_{}_event_server_client_endpoint_0'.format(self.composition.realm_id())), write=True, grantreply=True)
+                    self.cspace().alloc(self.composition.extern(ObjectType.seL4_EndpointObject, 'realm_{}_event_server_client_endpoint_{}'.format(self.composition.realm_id(), self.composition.virt_to_phys_node_map(j))), write=True, grantreply=True)
                     for j in range(self.composition.num_nodes())
                     ],
                 })

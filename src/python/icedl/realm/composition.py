@@ -68,3 +68,9 @@ class Composition(BaseComposition):
 
     def realm_id(self):
         return REALM_ID
+
+    # HACK
+    def virt_to_phys_node_map(self, virt_node):
+        return ({
+            0: 1,
+        })[virt_node]
