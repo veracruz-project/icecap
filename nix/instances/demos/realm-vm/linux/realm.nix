@@ -28,8 +28,18 @@ in
       # cp -pdv ${pkgs.libunwind}/lib/libunwind-aarch64*.so* $out/lib
 
     initramfs.profile = ''
-      i() {
-        iperf3 -c ${hostAddr}
+      ig() {
+        while true; do [ -f /stop ] || iperf3 -c $1; done
+      }
+      ih() {
+        ig ${hostAddr}
+      }
+      id() {
+        ig ${devAddr}
+      }
+      ik() {
+        touch /stop
+        pkill iperf3
       }
       c() {
         curl google.com
