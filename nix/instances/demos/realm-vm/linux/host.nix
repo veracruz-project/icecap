@@ -8,6 +8,7 @@ let
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
   devAddr = "10.0.2.2";
+  localIperfPort = "8001";
 
   udhcpcScript = pkgs.writeScript "udhcpc.sh" ''
     #!${config.build.extraUtils}/bin/sh
@@ -89,10 +90,19 @@ in
       mount -o ro /dev/mmcblk0p1 mnt/
       ln -s /mnt/spec.bin /spec.bin
     '' + ''
-      affinity=0x4
-      # taskset $affinity /bin/sh -c "while true; do true; done" &
-      # taskset $affinity /bin/sh -c "while true; do sleep 1; echo awake; done" &
-      icecap-host create 0 /spec.bin && taskset $affinity icecap-host run 0 0 &
+
+      # https://access.redhat.com/solutions/177953
+      # https://www.redhat.com/files/summit/session-assets/2018/Performance-analysis-and-tuning-of-Red-Hat-Enterprise-Linux-Part-1.pdf
+      # echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
+      # echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+
+      iperf_affinity=0x1
+      # taskset $iperf_affinity iperf3 -s > /dev/null &
+      # taskset $iperf_affinity iperf3 -s -p ${localIperfPort} > /dev/null &
+
+      realm_affinity=0x4
+      taskset $realm_affinity icecap-host create 0 /spec.bin && \
+        chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
     '';
 
     initramfs.extraUtilsCommands = ''
