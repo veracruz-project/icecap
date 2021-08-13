@@ -7,6 +7,7 @@ let
   physicalIface = "eth10";
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
+  devAddr = "10.0.2.2";
 
   udhcpcScript = pkgs.writeScript "udhcpc.sh" ''
     #!${config.build.extraUtils}/bin/sh
