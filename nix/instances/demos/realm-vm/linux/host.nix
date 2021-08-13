@@ -97,10 +97,10 @@ in
       # echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
 
       iperf_affinity=0x1
-      # taskset $iperf_affinity iperf3 -s > /dev/null &
+      taskset $iperf_affinity iperf3 -s > /dev/null &
       # taskset $iperf_affinity iperf3 -s -p ${localIperfPort} > /dev/null &
 
-      realm_affinity=0x4
+      realm_affinity=0x2
       taskset $realm_affinity icecap-host create 0 /spec.bin && \
         chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
     '';

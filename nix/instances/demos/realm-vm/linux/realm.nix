@@ -4,7 +4,7 @@ let
   virtualIface = "eth0";
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
-  devAddr = "10.0.2.2";
+  devAddr = "10.0.2.2"; # $(nix-build -A pkgs.dev.iperf3)/bin/iperf3 -s
   devNCPort = "9001"; # nc -vl 0.0.0.0 9001 < /dev/null > core
 in
 
@@ -19,6 +19,8 @@ in
 
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
+
+      (while true; do [ -f /stop ] || iperf3 -c ${hostAddr}; done) &
     '';
 
     initramfs.extraUtilsCommands = ''
