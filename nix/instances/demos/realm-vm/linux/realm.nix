@@ -5,7 +5,7 @@ let
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
   devAddr = "10.0.2.2"; # $(nix-build -A pkgs.dev.iperf3)/bin/iperf3 -s
-  devNCPort = "9001"; # nc -vl 0.0.0.0 9001 < /dev/null > core
+  devNCPort = "9001";
 in
 
 {
@@ -20,7 +20,7 @@ in
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
 
-      (while true; do [ -f /stop ] || iperf3 -c ${hostAddr}; done) &
+      (while true; do [ -f /stop ] || iperf3 -c ${hostAddr} || break; done) &
     '';
 
     initramfs.extraUtilsCommands = ''
@@ -46,7 +46,10 @@ in
         pkill iperf3
       }
       core_to_dev() {
-        nc -v -w0 ${devAddr} ${devNCPort} < core
+        sha256sum core && nc -v -w0 ${devAddr} ${devNCPort} < core
+        # on host:
+        # nc -vl 0.0.0.0 9001 < /dev/null > core && sha256sum core
+        # $(nix-build -A pkgs.dev.gdb)/bin/gdb $(nix-build -A pkgs.linux.iperf3)/bin/iperf3 core
       }
       c() {
         curl google.com
