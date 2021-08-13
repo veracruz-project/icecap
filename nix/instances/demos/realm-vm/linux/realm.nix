@@ -5,6 +5,7 @@ let
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
   devAddr = "10.0.2.2";
+  devNCPort = "9001"; # nc -vl 0.0.0.0 9001 < /dev/null > core
 in
 
 {
@@ -14,6 +15,7 @@ in
 
     initramfs.extraInitCommands = ''
       echo 2 > /proc/sys/kernel/randomize_va_space
+      ulimit -c unlimited
 
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
@@ -40,6 +42,9 @@ in
       ik() {
         touch /stop
         pkill iperf3
+      }
+      core_to_dev() {
+        nc -v -w0 ${devAddr} ${devNCPort} < core
       }
       c() {
         curl google.com

@@ -56,6 +56,7 @@ in
 
     initramfs.extraInitCommands = ''
       echo 2 > /proc/sys/kernel/randomize_va_space
+      ulimit -c unlimited
 
       mkdir -p /etc /bin /mnt/nix/store
       ln -s $(which sh) /bin/sh
