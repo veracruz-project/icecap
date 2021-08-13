@@ -38,7 +38,9 @@ in rec {
   };
 
   realm = rec {
-    bootargs = commonBootargs;
+    bootargs = commonBootargs ++ [
+      "lamekaslr"
+    ];
     initrd = nx.config.build.initramfs;
     linuxImage = linuxKernel.guest.kernel;
     # linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;

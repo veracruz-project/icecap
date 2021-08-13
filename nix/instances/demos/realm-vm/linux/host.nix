@@ -54,6 +54,8 @@ in
     net.interfaces.lo = { static = "127.0.0.1"; };
 
     initramfs.extraInitCommands = ''
+      echo 2 > /proc/sys/kernel/randomize_va_space
+
       mkdir -p /etc /bin /mnt/nix/store
       ln -s $(which sh) /bin/sh
 

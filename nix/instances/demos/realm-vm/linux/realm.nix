@@ -12,6 +12,8 @@ in
     net.interfaces.eth0.static = "${realmAddr}/24";
 
     initramfs.extraInitCommands = ''
+      echo 2 > /proc/sys/kernel/randomize_va_space
+
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
     '';
