@@ -148,7 +148,7 @@ impl Extension {
             virtual_node,
             timeout: {
                 let bound = bound.unwrap();
-                if bound < 0 { None } else { Some(bound as usize) }
+                Some(if bound < 0 { 0 } else { bound } as usize)
             }
         });
         ctx.pc += 4;
