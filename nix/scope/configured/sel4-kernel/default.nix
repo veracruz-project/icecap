@@ -56,7 +56,11 @@ let
       rm configs/*_verified.cmake
 
       patchShebangs --build .
-      cp ${dts} tools/dts/${cmakeConfig.KernelPlatform.value}.dts
+      cp ${dts} tools/dts/${{
+        # The alignment of these names is a coincidence
+        rpi4 = "rpi4";
+        virt = "virt";
+      }.${icecapPlat}}.dts
     '';
   };
 

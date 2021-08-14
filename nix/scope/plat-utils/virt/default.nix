@@ -49,11 +49,11 @@ rec {
     "-s" "-S"
   ];
 
-  dtb = runCommand "virt-aarch64.dtb" {} ''
+  dtb = runCommand "virt.dtb" {} ''
     ${exeDtb} ${join (frontendArgsWith ",dumpdtb=$out" ++ dummyBackendArgs)}
   '';
 
-  dts = with dtb-helpers; decompileWithName "virt-aarch64.dts" dtb;
+  dts = with dtb-helpers; decompileWithName "virt.dts" dtb;
 
   cmdPrefix = "${exeRun} ${join (frontendArgs ++ backendArgs)}";
 

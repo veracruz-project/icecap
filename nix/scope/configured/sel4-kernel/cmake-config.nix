@@ -7,7 +7,7 @@ with configUtils;
 let
 
   kernelPlat = {
-    virt = "virt-aarch64";
+    virt = "qemu-arm-virt";
     rpi4 = "bcm2711";
   }.${icecapPlat};
 
