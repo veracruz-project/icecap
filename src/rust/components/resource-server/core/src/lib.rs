@@ -304,7 +304,7 @@ impl ResourceServer {
 
     // CPU resources
 
-    pub fn yield_to(&mut self, physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds) -> Fallible<()> {
+    pub fn yield_to(&mut self, physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Option<Nanoseconds>) -> Fallible<()> {
         // HACK
         self.cnode.save_caller(self.node_local[physical_node].reply_slot)?;
 
@@ -318,7 +318,9 @@ impl ResourceServer {
             schedule(*tcb, Some(physical_node))?;
         }
         self.set_notify_host_event(physical_node)?;
-        self.set_timeout(physical_node, timeout)?;
+        if let Some(timeout) = timeout {
+            self.set_timeout(physical_node, timeout)?;
+        }
         Ok(())
     }
 

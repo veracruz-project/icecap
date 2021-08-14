@@ -32,7 +32,7 @@ pub enum Request {
     FillChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, object_index: usize, fill_entry_index: usize, offset: usize },
     Realize { realm_id: RealmId },
     Destroy { realm_id: RealmId },
-    YieldTo { physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Nanoseconds },
+    YieldTo { physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Option<Nanoseconds> },
     HackRun { realm_id: RealmId },
 }
 

@@ -148,8 +148,8 @@ impl Extension {
             virtual_node,
             timeout: {
                 let bound = bound.unwrap();
-                if bound < 0 { 0 } else { bound }
-            } as usize,
+                if bound < 0 { None } else { Some(bound as usize) }
+            }
         });
         ctx.pc += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
