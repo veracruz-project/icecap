@@ -108,7 +108,7 @@ class EventServer(ElfComponent):
         elif self.composition.plat == 'rpi4':
             edge_triggered = frozenset()
             no = frozenset([96, 97, 98, 99, 125])
-            whole = range(32, 248) # TODO is this correct?
+            whole = range(32, 216) # TODO is this correct?
         for irq in whole:
             if irq not in no:
                 if irq in edge_triggered:
