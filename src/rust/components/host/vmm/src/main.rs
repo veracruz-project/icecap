@@ -138,7 +138,11 @@ impl Extension {
     }
 
     fn sys_yield_to(node: &mut VMMNode<Self>) -> Fallible<()> {
-        let bound = node.upper_ns_bound_interrupt()?;
+        let bound = node.upper_ns_bound_interrupt()?.unwrap();
+        // HACK this shouldn't be happening so often
+        if bound <= 0 {
+            return Ok(())
+        }
         let mut ctx = node.tcb.read_all_registers(false)?;
         let realm_id = ctx.x0 as usize;
         let virtual_node = ctx.x1 as usize;
@@ -146,13 +150,14 @@ impl Extension {
             physical_node: node.node_index,
             realm_id,
             virtual_node,
-            timeout: {
-                let bound = bound.unwrap();
-                Some(if bound < 0 { 0 } else { bound } as usize)
-            }
+            timeout: Some(bound as usize),
         });
         ctx.pc += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
+        {
+            let bound = node.upper_ns_bound_interrupt()?.unwrap();
+            assert!(bound < 0);
+        }
         Ok(())
     }
 }
