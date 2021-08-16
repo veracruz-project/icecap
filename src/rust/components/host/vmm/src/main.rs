@@ -154,10 +154,10 @@ impl Extension {
         });
         ctx.pc += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
-        {
-            let bound = node.upper_ns_bound_interrupt()?.unwrap();
-            assert!(bound < 0);
-        }
+        // {
+        //     let bound = node.upper_ns_bound_interrupt()?.unwrap();
+        //     assert!(bound < 0);
+        // }
         Ok(())
     }
 }
