@@ -33,7 +33,7 @@ in
 
     initramfs.profile = ''
       ig() {
-        while true; do [ -f /stop ] || iperf3 -c $1; done
+        while true; do [ -f /stop ] || iperf3 -c $1 || break; done
       }
       ih() {
         ig ${hostAddr}
@@ -44,12 +44,6 @@ in
       ik() {
         touch /stop
         pkill iperf3
-      }
-      core_to_dev() {
-        sha256sum core && nc -v -w0 ${devAddr} ${devNCPort} < core
-        # on host:
-        # nc -vl 0.0.0.0 9001 < /dev/null > core && sha256sum core
-        # $(nix-build -A pkgs.dev.gdb)/bin/gdb $(nix-build -A pkgs.linux.iperf3)/bin/iperf3 core
       }
       c() {
         curl google.com
