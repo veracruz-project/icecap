@@ -52,6 +52,7 @@ icecap.byIceCapPlat (plat:
     };
 
     demos = {
+      realm-vm = mkBasicInstance configs.icecap ./demos/realm-vm;
       minimal-root = mkBasicInstance configs.icecap ./demos/minimal-root;
       minimal = mkBasicInstance configs.icecap ./demos/minimal;
       mirage = mkBasicInstance configs.icecap ./demos/mirage;

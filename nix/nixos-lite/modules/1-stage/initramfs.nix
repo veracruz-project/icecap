@@ -37,7 +37,7 @@ let
       specialMount proc /proc nosuid,noexec,nodev proc
       specialMount sysfs /sys nosuid,noexec,nodev sysfs
       specialMount devtmpfs /dev nosuid,strictatime,mode=755,size=5% devtmpfs
-      specialMount devpts /dev/pts nosuid,noexec,mode=620,ptmxmode=0666 devpts
+      specialMount devpts /dev/pts nosuid,noexec,mode=620,ptmxmode=0666 devpts 2>/dev/null # HACK not present in tiny realm kconfig
 
       console=${cfg.defaultConsole}
       for o in $(cat /proc/cmdline); do

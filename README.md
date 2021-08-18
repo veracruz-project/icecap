@@ -48,8 +48,8 @@ $(container) nix-build -A instances.virt.demos.realm-vm.run # optional: -j$(npro
 $(container) ./result/run
 # ... wait for the host VM to boot to a shell ...
 # Spawn a VM in a realm:
-$(host) icecap-host create 0 /spec.bin file:/dev/rb_resource_server
-$(host) icecap-host hack-run 0
+$(host) icecap-host create 0 /spec.bin
+$(host) icecap-host run 0 0
 # ... wait for the realm VM to boot to a shell ...
 # Type '@?' for console multiplexer help.
 # The host VM uses virtual console 0, and the realm VM uses virtual console 1.
