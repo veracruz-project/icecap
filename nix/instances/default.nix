@@ -44,6 +44,7 @@ icecap.byIceCapPlat (plat:
   in {
 
     test = {
+      realm-vm = mkBasicInstance configs.icecap ./test/realm-vm;
       host = mkBasicInstance configs.icecap ./test/host;
       host-and-adjacent-vm = mkBasicInstance configs.icecap ./test/host-and-adjacent-vm;
       timer-and-serial = mkBasicInstance configs.icecap ./test/timer-and-serial;
@@ -53,7 +54,6 @@ icecap.byIceCapPlat (plat:
     demos = {
       minimal-root = mkBasicInstance configs.icecap ./demos/minimal-root;
       minimal = mkBasicInstance configs.icecap ./demos/minimal;
-      realm-vm = mkBasicInstance configs.icecap ./demos/realm-vm;
       mirage = mkBasicInstance configs.icecap ./demos/mirage;
     };
 
