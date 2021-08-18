@@ -174,7 +174,7 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
       > $out/sel4-config/kernel.cmake
 
     cat ${writeText "x" extraConfig} >> $out/sel4-config/kernel.cmake
-  
+
     $AR r $out/lib/libsel4_autoconf.a
   '';
 
