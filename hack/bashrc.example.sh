@@ -5,6 +5,7 @@ alias nn="nix-build --no-out-link ${__icecap_shortcuts} -A"
 alias ne="nix-instantiate --eval ${__icecap_shortcuts} -A"
 alias nes="nix-instantiate --eval --strict ${__icecap_shortcuts} -A"
 alias r="./result/run"
+alias rd="./result/run -d"
 
 k() {
     remote="$1"

@@ -1,14 +1,14 @@
 target remote :1234
 
-dir ./result/src
-source ./local/seL4/gdb-macros
+# dir ./result/debug/src
+# source ./local/seL4/gdb-macros
 set pagination off
-add-symbol-file ./result/kernel.elf
+add-symbol-file ./result/debug/kernel.elf
 b armv_init_user_access
 c
 clear
 
-add-symbol-file ./result/app.elf
+add-symbol-file ./result/debug/app.elf
 b seL4_TCB_Suspend
 c
 clear

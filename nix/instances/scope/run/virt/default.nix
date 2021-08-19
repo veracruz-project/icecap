@@ -9,7 +9,7 @@ let
     writeScript "run.sh" (with runPkgs; with virtUtils; ''
       #!${runtimeShell}
       debug=
-      if [ "$1" = "d" ]; then
+      if [ "$1" = "-d" ]; then
         debug="${join debugArgs}"
       fi
       exec ${cmdPrefix} \
@@ -25,23 +25,22 @@ in
 
 let
 
-  inherit (composition) image;
-
   run = basicScript {
-    kernel = image;
+    kernel = composition.image;
   };
 
   links = {
-    inherit run image;
-    "icecap-show-backtrace" = "${icecap-show-backtrace.nativeDrv}/bin/icecap-show-backtrace";
-  } // composition.debugFiles
-    // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
-    // extraLinks;
+    inherit run;
+  } // lib.mapAttrs' (k: lib.nameValuePair "debug/${k}") ({
+      icecap-show-backtrace = "${icecap-show-backtrace.nativeDrv}/bin/show-backtrace";
+    } // composition.debugFiles // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
+  ) // extraLinks;
 
 in
 runCommand "run" {} ''
   mkdir $out
   ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+    mkdir -p $out/$(dirname ${k})
     ln -s ${v} $out/${k}
   '') links)}
 

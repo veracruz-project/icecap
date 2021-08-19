@@ -1,7 +1,7 @@
 { lib, runCommand
 , rpi4Utils
-, icecap-show-backtrace
 , icecapPlat
+, icecap-show-backtrace
 }:
 
 { composition, payload, extraLinks ? {}, icecapPlatArgs ? {}, allDebugFiles }:
@@ -21,10 +21,10 @@ let
 
   links = {
     inherit boot;
-    "icecap-show-backtrace" = "${icecap-show-backtrace.nativeDrv}/bin/show-backtrace";
-  } // composition.debugFiles
-    // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
-    // extraLinks;
+  } // lib.mapAttrs' (k: lib.nameValuePair "debug/${k}") ({
+      icecap-show-backtrace = "${icecap-show-backtrace.nativeDrv}/bin/show-backtrace";
+    } // composition.debugFiles // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
+  ) // extraLinks;
 
 in
 runCommand "run" {
@@ -34,6 +34,7 @@ runCommand "run" {
 } ''
   mkdir $out
   ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+    mkdir -p $out/$(dirname ${k})
     ln -s ${v} $out/${k}
   '') links)}
 ''
