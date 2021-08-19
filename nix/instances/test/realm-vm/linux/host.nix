@@ -81,11 +81,11 @@ in
       echo "...done"
 
     '' + lib.optionalString (icecapPlat == "rpi4") ''
-      (
-        cd /sys/devices/system/cpu/cpu0/cpufreq/
-        echo userspace > scaling_governor
-        echo 1500000 > scaling_setspeed
-      )
+      # (
+      #   cd /sys/devices/system/cpu/cpu0/cpufreq/
+      #   echo userspace > scaling_governor
+      #   echo 1500000 > scaling_setspeed
+      # )
 
       mount -o ro /dev/mmcblk0p1 mnt/
       ln -s /mnt/spec.bin /spec.bin
