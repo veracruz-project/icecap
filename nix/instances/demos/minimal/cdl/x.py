@@ -1,4 +1,4 @@
-from icedl import *
+from icedl.common import *
 
 class Minimal(ElfComponent):
 
@@ -10,7 +10,7 @@ class Minimal(ElfComponent):
         self.composition.register_file(path_bin.name, path_bin)
         return path_bin.name
 
-composition = start()
+composition = Composition.from_env()
 
 minimal = composition.component(Minimal, 'minimal')
 
