@@ -1,4 +1,4 @@
-use icecap_std::sys::c_types::*;
+use icecap_std::sel4::sys::c_types::*;
 
 extern "C" {
     pub fn costub_startup();

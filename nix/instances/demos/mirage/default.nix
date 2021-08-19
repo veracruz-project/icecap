@@ -1,36 +1,45 @@
 { mkInstance
-, compose, stripElfSplit
-, icecapSrcAbsSplit
-, bins, mkMirageBinary, deviceTree
 , icecapPlat
+, mkMirageBinary, stripElfSplit
+, uBoot
+, mkDynDLSpec, mkIceDL
 }:
 
 mkInstance (self: with self; {
 
-  linux = callPackage ./linux {};
-  inherit (linux) host realm;
+  inherit (linux) host;
 
-  composition = compose {
-    src = ./cdl;
+  linux = callPackage ./linux {};
+
+  icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
+    ln -s ${spec} $out/spec.bin
+  '';
+
+  mirageLibrary = callPackage ./mirage.nix {};
+  mirageBinary = mkMirageBinary mirageLibrary;
+
+  ddl = mkIceDL {
+    src = ./ddl;
     config = {
       components = {
-        fault_handler.image = bins.fault-handler.split;
-        timer_server.image = bins.timer-server.split;
-        serial_server.image = bins.serial-server.split;
-
-        host_vmm.image = bins.vmm.split;
-        host_vm.bootargs = host.bootargs;
-        host_vm.kernel = host.linuxImage;
-        host_vm.initrd = host.initrd;
-        host_vm.dtb = deviceTree.host.${icecapPlat};
-        host_vm.set_chosen = true;
-
         mirage.image = stripElfSplit "${mirageBinary}/bin/mirage.elf";
       };
     };
   };
 
-  mirageLibrary = callPackage ./mirage.nix {};
-  mirageBinary = mkMirageBinary mirageLibrary;
+  spec = mkDynDLSpec {
+    cdl = "${ddl}/icecap.cdl";
+    root = "${ddl}/links";
+    extraPassthru = {
+      inherit ddl;
+    };
+  };
+
+  payload = uBoot.${icecapPlat}.mkDefaultPayload {
+    linuxImage = host.linuxImage;
+    initramfs = host.initrd;
+    bootargs = host.bootargs;
+    dtb = composition.host-dtb;
+  };
 
 })

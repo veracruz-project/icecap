@@ -19,8 +19,8 @@ use serde::{Serialize, Deserialize};
 
 use icecap_std::prelude::*;
 use icecap_std::config::*;
+use icecap_std::sel4::sys::c_types::*;
 use icecap_start_generic::declare_generic_main;
-use sys::c_types::*;
 
 mod c;
 mod syscall;
@@ -30,51 +30,22 @@ declare_generic_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
-    event_ep: Endpoint,
+    nfn: Notification,
 
-    timer: DescTimerClient,
     con: RingBufferConfig,
     net: RingBufferConfig,
-
-    timer_thread: Thread,
-    net_thread: Thread,
 
     passthru: serde_json::Value,
 }
 
 fn main(config: Config) -> Fallible<()> {
-    {
-        let timer_wait = config.timer.wait;
-        let event_send = config.event_ep;
-        config.timer_thread.start(move || {
-            loop {
-                timer_wait.wait();
-                event_send.send(MessageInfo::empty());
-            }
-        });
-    }
-    {
-        let net_wait = config.net.wait;
-        let event_send = config.event_ep;
-        config.net_thread.start(move || {
-            loop {
-                net_wait.wait();
-                event_send.send(MessageInfo::empty());
-            }
-        });
-    }
 
-    let con_rb = RingBuffer::realize(&config.con);
-    let con = BufferedRingBuffer::new(con_rb);
-    icecap_std::set_print(con);
-
-    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new(RingBuffer::realize(&config.net)));
+    let net: BufferedPacketRingBuffer = panic!();
     net.packet_ring_buffer().enable_notify_read();
     net.packet_ring_buffer().enable_notify_write();
 
     let state = State {
-        event_ep: config.event_ep,
-        timer: realize_timer_client(&config.timer),
+        nfn: config.nfn,
         net_ifaces: vec![net],
     };
     unsafe  {
@@ -108,15 +79,13 @@ fn with<T, F: FnOnce(&mut State) -> T>(f: F) -> T {
 type NetIfaceId = usize;
 
 pub struct State {
-    event_ep: Endpoint,
-    timer: Timer,
-    // con: BufferedRingBuffer, // TODO
+    nfn: Notification,
     net_ifaces: Vec<BufferedPacketRingBuffer>,
 }
 
 impl State {
     fn wfe(&mut self) {
-        self.event_ep.recv();
+        self.nfn.wait();
     }
 
     fn callback(&mut self) {
@@ -147,14 +116,14 @@ extern "C" fn impl_wfe() {
 #[no_mangle]
 extern "C" fn impl_get_time_ns() -> u64 {
     with(|s| {
-        s.timer.time()
+        panic!()
     })
 }
 
 #[no_mangle]
 extern "C" fn impl_set_timeout_ns(ns: u64) {
     with(|s| {
-        s.timer.oneshot_absolute(0, ns).unwrap()
+        panic!()
     })
 }
 

@@ -1,7 +1,9 @@
-{ lib, writeText, writeScript
-, linuxKernel
-, icecapPlat, icecapExtraConfig
+{ lib
+, icecapPlat
 , pkgs_linux
+, linuxKernel
+
+, spec
 }:
 
 with lib;
@@ -19,14 +21,18 @@ in rec {
   ];
 
   host = rec {
-    bootargs = commonBootargs;
-    initrd = nx.config.build.initramfs;
     linuxImage = linuxKernel.host.${icecapPlat}.kernel;
-    nx = nixosLite.mk1Stage {
+    bootargs = commonBootargs ++ [
+      "spec=${spec}"
+    ];
+    initrd = userland.config.build.initramfs;
+    userland = nixosLite.mk1Stage {
       modules = [
-        (import ./host.nix {
-          inherit icecapPlat spec;
-        })
+        ./host.nix
+        {
+          instance.plat = icecapPlat;
+          instance.spec = spec;
+        }
       ];
     };
   };

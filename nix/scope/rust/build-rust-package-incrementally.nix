@@ -9,7 +9,8 @@
 , extraManifest ? {}
 , extraManifestLocal ? {}
 , extraShellHook ? ""
-, extraLastLayerBuildInputs ? [] # TODO generalize
+, extraLastLayerBuildInputs ? [] # TODO generalize (inc. extraLastLayerArgs) with overrideAttrs
+, extraLastLayerArgs ? {}
 , extraArgs ? {}
 }:
 
@@ -205,7 +206,7 @@ in let
     '';
   } // commonArgsAfter);
 
-  env = mkShell (commonArgsFor allCrates // {
+  env = (mkShell (commonArgsFor allCrates // {
     shellHook = ''
       invoke_cargo() {
         cmd="$1"
@@ -229,10 +230,12 @@ in let
         invoke_cargo run "$@"
       }
     '' + extraShellHook;
-  } // commonArgsAfter);
+  } // commonArgsAfter // extraLastLayerArgs)).overrideAttrs (attrs: {
+    buildInputs = (attrs.buildInputs or []) ++ extraLastLayerBuildInputs;
+  });
 
 in
-stdenv.mkDerivation (commonArgsFor allCrates // {
+(stdenv.mkDerivation (commonArgsFor allCrates // {
   phases = [ "buildPhase" "installPhase" ];
 
   buildPhase = ''
@@ -257,7 +260,9 @@ stdenv.mkDerivation (commonArgsFor allCrates // {
     inherit lastLayer env doc src workspace lock;
     inherit allPropagate;
   };
-} // commonArgsAfter)
+} // commonArgsAfter // extraLastLayerArgs)).overrideAttrs (attrs: {
+  buildInputs = (attrs.buildInputs or []) ++ extraLastLayerBuildInputs;
+})
 
     # echo '${
     #   with lib;
