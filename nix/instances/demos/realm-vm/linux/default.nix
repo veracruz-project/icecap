@@ -21,25 +21,27 @@ in rec {
   ];
 
   host = rec {
+    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
     bootargs = commonBootargs ++ [
       "spec=${spec}"
     ];
-    initrd = nx.config.build.initramfs;
-    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
-    nx = nixosLite.mk1Stage {
+    initrd = userland.config.build.initramfs;
+    userland = nixosLite.mk1Stage {
       modules = [
-        (import ./host.nix {
-          inherit icecapPlat spec;
-        })
+        ./host.nix
+        {
+          instance.plat = icecapPlat;
+          instance.spec = spec;
+        }
       ];
     };
   };
 
   realm = rec {
-    bootargs = commonBootargs;
-    initrd = nx.config.build.initramfs;
     linuxImage = linuxKernel.guest.kernel;
-    nx = nixosLite.mk1Stage {
+    bootargs = commonBootargs;
+    initrd = userland.config.build.initramfs;
+    userland = nixosLite.mk1Stage {
       modules = [
         ./realm.nix
       ];
