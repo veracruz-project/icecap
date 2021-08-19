@@ -1,4 +1,4 @@
-{ lib, writeScript, runCommand, runPkgs
+{ lib, runCommand
 , rpi4Utils
 , icecap-show-backtrace
 , icecapPlat
@@ -19,30 +19,7 @@ let
     inherit image payload extraBootPartitionCommands;
   };
 
-  syncSimple = src: writeScript "sync" ''
-    #!${runPkgs.runtimeShell}
-    set -e
-
-    # if [ -z "$1" ]; then
-    #   echo "usage: $0 DEV" >&2
-    #   exit 1
-    # fi
-
-    # dev="$1"
-
-    dev=/dev/disk/by-label/icecap-boot
-
-    mkdir -p mnt
-    sudo mount $dev ./mnt
-    sudo rm -r ./mnt/* || true
-    sudo cp -rvL ${src}/* ./mnt
-    sudo umount ./mnt
-  '';
-
-  sync = syncSimple boot;
-
   links = {
-    run = sync;
     inherit boot;
     "icecap-show-backtrace" = "${icecap-show-backtrace.nativeDrv}/bin/show-backtrace";
   } // composition.debugFiles
