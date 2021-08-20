@@ -87,6 +87,11 @@ in
       #   echo 1500000 > scaling_setspeed
       # )
 
+      # ip link set ${physicalIface} up
+      # echo "sleep 5..."
+      # sleep 5
+      # udhcpc --quit --now -i ${physicalIface} -O staticroutes --script ${udhcpcScript}
+
       mount -o ro /dev/mmcblk0p1 mnt/
       ln -s /mnt/spec.bin /spec.bin
     '' + ''
