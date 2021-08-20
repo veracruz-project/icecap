@@ -4,7 +4,7 @@ with lib;
 
 let
   vif = "eth0";
-  qif = "eth1";
+  qif = "eth10";
   udhcpc_sh = pkgs.writeScript "udhcpc.sh" ''
     #!${config.build.extraUtils}/bin/sh
     if [ "$1" = bound ]; then
@@ -109,33 +109,12 @@ in {
     env.extraPackages = extraPackages;
 
     initramfs.extraNextInit = ''
-      echo "setting up ${vif}..."
-      ip link set ${vif} up
-      ip address add 192.168.1.1/24 dev ${vif}
+      echo "example"
     '';
 
     initramfs.profile = ''
-      p() {
-        icecap-p9-server-linux-cli 192.168.1.1:1337
-      }
-      i() {
-        iperf3 -s
-      }
-      x() {
-        echo foo | nc 192.168.1.4 1337
-      }
-      ix() {
-        nc 192.168.1.4 1337
-      }
-
-      nf() {
-        nft -f ${nft_script}
-      }
-
-      sct() {
-        sysctl -w net.ipv4.ip_forward=1
-        # sysctl -w net.ipv4.conf.all.forwarding=1
-        # sysctl -w net.ipv4.conf.default.forwarding=1
+      example() {
+        echo "example"
       }
     '';
   };

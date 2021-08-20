@@ -45,7 +45,7 @@ icecap.byIceCapPlat (plat:
 
     test = {
       realm-vm = mkBasicInstance configs.icecap ./test/realm-vm;
-      host = mkBasicInstance configs.icecap ./test/host;
+      host-2-stage = mkBasicInstance configs.icecap ./test/host-2-stage;
       host-and-adjacent-vm = mkBasicInstance configs.icecap ./test/host-and-adjacent-vm;
       timer-and-serial = mkBasicInstance configs.icecap ./test/timer-and-serial;
       timer-and-serial-from-realm = mkBasicInstance configs.icecap ./test/timer-and-serial-from-realm;
