@@ -150,6 +150,9 @@ impl GICCallbacks for VMMGICCallbacks {
     }
 
     fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()> {
+        if calling_node != target_node && irq > 15 {
+            debug_println!("warning: cross-core vcpu_inject_irq({}), {} -> {}", irq, calling_node, target_node);
+        }
         self.vcpus[target_node].inject_irq(irq as u16, priority as u8, 0, index as u8)?;
         Ok(())
     }
