@@ -25,8 +25,11 @@ mkInstance (self: with self; {
       {
         icecap.plat = icecapPlat;
         rpi4._9p = {
-          port = icecapExtraConfig.net.rpi4.p9.port;
-          addr = icecapExtraConfig.net.rpi4.p9.addr;
+          # TODO
+          # port = icecapExtraConfig.net.rpi4.p9.port;
+          # addr = icecapExtraConfig.net.rpi4.p9.addr;
+          port = "1337";
+          addr = "1.3.3.7";
         };
       }
     ];
