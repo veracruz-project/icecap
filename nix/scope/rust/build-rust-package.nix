@@ -51,5 +51,5 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   '';
 
 } // builtins.removeAttrs args [
-  "depsBuildBuild" "nativeBuildInputs"
+  "depsBuildBuild" "nativeBuildInputs" "extraCargoConfig"
 ])

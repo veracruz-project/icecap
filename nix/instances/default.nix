@@ -49,6 +49,7 @@ icecap.byIceCapPlat (plat:
       host-and-adjacent-vm = mkBasicInstance configs.icecap ./test/host-and-adjacent-vm;
       timer-and-serial = mkBasicInstance configs.icecap ./test/timer-and-serial;
       timer-and-serial-from-realm = mkBasicInstance configs.icecap ./test/timer-and-serial-from-realm;
+      firecracker = mkBasicInstance configs.icecap ./test/firecracker;
     };
 
     demos = {
