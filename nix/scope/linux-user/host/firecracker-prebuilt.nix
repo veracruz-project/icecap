@@ -7,25 +7,27 @@ let
   arch = hostPlatform.uname.processor;
 
   sha256 = {
-    aarch64 = "1kb14g5z9jmd0mvshv2wd6s6isqdndpqywzm4xifw30csvp0ln0a";
+    aarch64 = "sha256-RXYiKKqD3ta75TKSwd59BqsdjDVlVXyqSqbOwo9QAIg=";
     x86_64 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   }.${arch};
 
 in
 stdenv.mkDerivation rec {
   pname = "firecracker";
-  version = "0.21.0";
+  version = "0.25.0";
 
-  binary = fetchurl {
-    url = "https://github.com/firecracker-microvm/firecracker/releases/download/v${version}/${pname}-v${version}-${arch}";
+  src = fetchurl {
+    url = "https://github.com/firecracker-microvm/firecracker/releases/download/v${version}/${pname}-v${version}-${arch}.tgz";
     inherit sha256;
   };
 
-  phases = [ "installPhase" ];
+  phases = [ "unpackPhase" "installPhase" ];
 
   installPhase = ''
+    cat *spec*
     mkdir -p $out/bin
-    cp $binary $out/bin/firecracker
+    mv firecracker-* $out/bin/firecracker
+    mv jailer-* $out/bin/jailer
     chmod +x $out/bin/firecracker
   '';
 }

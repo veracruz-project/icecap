@@ -29,11 +29,11 @@ self: with self; {
     ip address add 192.168.1.1/24 dev veth0
     ip link set veth0 up
 
-    touch metrics_fifo
-
     firecracker \
       --no-api \
-      --seccomp-level 0 \
+      --no-seccomp \
+      --level Debug \
+      --log-path /proc/self/fd/2 \
       --config-file /mnt/${config} \
   '';
 
@@ -41,11 +41,6 @@ self: with self; {
     let
     in pkgs_linux.writeText "config.json" ''
       {
-        "logger": {
-          "log_fifo": "/proc/self/fd/2",
-          "metrics_fifo": "metrics_fifo",
-          "level": "Debug"
-        },
         "machine-config": {
           "vcpu_count": 1,
           "mem_size_mib": 512
