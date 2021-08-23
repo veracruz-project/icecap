@@ -35,7 +35,7 @@ class TimerServer(ElfComponent):
         irq_handlers = []
         for i in range(self.composition.num_nodes()):
             if i != 0:
-                thread = self.secondary_thread('secondary_thread_{}'.format(i), prio=self.primary_thread.tcb.prio)
+                thread = self.secondary_thread('secondary_thread_{}'.format(i), affinity=i, prio=self.primary_thread.tcb.prio)
                 secondary_threads.append(thread.endpoint)
             else:
                 thread = self.primary_thread
