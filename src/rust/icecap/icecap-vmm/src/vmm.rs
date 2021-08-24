@@ -116,9 +116,11 @@ const CNTFRQ: u32 = 54000000;
 impl GICCallbacks for VMMGICCallbacks {
 
     fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()> {
-        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::SEV {
-            nid: target_node,
-        });
+        // if calling_node != target_node {
+        //     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::SEV {
+        //         nid: target_node,
+        //     });
+        // }
         Ok(())
     }
 

@@ -46,7 +46,7 @@ class TimerServer(ElfComponent):
                 irq_nfn = self.alloc(ObjectType.seL4_NotificationObject, name='irq_{}_nfn'.format(irq))
                 thread.tcb['bound_notification'] = Cap(irq_nfn, badge=INTERRUPT_BADGE, read=True)
                 irq_handler = self.cspace().alloc(
-                        self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, notification=Cap(irq_nfn, badge=1))
+                        self.alloc(ObjectType.seL4_IRQHandler, name='irq_{}'.format(irq), number=irq, trigger=trigger, target=i, notification=Cap(irq_nfn, badge=1))
                         )
             else:
                 irq_handler = 0

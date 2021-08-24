@@ -226,9 +226,9 @@ impl<T: GICCallbacks> GIC<T> {
         // pending to active.
         self.dist.set_pending(irq, target_node)?;
         if self.dist.should_inject(irq, target_node) {
-            self.callbacks.vcpu_inject_irq(calling_node, target_node, index, irq, priority)?;
             self.dist.set_active(irq, target_node)?;
             self.lrs[target_node].mirror[index] = Some(irq);
+            self.callbacks.vcpu_inject_irq(calling_node, target_node, index, irq, priority)?;
             self.callbacks.event(calling_node, target_node)?;
         }
 
