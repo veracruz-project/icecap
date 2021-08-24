@@ -77,7 +77,7 @@ You will need an SD card containing a sufficiently large bootable FAT partition
 ```bash
 $ fdisk /dev/sd<x>
 # ... make the first partition 1GB, bootable, and of type 0B ("W95 FAT32") ...
-$ mkfs.vfat /dev/sd<x>1 -n icecap-boot
+$ mkfs.vfat /dev/sd<x>1 -n ICECAP_BOOT
 ```
 
 You will also need a USB to TTL adapter. Connect this to pins 14 and 15 on the
@@ -95,9 +95,7 @@ $(container) nix-build -A instances.rpi4.demos.realm-vm.run
 $ ls -l ./result/boot/
 # ./result/boot and its subdirectories contain symlinks which are to be resolved
 # and copied to the boot partition of your SD card. For example:
-$ mkdir -p ./mnt
-$ mount /dev/disk/by-label/icecap-boot ./mnt
-$ rm -r ./mnt/* || true # remove the old contents of the boot partition
+$ mount /dev/disk/by-label/ICECAP_BOOT ./mnt
 $ cp -rvL ./result/boot/* ./mnt
 $ umount ./mnt
 ```
