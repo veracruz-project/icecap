@@ -1,4 +1,4 @@
-set -e
+set -eu
 
 here="$(dirname "$0")"
 host="$1"
