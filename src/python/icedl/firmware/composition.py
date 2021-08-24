@@ -60,8 +60,8 @@ class Composition(BaseComposition):
             self.event_server.register_realm_notifications(nfns)
 
             host_realm_net_objs, realm_host_net_objs = self.alloc_ring_buffer(
-                a_name='host_realm_{}_net_rb'.format(i), a_size_bits=21,
-                b_name='realm_{}_host_net_rb'.format(i), b_size_bits=21,
+                a_name='host_realm_{}_net_rb'.format(i), a_size_bits=21 + 3,
+                b_name='realm_{}_host_net_rb'.format(i), b_size_bits=21 + 3,
                 )
 
             self.resource_server.add_extern_ring_buffer('realm_{}_net_ring_buffer'.format(i), realm_host_net_objs)

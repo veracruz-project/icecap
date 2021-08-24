@@ -26,7 +26,7 @@ class Composition(BaseComposition):
         realm_vm_con_kick = self.extern(ObjectType.seL4_NotificationObject, 'realm_{}_serial_server_kick'.format(self.realm_id()))
         self.realm_vm.map_con(realm_vm_con, { 'Notification': self.realm_vm.vmm.cspace().alloc(realm_vm_con_kick, write=True) }, { 'SerialServer': None })
 
-        net = self.extern_ring_buffer('realm_{}_net_ring_buffer'.format(self.realm_id()), size=1<<21)
+        net = self.extern_ring_buffer('realm_{}_net_ring_buffer'.format(self.realm_id()), size=1<<(21 + 3))
         self.realm_vm.map_net(net, { 'OutIndex': { 'RingBuffer': { 'Host': None }}}, { 'Host': None })
 
     def extern(self, ty, name, **obj_kwargs):
