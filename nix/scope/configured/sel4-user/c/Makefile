@@ -46,6 +46,7 @@ CFLAGS += -Wall -Werror
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -g -funwind-tables -fno-asynchronous-unwind-tables
 CFLAGS += -pipe
+CFLAGS += -O3
 
 # TODO
 # -frounding-math -fexcess-precision=standard ?

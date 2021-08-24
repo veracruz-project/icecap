@@ -18,7 +18,7 @@ let
     KernelArmHypervisorSupport = ON;
     KernelVerificationBuild = OFF;
     KernelDebugBuild = ON;
-    KernelOptimisation = STRING "-Og";
+    KernelOptimisation = STRING "-O3";
     KernelMaxNumNodes = {
       virt = STRING "4";
       rpi4 = STRING "4"; # TODO
