@@ -1,0 +1,28 @@
+/ {
+
+    /delete-node/ chosen;
+
+    soc {
+        /delete-node/ spi@7e215080;
+        /delete-node/ spi@7e2150c0;
+    };
+
+    scb {
+        /delete-node/ pcie@7d500000;
+    };
+
+};
+
+/ {
+
+    chosen {
+        stdout-path = "/soc/serial@7e215040";
+    };
+
+    scb {
+        ethernet@7d580000 {
+            local-mac-address = [ dc a6 32 02 16 f6 ];
+        };
+    };
+
+};

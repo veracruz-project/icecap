@@ -15,24 +15,22 @@ let
 in rec {
 
   commonBootargs = [
+      "loglevel=7"
+      "keep_bootcon"
   ];
 
   host = rec {
-    linuxImage = linuxKernel.baseline.${icecapPlat}.kernel;
+    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
     bootargs = commonBootargs ++ [
-      "keep_bootcon"
-      "loglevel=7"
       "script=${script}"
       "nr_cpus=2"
     ] ++ lib.optionals (icecapPlat == "virt") [
       "console=ttyAMA0"
     ] ++ lib.optionals (icecapPlat == "rpi4") [
-      # "earlycon=pl011,0xfe201000"
-      # "console=ttyS0,115200" # NOTE firmware was silently changing ttyAMA in cmdline.txt to ttyS0 in device tree
-      # "console=ttyAMA0,115200" # NOTE firmware was silently changing ttyAMA in cmdline.txt to ttyS0 in device tree
-      "console=serial0,115200"
-      # "console=tty1"
-      "elevator=deadline"
+      "earlycon=uart8250,mmio32,0xfe215040"
+      "8250.nr_uarts=1"
+      "console=ttyS0,115200"
+      # NOTE under some circumstances, firmware was silently changing ttyAMA in cmdline.txt to ttyS0 in device tree
     ];
     initrd = userland.config.build.initramfs;
     userland = nixosLite.mk1Stage {
@@ -48,12 +46,10 @@ in rec {
   realm = rec {
     linuxImage = linuxKernel.host.virt.kernel;
     bootargs = commonBootargs ++ [
-      "keep_bootcon"
       "console=ttyS0"
       "reboot=k"
       "panic=1"
       "pci=off"
-      "loglevel=8"
     ];
     initrd = userland.config.build.initramfs;
     userland = nixosLite.mk1Stage {

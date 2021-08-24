@@ -29,13 +29,10 @@ let
   scriptAddr = "0x100000";
   scriptName = "load-icecap.script.uimg";
   icecapAddr = "0x30000000";
-  scriptUimg = uboot-ng-mkimage {
-    type = "script";
-    data = writeText "script.txt" ''
-      load mmc 0:1 ${icecapAddr} /icecap.elf
-      bootelf ${icecapAddr}
-    '';
-  };
+  defaultScript = writeText "script.txt" ''
+    load mmc 0:1 ${icecapAddr} /icecap.elf
+    bootelf ${icecapAddr}
+  '';
 
   bootcmd = "load ${scriptPartition} ${scriptAddr} ${scriptName}; source ${scriptAddr}";
 
@@ -52,7 +49,13 @@ let
     enable_jtag_gpio=1
   '';
 
-  bootPartitionLinks = { image, payload ? {}, extraBootPartitionCommands ? "" }:
+  bootPartitionLinks = { image ? null, payload ? {}, extraBootPartitionCommands ? "", script ? defaultScript }:
+    let
+      scriptUimg = uboot-ng-mkimage {
+        type = "script";
+        data = script;
+      };
+    in
     runCommand "boot" {} ''
       mkdir $out
       ln -s ${raspbian.latest.boot}/*.* $out
@@ -65,7 +68,9 @@ let
       ln -s ${uBootBin} $out/kernel8.img
       ln -s ${scriptUimg} $out/${scriptName}
 
-      ln -s ${image} $out/icecap.elf
+      ${lib.optionalString (image != null) ''
+        ln -s ${image} $out/icecap.elf
+      ''}
       mkdir $out/payload
       ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
         ln -s ${v} $out/payload/${k}

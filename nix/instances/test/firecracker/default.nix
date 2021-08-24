@@ -2,7 +2,8 @@
 , virtUtils, icecapPlat, linuxKernel
 , runPkgs, pkgs_linux
 
-, raspbian, fetchzip
+, rpi4Utils, uBoot
+, dtb-helpers
 , closureInfo
 }:
 
@@ -12,22 +13,8 @@ self: with self; {
 
   linux = callPackage ./linux {};
 
-
-  run = writeScript "run.sh" (with virtUtils; ''
-      #!${runPkgs.runtimeShell}
-      exec ${cmdPrefix} \
-        -d unimp,guest_errors \
-        -kernel ${host.linuxImage} \
-        -initrd ${host.initrd} \
-        -append '${lib.concatStringsSep " " host.bootargs}'
-  '');
-
   script = pkgs_linux.writeScript "run-test" ''
     #!/bin/sh
-
-    ip tuntap add veth0 mode tap
-    ip address add 192.168.1.1/24 dev veth0
-    ip link set veth0 up
 
     firecracker \
       --no-api \
@@ -61,64 +48,58 @@ self: with self; {
       }
     '';
 
-  ###
+} // lib.optionalAttrs (icecapPlat == "virt") {
 
-  cmdlineTxt = writeText "cmdline.txt" ''
-    ${lib.concatStringsSep " " host.bootargs}
-  '';
+  run = writeScript "run.sh" (with virtUtils; ''
+      #!${runPkgs.runtimeShell}
+      exec ${cmdPrefix} \
+        -d unimp,guest_errors \
+        -kernel ${host.linuxImage} \
+        -initrd ${host.initrd} \
+        -append '${lib.concatStringsSep " " host.bootargs}'
+  '');
 
-  configTxt = writeText "config.txt" ''
-    enable_uart=1
-    arm_64bit=1
-    initramfs initrd followkernel
-  '';
-    # enable_jtag_gpio=1
+} // lib.optionalAttrs (icecapPlat == "rpi4") {
 
-  z = runCommand "x.gz" {} ''
-    gzip ${linuxKernel.host.rpi4.kernel}  -c > $out
-  '';
+  boot = rpi4Utils.bootPartitionLinks {
+    payload = uBoot.${icecapPlat}.mkDefaultPayload {
+      linuxImage = host.linuxImage;
+      initramfs = host.initrd;
+      bootargs = host.bootargs;
+      dtb = dt.b.new;
+    };
+    extraBootPartitionCommands = ''
+      mkdir -p $out/nix/store
+      ln -s $(cat ${closure}/store-paths) $out/nix/store
+    '';
+    script =
+      let
+        scriptPartition = "mmc 0:1";
+        scriptAddr = "0x10070000";
+        scriptName = "load-host.script.uimg";
+        scriptPath = "payload/${scriptName}";
+      in
+        writeText "script.txt" ''
+          load ${scriptPartition} ${scriptAddr} ${scriptPath}
+          source ${scriptAddr}
+        '';
+  };
 
-  boot = runCommand "boot" {} ''
-    mkdir $out
-    ln -s ${raspbian64}/*.* $out
-    mkdir $out/overlays
-    ln -s ${raspbian64}/overlays/*.* $out/overlays
-
-    rm $out/kernel*.img
-    # ln -s ${linuxKernel.baseline.rpi4.kernel} $out/kernel8.img
-    # ln -s ${raspbian64}/kernel8.img $out/kernel8.img
-    ln -s ${z} $out/kernel8.img
-    # ln -s ${raspbian64}/kernel8.img $out/kernel8.img.x
-
-    ln -sf ${configTxt} $out/config.txt
-    ln -sf ${cmdlineTxt} $out/cmdline.txt
-
-    ln -s ${host.initrd} $out/initrd
-
-    mkdir -p $out/nix/store
-    ln -s $(cat ${closure}/store-paths) $out/nix/store
-  '';
-    # ln -s ${host.linuxImage} $out/kernel8.img
-    # ln -s ${spec} $out/spec.bin
+  dt = rec {
+    b = {
+      old = "${linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
+      new = with dtb-helpers; compile (catFiles [ s.old ./rpi4.dtsa ]);
+    };
+    s = {
+      old = dtb-helpers.decompile b.old;
+      new = dtb-helpers.decompile b.new;
+    };
+  };
 
   closure = closureInfo {
     rootPaths = [
       script
     ];
   };
-
-  raspbian64 = raspbian.mkBoot (fetchzip {
-    name = "raspbian.img";
-    url = "https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2021-05-28/2021-05-07-raspios-buster-arm64.zip";
-    sha256 = "sha256-B5GMCsB9r6YJau+gPdarZL3juF9nkEBxuqS5c+8XCDI=";
-    extraPostFetch = ''
-      mv $out/2021-05-07-raspios-buster-arm64.img tmp
-      rmdir $out
-      mv tmp $out
-    '';
-    passthru = {
-      version = "0";
-    };
-  });
 
 }

@@ -57,8 +57,8 @@ in
 
     (mkIf (cfg.plat == "rpi4") {
       initramfs.extraInitCommands = ''
-        echo "waiting 5 seconds for mmc..."
-        sleep 5
+        echo "waiting 2 seconds for mmc..."
+        sleep 2
 
         mount -o ro /dev/mmcblk0p1 mnt/
         ln -s /mnt/$script /script
@@ -74,6 +74,10 @@ in
 
     {
       initramfs.extraInitCommands = ''
+        ip tuntap add veth0 mode tap
+        ip address add 192.168.1.1/24 dev veth0
+        ip link set veth0 up
+
         iperf3 -s &
         /script
       '';
