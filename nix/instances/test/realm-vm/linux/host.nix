@@ -64,6 +64,13 @@ in
 
       sysctl -w net.ipv4.ip_forward=1
 
+      # sysctl -w net.core.netdev_budget=300 # default
+      sysctl -w net.core.netdev_budget=600
+      # sysctl -w net.core.netdev_budget=1200
+
+      # sysctl -w net.core.netdev_budget_usecs=2000 # default
+      sysctl -w net.core.netdev_budget_usecs=20000
+
       mount -t debugfs none /sys/kernel/debug/
 
     '' + lib.optionalString (icecapPlat == "virt") ''
@@ -103,17 +110,18 @@ in
       echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
       echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
 
-      iperf_affinity=0x1
-      taskset $iperf_affinity iperf3 -s > /dev/null &
-      # taskset $iperf_affinity iperf3 -s -p ${localIperfPort} > /dev/null &
+      export iperf_affinity=0x1
+      taskset $iperf_affinity chrt -b 0 iperf3 -s > /dev/null &
+      # taskset $iperf_affinity chrt -b 0 iperf3 -s -p ${localIperfPort} > /dev/null &
 
-      realm_affinity=0x2
+      export realm_affinity=0x2
       taskset $realm_affinity icecap-host create 0 /spec.bin && \
         chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
     '';
 
     initramfs.extraUtilsCommands = ''
       copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
+      copy_bin_and_libs ${pkgs.ethtool}/bin/ethtool
       copy_bin_and_libs ${pkgs.strace}/bin/strace
       copy_bin_and_libs ${pkgs.iproute}/bin/ip
       copy_bin_and_libs ${pkgs.nftables}/bin/nft
@@ -126,13 +134,17 @@ in
 
     initramfs.profile = ''
       ic() {
-        icecap-host create 0 /spec.bin && icecap-host run 0 0
+        taskset $realm_affinity icecap-host create 0 /spec.bin && \
+          chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
       }
       id() {
         icecap-host destroy 0
       }
       i() {
-        iperf3 -s
+        taskset $iperf_affinity chrt -b 0 iperf3 -s > /dev/null &
+      }
+      ik() {
+        pkill iperf3
       }
       c() {
         curl google.com
