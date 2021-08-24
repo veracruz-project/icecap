@@ -8,7 +8,15 @@ buildRustPackageIncrementally rec {
   rootCrate = icecap-host;
   layers = [ [] ];
 
-  debug = true;
+  debug = false;
+
+  extraManifest = {
+    profile.release = {
+      codegen-units = 1;
+      opt-level = 3;
+      lto = true;
+    };
+  };
 
   extraCargoConfig = {
     target.aarch64-unknown-linux-musl.rustflags = [
