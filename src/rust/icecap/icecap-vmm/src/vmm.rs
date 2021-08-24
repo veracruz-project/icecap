@@ -308,7 +308,6 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         } else {
             panic!("unhandled page fault at 0x{:x}", addr);
         }
-        self.advance();
         Ok(())
     }
 
@@ -316,13 +315,16 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         assert!(fault.is_valid());
         assert!(fault.is_aligned());
         if fault.is_write() {
-            let ctx = self.tcb.read_all_registers(false).unwrap();
+            let mut ctx = self.tcb.read_all_registers(false).unwrap();
             let data = fault.data(&ctx);
             self.gic.lock().handle_write(self.node_index, offset, data)?;
+            ctx.pc += 4;
+            self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else if fault.is_read() {
             let data = self.gic.lock().handle_read(self.node_index, offset, fault.width())?;
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             fault.emulate_read(&mut ctx, data);
+            ctx.pc += 4;
             self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else {
             panic!();
@@ -429,12 +431,6 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_exception(&mut self, _ip: Word) {
         panic!();
-    }
-
-    fn advance(&mut self) {
-        let mut ctx = self.tcb.read_all_registers(false).unwrap();
-        ctx.pc += 4;
-        self.tcb.write_all_registers(false, &mut ctx).unwrap();
     }
 
     pub fn upper_ns_bound_interrupt(&mut self) -> Fallible<Option<i64>> {
