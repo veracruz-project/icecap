@@ -136,6 +136,7 @@ rec {
     name = "icecap-mirage-glue";
     root = icecapSrcRelSplit "c/icecap-mirage-glue";
     propagatedBuildInputs = [
+      stdenvMirage.cc.libc # HACK
       libsel4
       icecap-autoconf
       icecap-runtime

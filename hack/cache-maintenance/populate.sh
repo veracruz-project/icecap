@@ -3,4 +3,6 @@ set -eu
 here="$(dirname "$0")"
 host="$1"
 
-nix-copy-closure --include-outputs --to "$host" $(nix-instantiate "$here/populate.nix")
+drv=$(nix-instantiate "$here/populate.nix")
+nix-store --realise $drv
+nix-copy-closure --include-outputs --to "$host" $drv

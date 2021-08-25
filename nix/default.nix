@@ -12,8 +12,8 @@ let
     none = {
       config = "aarch64-none-elf"; # TODO or aarch64-unknown-none
       platform = {
-        kernelArch = "arm64";
-        kernelTarget = "Image";
+        linuxArch = "arm64";
+        linux-kernel.target = "Image";
       };
     };
     none-intel.config = "x86_64-none-elf";

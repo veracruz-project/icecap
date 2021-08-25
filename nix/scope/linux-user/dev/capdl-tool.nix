@@ -24,7 +24,7 @@ haskellPackages.mkDerivation {
     yaml
     aeson
   ];
-  license = stdenv.lib.licenses.bsd2;
+  license = lib.licenses.bsd2;
 
   testToolDepends = map (x: x.nativeDrv) [ which libxml2 graphviz ];
   checkPhase = ''

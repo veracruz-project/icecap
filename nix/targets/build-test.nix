@@ -16,4 +16,5 @@ in
     host.icecap._9p-server
   ]) [ dev linux ] ++ [
     dev.icecap.sel4-manual
+    instances.rpi4.test.firecracker.boot
   ]

@@ -39,7 +39,7 @@ let
     outputHashMode = "recursive";
     outputHash = sha256;
 
-    impureEnvVars = stdenv.lib.fetchers.proxyImpureEnvVars;
+    impureEnvVars = lib.fetchers.proxyImpureEnvVars;
     preferLocalBuild = true;
 
   } // args);

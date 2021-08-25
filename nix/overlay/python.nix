@@ -25,6 +25,7 @@ self: super: with self;
     ];
     checkInputs = [ glibcLocales ];
     LC_ALL = "en_US.UTF-8";
+    doCheck = false;
   };
 
   cmake-format = buildPythonPackage rec {

@@ -3,8 +3,8 @@
 let
   clean = remote // {
     inherit (local)
-      # capdl
       # seL4
+      # capdl
     ;
   };
 
@@ -22,7 +22,7 @@ let
   repos = mk: {
 
     seL4 = mk "seL4" {} "17dba668961833de3b97d36aea2445ccdd7725cf";
-    capdl = mk "capdl" {} "433a8fd698e6f39f13acc9849ce714ecd2fd8f86";
+    capdl = mk "capdl" {} "59a935fc01d558e0a4c59800a880fe8abb6136c1";
 
     # for elfloader
     seL4_tools = mk "minor-patches/seL4/seL4_tools" {} "e211b270066fd5841d4ea994df077583a9d99126";

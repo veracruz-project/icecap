@@ -76,7 +76,7 @@ let
             ar     = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ar";
             ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ranlib";
           } // lib.optionalAttrs (llvmPkgs != null) {
-            llvm-config = "${llvmPkgs.llvm_9}/bin/llvm-config";
+            llvm-config = "${llvmPkgs.llvm_9.dev}/bin/llvm-config";
           } // lib.optionalAttrs (env.hostPlatform.config == "aarch64-none-elf") {
             linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
             no-std = true;
