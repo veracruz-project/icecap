@@ -9,7 +9,9 @@ let
       collection-fontsrecommended
       collection-latexextra
       collection-metapost
-      collection-bibtexextra;
+      collection-bibtexextra
+      roboto mweights
+    ;
   };
 
 in

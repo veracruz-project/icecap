@@ -11,6 +11,9 @@ in
     instances.${plat}.demos.minimal-root.run
     instances.${plat}.demos.realm-vm.run
     instances.${plat}.demos.mirage.run
+    configured.${plat}.sysroot-rs
   ]) icecapPlats ++ lib.concatMap (host: [
     host.icecap._9p-server
-  ]) [ dev linux ]
+  ]) [ dev linux ] ++ [
+    dev.icecap.sel4-manual
+  ]
