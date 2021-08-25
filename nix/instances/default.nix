@@ -46,9 +46,6 @@ icecap.byIceCapPlat (plat:
     test = {
       realm-vm = mkBasicInstance configs.icecap ./test/realm-vm;
       host-2-stage = mkBasicInstance configs.icecap ./test/host-2-stage;
-      host-and-adjacent-vm = mkBasicInstance configs.icecap ./test/host-and-adjacent-vm;
-      timer-and-serial = mkBasicInstance configs.icecap ./test/timer-and-serial;
-      timer-and-serial-from-realm = mkBasicInstance configs.icecap ./test/timer-and-serial-from-realm;
       firecracker = mkBasicInstance configs.icecap ./test/firecracker;
     };
 
@@ -60,11 +57,6 @@ icecap.byIceCapPlat (plat:
     };
 
     bench = {
-      icecap = mkBasicInstance configs.icecap ./bench/icecap;
-      baseline = lib.makeScope newScope (callPackage ./bench/baseline {
-        inherit icecapExtraConfig;
-        icecapPlat = plat;
-      });
     };
 
     # HACK
