@@ -19,6 +19,8 @@ in rec {
     "earlycon=icecap_vmm"
     "console=hvc0"
     "loglevel=7"
+    # "icecap_net.napi_weight=128" # default
+    "icecap_net.napi_weight=256"
   ];
 
   host = rec {
