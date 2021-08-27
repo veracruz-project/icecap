@@ -17,8 +17,12 @@ in
       echo 2 > /proc/sys/kernel/randomize_va_space
       ulimit -c unlimited
 
+      # sysctl -w net.core.netdev_budget=300 # default
       sysctl -w net.core.netdev_budget=600
-      sysctl -w net.core.netdev_budget_usecs=20000
+      # sysctl -w net.core.netdev_budget=1200
+
+      sysctl -w net.core.netdev_budget_usecs=2000 # default
+      # sysctl -w net.core.netdev_budget_usecs=20000
 
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}

@@ -221,7 +221,8 @@ impl RingBuffer {
         acquire();
         self.write.ctrl.offset_r.set(self.private_offset_r as u64);
         release();
-        if self.read.ctrl.status.read(Status::NOTIFY_READ) == 1 {
+        if self.read.ctrl.status.read(Status::NOTIFY_WRITE) == 1 {
+            self.read.ctrl.status.modify(Status::NOTIFY_WRITE.val(0));
             (self.read.kick)();
         }
     }
@@ -230,7 +231,8 @@ impl RingBuffer {
         acquire();
         self.write.ctrl.offset_w.set(self.private_offset_w as u64);
         release();
-        if self.read.ctrl.status.read(Status::NOTIFY_WRITE) == 1 {
+        if self.read.ctrl.status.read(Status::NOTIFY_READ) == 1 {
+            self.read.ctrl.status.modify(Status::NOTIFY_READ.val(0));
             (self.write.kick)();
         }
     }

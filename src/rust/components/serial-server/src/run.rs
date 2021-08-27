@@ -144,10 +144,12 @@ impl<T: SerialDevice> SerialServer<T> {
             self.clients[client_id].driver.rx_into(&mut buf);
             self.handle_client_char(client_id, buf[0]);
         }
+        self.clients[client_id].driver.ring_buffer().enable_notify_read()
     }
 
     fn handle_tx(&mut self, client_id: ClientId) {
         self.clients[client_id].driver.tx_callback();
+        self.clients[client_id].driver.ring_buffer().enable_notify_write();
     }
 
     fn handle_client_char(&mut self, client_id: ClientId, c: u8) {

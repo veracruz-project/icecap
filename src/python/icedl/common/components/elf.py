@@ -197,7 +197,7 @@ class ElfComponent(BaseComponent):
         return {
             'read': {
                 'size': read.size,
-                'ctrl': self.map_region(read.ctrl, mapped, read=True, cached=cached),
+                'ctrl': self.map_region(read.ctrl, mapped, read=True, write=True, cached=cached),
                 'data': self.map_region(read.data, mapped, read=True, cached=cached),
                 },
             'write': {

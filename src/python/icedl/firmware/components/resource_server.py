@@ -133,7 +133,7 @@ class ResourceServer(ElfComponent):
             add(frame, ty, *segs, **cap_kwargs)
 
         for i, obj in enumerate(objs.read.ctrl):
-            add_frame(obj, 'read', 'ctrl', i, read=True)
+            add_frame(obj, 'read', 'ctrl', i, read=True, write=True)
         for i, obj in enumerate(objs.write.ctrl):
             add_frame(obj, 'write', 'ctrl', i, read=True, write=True)
         for i, obj in enumerate(objs.read.data):

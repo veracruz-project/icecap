@@ -11,8 +11,8 @@ mkInstance (self: with self; {
 
   payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
-    # linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
-    # linuxImage = ../../../../../../local/linux-rpi4/arch/arm64/boot/Image;
+    # linuxImage = ../../../../../local/linux/arch/arm64/boot/Image;
+    # linuxImage = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
     initramfs = hostUser.config.build.initramfs;
     dtb = composition.host-dtb;
     bootargs = commonBootargs ++ [
@@ -22,7 +22,7 @@ mkInstance (self: with self; {
 
   spec = mkLinuxRealm {
     kernel = linuxPkgs.icecap.linuxKernel.guest.kernel;
-    # kernel = ../../../../../../local/linux/arch/arm64/boot/Image;
+    # kernel = ../../../../../local/linux/arch/arm64/boot/Image;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
       "lamekaslr"
@@ -42,7 +42,8 @@ mkInstance (self: with self; {
     "earlycon=icecap_vmm"
     "console=hvc0"
     "loglevel=7"
-    # "icecap_net.napi_weight=128" # default
+    # "icecap_net.napi_weight=64" # global default
+    # "icecap_net.napi_weight=128" # icecap default
     "icecap_net.napi_weight=256"
   ];
 

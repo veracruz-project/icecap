@@ -236,7 +236,7 @@ class VM(BaseComponent):
         return {
             'read': {
                 'size': read.size,
-                'ctrl': self.map_region(read.ctrl, read=True),
+                'ctrl': self.map_region(read.ctrl, read=True, write=True),
                 'data': self.map_region(read.data, read=True),
                 },
             'write': {
