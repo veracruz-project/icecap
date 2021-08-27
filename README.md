@@ -76,7 +76,7 @@ You will need an SD card containing a sufficiently large bootable FAT partition
 
 ```bash
 $ fdisk /dev/sd<x>
-# ... make the first partition 1GB, bootable, and of type 0B ("W95 FAT32") ...
+# ... make the first partition at least 1GB, bootable, and of type 0B or 0C (FAT32) ...
 $ mkfs.vfat /dev/sd<x>1 -n ICECAP_BOOT
 ```
 
