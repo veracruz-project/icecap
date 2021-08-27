@@ -18,8 +18,6 @@ let
     submodules = true;
   }).store;
 
-  # inherit (fetchCrates "${src}/Cargo.lock") vendored-sources;
-
   vendored-sources = (fetchCargoBootstrap {
     inherit src;
     sha256 = "sha256-DgA0iSLV51SzB0uHHRVZ+rZWPGQvqCxHMl/UdGh6hEg=";
@@ -28,7 +26,6 @@ let
   python = "${buildPackages.python3}/bin/python3";
 
   # https://github.com/rust-lang/rust/issues/34486: llvm-config fails to report -lffi
-  # gdb = "${python2.__spliced.buildPackages.gdb}/bin/gdb";
   configToml = nixToToml (crateUtils.clobber [
     {
       llvm.link-shared = true;
@@ -83,6 +80,8 @@ let
           } // lib.optionalAttrs env.hostPlatform.isWasi {
             inherit wasi-root;
             # wasi-root = "${env.cc.libc}";
+          # } // lib.optionalAttrs (llvmPkgs != null) {
+          #   llvm-config = "${llvmPkgs.llvm_9.dev}/bin/llvm-config";
           };
       }) [ buildPackages targetPackages ]);
     }
@@ -99,7 +98,7 @@ let
   #   ln -s ${targetPackages.stdenv.cc.libc} $out/lib/wasm32-wasi
   # '';
 
-in stdenvNoCC.mkDerivation (rec {
+in stdenvNoCC.mkDerivation rec {
   pname = "rustc";
   version = "nightly";
   inherit src;
@@ -130,6 +129,4 @@ in stdenvNoCC.mkDerivation (rec {
   passthru = {
     inherit configToml vendored-sources;
   };
-} // lib.optionalAttrs targetPlatform.isWasm {
-  RUST_BACKTRACE = 1;
-})
+}

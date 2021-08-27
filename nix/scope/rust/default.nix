@@ -21,9 +21,6 @@ self: with self; {
     name = "rust";
     version = "1.44.0";
     sha256 = "sha256-6qNCcbSsTSwoGDERfU0zXu0LN/56NEd9mFWm8dkwpiQ=";
-    # version = "nightly";
-    # date = "2020-06-09";
-    # sha256 = "sha256-LlnxBbvi9aIJIHNMc8VEF1rSguBJDqMHv5Ox+XJLhao=";
     components = [ "rustc" "rust-std-${platform}" "cargo" ];
     binaries = [ "rustc" "rustdoc" "cargo" ];
   };
@@ -45,7 +42,6 @@ self: with self; {
     rustfmt = pkgsBuildHostScope.rustfmtPrebuilt;
   };
 
-  # rustc = if hostPlatform.config != targetPlatform.config then pkgsBuildHostScope.rustc else rustc0;
   rustc = rustc0;
 
   cargo0 = callPackage ./cargo.nix (with pkgsBuildHostScope; {

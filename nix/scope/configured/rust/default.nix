@@ -27,7 +27,9 @@ self: with self; {
     lib.fix (self: buildRustPackageIncrementally ({
       extraCargoConfig = crateUtils.clobber [
         {
-          target.${hostPlatform.config}.rustflags = [ "--cfg=icecap_plat=\"${icecapPlat}\"" ];
+          target.${hostPlatform.config}.rustflags = [
+            "--cfg=icecap_plat=\"${icecapPlat}\""
+          ];
         }
         (args.extraCargoConfig or {})
       ];

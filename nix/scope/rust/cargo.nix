@@ -48,4 +48,7 @@ stdenv.mkDerivation (crateUtils.baseEnv // rec {
     find target/${stdenv.hostPlatform.config}/release -maxdepth 1 -type f -executable | xargs -r install -D -t $out/bin
   '';
 
+  passthru = {
+    inherit cargoVendorConfigRaw;
+  };
 })
