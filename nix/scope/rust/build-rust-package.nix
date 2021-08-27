@@ -11,26 +11,34 @@
 
 let
 
-  cargoConfig = crateUtils.clobber [
+  cargoConfig = nixToToml (crateUtils.clobber [
     crateUtils.baseCargoConfig
     (lib.optionalAttrs (cargoVendorConfig != null) cargoVendorConfig.config)
     extraCargoConfig
-  ];
+  ]);
 
 in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   depsBuildBuild = [ buildPackages.stdenv.cc ] ++ (args.depsBuildBuild or []);
   nativeBuildInputs = [ cargo ] ++ (args.nativeBuildInputs or []);
 
-  NIX_HACK_CARGO_CONFIG = nixToToml cargoConfig;
+  # TODO
+  # NIX_HACK_CARGO_CONFIG = cargoConfig;
 
   # TODO Is --offline necessary? Does it change the build in undesirable ways?
   buildPhase = ''
     runHook preBuild
+
+    # HACK
+    [ -d .cargo ] && false
+    mkdir -p .cargo
+    ln -s ${cargoConfig} .cargo/config
+
     cargo build --offline --frozen \
       ${lib.optionalString (release) "--release"} \
       --target ${stdenv.hostPlatform.config} \
       -j $NIX_BUILD_CORES
+
     runHook postBuild
   '';
 
