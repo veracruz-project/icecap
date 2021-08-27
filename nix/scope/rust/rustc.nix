@@ -25,7 +25,7 @@ let
     sha256 = "sha256-DgA0iSLV51SzB0uHHRVZ+rZWPGQvqCxHMl/UdGh6hEg=";
   }).directory;
 
-  python = "${buildPackages.python2}/bin/python2.7";
+  python = "${buildPackages.python3}/bin/python3";
 
   # https://github.com/rust-lang/rust/issues/34486: llvm-config fails to report -lffi
   # gdb = "${python2.__spliced.buildPackages.gdb}/bin/gdb";
