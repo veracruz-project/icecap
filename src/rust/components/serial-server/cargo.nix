@@ -9,7 +9,7 @@ mkBin {
     icecap-event-server-types
   ];
   dependencies = {
-    tock-registers = "*";
+    tock-registers = "0.5";
     serde = serdeMin;
   };
 }

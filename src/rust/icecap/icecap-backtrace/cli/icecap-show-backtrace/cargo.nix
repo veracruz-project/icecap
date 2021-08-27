@@ -8,7 +8,7 @@ mkBin {
   dependencies = {
     addr2line = "0.11.0";
     backtrace = "*";
-    clap = "*";
+    clap = "*"; bitflags = "=1.2";
     cpp_demangle = "*";
     fallible-iterator = "*";
     gimli = "0.20.0";
