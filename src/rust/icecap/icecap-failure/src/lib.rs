@@ -1,7 +1,6 @@
 #![no_std]
 #![feature(allocator_api)]
 #![feature(never_type)]
-#![feature(try_trait)]
 
 extern crate alloc;
 

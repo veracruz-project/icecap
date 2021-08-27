@@ -9,6 +9,6 @@ mkBin {
     icecap-timer-server-config
   ];
   dependencies = {
-    register = "*";
+    tock-registers = "*";
   };
 }

@@ -1,5 +1,4 @@
 use core::any::TypeId;
-use core::option::NoneError;
 use core::fmt::{self, Display, Debug};
 use alloc::boxed::Box;
 
@@ -36,17 +35,6 @@ impl<F: Fail> From<F> for Error {
             inner: Box::new(Inner {
                 failure,
                 backtrace,
-            })
-        }
-    }
-}
-
-impl From<NoneError> for Error {
-    fn from(_: NoneError) -> Self {
-        Self {
-            inner: Box::new(Inner {
-                failure: err_msg("option::NoneError"),
-                backtrace: Backtrace::new_skip(1),
             })
         }
     }

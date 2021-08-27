@@ -236,7 +236,7 @@ impl<'a> Initialize<'a> {
 
     fn obj<O: TryFrom<&'a Obj>>(&self, i: usize) -> Fallible<O> {
         if let AnyObj::Local(obj) = &self.model.objects[i].object {
-            Ok(O::try_from(&obj).ok()?)
+            Ok(O::try_from(&obj).ok().unwrap()) // TODO
         } else {
             bail!("")
         }

@@ -1,6 +1,6 @@
 use icecap_std::prelude::*;
 use core::ops::Deref;
-use register::{mmio::*, register_bitfields, register_structs};
+use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, register_bitfields, register_structs};
 use crate::device::TimerDevice;
 
 register_structs! {

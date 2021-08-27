@@ -8,6 +8,6 @@ mk {
   ];
   dependencies = {
     log = "*";
-    register = "*";
+    tock-registers = "*";
   };
 }

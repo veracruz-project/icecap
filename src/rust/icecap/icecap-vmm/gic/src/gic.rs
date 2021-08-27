@@ -114,7 +114,7 @@ impl<T: GICCallbacks> GIC<T> {
     ///
     /// Nominally, this results from the vCPU attempting to end a PPI or SPI.
     pub fn handle_maintenance(&mut self, node: NodeIndex, index: usize) -> Fallible<()> {
-        let irq = self.lrs[node].mirror[index]?;
+        let irq = self.lrs[node].mirror[index].unwrap();
         self.lrs[node].mirror[index] = None;
 
         // Update Distributor state.

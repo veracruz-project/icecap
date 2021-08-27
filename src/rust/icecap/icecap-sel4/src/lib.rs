@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(const_fn)]
 #![feature(const_if_match)]
 #![feature(format_args_nl)]
 
