@@ -22,5 +22,5 @@ in
     ln -s ${git}/* $d/.git
     rm -r $d/.git/refs
     mkdir -p $d/.git/refs/remotes/origin
-    echo ${git.rev} > $d/.git/refs/remotes/origin/master
+    echo ${git.rev} > $d/.git/refs/remotes/origin/HEAD
   ''

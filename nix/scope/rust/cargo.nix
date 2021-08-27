@@ -10,13 +10,13 @@ let
 
   src = (mkIceCapSrc {
     repo = "cargo";
-    rev = "3f841f70d4a984c0a6c7cff1027be82e7a7e213d";
+    rev = "4a59b73510542acb6312c36b5592fcdcfae4e593";
     submodules = true;
   }).store;
 
   cargoVendorConfigRaw = fetchCargoBootstrap {
     inherit src;
-    sha256 = "sha256-faWKIPsvPZBWB84SIOIdLZHA2BvcIPM4Ncz42EyeLso=";
+    sha256 = "sha256-/ulAsQpSaRBi+aaJwEDREGgfbcuggW0wwCtVcUTmFxg=";
   };
 
   cargoConfig = crateUtils.linkerCargoConfig;

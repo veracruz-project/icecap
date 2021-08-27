@@ -2,6 +2,8 @@
 , fetchFromGitHub
 , runCommand
 , hostPlatform, targetPlatform
+, zlib
+, emptyDirectory
 }:
 
 let
@@ -19,10 +21,14 @@ self: with self; {
 
   rustcPrebuilt = mkRustPrebuilt rec {
     name = "rust";
-    version = "1.44.0";
-    sha256 = "sha256-6qNCcbSsTSwoGDERfU0zXu0LN/56NEd9mFWm8dkwpiQ=";
+    version = "nightly";
+    date = "2021-08-25";
+    sha256 = "sha256-mrVjtmI9w7uvHvlqZ0C7tFWMFKyGXPfnotrPWVyEnl0=";
     components = [ "rustc" "rust-std-${platform}" "cargo" ];
     binaries = [ "rustc" "rustdoc" "cargo" ];
+    postInstall = ''
+      ln -sv ${zlib}/lib/libz.so{,.1} $out/lib
+    '';
   };
 
   cargoPrebuilt = rustcPrebuilt;
@@ -30,8 +36,8 @@ self: with self; {
   rustfmtPrebuilt = mkRustPrebuilt rec {
     name = "rustfmt";
     version = "nightly";
-    date = "2020-06-09";
-    sha256 = "sha256-TlmeAcuOeodwVhMmY5iqnx777BMLFzcipmZdg9+Y08o=";
+    date = "2021-08-25";
+    sha256 = "sha256-lTm51x51Hx2/p+MS6wPydo6Uj+VROxy4H8oXbWXNgdU=";
     components = [ "rustfmt-preview" ];
     binaries = [ "rustfmt" ];
   };
@@ -73,7 +79,7 @@ self: with self; {
 
   bindgen = callPackage ./bindgen {};
 
-  rustTargets = lib.cleanSource ./targets;
+  rustTargets = if targetPlatform.config == "aarch64-none-elf" || hostPlatform.config == "aarch64-none-elf" then lib.cleanSource ./targets else emptyDirectory;
 
   crateUtils = callPackage ./crate-utils.nix {};
 

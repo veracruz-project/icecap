@@ -12,15 +12,16 @@
 
 let
 
-  src = (mkIceCapSrc {
-    repo = "rust";
-    rev = "df10c3238668af9108f33c7005ce1ac5875e335b";
+  src = builtins.fetchGit {
+    url = "https://github.com/rust-lang/rust.git";
+    ref = "master";
+    rev = "b03ccace573bb91e27625c190a0f7807045a1012";
     submodules = true;
-  }).store;
+  };
 
   vendored-sources = (fetchCargoBootstrap {
     inherit src;
-    sha256 = "sha256-DgA0iSLV51SzB0uHHRVZ+rZWPGQvqCxHMl/UdGh6hEg=";
+    sha256 = "sha256-Z3XCOhvOVJ6DT+XpS2hAHubFwgvnaUBRjfaBa8HJ0jo=";
   }).directory;
 
   python = "${buildPackages.python3}/bin/python3";
@@ -80,8 +81,6 @@ let
           } // lib.optionalAttrs env.hostPlatform.isWasi {
             inherit wasi-root;
             # wasi-root = "${env.cc.libc}";
-          # } // lib.optionalAttrs (llvmPkgs != null) {
-          #   llvm-config = "${llvmPkgs.llvm_9.dev}/bin/llvm-config";
           };
       }) [ buildPackages targetPackages ]);
     }

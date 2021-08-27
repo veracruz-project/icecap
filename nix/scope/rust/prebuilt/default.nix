@@ -6,7 +6,7 @@ let
 
   platform = "x86_64-unknown-linux-gnu";
 
-  mk = { name, version, date ? null, sha256, components, binaries }:
+  mk = { name, version, date ? null, sha256, components, binaries, postInstall ? "" }:
     let
       dateSuffixWith = prefix: lib.optionalString (date != null) "${prefix}${date}";
     in stdenv.mkDerivation rec {
@@ -22,12 +22,16 @@ let
         patchShebangs .
       '';
 
+      inherit postInstall;
+
       installPhase = ''
         ./install.sh --prefix=$out --components=${lib.concatStringsSep "," components}
         dynamic_linker=$(cat $NIX_CC/nix-support/dynamic-linker)
         ${lib.concatMapStrings (binary: ''
           patchelf --set-interpreter $dynamic_linker $out/bin/${binary}
         '') binaries}
+
+        runHook postInstall
       '';
 
       # Do not use `wrapProgram` on $out/bin/* here.
