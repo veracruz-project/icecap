@@ -1,5 +1,5 @@
 use core::{char, cell, num, fmt, array};
-use core::alloc::{AllocErr, LayoutErr};
+use core::alloc::{AllocError, LayoutError};
 use alloc::{str, string};
 
 use icecap_sel4 as sel4;
@@ -12,9 +12,9 @@ impl Fail for sel4::Error {}
 
 impl Fail for ! {}
 
-impl Fail for AllocErr {}
+impl Fail for AllocError {}
 
-impl Fail for LayoutErr {}
+impl Fail for LayoutError {}
 
 impl Fail for str::ParseBoolError {}
 

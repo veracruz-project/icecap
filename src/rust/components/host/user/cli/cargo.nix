@@ -6,6 +6,6 @@ mkBin {
     icecap-host-user
   ];
   dependencies = {
-    clap = "*"; bitflags = "=1.2";
+    clap = "*";
   };
 }

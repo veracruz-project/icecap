@@ -9,7 +9,7 @@ use core::intrinsics::volatile_copy_nonoverlapping_memory;
 use core::sync::atomic::{fence, Ordering};
 use alloc::vec::Vec;
 use alloc::boxed::Box;
-use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, register_bitfields, register_structs};
+use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, interfaces::{Readable, Writeable, ReadWriteable}, register_bitfields, register_structs};
 
 pub type Kick = Box<dyn Fn()>;
 

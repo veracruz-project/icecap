@@ -6,6 +6,6 @@ mkBin {
     icecap-std
   ];
   dependencies = {
-    cortex-a = "=3.0.5";
+    cortex-a = "*";
   };
 }
