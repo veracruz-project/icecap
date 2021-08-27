@@ -3,7 +3,7 @@
 , runCommand, linkFarm
 , fetchFromGitHub
 , file, which
-, cmake
+, cmake, ninja, python3
 
 , mkIceCapSrc
 , nixToToml, crateUtils, fetchCrates, fetchCargoBootstrap, rustTargets
@@ -54,7 +54,7 @@ let
 
       install.prefix = "@out@";
 
-      # rust.rpath = true;
+      rust.lld = true;
       rust.default-linker = "/var/empty/nope";
 
       # TODO no cc on bare?
@@ -75,8 +75,6 @@ let
           } // lib.optionalAttrs env.hostPlatform.isWasm {
             ar     = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ar";
             ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ranlib";
-          } // lib.optionalAttrs (llvmPkgs != null) {
-            llvm-config = "${llvmPkgs.llvm_9.dev}/bin/llvm-config";
           } // lib.optionalAttrs (env.hostPlatform.config == "aarch64-none-elf") {
             linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
             no-std = true;
@@ -88,9 +86,6 @@ let
           };
       }) [ buildPackages targetPackages ]);
     }
-    (lib.optionalAttrs targetPlatform.isWasm {
-      rust.lld = true;
-    })
   ]);
 
   # TODO local-build = true for cross
@@ -109,7 +104,7 @@ in stdenvNoCC.mkDerivation (rec {
   version = "nightly";
   inherit src;
 
-  nativeBuildInputs = [ file which ] ++ lib.optionals targetPlatform.isWasm [ cmake ];
+  nativeBuildInputs = [ file which cmake ninja python3 ];
   RUST_TARGET_PATH = rustTargets;
 
   phases = [ "unpackPhase" "patchPhase" "configurePhase" "buildPhase" "installPhase" ];
