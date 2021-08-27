@@ -103,7 +103,8 @@ let
   };
 
   commonArgsFor = layer: baseCommonArgs // {
-    NIX_HACK_CARGO_CONFIG = cargoConfigFor layer;
+    # TODO https://github.com/rust-lang/cargo/issues/2930
+    # NIX_HACK_CARGO_CONFIG = cargoConfigFor layer;
   };
 
   commonArgsAfter = builtins.removeAttrs extraArgs [
@@ -121,6 +122,7 @@ let
         { name = "Cargo.toml"; path = workspace; }
         { name = "src"; path = src; }
         { name = "Cargo.lock"; path = lock; }
+        { name = ".cargo/config"; path = cargoConfigFor layer; }
       ];
 
       workspace = nixToToml (crateUtils.clobber [
@@ -138,12 +140,12 @@ let
           cp -r --preserve=timestamps ${prev} $out
           chmod -R +w $out
 
-          cargo build -j $NIX_BUILD_CORES --offline --frozen \
+          (cd ${manifestDir} && cargo build -j $NIX_BUILD_CORES --offline --frozen \
             --target ${hostPlatform.config} \
             ${lib.optionalString (!debug) "--release"} \
             -Z avoid-dev-deps \
-            --manifest-path ${manifestDir}/Cargo.toml \
             --target-dir $out
+          )
         '';
 
         passthru = {
@@ -174,27 +176,30 @@ in let
     { name = "Cargo.toml"; path = workspace; }
     { name = "src"; path = src; }
     { name = "Cargo.lock"; path = lock; }
+    { name = ".cargo/config"; path = cargoConfigFor allCrates; }
   ];
 
   manifestDirLocal = linkFarm "x" [
     { name = "Cargo.toml"; path = workspaceLocal; }
     { name = "src"; path = srcLocal; }
     { name = "Cargo.lock"; path = lock; }
+    { name = ".cargo/config"; path = cargoConfigFor allCrates; }
   ];
 
   doc = stdenv.mkDerivation (commonArgsFor allCrates // {
     phases = [ "buildPhase" "installPhase" ];
 
     buildPhase = ''
-      cp -r --preserve=timestamps ${lastLayer} target
-      chmod -R +w target
+      target_dir=$(realpath ./target)
+      cp -r --preserve=timestamps ${lastLayer} $target_dir
+      chmod -R +w $target_dir
 
-      cargo doc -j $NIX_BUILD_CORES --offline --frozen \
+      (cd ${manifestDirLocal} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
         --target ${hostPlatform.config} \
         ${lib.optionalString (!debug) "--release"} \
         -Z avoid-dev-deps \
-        --target-dir=target \
-        --manifest-path ${manifestDir}/Cargo.toml
+        --target-dir=$target_dir
+      )
     '';
 
     installPhase = ''
@@ -211,13 +216,16 @@ in let
       invoke_cargo() {
         cmd="$1"
         shift
-        cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
+
+        target_dir=$(realpath ./target)
+
+        (cd ${manifestDirLocal} && cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
           --target ${hostPlatform.config} \
           ${lib.optionalString (!debug) "--release"} \
           -Z avoid-dev-deps \
-          --target-dir=target \
-          --manifest-path ${manifestDirLocal}/Cargo.toml \
+          --target-dir=$target_dir \
           "$@"
+        )
       }
 
       b() {
@@ -239,15 +247,16 @@ in
   phases = [ "buildPhase" "installPhase" ];
 
   buildPhase = ''
-    cp -r --preserve=timestamps ${lastLayer} target
-    chmod -R +w target
+    target_dir=$(realpath ./target)
+    cp -r --preserve=timestamps ${lastLayer} $target_dir
+    chmod -R +w $target_dir
 
-    cargo build -j $NIX_BUILD_CORES --offline --frozen \
+    (cd ${manifestDir} && cargo build -j $NIX_BUILD_CORES --offline --frozen \
       --target ${hostPlatform.config} \
       ${lib.optionalString (!debug) "--release"} \
       -Z avoid-dev-deps \
-      --target-dir=target \
-      --manifest-path ${manifestDir}/Cargo.toml
+      --target-dir=$target_dir
+    )
   '';
 
   installPhase = ''
