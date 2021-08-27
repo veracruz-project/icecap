@@ -8,15 +8,16 @@
 
 let
 
-  src = (mkIceCapSrc {
-    repo = "cargo";
-    rev = "4a59b73510542acb6312c36b5592fcdcfae4e593";
+  src = builtins.fetchGit {
+    url = "https://github.com/rust-lang/rust.git";
+    ref = "master";
+    rev = "b03ccace573bb91e27625c190a0f7807045a1012";
     submodules = true;
-  }).store;
+  };
 
   cargoVendorConfigRaw = fetchCargoBootstrap {
     inherit src;
-    sha256 = "sha256-/ulAsQpSaRBi+aaJwEDREGgfbcuggW0wwCtVcUTmFxg=";
+    sha256 = "sha256-Z3XCOhvOVJ6DT+XpS2hAHubFwgvnaUBRjfaBa8HJ0jo=";
   };
 
   cargoConfig = crateUtils.linkerCargoConfig;
@@ -39,7 +40,7 @@ stdenv.mkDerivation (crateUtils.baseEnv // rec {
   '';
 
   buildPhase = ''
-    cargo build --offline --frozen --release \
+    cargo build -p cargo --offline --frozen --release \
       --target ${stdenv.hostPlatform.config} \
       -j $NIX_BUILD_CORES
   '';
