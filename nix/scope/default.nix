@@ -69,8 +69,6 @@ superCallPackage ./ocaml {} self //
   linuxKernel = rec {
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
     guest = callPackage ./linux-kernel/guest {};
-
-    baseline = byIceCapPlat (plat: callPackage (./linux-kernel/baseline + "/${plat}") {});
   };
 
   linuxKernelUnifiedSource = with linux-ng; doSource {
