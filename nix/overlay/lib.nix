@@ -1,10 +1,7 @@
 { lib, pkgsHostTarget }:
 
 with lib;
-let
-  compose = f: g: x: f (g x);
 
-in
 rec {
 
   getPkgSets = attrs: {
