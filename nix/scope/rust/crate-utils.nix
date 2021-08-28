@@ -170,15 +170,9 @@ rec {
       ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
     } // {
       ${hostPlatform.config}.linker =
-        if hostPlatform.isWasm
-        then "${buildPackages.icecap.rustc}/lib/rustlib/${buildPlatform.config}/bin/rust-lld"
-        else
-          if hostPlatform.system == "aarch64-none"
-          then "${stdenv.cc.targetPrefix}ld"
-          else "${stdenv.cc.targetPrefix}cc";
-        # NOTE if not useing rust-lld, then the following is necessary for WASM:
-        #   linker = "wasm-ld";
-        #   rustflags = [ "-C" "linker-flavor=wasm-ld" ];
+        if hostPlatform.system == "aarch64-none"
+        then "${stdenv.cc.targetPrefix}ld"
+        else "${stdenv.cc.targetPrefix}cc";
     };
   };
 

@@ -78,24 +78,12 @@ let
             no-std = true;
           } // lib.optionalAttrs env.hostPlatform.isMusl {
             musl-root = "${env.cc.libc}";
-          } // lib.optionalAttrs env.hostPlatform.isWasi {
-            inherit wasi-root;
-            # wasi-root = "${env.cc.libc}";
           };
       }) [ buildPackages targetPackages ]);
     }
   ]);
 
   # TODO local-build = true for cross
-
-  wasi-root = linkFarm "wasi-root" [
-    { name = "lib/wasm32-wasi"; path = "${targetPackages.stdenv.cc.libc}/lib"; }
-  ];
-
-  # wasi-root = runCommand "wasi-root" {} ''
-  #   mkdir -p $out/lib
-  #   ln -s ${targetPackages.stdenv.cc.libc} $out/lib/wasm32-wasi
-  # '';
 
 in stdenvNoCC.mkDerivation rec {
   pname = "rustc";

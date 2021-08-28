@@ -17,14 +17,6 @@ let
       };
     };
     none-intel.config = "x86_64-none-elf";
-    wasi = {
-      config = "wasm32-wasi";
-      useLLVM = true;
-    };
-    wasm = {
-      config = "wasm32-unknown-unknown"; # TODO or wasm32-unknown-none-unknown
-      useLLVM = true;
-    };
   };
 
   baseArgs = {

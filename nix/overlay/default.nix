@@ -11,7 +11,6 @@ self: super: with self;
 
   stdenv = rec {
     aarch64-none = super.overrideCC super.stdenv buildPackages.gccCrossStageStatic;
-    wasm32-none = super.overrideCC super.stdenv buildPackages.llvmPackages_9.lldClangNoLibc;
   }.${super.hostPlatform.system} or super.stdenv;
 
   python3 = super.python3.override {
