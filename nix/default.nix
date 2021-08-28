@@ -16,7 +16,6 @@ let
         linux-kernel.target = "Image";
       };
     };
-    none-intel.config = "x86_64-none-elf";
   };
 
   baseArgs = {
