@@ -5,6 +5,7 @@ let
     inherit (local)
       # seL4
       # capdl
+      # seL4_tools
     ;
   };
 
@@ -21,11 +22,11 @@ let
 
   repos = mk: {
 
-    seL4 = mk "seL4" {} "e512cded55117dd452c5cfa950f2b4cb180516b7";
-    capdl = mk "capdl" {} "59a935fc01d558e0a4c59800a880fe8abb6136c1";
+    seL4 = mk "seL4" {} "62f761d7e6304e8b18d926a050d81df512e6419e";
+    capdl = mk "capdl" {} "dc37aaabf6486806e0e002cdff7ee05a1b23d5fc";
 
     # for elfloader
-    seL4_tools = mk "minor-patches/seL4/seL4_tools" {} "e211b270066fd5841d4ea994df077583a9d99126";
+    seL4_tools = mk "minor-patches/seL4/seL4_tools" {} "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
 
     # for use with MirageOS
     musllibc = fetchSeL4 {

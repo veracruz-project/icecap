@@ -19,10 +19,8 @@ haskellPackages.mkDerivation {
   isLibrary = false;
   isExecutable = true;
   executableHaskellDepends = with haskellPackages; [
-    array base base-compat containers filepath MissingH mtl parsec
-    pretty split
-    yaml
-    aeson
+    aeson array base base-compat bytestring containers filepath lens
+    MissingH mtl parsec pretty regex-compat split text unix yaml
   ];
   license = lib.licenses.bsd2;
 

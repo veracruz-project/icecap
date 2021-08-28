@@ -1,14 +1,42 @@
 { lib, libs, repos
-, linkFarm, writeText
+, linkFarm, writeText, runCommand
+, python3, python3Packages
 , libsel4
+
+, kernel
 }:
 
+
+let
+
+  py = runCommand "x.py" {
+    nativeBuildInputs = [ python3 ];
+  } ''
+    install -D -t $out ${repos.rel.seL4_tools "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
+    patchShebangs --build $out
+    cp -r ${kernel.source}/tools/hardware $out
+  '';
+
+  platformInfo = linkFarm "platform-info" [
+    { name = "include/capdl_loader_app/platform_info.h";
+      path = runCommand "platform_info.h" {
+        nativeBuildInputs = [ python3 python3Packages.sel4-deps ];
+      } ''
+        ${py}/platform_sift.py --emit-c-syntax ${libsel4}/sel4-aux/platform_gen.yaml > $out
+      '';
+    }
+  ];
+
+in
 libs.mk {
   name = "capdl-loader-lib";
   root = {
     store = repos.rel.capdl "capdl-loader-app";
     # store = repos.forceLocal.rel.capdl "capdl-loader-app";
   };
+  buildInputs = [
+    platformInfo
+  ];
   propagatedBuildInputs = with libs; [
     libsel4
     icecap-autoconf
@@ -39,6 +67,9 @@ libs.mk {
       '';
     }
   ];
+  passthru = {
+    x = platformInfo;
+  };
 }
 
 # CapDLLoaderCallingConvention-STRINGS:INTERNAL=standard;registers

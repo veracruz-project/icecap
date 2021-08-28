@@ -1,28 +1,10 @@
-/* This file is derived from
+/*
+ * This file is derived from
  * https://github.com/seL4/util_libs/blob/master/libcpio/include/cpio/cpio.h
  *
- * Copyright (c) 2017 Data61, CSIRO (ABN 41 687 119 230). All rights reserved.
+ * Copyright 2017, Data61, CSIRO (ABN 41 687 119 230)
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-2-Clause
  */
 
 #pragma once
@@ -70,7 +52,7 @@ struct cpio_info {
  * @return             The location of the file in memory; NULL if the index
  *                     exceeds the number of files in the CPIO archive.
  */
-void *cpio_get_entry(void *archive, unsigned long len, int index, const char **name, unsigned long *size);
+const void *cpio_get_entry(const void *archive, unsigned long len, int index, const char **name, unsigned long *size);
 
 /**
  * Retrieve file information from a provided file name
@@ -80,7 +62,7 @@ void *cpio_get_entry(void *archive, unsigned long len, int index, const char **n
  * @return             The location of the file in memory; NULL if the file
  *                     does not exist.
  */
-void *cpio_get_file(void *archive, unsigned long len, const char *name, unsigned long *size);
+const void *cpio_get_file(const void *archive, unsigned long len, const char *name, unsigned long *size);
 
 /**
  * Retrieves information about the provided CPIO archive
@@ -88,7 +70,7 @@ void *cpio_get_file(void *archive, unsigned long len, const char *name, unsigned
  * @param[out] info    A CPIO info structure to populate
  * @return             Non-zero on error.
  */
-int cpio_info(void *archive, unsigned long len, struct cpio_info *info);
+int cpio_info(const void *archive, unsigned long len, struct cpio_info *info);
 
 /**
  * Writes the list of file names contained within a CPIO archive into
@@ -97,4 +79,5 @@ int cpio_info(void *archive, unsigned long len, struct cpio_info *info);
  * @param[in] buf      A memory location to store the CPIO file list to
  * @param[in] buf_len  The length of the provided buf
  */
-void cpio_ls(void *archive, unsigned long len, char **buf, unsigned long buf_len);
+void cpio_ls(const void *archive, unsigned long len, char **buf, unsigned long buf_len);
+
