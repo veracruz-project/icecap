@@ -9,13 +9,7 @@ let
     dev = null;
     linux.config = "aarch64-unknown-linux-gnu";
     musl.config = "aarch64-unknown-linux-musl";
-    none = {
-      config = "aarch64-none-elf"; # TODO or aarch64-unknown-none
-      platform = {
-        linuxArch = "arm64";
-        linux-kernel.target = "Image";
-      };
-    };
+    none.config = "aarch64-none-elf";
   };
 
   baseArgs = {

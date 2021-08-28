@@ -9,10 +9,6 @@ self: super: with self;
 
   # Global overrides
 
-  stdenv = rec {
-    aarch64-none = super.overrideCC super.stdenv buildPackages.gccCrossStageStatic;
-  }.${super.hostPlatform.system} or super.stdenv;
-
   python3 = super.python3.override {
     packageOverrides = callPackage ./python.nix {};
   };
