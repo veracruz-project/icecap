@@ -3,7 +3,7 @@
 , dtc, libxml2, python3, python3Packages
 
 , dtb-helpers
-, patchSrc, virtUtils, raspbian
+, patchSrc, virtUtils, raspios
 
 , stdenvBoot, repos, makeOverridable'
 
@@ -14,36 +14,8 @@
 let
 
   dts = {
-
     virt = with dtb-helpers; decompile virtUtils.dtb;
-
-    rpi4 = with dtb-helpers; decompile (applyOverlays "${raspbian.latest.boot}/bcm2711-rpi-4-b.dtb" [
-      (compileOverlay (writeText "dtso" ''
-        /dts-v1/;
-        / {
-          fragment@0 {
-            target-path = "/soc/gic400@40041000"; /* TODO ? */
-            __overlay__ {
-              interrupts = <0x1 0x9 0xf04>;
-            };
-          };
-          fragment@1 {
-            target-path = "/soc";
-            __overlay__ {
-              timer@7e003000 {
-                compatible = "brcm,bcm2835-system-timer";
-                reg = <0x7e003000 0x1000>;
-                clock-frequency = <0xf4240>;
-                interrupts = <0x0 0x40 0x4 0x0 0x41 0x4 0x0 0x42 0x4 0x0 0x43 0x4>;
-              };
-            };
-          };
-        };
-      ''))
-
-      # "${raspbian.latest.boot}/overlays/pi3-disable-bt.dtbo"
-    ]);
-
+    rpi4 = with dtb-helpers; decompile "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
   }.${icecapPlat};
 
   _source = makeOverridable' patchSrc {
@@ -56,6 +28,7 @@ let
       rm configs/*_verified.cmake
 
       patchShebangs --build .
+
       cp ${dts} tools/dts/${{
         # The alignment of these names is a coincidence
         rpi4 = "rpi4";

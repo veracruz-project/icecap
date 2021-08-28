@@ -1,10 +1,10 @@
-{ dtb-helpers, raspbian, linuxKernel }:
+{ dtb-helpers, raspios, linuxKernel }:
 
 {
   host = rec {
     rpi4 =
       let
-        # orig = "${raspbian.latest.boot}/bcm2711-rpi-4-b.dtb";
+        # orig = "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
         # orig = ../../../../../local/linux/arch/arm64/boot/dts/broadcom/bcm2711-rpi-4-b.dtb;
         orig = "${linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
       in with dtb-helpers; compile (catFiles [ (decompile orig) ./host/rpi4.dtsa ]);

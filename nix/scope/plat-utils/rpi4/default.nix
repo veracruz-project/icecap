@@ -1,5 +1,5 @@
 { lib, writeText, writeScript, runCommand
-, raspbian
+, raspios
 , uboot-ng, uboot-ng-mkimage
 , mkIceCapSrc
 }:
@@ -58,9 +58,9 @@ let
     in
     runCommand "boot" {} ''
       mkdir $out
-      ln -s ${raspbian.latest.boot}/*.* $out
+      ln -s ${raspios.latest.boot}/*.* $out
       mkdir $out/overlays
-      ln -s ${raspbian.latest.boot}/overlays/*.* $out/overlays
+      ln -s ${raspios.latest.boot}/overlays/*.* $out/overlays
 
       ln -sf ${configTxt} $out/config.txt
 
