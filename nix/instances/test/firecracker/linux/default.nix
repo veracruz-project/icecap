@@ -33,7 +33,7 @@ in rec {
       # NOTE under some circumstances, firmware was silently changing ttyAMA in cmdline.txt to ttyS0 in device tree
     ];
     initrd = userland.config.build.initramfs;
-    userland = nixosLite.mk1Stage {
+    userland = nixosLite.eval {
       modules = [
         ./host.nix
         {
@@ -52,7 +52,7 @@ in rec {
       "pci=off"
     ];
     initrd = userland.config.build.initramfs;
-    userland = nixosLite.mk1Stage {
+    userland = nixosLite.eval {
       modules = [
         ./realm.nix
       ];

@@ -6,7 +6,6 @@ let
 in
   lib.concatMap (plat: [
     instances.${plat}.test.realm-vm.run
-    instances.${plat}.test.host-2-stage.run
     instances.${plat}.demos.minimal.run
     instances.${plat}.demos.minimal-root.run
     instances.${plat}.demos.realm-vm.run

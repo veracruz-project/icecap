@@ -3,23 +3,21 @@
 , system ? builtins.currentSystem
 }:
 
+{ modules ? [] }:
+
 let
-  mk = baseModules:
-    { modules ? [] }:
+  baseModule = import ./modules;
 
-    let
-      pkgsModule = {
-        config = {
-          _module.args.pkgs = lib.mkIf (pkgs != null) (lib.mkForce pkgs);
-          _module.check = true;
-          # TODO
-          # nixpkgs.system = lib.mkDefault system;
-        };
-      };
+  pkgsModule = {
+    config = {
+      _module.args.pkgs = lib.mkIf (pkgs != null) (lib.mkForce pkgs);
+      _module.check = true;
+      # TODO
+      # nixpkgs.system = lib.mkDefault system;
+    };
+  };
 
-    in
-      lib.evalModules {
-        modules = baseModules ++ [ pkgsModule ] ++ modules;
-      };
-
-in lib.mapAttrs (_: mk) (import ./modules)
+in
+lib.evalModules {
+  modules = [ baseModule ] ++ [ pkgsModule ] ++ modules;
+}

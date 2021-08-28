@@ -23,19 +23,4 @@ self: super: with self;
     ];
   });
 
-  # Increase timeouts for slow environments
-  systemd = super.systemd.overrideDerivation (attrs: {
-    postPatch = (attrs.postPatch or "") + (let t = "300s"; in ''
-      find . '(' -name '*.service' -o -name '*.service.in' ')' -exec sed -i -r \
-        -e 's/TimeoutStartSec=[0-9]+s/TimeoutStartSec=${t}/' \
-        -e 's/TimeoutStopSec=[0-9]+s/TimeoutStopSec=${t}/' \
-        -e 's/TimeoutSec=[0-9]+s/TimeoutSec=${t}/' \
-        {} ';'
-    '');
-  });
-
-  # No X11 libs (see nixpkgs/nixos/modules/config/no-x-libs.nix)
-  dbus = super.dbus.override { x11Support = false; };
-  gobjectIntrospection = super.gobjectIntrospection.override { x11Support = false; };
-  pinentry = super.pinentry_ncurses;
 }

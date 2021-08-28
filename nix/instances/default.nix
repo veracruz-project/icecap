@@ -45,7 +45,6 @@ icecap.byIceCapPlat (plat:
 
     test = {
       realm-vm = mkBasicInstance configs.icecap ./test/realm-vm;
-      host-2-stage = mkBasicInstance configs.icecap ./test/host-2-stage;
       firecracker = mkBasicInstance configs.icecap ./test/firecracker;
     };
 

@@ -26,7 +26,7 @@ in rec {
       "spec=${spec}"
     ];
     initrd = userland.config.build.initramfs;
-    userland = nixosLite.mk1Stage {
+    userland = nixosLite.eval {
       modules = [
         ./host.nix
         {
@@ -41,7 +41,7 @@ in rec {
     linuxImage = linuxKernel.guest.kernel;
     bootargs = commonBootargs;
     initrd = userland.config.build.initramfs;
-    userland = nixosLite.mk1Stage {
+    userland = nixosLite.eval {
       modules = [
         ./realm.nix
       ];

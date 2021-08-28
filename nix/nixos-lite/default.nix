@@ -2,12 +2,8 @@
 
 self: with self;
 
-let
+{
   eval = callPackage ./eval.nix {};
-
-in {
-  mk1Stage = eval._1Stage;
-  mk2Stage = eval._2Stage;
 
   mkExtraUtils = callPackage ./pkgs/mk-extra-utils.nix {};
   mkNixInitramfs = callPackage ./pkgs/mk-nix-initramfs.nix {};

@@ -54,7 +54,7 @@ mkInstance (self: with self; {
     '';
   };
 
-  hostUser = pkgs_linux.nixosLite.mk1Stage {
+  hostUser = pkgs_linux.nixosLite.eval {
     modules = [
       (import ./host.nix {
         inherit icecapPlat spec;
@@ -63,7 +63,7 @@ mkInstance (self: with self; {
     ];
   };
 
-  realmUser = pkgs_linux.nixosLite.mk1Stage {
+  realmUser = pkgs_linux.nixosLite.eval {
     modules = [
       ./realm.nix
       includeHelpers
