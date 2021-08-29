@@ -1,6 +1,6 @@
 { lib
 , icecapPlat
-, pkgs_linux
+, linuxPkgs
 
 , spec
 }:
@@ -8,9 +8,9 @@
 with lib;
 let
 
-  pkgs = pkgs_linux;
-  inherit (pkgs_linux) nixosLite;
-  inherit (pkgs_linux.icecap) linuxKernel;
+  pkgs = linuxPkgs;
+  inherit (linuxPkgs) nixosLite;
+  inherit (linuxPkgs.icecap) linuxKernel;
 
 in rec {
 

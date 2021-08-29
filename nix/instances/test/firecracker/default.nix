@@ -1,6 +1,6 @@
 { lib, buildPackages, runCommand, writeScript, writeText
 , virtUtils, icecapPlat
-, runPkgs, pkgs_linux
+, runPkgs, linuxPkgs
 
 , rpi4Utils
 , dtb-helpers
@@ -13,7 +13,7 @@ self: with self; {
 
   linux = callPackage ./linux {};
 
-  script = pkgs_linux.writeScript "run-test" ''
+  script = linuxPkgs.writeScript "run-test" ''
     #!/bin/sh
 
     firecracker \
@@ -26,7 +26,7 @@ self: with self; {
 
   config =
     let
-    in pkgs_linux.writeText "config.json" ''
+    in linuxPkgs.writeText "config.json" ''
       {
         "machine-config": {
           "vcpu_count": 1,
@@ -62,7 +62,7 @@ self: with self; {
 } // lib.optionalAttrs (icecapPlat == "rpi4") {
 
   boot = rpi4Utils.bootPartitionLinks {
-    payload = pkgs_linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
+    payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
       linuxImage = host.linuxImage;
       initramfs = host.initrd;
       bootargs = host.bootargs;
@@ -87,7 +87,7 @@ self: with self; {
 
   dt = rec {
     b = {
-      old = "${pkgs_linux.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
+      old = "${linuxPkgs.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
       new = with dtb-helpers; compile (catFiles [ s.old ./rpi4.dtsa ]);
     };
     s = {

@@ -32,7 +32,7 @@ in
         ln -s $(which sh) /bin/sh
       '';
 
-        # copy_bin_and_libs ${pkgs.pkgs_musl.icecap.firecracker}/bin/firecracker
+        # copy_bin_and_libs ${pkgs.muslPkgs.icecap.firecracker}/bin/firecracker
       initramfs.extraUtilsCommands = ''
         copy_bin_and_libs ${pkgs.icecap.firecracker-prebuilt}/bin/firecracker
         copy_bin_and_libs ${pkgs.icecap.firectl}/bin/firectl

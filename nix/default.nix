@@ -16,7 +16,7 @@ let
     overlays = [
       (import ./nix-linux/overlay.nix)
       (import ./overlay)
-      (self: super: lib.mapAttrs' (k: lib.nameValuePair "pkgs_${k}") pkgs)
+      (self: super: lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") pkgs)
     ];
     config = {
       allowUnfree = true;

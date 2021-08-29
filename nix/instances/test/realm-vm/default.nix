@@ -4,13 +4,13 @@
 , icecapPlat
 , emptyFile
 
-, kernel, repos, pkgs_linux
+, kernel, repos, linuxPkgs
 }:
 
 mkInstance (self: with self; {
 
-  payload = pkgs_linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
-    linuxImage = pkgs_linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
+  payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
+    linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
     # linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
     # linuxImage = ../../../../../../local/linux-rpi4/arch/arm64/boot/Image;
     initramfs = hostUser.config.build.initramfs;
@@ -21,7 +21,7 @@ mkInstance (self: with self; {
   };
 
   spec = mkLinuxRealm {
-    kernel = pkgs_linux.icecap.linuxKernel.guest.kernel;
+    kernel = linuxPkgs.icecap.linuxKernel.guest.kernel;
     # kernel = ../../../../../../local/linux/arch/arm64/boot/Image;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
@@ -35,8 +35,8 @@ mkInstance (self: with self; {
     ln -s ${spec} $out/spec.bin
   '';
 
-  c-helper = pkgs_linux.icecap.callPackage ./helpers/c-helper {};
-  rust-helper = pkgs_linux.icecap.callPackage ./helpers/rust-helper {};
+  c-helper = linuxPkgs.icecap.callPackage ./helpers/c-helper {};
+  rust-helper = linuxPkgs.icecap.callPackage ./helpers/rust-helper {};
 
   commonBootargs = [
     "earlycon=icecap_vmm"
@@ -53,7 +53,7 @@ mkInstance (self: with self; {
     '';
   };
 
-  hostUser = pkgs_linux.nixosLite.eval {
+  hostUser = linuxPkgs.nixosLite.eval {
     modules = [
       (import ./host.nix {
         inherit icecapPlat spec;
@@ -62,7 +62,7 @@ mkInstance (self: with self; {
     ];
   };
 
-  realmUser = pkgs_linux.nixosLite.eval {
+  realmUser = linuxPkgs.nixosLite.eval {
     modules = [
       ./realm.nix
       includeHelpers

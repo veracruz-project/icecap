@@ -1,4 +1,4 @@
-# TODO should this exist in the pkgs_dev scope?
+# TODO should this exist in the devPkgs scope?
 { lib, runCommand, dtc
 , runPkgs
 , dtb-helpers

@@ -1,5 +1,5 @@
 { icecapPlat
-, pkgs_linux
+, linuxPkgs
 , icecapExtraConfig
 , runCommandCC
 }:

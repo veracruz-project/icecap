@@ -95,9 +95,9 @@ rec {
       self = f self // meta // nextPkgSets // nextScopes;
 
       # NOTE
-      # pkgs_dev = pkgSet.pkgs_dev // makeSplicedScopeOf pkgSet.pkgs_dev f;
-      # pkgs_linux = pkgSet.pkgs_linux // makeSplicedScopeOf pkgSet.pkgs_linux f;
-      # pkgs_none = pkgSet.pkgs_dev // makeSplicedScopeOf pkgSet.pkgs_none f;
+      # devPkgs = pkgSet.devPkgs // makeSplicedScopeOf pkgSet.devPkgs f;
+      # linuxPkgs = pkgSet.linuxPkgs // makeSplicedScopeOf pkgSet.linuxPkgs f;
+      # nonePkgs = pkgSet.devPkgs // makeSplicedScopeOf pkgSet.nonePkgs f;
 
     in
       self;
