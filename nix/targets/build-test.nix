@@ -9,7 +9,7 @@ in
     instances.${plat}.demos.minimal.run
     instances.${plat}.demos.minimal-root.run
     instances.${plat}.demos.realm-vm.run
-    # instances.${plat}.demos.mirage.run # broken (since using nix-built aarch64-none-elf toolchain)
+    instances.${plat}.demos.mirage.run
     # configured.${plat}.sysroot-rs # broken (must update for rust bump)
   ]) icecapPlats ++ lib.concatMap (host: [
     host.icecap._9p-server

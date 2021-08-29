@@ -7,6 +7,10 @@ self: super: with self;
 
   inherit (callPackage ./lib.nix {}) makeSplicedScope makeSplicedScopeOf makeOverridable';
 
+  stdenv = rec {
+    aarch64-none = super.overrideCC super.stdenv buildPackages.gccCrossStageStatic;
+  }.${super.hostPlatform.system} or super.stdenv;
+
   # Global overrides
 
   python3 = super.python3.override {
