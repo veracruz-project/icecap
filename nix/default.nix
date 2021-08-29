@@ -12,22 +12,20 @@ let
     none.config = "aarch64-none-elf";
   };
 
-  baseArgs = {
+  baseArgs = pkgs: {
     overlays = [
       (import ./nix-linux/overlay.nix)
       (import ./overlay)
-      (self: super: lib.mapAttrs' (k: lib.nameValuePair "pkgs_${k}") basePkgs) # HACK doesn't incorporate overrides
+      (self: super: lib.mapAttrs' (k: lib.nameValuePair "pkgs_${k}") pkgs)
     ];
     config = {
       allowUnfree = true;
     };
   };
 
-  basePkgs = mkPkgs baseArgs;
-
-  mkPkgs = args: lib.mapAttrs (_: crossSystem:
-    import ../nixpkgs ({ inherit crossSystem; } // args)
-  ) crossSystems // {
+  mkPkgs = args: lib.fix (self: lib.mapAttrs (_: crossSystem:
+    import ../nixpkgs ({ inherit crossSystem; } // args self)
+  ) crossSystems) // {
     inherit lib;
   };
 
