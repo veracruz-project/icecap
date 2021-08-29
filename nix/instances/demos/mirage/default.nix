@@ -1,8 +1,8 @@
 { mkInstance
 , icecapPlat
 , mkMirageBinary, stripElfSplit
-, uBoot
 , mkDynDLSpec, mkIceDL
+, pkgs_linux
 }:
 
 mkInstance (self: with self; {
@@ -35,7 +35,7 @@ mkInstance (self: with self; {
     };
   };
 
-  payload = uBoot.${icecapPlat}.mkDefaultPayload {
+  payload = pkgs_linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
     linuxImage = host.linuxImage;
     initramfs = host.initrd;
     bootargs = host.bootargs;

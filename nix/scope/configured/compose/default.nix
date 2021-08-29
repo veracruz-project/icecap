@@ -1,5 +1,5 @@
 { lib, runCommand
-, deviceTree, uBoot
+, deviceTree, pkgs_linux
 , elfloader, mkCapDLLoader, bins
 , mkCpioFrom, mkIceDL, dtb-helpers
 , stripElf, stripElfSplit
@@ -9,7 +9,7 @@
 }:
 
 let
-  _u-boot = "${uBoot.${icecapPlat}}/u-boot.bin";
+  _u-boot = "${pkgs_linux.icecap.uBoot.${icecapPlat}}/u-boot.bin";
 in
 
 args:

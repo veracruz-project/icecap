@@ -1,5 +1,5 @@
 { mkInstance
-, deviceTree, bins, uBoot
+, deviceTree, bins
 , compose, mkLinuxRealm
 , icecapPlat
 , emptyFile
@@ -9,7 +9,7 @@
 
 mkInstance (self: with self; {
 
-  payload = uBoot.${icecapPlat}.mkDefaultPayload {
+  payload = pkgs_linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
     linuxImage = pkgs_linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
     # linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
     # linuxImage = ../../../../../../local/linux-rpi4/arch/arm64/boot/Image;

@@ -2,7 +2,7 @@
 , virtUtils, icecapPlat
 , runPkgs, pkgs_linux
 
-, rpi4Utils, uBoot
+, rpi4Utils
 , dtb-helpers
 , closureInfo
 }:
@@ -62,7 +62,7 @@ self: with self; {
 } // lib.optionalAttrs (icecapPlat == "rpi4") {
 
   boot = rpi4Utils.bootPartitionLinks {
-    payload = uBoot.${icecapPlat}.mkDefaultPayload {
+    payload = pkgs_linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
       linuxImage = host.linuxImage;
       initramfs = host.initrd;
       bootargs = host.bootargs;

@@ -57,7 +57,9 @@ superCallPackage ./ocaml {} self //
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};
 
-  uBoot = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
+  uBoot =
+    assert hostPlatform.system == "aarch64-linux"; # HACK
+    byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
 
   uBootUnifiedSource = with uboot-ng; doSource {
     version = "2019.07";

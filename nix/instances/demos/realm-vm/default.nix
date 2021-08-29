@@ -1,7 +1,7 @@
 { mkInstance
 , icecapPlat
 , mkLinuxRealm
-, uBoot
+, pkgs_linux
 }:
 
 mkInstance (self: with self; {
@@ -21,7 +21,7 @@ mkInstance (self: with self; {
     initrd = realm.initrd;
   };
 
-  payload = uBoot.${icecapPlat}.mkDefaultPayload {
+  payload = pkgs_linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
     linuxImage = host.linuxImage;
     initramfs = host.initrd;
     bootargs = host.bootargs;

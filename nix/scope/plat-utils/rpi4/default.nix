@@ -1,12 +1,12 @@
 { lib, writeText, writeScript, runCommand
 , raspios
-, uboot-ng, uboot-ng-mkimage
 , mkIceCapSrc
+, pkgs_linux
 }:
 
 let
 
-  uBootSource = uboot-ng.doSource {
+  uBootSource = pkgs_linux.uboot-ng.doSource {
     version = "2019.07";
     src = (mkIceCapSrc {
       repo = "u-boot";
@@ -14,7 +14,7 @@ let
     }).store;
   };
 
-  preConfig = uboot-ng.makeConfig {
+  preConfig = pkgs_linux.uboot-ng.makeConfig {
     source = uBootSource;
     target = "rpi_4_defconfig";
   };
@@ -36,7 +36,7 @@ let
 
   bootcmd = "load ${scriptPartition} ${scriptAddr} ${scriptName}; source ${scriptAddr}";
 
-  uBoot = uboot-ng.doKernel rec {
+  uBoot = pkgs_linux.uboot-ng.doKernel rec {
     source = uBootSource;
     inherit config;
   };
@@ -51,7 +51,7 @@ let
 
   bootPartitionLinks = { image ? null, payload ? {}, extraBootPartitionCommands ? "", script ? defaultScript }:
     let
-      scriptUimg = uboot-ng-mkimage {
+      scriptUimg = pkgs_linux.uboot-ng-mkimage {
         type = "script";
         data = script;
       };
