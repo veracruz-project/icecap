@@ -1,7 +1,6 @@
 { lib
 , icecapPlat
 , pkgs_linux
-, linuxKernel
 
 , script
 }:
@@ -11,6 +10,7 @@ let
 
   pkgs = pkgs_linux;
   inherit (pkgs_linux) nixosLite;
+  inherit (pkgs_linux.icecap) linuxKernel;
 
 in rec {
 

@@ -3,7 +3,6 @@
 , compose, mkLinuxRealm
 , icecapPlat
 , emptyFile
-, linuxKernel
 
 , kernel, repos, pkgs_linux
 }:
@@ -11,7 +10,7 @@
 mkInstance (self: with self; {
 
   payload = uBoot.${icecapPlat}.mkDefaultPayload {
-    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
+    linuxImage = pkgs_linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
     # linuxImage = ../../../../../../local/linux/arch/arm64/boot/Image;
     # linuxImage = ../../../../../../local/linux-rpi4/arch/arm64/boot/Image;
     initramfs = hostUser.config.build.initramfs;
@@ -22,7 +21,7 @@ mkInstance (self: with self; {
   };
 
   spec = mkLinuxRealm {
-    kernel = linuxKernel.guest.kernel;
+    kernel = pkgs_linux.icecap.linuxKernel.guest.kernel;
     # kernel = ../../../../../../local/linux/arch/arm64/boot/Image;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [

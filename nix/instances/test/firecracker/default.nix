@@ -1,5 +1,5 @@
 { lib, buildPackages, runCommand, writeScript, writeText
-, virtUtils, icecapPlat, linuxKernel
+, virtUtils, icecapPlat
 , runPkgs, pkgs_linux
 
 , rpi4Utils, uBoot
@@ -87,7 +87,7 @@ self: with self; {
 
   dt = rec {
     b = {
-      old = "${linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
+      old = "${pkgs_linux.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
       new = with dtb-helpers; compile (catFiles [ s.old ./rpi4.dtsa ]);
     };
     s = {

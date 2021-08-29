@@ -1,4 +1,4 @@
-{ dtb-helpers, raspios, linuxKernel }:
+{ dtb-helpers, raspios, pkgs_linux }:
 
 {
   host = rec {
@@ -6,7 +6,7 @@
       let
         # orig = "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
         # orig = ../../../../../local/linux/arch/arm64/boot/dts/broadcom/bcm2711-rpi-4-b.dtb;
-        orig = "${linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
+        orig = "${pkgs_linux.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
       in with dtb-helpers; compile (catFiles [ (decompile orig) ./host/rpi4.dtsa ]);
     virt = dtb-helpers.compile ./host/virt.dts;
     dts = {

@@ -1,4 +1,5 @@
 { lib, buildPackages, callPackage
+, hostPlatform
 , uboot-ng, linux-ng, linuxHeaders
 , busybox
 }:
@@ -66,7 +67,7 @@ superCallPackage ./ocaml {} self //
     }).store;
   };
 
-  linuxKernel = rec {
+  linuxKernel = assert hostPlatform.system == "aarch64-linux"; { # HACK
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
     guest = callPackage ./linux-kernel/guest {};
   };
