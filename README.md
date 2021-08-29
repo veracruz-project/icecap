@@ -44,7 +44,7 @@ virtual machine called a realm, and then communicates with it via the virtual
 network:
 
 ```bash
-$(container) nix-build -A meta.instances.virt.demos.realm-vm.run # optional: -j$(nproc)
+$(container) nix-build -A meta.demos.realm-vm.virt.run # optional: -j$(nproc)
 $(container) ./result/run
 # ... wait for the host VM to boot to a shell ...
 # Spawn a VM in a realm:
@@ -91,7 +91,7 @@ $ screen /dev/ttyUSB0 115200
 Build the demo and copy it to the boot partition of your SD card:
 
 ```bash
-$(container) nix-build -A meta.instances.rpi4.demos.realm-vm.run
+$(container) nix-build -A meta.demos.realm-vm.rpi4.run # optional: -j$(nproc)
 $ ls -l ./result/boot/
 # ./result/boot and its subdirectories contain symlinks which are to be resolved
 # and copied to the boot partition of your SD card. For example:
