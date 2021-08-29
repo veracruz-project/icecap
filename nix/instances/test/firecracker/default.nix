@@ -1,6 +1,6 @@
 { lib, buildPackages, runCommand, writeScript, writeText
 , virtUtils, icecapPlat
-, runPkgs, linuxPkgs
+, devPkgs, linuxPkgs
 
 , rpi4Utils
 , dtb-helpers
@@ -51,7 +51,7 @@ self: with self; {
 } // lib.optionalAttrs (icecapPlat == "virt") {
 
   run = writeScript "run.sh" (with virtUtils; ''
-      #!${runPkgs.runtimeShell}
+      #!${devPkgs.runtimeShell}
       exec ${cmdPrefix} \
         -d unimp,guest_errors \
         -kernel ${host.linuxImage} \

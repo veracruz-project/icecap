@@ -79,6 +79,42 @@ let
       ${extraBootPartitionCommands}
     '';
 
+  bundle =
+    { firmware, payload ? {}
+    , extraLinks ? {}
+    , platArgs ? {}
+    }:
+
+    let
+      expandedPlatArgs = (
+        { extraBootPartitionCommands ? "" }:
+        { inherit extraBootPartitionCommands; }
+      ) platArgs;
+
+      boot = bootPartitionLinks {
+        image = firmware;
+        inherit payload;
+        inherit (expandedPlatArgs) extraBootPartitionCommands;
+      };
+
+      links = {
+        inherit boot;
+      } // extraLinks;
+    in
+    runCommand "run" {
+      passthru = {
+        inherit boot;
+      };
+    } ''
+      mkdir $out
+      ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+        mkdir -p $out/$(dirname ${k})
+        ln -s ${v} $out/${k}
+      '') links)}
+    '';
+
 in {
   inherit uBoot bootPartitionLinks;
+
+  inherit bundle;
 }

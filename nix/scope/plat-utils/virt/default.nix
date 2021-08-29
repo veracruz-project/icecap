@@ -1,6 +1,6 @@
 # TODO should this exist in the devPkgs scope?
-{ lib, runCommand, dtc
-, runPkgs
+{ lib, runCommand, writeScript, dtc
+, devPkgs
 , dtb-helpers
 }:
 
@@ -11,7 +11,7 @@ let
 in
 rec {
 
-  exe = "${runPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
+  exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;
   exeRun = exe;
 
@@ -58,6 +58,66 @@ rec {
   cmdPrefix = "${exeRun} ${join (frontendArgs ++ backendArgs)}";
 
   join = lib.concatStringsSep " ";
+
+  basicScript = { kernel }:
+    writeScript "run.sh" ''
+      #!${devPkgs.runtimeShell}
+      exec ${cmdPrefix} -kernel ${kernel} "$@"
+    '';
+
+  basicRun = { firmware, payload, extraLinks ? {} }:
+    genericRun {
+      inherit payload;
+      links = {
+        run = basicScript {
+          kernel = firmware;
+        };
+      } // extraLinks;
+    };
+
+  devScript = { kernel, extraArgs ? [] }:
+    writeScript "run.sh" ''
+      #!${devPkgs.runtimeShell}
+      debug=
+      if [ "$1" = "-d" ]; then
+        debug="${join debugArgs}"
+      fi
+      exec ${cmdPrefix} \
+        -d unimp,guest_errors \
+        ${join extraArgs} \
+        $debug \
+        -kernel ${kernel}
+    '';
+
+  genericRun = { links, payload }:
+    runCommand "run" {} ''
+      mkdir $out
+      ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+        mkdir -p $out/$(dirname ${k})
+        ln -s ${v} $out/${k}
+      '') links)}
+
+      mkdir $out/payload
+      ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
+        ln -s ${v} $out/payload/${k}
+      '') payload)}
+    '';
+
+  bundle =
+    { firmware, payload ? {}
+    , extraLinks ? {}
+    , platArgs ? {}
+    }:
+
+    genericRun {
+      inherit payload;
+      links = {
+        run =
+          if platArgs.devScript or false
+          then devScript { kernel = firmware; }
+          else basicScript { kernel = firmware; };
+      } // extraLinks;
+    };
 
 }
 

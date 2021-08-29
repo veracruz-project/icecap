@@ -19,13 +19,10 @@ superCallPackage ./ocaml {} self //
   # TODO callPackage uses makeOverridable, which is not desirable here.
   configure = icecapConfig: lib.makeScope newScope (callPackage ./configured {} icecapConfig);
 
-  configured = pkgs.none.icecap.byIceCapPlat (plat: pkgs.none.icecap.configure {
+  configured = byIceCapPlat (plat: configure {
     inherit plat;
     profile = "icecap";
   });
-
-  # HACK
-  runPkgs = buildPackages;
 
   # TODO name
   repos = callPackage ./source.nix {};
@@ -56,8 +53,10 @@ superCallPackage ./ocaml {} self //
 
   deviceTree = callPackage ./device-tree {};
 
-  virtUtils = callPackage ./plat-utils/virt {};
-  rpi4Utils = callPackage ./plat-utils/rpi4 {};
+  # TODO distinguish between interface and unique
+  platUtils = byIceCapPlat (plat: callPackage (./plat-utils + "/${plat}") {});
+  virtUtils = platUtils.virt;
+  rpi4Utils = platUtils.rpi4;
 
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};

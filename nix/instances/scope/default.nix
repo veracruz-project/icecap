@@ -11,6 +11,6 @@ self: with self;
 
   mkInstance = callPackage ./mk-instance.nix {};
 
-  mkRun = callPackage (./run + "/${icecapPlat}") {};
+  mkRun = callPackage ./mk-run.nix {};
 
 }
