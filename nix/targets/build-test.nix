@@ -1,4 +1,4 @@
-{ pkgs, configured, instances }:
+{ pkgs, instances }:
 
 let
   inherit (pkgs) lib dev linux none;
@@ -10,7 +10,7 @@ in
     instances.${plat}.demos.minimal-root.run
     instances.${plat}.demos.realm-vm.run
     instances.${plat}.demos.mirage.run
-    # configured.${plat}.sysroot-rs # broken (must update for rust bump)
+    # pkgs.none.icecap.configured.${plat}.sysroot-rs # broken (must update for rust bump)
   ]) icecapPlats ++ lib.concatMap (host: [
     host.icecap._9p-server
   ]) [ dev linux ] ++ [

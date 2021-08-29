@@ -1,7 +1,7 @@
-{ pkgs, configured }:
+{ pkgs }:
 
 let
-  components = configured.virt.icecapFirmware.components;
+  components = pkgs.none.icecap.configured.virt.icecapFirmware.components;
 
   size = path: import (pkgs.dev.runCommand "size.nix" {} ''
     stat --format="%s" ${path} > $out

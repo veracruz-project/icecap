@@ -19,6 +19,11 @@ superCallPackage ./ocaml {} self //
   # TODO callPackage uses makeOverridable, which is not desirable here.
   configure = icecapConfig: lib.makeScope newScope (callPackage ./configured {} icecapConfig);
 
+  configured = pkgs.none.icecap.byIceCapPlat (plat: pkgs.none.icecap.configure {
+    inherit plat;
+    profile = "icecap";
+  });
+
   # HACK
   runPkgs = buildPackages;
 
