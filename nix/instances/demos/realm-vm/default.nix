@@ -6,26 +6,47 @@
 
 mkInstance (self: with self; {
 
-  inherit (linux) host realm;
-  inherit (spec) ddl;
+  payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
+    linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
+    initramfs = hostUser.config.build.initramfs;
+    dtb = composition.host-dtb;
+    bootargs = commonBootargs ++ [
+      "spec=${spec}"
+    ];
+  };
 
-  linux = callPackage ./linux {};
+  spec = mkLinuxRealm {
+    kernel = linuxPkgs.icecap.linuxKernel.guest.kernel;
+    initrd = realmUser.config.build.initramfs;
+    bootargs = commonBootargs;
+  };
+
+  inherit (spec) ddl;
 
   icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
     ln -s ${spec} $out/spec.bin
   '';
 
-  spec = mkLinuxRealm {
-    bootargs = realm.bootargs;
-    kernel = realm.linuxImage;
-    initrd = realm.initrd;
+  commonBootargs = [
+    "earlycon=icecap_vmm"
+    "console=hvc0"
+    "loglevel=7"
+  ];
+
+  hostUser = linuxPkgs.nixosLite.eval {
+    modules = [
+      ./host.nix
+      {
+        instance.plat = icecapPlat;
+        instance.spec = spec;
+      }
+    ];
   };
 
-  payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
-    linuxImage = host.linuxImage;
-    initramfs = host.initrd;
-    bootargs = host.bootargs;
-    dtb = composition.host-dtb;
+  realmUser = linuxPkgs.nixosLite.eval {
+    modules = [
+      ./realm.nix
+    ];
   };
 
 })
