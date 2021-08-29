@@ -1,7 +1,10 @@
 { lib, pkgs, meta } @ topLevel:
 
 rec {
-  instances = pkgs.none.icecap.callPackage ../instances {};
+
+  demos = lib.mapAttrs (_: path: import path { inherit lib pkgs; }) (import ./demos);
+
+  tests = import ./tests { inherit lib pkgs; };
 
   buildTest = import ./build-test.nix {
     inherit lib pkgs meta;
@@ -11,5 +14,4 @@ rec {
     inherit pkgs;
   };
 
-  demos = lib.mapAttrs (_: path: import path { inherit lib pkgs; }) (import ./demos);
 }

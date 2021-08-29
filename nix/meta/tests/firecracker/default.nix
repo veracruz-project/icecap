@@ -2,16 +2,21 @@
 , virtUtils, icecapPlat
 , devPkgs, linuxPkgs
 
+, mkInstance
+
 , rpi4Utils
 , dtb-helpers
 , closureInfo
+, callPackage
 }:
 
-self: with self; {
+lib.fix (self: with self; {
 
   inherit (linux) host realm;
 
-  linux = callPackage ./linux {};
+  linux = callPackage ./linux {
+    inherit script;
+  };
 
   script = linuxPkgs.writeScript "run-test" ''
     #!/bin/sh
@@ -102,4 +107,4 @@ self: with self; {
     ];
   };
 
-}
+})

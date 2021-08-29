@@ -9,12 +9,10 @@ in
     meta.demos.minimal-root.${k}.run
     meta.demos.realm-mirage.${k}.run
     meta.demos.realm-vm.${k}.run
-  ])) ++ lib.concatMap (plat: [
-    meta.instances.${plat}.test.realm-vm.run
-    # pkgs.none.icecap.configured.${plat}.sysroot-rs # broken (must update for rust bump)
-  ]) icecapPlats ++ lib.concatMap (host: [
+    meta.tests.realm-vm.${k}.run
+  ])) ++ lib.concatMap (host: [
     host.icecap._9p-server
   ]) [ dev linux ] ++ [
     dev.icecap.sel4-manual
-    meta.instances.rpi4.test.firecracker.boot
+    meta.tests.firecracker.rpi4.boot
   ]
