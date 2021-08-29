@@ -1,1 +1,1 @@
-import ./nix/targets
+import ./nix

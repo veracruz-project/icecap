@@ -12,24 +12,30 @@ let
     none.config = "aarch64-none-elf";
   };
 
-  baseArgs = pkgs: {
+  baseArgs = crossSystem: allPkgs: {
+    inherit crossSystem;
     overlays = [
       (import ./nix-linux/overlay.nix)
       (import ./overlay)
-      (self: super: lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") pkgs)
+      (self: super: lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") allPkgs)
     ];
     config = {
       allowUnfree = true;
     };
   };
 
-  mkPkgs = args: lib.fix (self: lib.mapAttrs (_: crossSystem:
-    import ../nixpkgs ({ inherit crossSystem; } // args self)
-  ) crossSystems) // {
-    inherit lib;
-  };
+  mkTopLevel = args:
+    let
+      pkgs = lib.fix (self: lib.mapAttrs (_: crossSystem:
+        import ../nixpkgs (args crossSystem self)
+      ) crossSystems);
+    in
+      lib.fix (self: {
+        inherit lib pkgs;
+        meta = import ./meta self;
+      });
 
-  pkgs = makeOverridableWith lib.id mkPkgs baseArgs;
+  topLevel = makeOverridableWith lib.id mkTopLevel baseArgs;
 
 in
-  pkgs
+  topLevel

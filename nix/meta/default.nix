@@ -1,14 +1,10 @@
-let
-  pkgs = import ../.;
-in
+{ lib, pkgs, ... }:
 
 rec {
-  inherit pkgs;
-
   instances = pkgs.none.icecap.callPackage ../instances {};
 
   buildTest = import ./build-test.nix {
-    inherit pkgs instances;
+    inherit lib pkgs instances;
   };
 
   tcbSize = import ./tcb-size.nix {

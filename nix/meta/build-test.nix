@@ -1,7 +1,7 @@
-{ pkgs, instances }:
+{ lib, pkgs, instances }:
 
 let
-  inherit (pkgs) lib dev linux none;
+  inherit (pkgs) dev linux none;
   inherit (none.icecap) icecapPlats;
 in
   lib.concatMap (plat: [
