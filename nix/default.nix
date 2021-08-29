@@ -31,10 +31,7 @@ let
     inherit lib;
   };
 
-  mkTargets = args: import ./targets (mkPkgs args);
-
-  targets = makeOverridableWith lib.id mkTargets baseArgs;
+  pkgs = makeOverridableWith lib.id mkPkgs baseArgs;
 
 in
-  # TODO call this file from ./targets instead
-  targets
+  pkgs

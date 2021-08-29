@@ -1,4 +1,6 @@
-pkgs:
+let
+  pkgs = import ../.;
+in
 
 rec {
   inherit pkgs;
