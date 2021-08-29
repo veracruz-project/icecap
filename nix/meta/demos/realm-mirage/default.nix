@@ -3,8 +3,10 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
-  inherit (pkgs.none.icecap) platUtils;
-  inherit (configured) icecapPlat mkLinuxRealm icecapFirmware;
+  inherit (pkgs.none.icecap) platUtils stripElfSplit;
+  inherit (configured)
+    icecapPlat icecapFirmware
+    mkMirageBinary mkDynDLSpec mkIceDL;
 
 in rec {
 
@@ -24,24 +26,33 @@ in rec {
     linuxImage = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
     initramfs = hostUser.config.build.initramfs;
     dtb = icecapFirmware.host-dtb;
-    bootargs = commonBootargs ++ [
+    bootargs = [
+      "earlycon=icecap_vmm"
+      "console=hvc0"
+      "loglevel=7"
       "spec=${spec}"
     ];
   };
 
-  spec = mkLinuxRealm {
-    kernel = pkgs.linux.icecap.linuxKernel.guest.kernel;
-    initrd = realmUser.config.build.initramfs;
-    bootargs = commonBootargs;
+  spec = mkDynDLSpec {
+    cdl = "${ddl}/icecap.cdl";
+    root = "${ddl}/links";
+    extraPassthru = {
+      inherit ddl;
+    };
   };
 
-  inherit (spec) ddl;
+  ddl = mkIceDL {
+    src = ./ddl;
+    config = {
+      components = {
+        mirage.image = stripElfSplit "${mirageBinary}/bin/mirage.elf";
+      };
+    };
+  };
 
-  commonBootargs = [
-    "earlycon=icecap_vmm"
-    "console=hvc0"
-    "loglevel=7"
-  ];
+  mirageLibrary = configured.callPackage ./mirage.nix {};
+  mirageBinary = mkMirageBinary mirageLibrary;
 
   hostUser = pkgs.linux.nixosLite.eval {
     modules = [
@@ -50,12 +61,6 @@ in rec {
         instance.plat = icecapPlat;
         instance.spec = spec;
       }
-    ];
-  };
-
-  realmUser = pkgs.linux.nixosLite.eval {
-    modules = [
-      ./realm.nix
     ];
   };
 
