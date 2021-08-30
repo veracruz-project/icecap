@@ -105,8 +105,8 @@ in
 
       # https://access.redhat.com/solutions/177953
       # https://www.redhat.com/files/summit/session-assets/2018/Performance-analysis-and-tuning-of-Red-Hat-Enterprise-Linux-Part-1.pdf
-      echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
-      echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
+      # echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
+      # echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
 
       export iperf_affinity=0x1
       chrt -b 0 iperf3 -s > /dev/null &
