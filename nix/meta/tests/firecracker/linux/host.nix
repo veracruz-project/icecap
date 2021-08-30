@@ -63,12 +63,10 @@ in
         mount -o ro /dev/mmcblk0p1 mnt/
         ln -s /mnt/$script /script
 
-        (
-          cd /sys/devices/system/cpu/cpu0/cpufreq/
-          echo performance > scaling_governor
-          # echo userspace > scaling_governor
-          # echo 1500000 > scaling_setspeed
-        )
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          echo $f
+          echo performance > $f
+        done
       '';
     })
 
