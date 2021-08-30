@@ -83,7 +83,7 @@ superCallPackage ./ocaml {} self //
     extraVersion = "-rc2";
     src = (mkIceCapSrc {
       repo = "linux";
-      rev = "9ce8552cadbfb079baa336d11e2baa57dc12f16b"; # branch icecap
+      rev = "a51b1b13cfa49ee6ff06a6807e9f68faf2de217f"; # branch icecap
     }).store;
   };
 
