@@ -78,8 +78,13 @@ in
         ip address add 192.168.1.1/24 dev veth0
         ip link set veth0 up
 
-        iperf3 -s &
-        /script
+        export iperf_affinity=0x1
+        # taskset $iperf_affinity \
+          iperf3 -s > /dev/null &
+
+        export realm_affinity=0x2
+        # taskset $realm_affinity \
+          /script
       '';
     }
 
