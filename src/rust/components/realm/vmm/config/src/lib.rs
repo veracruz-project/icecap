@@ -17,7 +17,6 @@ pub struct Config {
     pub gic_dist_paddr: usize,
     pub nodes: Vec<Node>,
     pub event_server_client_ep: Vec<Endpoint>,
-    pub kicks: Vec<KickConfig>,
 
     pub ppi_map: BTreeMap<usize, RealmIn>,
     pub spi_map: BTreeMap<usize, (RealmIn, usize)>, // in_index, nid

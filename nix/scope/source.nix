@@ -97,7 +97,7 @@ rec {
     extraVersion = "-rc2";
     src = (icecapSrc.repo {
       repo = "linux";
-      rev = "a51b1b13cfa49ee6ff06a6807e9f68faf2de217f"; # branch icecap
+      rev = "9a017b15fe94edea09f861833aa75f2991c95a38"; # branch icecap
     }).store;
   };
 
@@ -105,7 +105,7 @@ rec {
     version = "5.4.47";
     src = (icecapSrc.repo {
       repo = "linux";
-      rev = "d681ecad8f55f5d6be411d410498ed5cf50ef546"; # branch: icecap-rpi4
+      rev = "6caebe5ac0b7e13fa0f7f05981d5de08798ce1e7"; # branch: icecap-rpi4
     }).store;
   };
 

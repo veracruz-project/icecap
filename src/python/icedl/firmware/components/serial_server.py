@@ -1,3 +1,4 @@
+import operator
 from capdl import ObjectType, Cap, ARMIRQMode
 from icedl.common import ElfComponent
 from icedl.utils import as_list, PAGE_SIZE
@@ -41,7 +42,7 @@ class SerialServer(ElfComponent):
             'reply_ep': self.cspace().alloc(None),
             'dev_vaddr': vaddr,
             'ep': ep,
-            'event_server': self.composition.event_server.register_client(self, 'SerialServer')[self.primary_thread.tcb.affinity],
+            'event_server': self.composition.event_server.register_client(self, None, 'SerialServer')[self.primary_thread.tcb.affinity][0],
             'irq_nfn': self.cspace().alloc(irq_nfn, read=True),
             'irq_handler': irq_handler,
             'irq_thread': self.secondary_thread('irq_{}'.format(irq)).endpoint,

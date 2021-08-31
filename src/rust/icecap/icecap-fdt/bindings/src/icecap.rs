@@ -5,17 +5,24 @@ use serde::{Serialize, Deserialize};
 use icecap_fdt::{DeviceTree, Node, Value};
 use icecap_fdt::bindings::{Cells, SizeSpec};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RingBufferSide {
-    pub ctrl: Range<usize>,
-    pub data: Range<usize>,
-    pub signal: usize,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RingBuffer {
     pub read: RingBufferSide,
     pub write: RingBufferSide,
+    pub kick: Kick,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RingBufferSide {
+    pub ctrl: Range<usize>,
+    pub data: Range<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Kick {
+    Raw { notification: u64 },
+    Managed { endpoints: Vec<u64>, index: u64 },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,9 +56,20 @@ impl RingBuffer {
             Address(self.write.ctrl.start), Size(self.write.ctrl.len()),
             Address(self.read.data.start), Size(self.read.data.len()),
             Address(self.write.data.start), Size(self.write.data.len()),
-            Address(self.read.signal), Size(0),
-            Address(self.write.signal), Size(0),
         ]);
+        match &self.kick {
+            Kick::Raw { notification } => {
+                node.set_property("kick-type", "raw");
+                node.set_property("kick-notification", notification);
+            }
+            Kick::Managed { endpoints, index } => {
+                node.set_property("kick-type", "managed");
+                node.set_property("kick-index", index);
+                node.set_property_cells("kick-endpoints", spec, endpoints.iter().map(|endpoint| {
+                    Raw64(*endpoint)
+                }));
+            }
+        }
     }
 }
 

@@ -2,6 +2,7 @@ import os
 import json
 import yaml
 import shutil
+import subprocess
 from collections import namedtuple
 from pathlib import Path
 
@@ -141,3 +142,9 @@ class BaseComposition:
         if self._gic_vcpu_frame is None:
             self._gic_vcpu_frame = self.create_gic_vcpu_frame()
         return self._gic_vcpu_frame
+
+    # TODO move
+    def serialize_event_server_out(self, role, index):
+        index = json.dumps(index)
+        p = subprocess.run(["icecap-serialize-event-server-out-index", role, index], check=True, stdout=subprocess.PIPE)
+        return int(p.stdout)

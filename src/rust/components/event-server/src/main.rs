@@ -38,6 +38,7 @@ declare_main!(main);
 
 const BADGE_TYPE_MASK: Badge = 3 << 11;
 const BADGE_TYPE_CLIENT: Badge = 3;
+const BADGE_TYPE_CLIENT_OUT: Badge = 2;
 const BADGE_TYPE_CONTROL: Badge = 1;
 
 pub fn main(config: Config) -> Fallible<()> {
@@ -87,10 +88,33 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
         let badge_type = badge >> 11;
         let badge_value = badge & !BADGE_TYPE_MASK;
         match badge_type {
+            BADGE_TYPE_CLIENT_OUT => {
+                let out_index = MR_0.get() as usize;
+                let mut server = server.lock();
+                let client_badge = &badges.client_badges[badge_value as usize];
+                // debug_println!("out: {:?} {:?}", out_index, client_badge);
+                let client = match client_badge {
+                    ClientId::ResourceServer => {
+                        &mut server.resource_server
+                    }
+                    ClientId::SerialServer => {
+                        &mut server.serial_server
+                    }
+                    ClientId::Host => {
+                        &mut server.host
+                    }
+                    ClientId::Realm(rid) => {
+                        server.realms.get_mut(&rid).unwrap()
+                    }
+                };
+                let () = client.signal(out_index)?;
+                reply(MessageInfo::empty());
+            }
             BADGE_TYPE_CLIENT => {
                 let req = rpc_server::recv::<calls::Client>(&info);
                 let mut server = server.lock();
                 let client_badge = &badges.client_badges[badge_value as usize];
+                // debug_println!("client: {:?} {:?}", req, client_badge);
                 let client = match client_badge {
                     ClientId::ResourceServer => {
                         &mut server.resource_server
@@ -117,7 +141,10 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                         rpc_server::reply(&client.poll(nid)?)
                     }
                     calls::Client::End { nid, index } => {
-                        rpc_server::reply(&client.end(nid, index)?)
+                        // debug_println!("event-server: {:?} sent {:?}", client_badge, req);
+                        let x = rpc_server::reply(&client.end(nid, index)?);
+                        // debug_println!("event-server: done");
+                        x
                     }
                     calls::Client::Configure { nid, index, action } => {
                         rpc_server::reply(&client.configure(nid, index, action)?)

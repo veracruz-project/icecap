@@ -29,6 +29,7 @@ in {
     ];
   };
 
+  inherit (composition) cdl;
   inherit (spec) ddl;
 
   icecapPlatArgs.rpi4.extraBootPartitionCommands = ''

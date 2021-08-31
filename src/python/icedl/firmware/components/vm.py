@@ -265,11 +265,9 @@ class VM(BaseComponent):
     def map_con(self, objs, kick, event):
         irq = self.next_virq()
         self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0)
-        kick_index = self.vmm.register_kick(kick)
 
         ring_buffer = self.map_ring_buffer(objs)
-        ring_buffer['read']['signal'] = kick_index
-        ring_buffer['write']['signal'] = kick_index
+        ring_buffer['kick'] = kick
 
         self.devices.append({
             'Con': {
@@ -281,11 +279,9 @@ class VM(BaseComponent):
     def map_net(self, objs, kick, event):
         irq = self.next_virq()
         self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0)
-        kick_index = self.vmm.register_kick(kick)
 
         ring_buffer = self.map_ring_buffer(objs)
-        ring_buffer['read']['signal'] = kick_index
-        ring_buffer['write']['signal'] = kick_index
+        ring_buffer['kick'] = kick
 
         self.devices.append({
             'Net': {
@@ -369,8 +365,6 @@ class VMM(ElfComponent):
                 'fault_reply_slot': self.cspace().alloc(None),
                 })
 
-        self.kicks = []
-
         self._arg = {
             'cnode': self.cspace().alloc(self.cspace().cnode, write=True),
             'gic_lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='gic_lock'), read=True, write=True),
@@ -384,25 +378,26 @@ class VMM(ElfComponent):
         }
 
         if self.is_host:
+            event_server_client_eps = self.composition.event_server.register_client(self, self.vm, { 'Host': None })
+            self.vm.event_server_out_endpoints = [ eps[1] for eps in event_server_client_eps ]
             self._arg.update({
-                'event_server_client_ep': self.composition.event_server.register_client(self, { 'Host': None }),
+                'event_server_client_ep': [ eps[0] for eps in event_server_client_eps ],
                 'event_server_control_ep': self.composition.event_server.register_control_host(self),
                 'resource_server_ep': list(self.composition.resource_server.register_host(self)),
                 'benchmark_server_ep': self.cspace().alloc(self.composition.benchmark_server.ep, write=True, grantreply=True),
                 'log_buffer': self.cspace().alloc(self.alloc(ObjectType.seL4_FrameObject, name='log_buffer', size_bits=21), read=True, write=True),
                 })
         else:
+            self.vm.event_server_out_endpoints = [
+                self.vm.cspace().alloc(self.composition.extern(ObjectType.seL4_EndpointObject, 'realm_{}_event_server_client_endpoint_out_{}'.format(self.composition.realm_id(), self.composition.virt_to_phys_node_map(j))), write=True, grantreply=True)
+                for j in range(self.composition.num_nodes())
+                ]
             self._arg.update({
                 'event_server_client_ep': [
                     self.cspace().alloc(self.composition.extern(ObjectType.seL4_EndpointObject, 'realm_{}_event_server_client_endpoint_{}'.format(self.composition.realm_id(), self.composition.virt_to_phys_node_map(j))), write=True, grantreply=True)
                     for j in range(self.composition.num_nodes())
                     ],
                 })
-
-    def register_kick(self, kick):
-        kick_index = len(self.kicks)
-        self.kicks.append(kick)
-        return kick_index
 
     def serialize_arg(self):
         if self.is_host:
@@ -411,7 +406,6 @@ class VMM(ElfComponent):
             return 'serialize-realm-vmm-config'
 
     def arg_json(self):
-        self._arg['kicks'] = self.kicks
         return self._arg
 
 

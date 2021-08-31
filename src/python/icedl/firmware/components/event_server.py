@@ -5,6 +5,7 @@ from icedl.utils import BLOCK_SIZE, PAGE_SIZE, groups_of
 
 BADGE_TYPE_SHIFT = 11
 BADGE_TYPE_CLIENT = 3 << BADGE_TYPE_SHIFT
+BADGE_TYPE_CLIENT_OUT = 2 << BADGE_TYPE_SHIFT
 BADGE_TYPE_CONTROL = 1 << BADGE_TYPE_SHIFT
 
 NUM_CORES = 3 # HACK
@@ -76,12 +77,16 @@ class EventServer(ElfComponent):
             nfns.append(self.cspace().alloc(nfn, badge=badge, write=True))
         self._arg['realm_notifications'].append(nfns)
 
-    def register_client(self, client, id):
+    def register_client(self, client, client_out, id):
         client_badges = self._arg['badges']['client_badges']
         badge = BADGE_TYPE_CLIENT | len(client_badges)
+        badge_out = BADGE_TYPE_CLIENT_OUT | len(client_badges)
         client_badges.append(id)
         return [
-            client.cspace().alloc(ep, badge=badge, write=True, grantreply=True)
+            (
+                client.cspace().alloc(ep, badge=badge, write=True, grantreply=True),
+                None if client_out is None else client_out.cspace().alloc(ep, badge=badge_out, write=True, grantreply=True)
+            )
             for ep in self.endpoints
             ]
 

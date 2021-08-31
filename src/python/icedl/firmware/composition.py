@@ -26,8 +26,8 @@ class Composition(BaseComposition):
         self.serial_server = self.component(SerialServer, 'serial_server', affinity=HACK_AFFINITY, prio=180, fault_handler=self.fault_handler)
         self.host_vm = self.component(HostVM, name='host_vm', vmm_name='host_vmm')
 
-        cfg = self.serial_server.register_host(self.host_vm.vmm)
-        self.host_vm.map_con(cfg['ring_buffer_objs'], { 'Notification': cfg['kick'] }, { 'SerialServer': None })
+        cfg = self.serial_server.register_host(self.host_vm)
+        self.host_vm.map_con(cfg['ring_buffer_objs'], { 'Raw': { 'notification': cfg['kick'] } }, { 'SerialServer': None })
 
         self.event_server.register_host_notifications(self.host_vm.vmm.event_server_targets)
 
@@ -39,11 +39,12 @@ class Composition(BaseComposition):
             self.resource_server.add_extern('realm_{}_serial_server_kick'.format(i), 'Notification', serial_server_config['kick'])
             self.resource_server.add_extern_ring_buffer('realm_{}_serial_server_ring_buffer'.format(i), serial_server_config['ring_buffer_objs'])
 
-            event_server_client = self.event_server.register_client(self.resource_server, {
+            event_server_client = self.event_server.register_client(self.resource_server, self.resource_server, {
                 'Realm': i,
             })
-            for j, ep in enumerate(event_server_client):
-                self.resource_server.add_extern('realm_{}_event_server_client_endpoint_{}'.format(i, j), 'Endpoint', ep)
+            for j, eps in enumerate(event_server_client):
+                self.resource_server.add_extern('realm_{}_event_server_client_endpoint_{}'.format(i, j), 'Endpoint', eps[0])
+                self.resource_server.add_extern('realm_{}_event_server_client_endpoint_out_{}'.format(i, j), 'Endpoint', eps[1])
 
             nfns = []
             for j in range(self.num_nodes()):
@@ -59,7 +60,15 @@ class Composition(BaseComposition):
                 )
 
             self.resource_server.add_extern_ring_buffer('realm_{}_net_ring_buffer'.format(i), realm_host_net_objs)
-            self.host_vm.map_net(host_realm_net_objs, { 'OutIndex': { 'RingBuffer': { 'Realm': i }}}, { 'Realm': i })
+            self.host_vm.map_net(
+                host_realm_net_objs,
+                { 'Managed': {
+                    'index': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': i }}),
+                    'endpoints': self.host_vm.event_server_out_endpoints,
+                    },
+                },
+                { 'Realm': i }
+                )
 
         # host_resource_server_objs, resource_server_host_objs = composition.alloc_ring_buffer(
         #     a_name='host_resource_server_rb', a_size_bits=21,

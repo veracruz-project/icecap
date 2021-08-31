@@ -90,6 +90,7 @@ filterAttrs (_: v: v != null) {
   icecap-event-server-types = ./components/event-server/types;
   icecap-event-server-config = ./components/event-server/config;
   icecap-event-server-client = seL4Only ./components/event-server/client;
+  icecap-serialize-event-server-out-index = ./components/event-server/types/cli/icecap-serialize-event-server-out-index;
 
   serial-server = seL4Only ./components/serial-server;
   icecap-serial-server-config = ./components/serial-server/config;

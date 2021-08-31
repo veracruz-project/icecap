@@ -1,3 +1,4 @@
+import operator
 from pathlib import Path
 from capdl import ObjectType, Cap
 from icedl.common import ElfComponent
@@ -54,7 +55,7 @@ class ResourceServer(ElfComponent):
             for i in range(self.composition.num_nodes())
             ]
 
-        event_server_client = self.composition.event_server.register_client(self, 'ResourceServer')
+        event_server_client =  list(map(operator.itemgetter(0), self.composition.event_server.register_client(self, None, 'ResourceServer')))
         event_server_control = self.composition.event_server.register_control_resource_server(self)
 
         local = []

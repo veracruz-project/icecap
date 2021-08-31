@@ -69,6 +69,7 @@ superCallPackage ./ocaml {} self //
   icecap-show-backtrace = callPackage ./dev/icecap-show-backtrace.nix {};
   icecap-append-devices = callPackage ./dev/icecap-append-devices.nix {};
   icecap-serialize-runtime-config = callPackage ./dev/icecap-serialize-runtime-config.nix {};
+  icecap-serialize-event-server-out-index = callPackage ./dev/icecap-serialize-event-server-out-index.nix {};
 
   serializeConfig = callPackage ./dev/serialize-config.nix {};
 
