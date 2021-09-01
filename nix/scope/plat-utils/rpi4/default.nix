@@ -64,6 +64,7 @@ let
 
       ln -sf ${configTxt} $out/config.txt
 
+      rm $out/cmdline.txt
       rm $out/kernel*.img
       ln -s ${uBootBin} $out/kernel8.img
       ln -s ${scriptUimg} $out/${scriptName}
