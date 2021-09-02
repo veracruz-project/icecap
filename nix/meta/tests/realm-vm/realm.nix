@@ -17,6 +17,9 @@ in
       echo 2 > /proc/sys/kernel/randomize_va_space
       ulimit -c unlimited
 
+      # sysctl -w net.core.busy_poll=50
+      # sysctl -w net.core.busy_read=50
+
       # sysctl -w net.core.netdev_budget=300 # default
       # sysctl -w net.core.netdev_budget=600
       # sysctl -w net.core.netdev_budget=1200

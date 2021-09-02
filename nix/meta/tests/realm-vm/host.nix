@@ -64,6 +64,9 @@ in
 
       sysctl -w net.ipv4.ip_forward=1
 
+      # sysctl -w net.core.busy_poll=50
+      # sysctl -w net.core.busy_read=50
+
       # sysctl -w net.core.netdev_budget=300 # default
       # sysctl -w net.core.netdev_budget=600
       # sysctl -w net.core.netdev_budget=1200
