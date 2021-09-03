@@ -108,8 +108,9 @@ in
       # echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
       # echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
 
-      export iperf_affinity=0x1
+      export iperf_affinity=0x4
       chrt -b 0 iperf3 -s > /dev/null &
+      # taskset $iperf_affinity chrt -b 0 iperf3 -s > /dev/null &
       # taskset $iperf_affinity chrt -b 0 iperf3 -s -p ${localIperfPort} > /dev/null &
 
       export realm_affinity=0x2

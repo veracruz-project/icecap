@@ -3,8 +3,7 @@ use std::os::unix::io::AsRawFd;
 use std::convert::TryInto;
 use icecap_resource_server_types::*;
 use icecap_rpc::*;
-
-const ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU: u64 = 1338;
+use icecap_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
 
 const ICECAP_VMM_PASSTHRU: u32 = 0xc0403300;
 const ICECAP_VMM_YIELD_TO: u32 = 0xc0103301;
@@ -55,7 +54,7 @@ fn call_passthru<Input: RPC, Output: RPC>(sys_id: u64, input: &Input) -> Output 
 }
 
 fn call_resource_server<Output: RPC>(request: &Request) -> Output {
-    call_passthru(ICECAP_VMM_SYS_ID_RESOURCE_SERVER_PASSTHRU, request)
+    call_passthru(host_vmm_sys_id::RESOURCE_SERVER_PASSTHRU, request)
 }
 
 pub fn declare(realm_id: usize, spec_size: usize) {
@@ -108,4 +107,21 @@ pub fn yield_to(realm_id: usize, virtual_node: usize) {
         virtual_node: virtual_node as u64,
     };
     ioctl_yield_to(&mut yield_to);
+}
+
+///
+
+pub fn direct(request: &DirectRequest) -> DirectResponse {
+    let mut v_in = request.send_to_vec();
+    let length = v_in.len();
+    assert!(length <= 6);
+    v_in.resize_with(6, || 0);
+    let mut passthru = Passthru {
+        sys_id: host_vmm_sys_id::DIRECT,
+        regs: [0; 7],
+    };
+    passthru.regs[0] = length as u64;
+    passthru.regs[1..].copy_from_slice(&v_in);
+    ioctl_passthru(&mut passthru);
+    DirectResponse::recv_from_slice(&passthru.regs[1..][..passthru.regs[0] as usize])
 }

@@ -21,6 +21,7 @@ use icecap_host_vmm_config::*;
 use icecap_vmm::*;
 use icecap_event_server_types as event_server;
 use icecap_resource_server_types as resource_server;
+use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
 
 declare_main!(main);
 
@@ -36,6 +37,11 @@ pub fn main(config: Config) -> Fallible<()> {
         ppi: config.ppi_map.into_iter().map(|(ppi, in_index)| (ppi, in_index.to_nat())).collect(),
         spi: config.spi_map.into_iter().map(|(spi, (in_index, nid))| (spi, (in_index.to_nat(), nid))).collect(),
     };
+
+    #[cfg(feature = "benchmark")]
+    {
+        // sel4::benchmark::set_log_buffer(config.log_buffer)?;
+    }
 
     VMMConfig {
         debug: false,
@@ -96,11 +102,14 @@ impl VMMExtension for Extension {
 
     fn handle_syscall(node: &mut VMMNode<Self>, syscall: u64) -> Fallible<()> {
         match syscall {
-            SYS_RESOURCE_SERVER_PASSTHRU => {
+            sys_id::RESOURCE_SERVER_PASSTHRU => {
                 Self::sys_resource_server_passthru(node)?;
             }
-            SYS_YIELD_TO => {
+            sys_id::YIELD_TO => {
                 Self::sys_yield_to(node)?;
+            }
+            sys_id::DIRECT => {
+                Self::sys_direct(node)?;
             }
             _ => {
                 panic!("unknown syscall");
@@ -161,4 +170,48 @@ impl Extension {
         // }
         Ok(())
     }
+
+    fn sys_direct(node: &mut VMMNode<Self>) -> Fallible<()> {
+        let mut ctx = node.tcb.read_all_registers(false)?;
+        let length = ctx.x0 as usize;
+        let parameters = &[ctx.x1, ctx.x2, ctx.x3, ctx.x4, ctx.x5, ctx.x6][..length];
+        let request = DirectRequest::recv_from_slice(parameters);
+        let response = Self::direct(node, &request)?;
+        let mut r = response.send_to_vec();
+        assert!(r.len() <= 6);
+        ctx.x0 = r.len() as u64;
+        r.resize_with(6, || 0);
+        ctx.x1 = r[0];
+        ctx.x2 = r[1];
+        ctx.x3 = r[2];
+        ctx.x4 = r[3];
+        ctx.x5 = r[4];
+        ctx.x6 = r[5];
+        ctx.pc += 4;
+        node.tcb.write_all_registers(false, &mut ctx)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "benchmark")]
+    fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
+        match request {
+            DirectRequest::Start => {
+                debug_println!("host-vmm: bench start");
+                sel4::benchmark::reset_log()?;
+                sel4::benchmark::reset_all_thread_utilisation();
+            }
+            DirectRequest::Finish => {
+                debug_println!("host-vmm: bench finish");
+                sel4::benchmark::dump_all_thread_utilisation();
+                assert_eq!(sel4::benchmark::finalize_log(), 0);
+            }
+        }
+        Ok(DirectResponse)
+    }
+
+    #[cfg(not(feature = "benchmark"))]
+    fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
+        panic!()
+    }
+
 }

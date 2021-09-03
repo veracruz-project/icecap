@@ -1,4 +1,4 @@
-{ mk, localCrates, serdeMin }:
+{ mk, localCrates, serdeMin, lib, benchmark }:
 
 mk {
   name = "icecap-sel4";
@@ -26,6 +26,8 @@ mk {
     };
   };
   features = {
+    default = lib.optional benchmark "benchmark";
+    benchmark = [];
     use-serde = [
       "serde"
     ];

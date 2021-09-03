@@ -17,6 +17,8 @@ superCallPackage ./rust {} self //
 {
   inherit config;
 
+  icecapConfig = config;
+
   icecapPlat = config.plat;
   selectIceCapPlat = attrs: attrs.${icecapPlat};
 

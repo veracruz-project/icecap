@@ -19,6 +19,9 @@ mod endpoint;
 pub mod fault; // TODO
 mod debug;
 
+#[cfg(feature = "benchmark")]
+pub mod benchmark;
+
 pub mod prelude;
 
 #[path = "fmt.rs"]

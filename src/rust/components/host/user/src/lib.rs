@@ -3,6 +3,7 @@
 mod error;
 mod bulk_transport;
 pub mod syscall;
+use icecap_host_vmm_types::{DirectRequest, DirectResponse};
 
 pub use error::{
     LameError, Result,
@@ -48,5 +49,9 @@ impl Host {
             // std::thread::sleep(std::time::Duration::from_millis(1));
         }
         Ok(())
+    }
+
+    pub fn direct(&mut self, request: &DirectRequest) -> Result<DirectResponse> {
+        Ok(syscall::direct(request))
     }
 }

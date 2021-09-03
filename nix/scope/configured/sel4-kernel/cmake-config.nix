@@ -1,4 +1,4 @@
-{ configUtils, repos
+{ lib, configUtils, repos
 , config, icecapPlat
 }:
 
@@ -26,6 +26,8 @@ let
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
+  } // lib.optionalAttrs config.benchmark {
+    KernelBenchmarks = STRING "track_utilisation";
   };
 
 in {

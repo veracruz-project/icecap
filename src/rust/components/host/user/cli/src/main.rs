@@ -3,7 +3,7 @@ use std::fs;
 use clap::{Arg, App, SubCommand};
 
 use icecap_host_user::*;
-
+use icecap_host_vmm_types::{DirectRequest, DirectResponse};
 
 fn main() -> Result<()> {
     let matches = App::new("")
@@ -29,6 +29,10 @@ fn main() -> Result<()> {
                 .arg(Arg::with_name("REALM_ID")
                     .required(true)
                     .index(1)))
+            .subcommand(SubCommand::with_name("benchmark")
+                .arg(Arg::with_name("BENCHMARK_COMMAND")
+                .required(true)
+                .index(1)))
             .get_matches();
 
     let subcommand = match &matches.subcommand {
@@ -54,6 +58,20 @@ fn main() -> Result<()> {
         "hack-run" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
             hack_run(realm_id)?;
+        }
+        "benchmark" => {
+            let benchmark_command = subcommand.matches.value_of("BENCHMARK_COMMAND").unwrap();
+            match benchmark_command {
+                "start" => {
+                    benchmark_start()?;
+                }
+                "finish" => {
+                    benchmark_finish()?;
+                }
+                _ => {
+                    panic!("{}", matches.usage())
+                }
+            }
         }
         _ => {
             panic!("{}", matches.usage())
@@ -83,4 +101,16 @@ fn run(realm_id: usize, virtual_node: usize) -> Result<()> {
 fn hack_run(realm_id: usize) -> Result<()> {
     let mut host = Host::new().unwrap();
     host.hack_run_realm(realm_id)
+}
+
+fn benchmark_start() -> Result<()> {
+    let mut host = Host::new().unwrap();
+    host.direct(&DirectRequest::Start);
+    Ok(())
+}
+
+fn benchmark_finish() -> Result<()> {
+    let mut host = Host::new().unwrap();
+    host.direct(&DirectRequest::Finish);
+    Ok(())
 }

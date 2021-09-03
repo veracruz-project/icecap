@@ -9,6 +9,7 @@ self: with self; {
 
   globalCrates = mkGlobalCrates {
     seL4 = true;
+    inherit (icecapConfig) benchmark;
     extraArgs = {
       inherit stdenv icecap-sel4-sys-gen;
     };

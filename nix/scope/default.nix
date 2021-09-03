@@ -21,6 +21,9 @@ superCallPackage ./ocaml {} self //
 
   configured = byIceCapPlat (plat: configure {
     inherit plat;
+    debug = false;
+    benchmark = true;
+    # benchmark = false;
     profile = "icecap";
   });
 

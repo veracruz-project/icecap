@@ -1,4 +1,4 @@
-{ lib, seL4, debug }:
+{ lib, seL4, debug, benchmark }:
 
 with lib;
 
@@ -65,6 +65,7 @@ filterAttrs (_: v: v != null) {
   icecap-std-impl = seL4Only ./std-support/icecap-std-impl;
 
   host-vmm = seL4Only ./components/host/vmm;
+  icecap-host-vmm-types = ./components/host/vmm/types;
   icecap-host-vmm-config = ./components/host/vmm/config;
 
   realm-vmm = seL4Only ./components/realm/vmm;

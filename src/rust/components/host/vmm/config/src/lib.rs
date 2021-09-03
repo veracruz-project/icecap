@@ -23,6 +23,8 @@ pub struct Config {
 
     pub ppi_map: BTreeMap<usize, HostIn>,
     pub spi_map: BTreeMap<usize, (HostIn, usize)>, // in_index, nid
+
+    pub log_buffer: LargePage,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
