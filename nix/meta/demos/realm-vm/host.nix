@@ -85,8 +85,8 @@ in
 
     (mkIf (cfg.plat == "rpi4") {
       initramfs.extraInitCommands = ''
-      mount -o ro /dev/mmcblk0p1 mnt/
-      ln -s /mnt/spec.bin /spec.bin
+        mount -o ro /dev/mmcblk0p1 mnt/
+        ln -s /mnt/spec.bin /spec.bin
       '';
     })
 
