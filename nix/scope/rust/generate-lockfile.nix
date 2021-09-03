@@ -6,7 +6,7 @@
 
 with crateUtils;
 
-{ rootCrate, extraManifest }:
+{ rootCrate, extraManifest ? {} }:
 
 let
   crates = lib.attrValues (flatDepsWithRoot rootCrate);

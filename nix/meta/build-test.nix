@@ -1,7 +1,7 @@
 { lib, pkgs, meta }:
 
 let
-  inherit (pkgs) dev linux none;
+  inherit (pkgs) dev none linux musl;
   inherit (none.icecap) icecapPlats;
 in
   lib.concatLists (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
@@ -15,4 +15,5 @@ in
   ]) [ dev linux ] ++ [
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot
+    musl.icecap.icecap-host
   ]
