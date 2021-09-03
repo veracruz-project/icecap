@@ -10,13 +10,57 @@
 , callPackage
 }:
 
+let
+  inherit (linuxPkgs) nixosLite;
+  inherit (linuxPkgs.icecap) linuxKernel;
+in
+
 lib.fix (self: with self; {
 
-  inherit (linux) host realm;
-
-  linux = callPackage ./linux {
-    inherit script;
+  host = rec {
+    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
+    bootargs = commonBootargs ++ [
+      "script=${script}"
+      "nr_cpus=2"
+    ] ++ lib.optionals (icecapPlat == "virt") [
+      "console=ttyAMA0"
+    ] ++ lib.optionals (icecapPlat == "rpi4") [
+      "earlycon=uart8250,mmio32,0xfe215040"
+      "8250.nr_uarts=1"
+      "console=ttyS0,115200"
+      # NOTE under some circumstances, firmware was silently changing ttyAMA in cmdline.txt to ttyS0 in device tree
+    ];
+    initrd = userland.config.build.initramfs;
+    userland = nixosLite.eval {
+      modules = [
+        ./host.nix
+        {
+          instance.plat = icecapPlat;
+        }
+      ];
+    };
   };
+
+  realm = rec {
+    linuxImage = linuxKernel.host.virt.kernel;
+    bootargs = commonBootargs ++ [
+      "console=ttyS0"
+      "reboot=k"
+      "panic=1"
+      "pci=off"
+    ];
+    initrd = userland.config.build.initramfs;
+    userland = nixosLite.eval {
+      modules = [
+        ./realm.nix
+      ];
+    };
+  };
+
+  commonBootargs = [
+    "loglevel=7"
+    "keep_bootcon"
+  ];
 
   script = linuxPkgs.writeScript "run-test" ''
     #!/bin/sh
