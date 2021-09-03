@@ -85,6 +85,7 @@ in
 
     (mkIf (cfg.plat == "rpi4") {
       initramfs.extraInitCommands = ''
+        sleep 2 # HACK
         mount -o ro /dev/mmcblk0p1 mnt/
         ln -s /mnt/spec.bin /spec.bin
       '';
