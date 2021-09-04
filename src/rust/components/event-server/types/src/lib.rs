@@ -44,7 +44,7 @@ pub mod calls {
     }
 }
 
-pub const NUM_REALMS: usize = 10;
+pub const NUM_REALMS: usize = 2;
 
 pub mod events {
     use super::*;

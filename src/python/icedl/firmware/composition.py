@@ -9,7 +9,7 @@ from icedl.firmware.components.event_server import EventServer
 from icedl.firmware.components.vm import VMM, VM, HostVM
 
 NUM_NODES = 3
-NUM_REALMS = 10
+NUM_REALMS = 2
 
 HACK_AFFINITY = 1
 

@@ -4,7 +4,7 @@
 
 let
   virtualIface = "eth0";
-  physicalIface = "eth10";
+  physicalIface = "eth2";
   hostAddr = "192.168.1.1";
   realmAddr = "192.168.1.2";
   devAddr = "10.0.2.2";

@@ -15,8 +15,8 @@ let
   }.${cfg.plat};
 
   physicalIface = {
-    virt = "eth10";
-    rpi4 = "eth10";
+    virt = "eth2";
+    rpi4 = "eth2";
   }.${cfg.plat};
 
   nftScript = pkgs.writeText "nftables" ''
