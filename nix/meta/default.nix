@@ -9,7 +9,9 @@ rec {
   tests = lib.flip lib.mapAttrs (import ./tests) (_: path:
     lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
       configured.callPackage path {
-        mkInstance = mkInstance configured;
+        mkInstance = icecapConfigOverride: mkInstance {
+          configured = configured.override' icecapConfigOverride;
+        };
       }
     )
   );

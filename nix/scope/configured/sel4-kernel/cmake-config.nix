@@ -1,5 +1,5 @@
 { lib, cmakeUtils, seL4EcosystemRepos
-, config, icecapPlat
+, icecapConfig, icecapPlat
 }:
 
 with cmakeUtils;
@@ -26,7 +26,7 @@ let
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
-  } // lib.optionalAttrs config.benchmark {
+  } // lib.optionalAttrs icecapConfig.benchmark {
     KernelBenchmarks = STRING "track_utilisation";
   };
 
@@ -50,4 +50,4 @@ in {
     LibUtilsDefaultZfLogLevel = STRING "3"; # 0-5, 0 is most verbose
   };
 
-}.${config.profile}
+}.${icecapConfig.profile}

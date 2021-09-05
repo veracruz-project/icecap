@@ -3,16 +3,14 @@
 , stdenv
 }:
 
-config:
+icecapConfig:
 
 self: with self;
 
 {
-  inherit config;
+  inherit icecapConfig;
+  inherit (icecapConfig) icecapPlat;
 
-  icecapConfig = config;
-
-  icecapPlat = config.plat;
   selectIceCapPlat = attrs: attrs.${icecapPlat};
 
   cmakeConfig = callPackage ./sel4-kernel/cmake-config.nix {};

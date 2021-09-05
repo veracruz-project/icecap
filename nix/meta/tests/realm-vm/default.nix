@@ -7,7 +7,7 @@
 , kernel, linuxPkgs
 }:
 
-mkInstance (self: with self; {
+mkInstance {} (self: with self; {
 
   payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;

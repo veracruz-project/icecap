@@ -1,6 +1,6 @@
 { lib, pkgs }:
 
-configured:
+{ configured }:
 
 let
   inherit (configured) icecapPlat;

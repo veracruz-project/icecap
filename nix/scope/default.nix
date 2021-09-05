@@ -1,7 +1,5 @@
-{ lib, buildPackages, callPackage
-, hostPlatform
-, uboot-ng, linux-ng, linuxHeaders
-, busybox
+{ lib, hostPlatform, callPackage
+, makeOverridable'
 }:
 
 self: with self;
@@ -16,40 +14,31 @@ superCallPackage ./rust {} self //
 superCallPackage ./ocaml {} self //
 {
 
-  # TODO callPackage uses makeOverridable, which is not desirable here.
-  configure = icecapConfig: lib.makeScope newScope (callPackage ./configured {} icecapConfig);
-
-  configured = byIceCapPlat (plat: configure {
-    inherit plat;
-    debug = false;
-    benchmark = true;
-    # benchmark = false;
-    profile = "icecap";
-  });
-
   icecapPlats = [
     "virt"
     "rpi4"
   ];
 
-  byIceCapPlat = f: lib.listToAttrs (map (plat: { name = plat; value = f plat; }) icecapPlats);
+  byIceCapPlat = f: lib.listToAttrs (map (plat: lib.nameValuePair plat (f plat)) icecapPlats);
+
+  elaborateIceCapConfig = { icecapPlat, profile ? "icecap" , debug ? false, benchmark ? false }: {
+    inherit icecapPlat debug benchmark profile;
+  };
+
+  configure = icecapConfig: lib.makeScope newScope (callPackage ./configured {} icecapConfig);
+
+  configured = byIceCapPlat (icecapPlat: makeOverridable' configure (elaborateIceCapConfig {
+    inherit icecapPlat;
+  }));
 
   inherit (callPackage ./source.nix {})
     icecapSrc
     seL4EcosystemRepos
-    linuxKernelUnifiedSource uBootUnifiedSource
-    ;
+    linuxKernelUnifiedSource uBootUnifiedSource;
 
-  deviceTree = callPackage ./device-tree {};
-
-  # TODO distinguish between interface and unique
   platUtils = byIceCapPlat (plat: callPackage (./plat-utils + "/${plat}") {});
 
-  mkGlobalCrates = callPackage ./crates {};
-  outerGlobalCrates = mkGlobalCrates {};
-
-  muslc = callPackage ./stdenv/musl {};
-  inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
+  deviceTree = callPackage ./device-tree {};
 
   uBoot = assert hostPlatform.system == "aarch64-linux"; { # HACK
     host = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
@@ -73,9 +62,9 @@ superCallPackage ./ocaml {} self //
   capdl-tool = callPackage ./dev/capdl-tool.nix {};
   sel4-manual = callPackage ./dev/sel4-manual.nix {};
 
+  dyndl-serialize-spec = callPackage ./dev/dyndl-serialize-spec.nix {};
   icecap-show-backtrace = callPackage ./dev/icecap-show-backtrace.nix {};
   icecap-append-devices = callPackage ./dev/icecap-append-devices.nix {};
-  dyndl-serialize-spec = callPackage ./dev/dyndl-serialize-spec.nix {};
   icecap-serialize-runtime-config = callPackage ./dev/icecap-serialize-runtime-config.nix {};
 
   serializeConfig = callPackage ./dev/serialize-config.nix {};
@@ -83,5 +72,13 @@ superCallPackage ./ocaml {} self //
   elfUtils = callPackage ./nix-utils/elf-utils.nix {};
   cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
   cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
+
+  # TODO
+
+  muslc = callPackage ./stdenv/musl {};
+  inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
+
+  mkGlobalCrates = callPackage ./crates {};
+  outerGlobalCrates = mkGlobalCrates {};
 
 }
