@@ -1,4 +1,4 @@
-{ lib, fetchgit, linux-ng
+{ linux-ng
 , linuxKernelUnifiedSource
 }:
 

@@ -101,6 +101,14 @@ rec {
     }).store;
   };
 
+  linuxKernelRpi4Source = with linux-ng; doSource {
+    version = "5.4.47";
+    src = (icecapSrc.repo {
+      repo = "linux";
+      rev = "d681ecad8f55f5d6be411d410498ed5cf50ef546"; # branch: icecap-rpi4
+    }).store;
+  };
+
   uBootUnifiedSource = with uboot-ng; doSource {
     version = "2019.07";
     src = (icecapSrc.repo {

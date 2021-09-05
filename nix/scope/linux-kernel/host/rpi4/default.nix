@@ -1,20 +1,12 @@
-{ lib, fetchgit, linux-ng
-, linuxKernelUnifiedSource
-, icecapSrc
+{ linux-ng
+, linuxKernelRpi4Source
 }:
 
 with linux-ng;
 
 let
 
-  # source = linuxKernelUnifiedSource;
-  source = doSource {
-    version = "5.4.47";
-    src = (icecapSrc.repo {
-      repo = "linux";
-      rev = "d681ecad8f55f5d6be411d410498ed5cf50ef546"; # branch: icecap-rpi4
-    }).store;
-  };
+  source = linuxKernelRpi4Source;
 
   # TODO
   #   configure for nf_tables (see virt defconfig)
@@ -36,7 +28,6 @@ let
 in
 doKernel rec {
   inherit source config;
-  # modules = true;
   modules = false; # TODO
   dtbs = true;
 }

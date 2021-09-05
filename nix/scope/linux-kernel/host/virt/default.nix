@@ -1,4 +1,4 @@
-{ lib, fetchgit, linux-ng
+{ linux-ng
 , linuxKernelUnifiedSource
 }:
 
@@ -30,7 +30,6 @@ let
 in
 doKernel rec {
   inherit source config;
-  # modules = true;
   modules = false;
   dtbs = true;
 }
