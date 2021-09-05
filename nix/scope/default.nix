@@ -27,32 +27,26 @@ superCallPackage ./ocaml {} self //
     profile = "icecap";
   });
 
-  # TODO name
-  repos = callPackage ./source.nix {};
-  inherit (repos) mkIceCapGitUrl mkIceCapKeepRef mkIceCapLocalPath mkIceCapSrc;
-
-  mkTrivialSrc = store: { inherit store; env = store; };
-  mkAbsSrc = path: { store = lib.cleanSource path; env = toString path; };
-
-  icecapSrcRel = suffix: (icecapSrcRelSplit suffix).store;
-  icecapSrcAbs = src: (icecapSrcAbsSplit src).store;
-  icecapSrcRelRaw = suffix: ../../src + "/${suffix}";
-  icecapSrcFilter = name: type: builtins.match ".*nix-shell\\.tmp.*" name == null; # TODO
-  icecapSrcRelSplit = suffix: icecapSrcAbsSplit (icecapSrcRelRaw suffix);
-  icecapSrcAbsSplit = src: {
-    store = lib.cleanSourceWith {
-      src = lib.cleanSource src;
-      filter = icecapSrcFilter;
-    };
-    env = toString src;
-  };
-
   icecapPlats = [
     "virt"
     "rpi4"
   ];
 
   byIceCapPlat = f: lib.listToAttrs (map (plat: { name = plat; value = f plat; }) icecapPlats);
+
+  # TODO name
+  repos = callPackage ./source.nix {};
+  inherit (repos)
+    mkIceCapGitUrl mkIceCapKeepRef mkIceCapLocalPath mkIceCapSrc
+    icecapSrcRel
+    icecapSrcAbs
+    icecapSrcRelRaw
+    icecapSrcFilter
+    icecapSrcRelSplit
+    icecapSrcAbsSplit
+    mkAbsSrc mkTrivialSrc
+    linuxKernelUnifiedSource uBootUnifiedSource
+    ;
 
   deviceTree = callPackage ./device-tree {};
 
@@ -68,26 +62,9 @@ superCallPackage ./ocaml {} self //
     assert hostPlatform.system == "aarch64-linux"; # HACK
     byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
 
-  uBootUnifiedSource = with uboot-ng; doSource {
-    version = "2019.07";
-    src = (mkIceCapSrc {
-      repo = "u-boot";
-      rev = "9626efe72a2200d3dc6852ce41e4c34f791833bf"; # branch icecap-host
-    }).store;
-  };
-
   linuxKernel = assert hostPlatform.system == "aarch64-linux"; { # HACK
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
     guest = callPackage ./linux-kernel/guest {};
-  };
-
-  linuxKernelUnifiedSource = with linux-ng; doSource {
-    version = "5.6.0";
-    extraVersion = "-rc2";
-    src = (mkIceCapSrc {
-      repo = "linux";
-      rev = "a51b1b13cfa49ee6ff06a6807e9f68faf2de217f"; # branch icecap
-    }).store;
   };
 
   muslc = callPackage ./stdenv/musl {};

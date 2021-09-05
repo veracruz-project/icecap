@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, linux-ng, uboot-ng }:
 
 let
   clean = remote // {
@@ -81,9 +81,43 @@ let
       forceLocal = override { local = true; };
     };
 
-in {
+in rec {
   inherit mkIceCapGitUrl mkIceCapKeepRef mkIceCapLocalPath mkIceCapSrc;
   inherit clean local remote;
   forceLocal = mkAttrs local;
   forceRemote = mkAttrs remote;
+
+  icecapSrcRel = suffix: (icecapSrcRelSplit suffix).store;
+  icecapSrcAbs = src: (icecapSrcAbsSplit src).store;
+  icecapSrcRelRaw = suffix: ../../src + "/${suffix}";
+  icecapSrcFilter = name: type: builtins.match ".*nix-shell\\.tmp.*" name == null; # TODO
+  icecapSrcRelSplit = suffix: icecapSrcAbsSplit (icecapSrcRelRaw suffix);
+  icecapSrcAbsSplit = src: {
+    store = lib.cleanSourceWith {
+      src = lib.cleanSource src;
+      filter = icecapSrcFilter;
+    };
+    env = toString src;
+  };
+
+  mkTrivialSrc = store: { inherit store; env = store; };
+  mkAbsSrc = path: { store = lib.cleanSource path; env = toString path; };
+
+  linuxKernelUnifiedSource = with linux-ng; doSource {
+    version = "5.6.0";
+    extraVersion = "-rc2";
+    src = (mkIceCapSrc {
+      repo = "linux";
+      rev = "a51b1b13cfa49ee6ff06a6807e9f68faf2de217f"; # branch icecap
+    }).store;
+  };
+
+  uBootUnifiedSource = with uboot-ng; doSource {
+    version = "2019.07";
+    src = (mkIceCapSrc {
+      repo = "u-boot";
+      rev = "9626efe72a2200d3dc6852ce41e4c34f791833bf"; # branch icecap-host
+    }).store;
+  };
+
 } // mkAttrs clean
