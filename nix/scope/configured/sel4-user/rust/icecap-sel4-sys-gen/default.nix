@@ -1,7 +1,7 @@
 { lib, hostPlatform, runCommand, runCommandCC
 , bindgen, rustfmt, python3
 , linkFarm, writeText
-, libs, muslc, libsel4
+, libs, musl, libsel4
 }:
 
 let

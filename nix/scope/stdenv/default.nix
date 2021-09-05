@@ -1,5 +1,5 @@
 { stdenv, callPackage
-, muslc
+, musl
 }:
 
 let
@@ -19,7 +19,7 @@ let
 in {
   inherit mkStdenv;
 
-  stdenvMusl = mkStdenv muslc;
+  stdenvMusl = mkStdenv musl;
   stdenvBoot = mkStdenv (callPackage ./libc-wrappers/boot.nix {});
   stdenvToken = mkStdenv (callPackage ./libc-wrappers/token.nix {});
   stdenvMirage = mkStdenv (callPackage ./libc-wrappers/mirage.nix {});

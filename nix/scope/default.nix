@@ -75,7 +75,7 @@ superCallPackage ./ocaml {} self //
 
   # TODO
 
-  muslc = callPackage ./stdenv/musl {};
+  musl = callPackage ./stdenv/musl.nix {};
   inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 
   mkGlobalCrates = callPackage ./crates {};

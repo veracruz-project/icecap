@@ -1,7 +1,7 @@
 # Just for cross-compiling OCaml libraries
 
 { runCommandCC
-, muslc
+, musl
 , writeText
 }:
 
@@ -15,8 +15,8 @@ in
 
 runCommandCC "libc" {} ''
   mkdir -p $out/lib
-  ln -s ${muslc}/include $out
-  cp --no-preserve=mode ${muslc}/lib/lib{c,m,g}.a $out/lib
+  ln -s ${musl}/include $out
+  cp --no-preserve=mode ${musl}/lib/lib{c,m,g}.a $out/lib
 
   $CC -c ${hack} -o hack.o
   $AR r $out/lib/libc.a hack.o

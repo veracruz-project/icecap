@@ -1,8 +1,7 @@
-{ stdenv
-}:
+{ stdenv }:
 
 stdenv.mkDerivation rec {
-  name = "muslc";
+  name = "musl";
 
   src = builtins.fetchGit {
     url = "https://github.com/sel4/musllibc";

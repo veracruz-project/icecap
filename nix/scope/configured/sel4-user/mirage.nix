@@ -1,5 +1,5 @@
 { lib
-, libs, muslc, liboutline, stdenv
+, libs, musl, liboutline, stdenv
 , buildIceCapCrate, crateUtils, globalCrates
 }:
 
@@ -21,7 +21,7 @@
         icecap-runtime
         icecap-utils icecap-pure # TODO
         icecap-mirage-glue
-        muslc
+        musl
         mirageLibrary
       ];
       extraArgs = {

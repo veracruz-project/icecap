@@ -1,7 +1,7 @@
 { stdenv, stdenvMirage, lib
 , icecapSrc
 , icecap-ocaml-runtime
-, libsel4, muslc
+, libsel4, musl
 , linkFarm, writeText
 }:
 
