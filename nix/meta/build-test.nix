@@ -10,6 +10,7 @@ in
     meta.demos.realm-mirage.${k}.run
     meta.demos.realm-vm.${k}.run
     meta.tests.realm-vm.${k}.run
+    meta.tests.analysis.${k}.run
   ])) ++ lib.concatMap (host: [
     host.icecap._9p-server
   ]) [ dev linux ] ++ [
