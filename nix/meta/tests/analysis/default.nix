@@ -9,7 +9,7 @@
 
 mkInstance (self: with self; {
 
-  payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
+  payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
     initramfs = hostUser.config.build.initramfs;
     dtb = composition.host-dtb;

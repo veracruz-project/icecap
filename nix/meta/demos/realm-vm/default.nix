@@ -20,7 +20,7 @@ in rec {
     }.${icecapPlat} or {};
   };
 
-  payload = pkgs.linux.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
+  payload = pkgs.linux.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
     linuxImage = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
     initramfs = hostUser.config.build.initramfs;
     dtb = icecapFirmware.host-dtb;

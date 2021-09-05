@@ -110,7 +110,7 @@ lib.fix (self: with self; {
 } // lib.optionalAttrs (icecapPlat == "rpi4") {
 
   boot = rpi4Utils.bootPartitionLinks {
-    payload = linuxPkgs.icecap.uBoot.${icecapPlat}.mkDefaultPayload {
+    payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
       linuxImage = host.linuxImage;
       initramfs = host.initrd;
       bootargs = host.bootargs;

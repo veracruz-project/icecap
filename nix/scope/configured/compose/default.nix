@@ -9,7 +9,7 @@
 }:
 
 let
-  _u-boot = "${linuxPkgs.icecap.uBoot.${icecapPlat}}/u-boot.bin";
+  _u-boot = "${linuxPkgs.icecap.uBoot.host.${icecapPlat}}/u-boot.bin";
 in
 
 args:

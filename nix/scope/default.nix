@@ -50,9 +50,9 @@ superCallPackage ./ocaml {} self //
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};
 
-  uBoot =
-    assert hostPlatform.system == "aarch64-linux"; # HACK
-    byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
+  uBoot = assert hostPlatform.system == "aarch64-linux"; { # HACK
+    host = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
+  };
 
   linuxKernel = assert hostPlatform.system == "aarch64-linux"; { # HACK
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
