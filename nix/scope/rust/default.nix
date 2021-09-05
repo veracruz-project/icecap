@@ -1,30 +1,24 @@
-{ lib
-, fetchFromGitHub
-, runCommand
-, hostPlatform, targetPlatform
-, zlib
+{ lib, hostPlatform, targetPlatform
 , emptyDirectory
+, zlib
 }:
 
-let
-  platform = "x86_64-unknown-linux-gnu";
-in
+self: with self;
 
-self: with self; {
+let
+
+  mkPrebuilt = callPackage ./prebuilt {};
+
+in {
 
   nixToToml = callPackage ./nix-to-toml {};
 
-  buildRustPackage = callPackage ./build-rust-package.nix {};
-  buildRustPackageIncrementally = callPackage ./build-rust-package-incrementally.nix {};
-
-  mkRustPrebuilt = callPackage ./prebuilt {};
-
-  rustcPrebuilt = mkRustPrebuilt rec {
+  rustcPrebuilt = mkPrebuilt rec {
     name = "rust";
     version = "nightly";
     date = "2021-08-25";
     sha256 = "sha256-mrVjtmI9w7uvHvlqZ0C7tFWMFKyGXPfnotrPWVyEnl0=";
-    components = [ "rustc" "rust-std-${platform}" "cargo" ];
+    components = [ "rustc" "rust-std-${hostPlatform.config}" "cargo" ];
     binaries = [ "rustc" "rustdoc" "cargo" ];
     postInstall = ''
       ln -sv ${zlib}/lib/libz.so{,.1} $out/lib
@@ -33,7 +27,7 @@ self: with self; {
 
   cargoPrebuilt = rustcPrebuilt;
 
-  rustfmtPrebuilt = mkRustPrebuilt rec {
+  rustfmtPrebuilt = mkPrebuilt rec {
     name = "rustfmt";
     version = "nightly";
     date = "2021-08-25";
@@ -42,7 +36,24 @@ self: with self; {
     binaries = [ "rustfmt" ];
   };
 
-  rustc0 = callPackage ./rustc.nix rec {
+  rustSource = builtins.fetchGit {
+    url = "https://github.com/rust-lang/rust.git";
+    ref = "master";
+    rev = "b03ccace573bb91e27625c190a0f7807045a1012";
+    submodules = true;
+  };
+
+  rustVendoredSources = fetchCargoBootstrap {
+    src = rustSource;
+    sha256 = "sha256-Z3XCOhvOVJ6DT+XpS2hAHubFwgvnaUBRjfaBa8HJ0jo=";
+  };
+
+  rustTargets =
+    if targetPlatform.config == "aarch64-none-elf" || hostPlatform.config == "aarch64-none-elf"
+    then lib.cleanSource ./targets
+    else emptyDirectory;
+
+  rustc0 = callPackage ./rustc.nix {
     rustc = pkgsBuildHostScope.rustcPrebuilt;
     cargo = pkgsBuildHostScope.cargoPrebuilt;
     rustfmt = pkgsBuildHostScope.rustfmtPrebuilt;
@@ -50,12 +61,22 @@ self: with self; {
 
   rustc = rustc0;
 
-  cargo0 = callPackage ./cargo.nix (with pkgsBuildHostScope; {
-    rustc = rustc0;
-    cargo = cargoPrebuilt;
-  });
+  cargo0 = callPackage ./in-tree-component.nix {
+    rustc = pkgsBuildHostScope.rustc0;
+    cargo = pkgsBuildHostScope.cargoPrebuilt;
+  } {
+    package = "cargo";
+  };
 
   cargo = cargo0;
+
+  # rustfmt = (callPackage ./in-tree-component.nix {} {
+  #   package = "rustfmt-nightly";
+  # }).overrideAttrs (attrs: {
+  #   RUSTC_BOOTSTRAP = 1;
+  # });
+
+  rustfmt = rustfmtPrebuilt;
 
   fetchCargo = callPackage ./fetch-cargo.nix {};
   fetchCargoBootstrap = callPackage ./fetch-cargo.nix {
@@ -73,14 +94,10 @@ self: with self; {
   generateLockfile = rootCrate: generateLockfileInternal { inherit rootCrate; };
   generateLockfileInternal = callPackage ./generate-lockfile.nix {};
 
-  # NOTE broken
-  # rustfmt = callPackage ./rustfmt.nix {};
-  rustfmt = rustfmtPrebuilt;
+  buildRustPackage = callPackage ./build-rust-package.nix {};
+  buildRustPackageIncrementally = callPackage ./build-rust-package-incrementally.nix {};
+  crateUtils = callPackage ./crate-utils.nix {};
 
   bindgen = callPackage ./bindgen {};
-
-  rustTargets = if targetPlatform.config == "aarch64-none-elf" || hostPlatform.config == "aarch64-none-elf" then lib.cleanSource ./targets else emptyDirectory;
-
-  crateUtils = callPackage ./crate-utils.nix {};
 
 }

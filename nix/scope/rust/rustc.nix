@@ -1,93 +1,79 @@
 { lib, stdenvNoCC, pkgs, targetPackages, buildPackages
 , buildPlatform, hostPlatform, targetPlatform
-, runCommand, linkFarm
-, fetchFromGitHub
 , file, which
 , cmake, ninja, python3
 
-, nixToToml, crateUtils, fetchCrates, fetchCargoBootstrap, rustTargets
+, rustSource, rustVendoredSources, rustTargets
+, nixToToml, fetchCargoBootstrap
+
 , rustc, cargo, rustfmt
 }:
 
 let
 
-  src = builtins.fetchGit {
-    url = "https://github.com/rust-lang/rust.git";
-    ref = "master";
-    rev = "b03ccace573bb91e27625c190a0f7807045a1012";
-    submodules = true;
-  };
-
-  vendored-sources = (fetchCargoBootstrap {
-    inherit src;
-    sha256 = "sha256-Z3XCOhvOVJ6DT+XpS2hAHubFwgvnaUBRjfaBa8HJ0jo=";
-  }).directory;
-
+  # TODO remove
   python = "${buildPackages.python3}/bin/python3";
 
-  # https://github.com/rust-lang/rust/issues/34486: llvm-config fails to report -lffi
-  configToml = nixToToml (crateUtils.clobber [
-    {
-      llvm.link-shared = true;
+  configToml = nixToToml {
 
-      build = {
-        build = buildPlatform.config;
-        host = [ hostPlatform.config ];
-        target = [ hostPlatform.config targetPlatform.config ];
+    llvm.link-shared = true;
 
-        rustc = "${rustc}/bin/rustc";
-        cargo = "${cargo}/bin/cargo";
-        rustfmt = "${rustfmt}/bin/rustfmt";
-        inherit python;
+    build = {
+      build = buildPlatform.config;
+      host = [ hostPlatform.config ];
+      target = [ hostPlatform.config targetPlatform.config ];
 
-        docs = false;
-        compiler-docs = false;
-        sanitizers = false;
-        profiler = false;
+      rustc = "${rustc}/bin/rustc";
+      cargo = "${cargo}/bin/cargo";
+      rustfmt = "${rustfmt}/bin/rustfmt";
+      inherit python;
 
-        vendor = true;
-        # verbose = 2;
-      };
+      docs = false;
+      compiler-docs = false;
+      sanitizers = false;
+      profiler = false;
 
-      install.prefix = "@out@";
+      vendor = true;
 
-      rust.lld = true;
-      rust.default-linker = "/var/empty/nope";
+      # verbose = 2;
+    
+      # TODO local-rebuild = true for cross?
+    };
 
-      # TODO no cc on bare?
+    install.prefix = "@out@";
 
-      target = lib.foldr (x: y: x // y) {} (map (pkgs_:
-        let
-          env = pkgs_.stdenv;
-          llvmPkgs = if env.hostPlatform.config == buildPlatform.config
-            then (if buildPlatform.config == hostPlatform.config then pkgs else pkgs_)
-            else (if env.hostPlatform.config == hostPlatform.config then pkgs_ else null);
-        in {
-          ${env.hostPlatform.config} = lib.optionalAttrs (!env.hostPlatform.isWasm) {
-            cc     = "${env.cc}/bin/${env.cc.targetPrefix}cc";
-            linker = "${env.cc}/bin/${env.cc.targetPrefix}cc";
-            cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
-            ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ar";
-            ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ranlib";
-          } // lib.optionalAttrs env.hostPlatform.isWasm {
-            ar     = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ar";
-            ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ranlib";
-          } // lib.optionalAttrs (env.hostPlatform.config == "aarch64-none-elf") {
-            linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
-            no-std = true;
-          } // lib.optionalAttrs env.hostPlatform.isMusl {
-            musl-root = "${env.cc.libc}";
-          };
-      }) [ buildPackages targetPackages ]);
-    }
-  ]);
+    rust.lld = true;
+    rust.default-linker = "/var/empty/nope";
 
-  # TODO local-build = true for cross
+    target = lib.foldr (x: y: x // y) {} (map (pkgs_:
+      let
+        env = pkgs_.stdenv;
+        llvmPkgs = if env.hostPlatform.config == buildPlatform.config
+          then (if buildPlatform.config == hostPlatform.config then pkgs else pkgs_)
+          else (if env.hostPlatform.config == hostPlatform.config then pkgs_ else null);
+      in {
+        ${env.hostPlatform.config} = lib.optionalAttrs (!env.hostPlatform.isWasm) {
+          cc     = "${env.cc}/bin/${env.cc.targetPrefix}cc";
+          linker = "${env.cc}/bin/${env.cc.targetPrefix}cc";
+          cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
+          ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ar";
+          ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ranlib";
+        } // lib.optionalAttrs env.hostPlatform.isWasm {
+          ar     = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ar";
+          ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ranlib";
+        } // lib.optionalAttrs (env.hostPlatform.config == "aarch64-none-elf") {
+          linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
+          no-std = true;
+        } // lib.optionalAttrs env.hostPlatform.isMusl {
+          musl-root = "${env.cc.libc}";
+        };
+    }) [ buildPackages targetPackages ]);
+  };
 
 in stdenvNoCC.mkDerivation rec {
   pname = "rustc";
   version = "nightly";
-  inherit src;
+  src = rustSource;
 
   nativeBuildInputs = [ file which cmake ninja python3 ];
   RUST_TARGET_PATH = rustTargets;
@@ -100,7 +86,7 @@ in stdenvNoCC.mkDerivation rec {
 
   configurePhase = ''
     substitute ${configToml} config.toml --replace @out@ $out
-    ln -s ${vendored-sources} vendor
+    ln -s ${rustVendoredSources.directory} vendor
   '';
 
   buildPhase = ''
@@ -113,6 +99,6 @@ in stdenvNoCC.mkDerivation rec {
   '';
 
   passthru = {
-    inherit configToml vendored-sources;
+    inherit configToml;
   };
 }
