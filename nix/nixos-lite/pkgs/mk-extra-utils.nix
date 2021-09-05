@@ -24,14 +24,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 { lib, stdenv, buildPackages
-, runCommand, runCommandCC, writeText, writeTextFile, writeScript, writeShellScriptBin, substituteAll
-, writeScriptBin
-
+, runCommandCC
 , busybox, kmod
-, rsync, cpio, gzip
-
-, makeModulesClosure
-, closureInfo
 }:
 
 { extraUtilsCommands ? ""
