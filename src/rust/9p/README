@@ -1,5 +1,5 @@
 The crates in this directory are derived from:
-- https://chromium.googlesource.com/chromiumos/platform2/+/HEAD/vm_tools/p9/
+- https://chromium.googlesource.com/chromiumos/platform/crosvm/+/refs/heads/main/common/p9/
 - https://chromium.googlesource.com/chromiumos/platform2/+/HEAD/vm_tools/9s/
 
 See chromiumos.LICENSE and the source files themselves for copyright information.
