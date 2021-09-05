@@ -7,15 +7,6 @@
 
 , icecap-append-devices
 , icecap-serialize-runtime-config
-, serialize-generic-config
-, serialize-fault-handler-config
-, serialize-timer-server-config
-, serialize-serial-server-config
-, serialize-host-vmm-config
-, serialize-realm-vmm-config
-, serialize-resource-server-config
-, serialize-event-server-config
-
 , dyndl-serialize-spec
 }:
 
@@ -38,14 +29,14 @@ let
       buildPackages.stdenv.cc
       icecap-append-devices
       icecap-serialize-runtime-config
-      serialize-generic-config
-      serialize-fault-handler-config
-      serialize-timer-server-config
-      serialize-serial-server-config
-      serialize-host-vmm-config
-      serialize-realm-vmm-config
-      serialize-resource-server-config
-      serialize-event-server-config
+      buildPackages.icecap.serializeConfig.generic
+      buildPackages.icecap.serializeConfig.fault-handler
+      buildPackages.icecap.serializeConfig.timer-server
+      buildPackages.icecap.serializeConfig.serial-server
+      buildPackages.icecap.serializeConfig.host-vmm
+      buildPackages.icecap.serializeConfig.realm-vmm
+      buildPackages.icecap.serializeConfig.resource-server
+      buildPackages.icecap.serializeConfig.event-server
 
       dyndl-serialize-spec
     ] ++ (with python3Packages; [

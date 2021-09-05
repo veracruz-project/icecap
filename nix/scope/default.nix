@@ -112,47 +112,7 @@ superCallPackage ./ocaml {} self //
   dyndl-serialize-spec = callPackage ./linux-user/dev/dyndl-serialize-spec.nix {};
   icecap-serialize-runtime-config = callPackage ./linux-user/dev/icecap-serialize-runtime-config.nix {};
 
-  mkSerializeConfig = callPackage ./linux-user/dev/mk-serialize-config.nix {};
-
-  serialize-generic-config = mkSerializeConfig {
-    name = "generic";
-    type = "serde_json::Value";
-  };
-  serialize-fault-handler-config = mkSerializeConfig {
-    name = "fault-handler";
-    type = "icecap_fault_handler_config::Config";
-    crate = outerGlobalCrates.icecap-fault-handler-config;
-  };
-  serialize-timer-server-config = mkSerializeConfig {
-    name = "timer-server";
-    type = "icecap_timer_server_config::Config";
-    crate = outerGlobalCrates.icecap-timer-server-config;
-  };
-  serialize-serial-server-config = mkSerializeConfig {
-    name = "serial-server";
-    type = "icecap_serial_server_config::Config";
-    crate = outerGlobalCrates.icecap-serial-server-config;
-  };
-  serialize-host-vmm-config = mkSerializeConfig {
-    name = "host-vmm";
-    type = "icecap_host_vmm_config::Config";
-    crate = outerGlobalCrates.icecap-host-vmm-config;
-  };
-  serialize-realm-vmm-config = mkSerializeConfig {
-    name = "realm-vmm";
-    type = "icecap_realm_vmm_config::Config";
-    crate = outerGlobalCrates.icecap-realm-vmm-config;
-  };
-  serialize-resource-server-config = mkSerializeConfig {
-    name = "resource-server";
-    type = "icecap_resource_server_config::Config";
-    crate = outerGlobalCrates.icecap-resource-server-config;
-  };
-  serialize-event-server-config = mkSerializeConfig {
-    name = "event-server";
-    type = "icecap_event_server_config::Config";
-    crate = outerGlobalCrates.icecap-event-server-config;
-  };
+  serializeConfig = callPackage ./linux-user/dev/serialize-config.nix {};
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};
   inherit (callPackage ./nix-utils/trivial-builders.nix {})
