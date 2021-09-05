@@ -1,6 +1,7 @@
 self: super: with self;
 
 {
+
   icecap = makeSplicedScope ../scope {};
 
   inherit (callPackage ./lib.nix {}) makeSplicedScope makeOverridable';

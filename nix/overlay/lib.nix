@@ -2,6 +2,8 @@
 
 rec {
 
+  # Enhances `lib.makeScope` with splicing.
+  # See https://github.com/NixOS/nixpkgs/issues/68967
   makeSplicedScope = makeSplicedScopeOf pkgsHostTarget;
 
   getPkgSets = attrs: {
@@ -36,7 +38,7 @@ rec {
                 // (lib.optionalAttrs (pkgsTargetTarget ? ${name}) { targetTarget = valueTargetTarget; });
             };
           # Get the set of outputs of a derivation. If one derivation fails to evaluate we
-          # don't want to diverge the entire splice, so we fall back on {}
+          # don't want to diverge the entire splice, so we fall back on `{}`.
           tryGetOutputs = value':
             let inherit (builtins.tryEval value') success value'';
             in lib.optionalAttrs success (getOutputs value'');
@@ -94,6 +96,8 @@ rec {
     in
       self;
 
+  # Like `lib.makeOverridable`, except it adds an orthogonal dimension of overrideablility
+  # accessible at `.override'`.
   makeOverridable' = f: origArgs:
     let
       overrideWith = newArgs: origArgs // (if lib.isFunction newArgs then newArgs origArgs else newArgs);

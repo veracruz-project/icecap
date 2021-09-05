@@ -5,13 +5,13 @@ It has the following structure:
 
 {
 
-  # The Nixpkgs library, imported from '../nixpkgs/lib'.
-  lib = ...;
+  # Top-level build targets including tests, benchmarks, and demos. See `./meta`.
+  meta = ...;
 
-  # A Nixpkgs attribute set for each target system, each augmented with the overlay at `./overlay'.
-  # This overlay adds the '.icecap. attribute which holds a scope containing the IceCap expressions.
-  # This scope is expressed in './scope'. For more a description of each target system, see
-  # 'crossSystems' below.
+  # A Nixpkgs attribute set for each target system, each augmented with the overlay at `./overlay`.
+  # This overlay adds the `.icecap` attribute which holds a scope containing the IceCap expressions.
+  # This scope is expressed in `./scope`. For more a description of each target system, see
+  # `crossSystems` below.
   pkgs = {
     dev = ...;
     linux = ...;
@@ -19,8 +19,8 @@ It has the following structure:
     none = ...;
   };
 
-  # Top-level build targets including tests, benchmarks, and demos. See './meta'.
-  meta = ...;
+  # The Nixpkgs library, imported from `../nixpkgs/lib`.
+  lib = ...;
 
 }
 
