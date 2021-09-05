@@ -21,7 +21,7 @@ in
   };
 
   config = lib.mkMerge [
-    
+
     {
       net.interfaces.lo.static = "127.0.0.1";
 

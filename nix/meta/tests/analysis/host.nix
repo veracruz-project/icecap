@@ -44,7 +44,7 @@ in
   };
 
   config = lib.mkMerge [
-    
+
     {
       net.interfaces.${virtualIface}.static = "${hostAddr}/24";
       net.interfaces.lo.static = "127.0.0.1";
@@ -125,7 +125,7 @@ in
 
         taskset $realm_affinity icecap-host create 0 /spec.bin && \
           chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
-        
+
         # chrt -b 0 iperf3 -s
       '';
     }

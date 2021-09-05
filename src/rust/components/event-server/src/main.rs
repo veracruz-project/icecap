@@ -77,7 +77,7 @@ pub fn main(config: Config) -> Fallible<()> {
     }
 
     run(&server, config.endpoints[0], &badges)?;
-    
+
     Ok(())
 }
 

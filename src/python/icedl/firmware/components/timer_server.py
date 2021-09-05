@@ -56,7 +56,7 @@ class TimerServer(ElfComponent):
             'lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, name='lock'), read=True, write=True),
             'dev_vaddr': vaddr,
             'irq_handlers': irq_handlers,
-            
+
             'endpoints': [ self.cspace().alloc(ep, read=True) for ep in self.endpoints ],
             'secondary_threads': secondary_threads,
             }

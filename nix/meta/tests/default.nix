@@ -3,7 +3,7 @@
 let
 
   mkInstance = configured:
-  
+
     let
       inherit (configured) icecapPlat;
     in

@@ -79,7 +79,7 @@ lib.fix (self: with self; {
         "machine-config": {
           "vcpu_count": 1,
           "mem_size_mib": 512
-        },        
+        },
         "boot-source": {
           "kernel_image_path": "/mnt/${realm.linuxImage}",
           "boot_args": "/mnt/${lib.concatStringsSep " " realm.bootargs}",

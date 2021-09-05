@@ -44,7 +44,7 @@ in
   };
 
   config = lib.mkMerge [
-    
+
     {
       net.interfaces.${virtualIface}.static = "${hostAddr}/24";
       net.interfaces.lo.static = "127.0.0.1";

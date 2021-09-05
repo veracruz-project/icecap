@@ -43,7 +43,7 @@ impl EventServerConfig {
             out_space: mk_out_space(events::ResourceServerOut::CARDINALITY),
             in_spaces: vec![],
         };
-        
+
         let serial_server = Client {
             out_space: mk_out_space(events::SerialServerOut::CARDINALITY),
             in_spaces: vec![],

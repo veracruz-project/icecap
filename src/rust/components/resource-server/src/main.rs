@@ -85,7 +85,7 @@ fn main(config: Config) -> Fallible<()> {
     }
 
     run(&server, 0, config.local[0].endpoint, bulk_region, bulk_region_size)?;
-    
+
     Ok(())
 }
 
