@@ -4,14 +4,14 @@ with lib;
 
 rec {
 
+  makeSplicedScope = makeSplicedScopeOf pkgsHostTarget;
+
   getPkgSets = attrs: {
     inherit (attrs)
       pkgsBuildBuild pkgsBuildHost pkgsBuildTarget
       pkgsHostHost pkgsHostTarget
       pkgsTargetTarget;
   };
-
-  makeSplicedScope = makeSplicedScopeOf pkgsHostTarget;
 
   splice =
     { pkgsBuildBuild, pkgsBuildHost, pkgsBuildTarget
@@ -37,9 +37,8 @@ rec {
                 // { hostHost = valueHostHost; }
                 // (lib.optionalAttrs (pkgsTargetTarget ? ${name}) { targetTarget = valueTargetTarget; });
             };
-          # Get the set of outputs of a derivation. If one derivation fails to
-          # evaluate we don't want to diverge the entire splice, so we fall back
-          # on {}
+          # Get the set of outputs of a derivation. If one derivation fails to evaluate we
+          # don't want to diverge the entire splice, so we fall back on {}
           tryGetOutputs = value':
             let inherit (builtins.tryEval value') success value'';
             in lib.optionalAttrs success (getOutputs value'');
@@ -94,19 +93,13 @@ rec {
 
       self = f self // meta // nextPkgSets // nextScopes;
 
-      # NOTE
-      # devPkgs = pkgSet.devPkgs // makeSplicedScopeOf pkgSet.devPkgs f;
-      # linuxPkgs = pkgSet.linuxPkgs // makeSplicedScopeOf pkgSet.linuxPkgs f;
-      # nonePkgs = pkgSet.devPkgs // makeSplicedScopeOf pkgSet.nonePkgs f;
-
     in
       self;
 
   makeOverridable' = f: origArgs:
     let
-      ff = f origArgs;
       overrideWith = newArgs: origArgs // (if lib.isFunction newArgs then newArgs origArgs else newArgs);
-    in ff // {
+    in f origArgs // {
       override' = newArgs: makeOverridable' f (overrideWith newArgs);
     };
 

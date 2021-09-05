@@ -3,7 +3,7 @@ self: super: with self;
 {
   icecap = makeSplicedScope ../scope {};
 
-  inherit (callPackage ./lib.nix {}) makeSplicedScope makeSplicedScopeOf makeOverridable';
+  inherit (callPackage ./lib.nix {}) makeSplicedScope makeOverridable';
 
   stdenv = rec {
     aarch64-none = super.overrideCC super.stdenv buildPackages.gccCrossStageStatic;
