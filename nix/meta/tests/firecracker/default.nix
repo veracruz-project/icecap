@@ -11,8 +11,7 @@
 }:
 
 let
-  inherit (linuxPkgs) nixosLite;
-  inherit (linuxPkgs.icecap) linuxKernel;
+  inherit (linuxPkgs.icecap) linuxKernel nixosLite;
 in
 
 lib.fix (self: with self; {

@@ -54,7 +54,7 @@ in rec {
   mirageLibrary = configured.callPackage ./mirage.nix {};
   mirageBinary = mkMirageBinary mirageLibrary;
 
-  hostUser = pkgs.linux.nixosLite.eval {
+  hostUser = pkgs.linux.icecap.nixosLite.eval {
     modules = [
       ./host.nix
       {

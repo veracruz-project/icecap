@@ -102,6 +102,8 @@ superCallPackage ./ocaml {} self //
   libfdt = callPackage ./linux-user/libfdt/default.nix {};
   _9p-server = callPackage ./linux-user/9p-server {};
 
+  nixosLite = callPackage ./linux-user/nixos-lite {};
+
   capdl-tool = callPackage ./linux-user/dev/capdl-tool.nix {};
   sel4-manual = callPackage ./sel4-manual {};
 

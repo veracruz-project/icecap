@@ -3,8 +3,6 @@ self: super: with self;
 {
   icecap = makeSplicedScope ../scope {};
 
-  nixosLite = callPackage ../nixos-lite {};
-
   inherit (callPackage ./lib.nix {}) makeSplicedScope makeSplicedScopeOf makeOverridable';
 
   stdenv = rec {

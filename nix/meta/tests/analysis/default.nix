@@ -36,7 +36,7 @@ mkInstance (self: with self; {
     "loglevel=7"
   ];
 
-  hostUser = linuxPkgs.nixosLite.eval {
+  hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
       ./host.nix
       {
@@ -46,7 +46,7 @@ mkInstance (self: with self; {
     ];
   };
 
-  realmUser = linuxPkgs.nixosLite.eval {
+  realmUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
       ./realm.nix
     ];

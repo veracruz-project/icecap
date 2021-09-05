@@ -43,7 +43,7 @@ in rec {
     "loglevel=7"
   ];
 
-  hostUser = pkgs.linux.nixosLite.eval {
+  hostUser = pkgs.linux.icecap.nixosLite.eval {
     modules = [
       ./host.nix
       {
@@ -53,7 +53,7 @@ in rec {
     ];
   };
 
-  realmUser = pkgs.linux.nixosLite.eval {
+  realmUser = pkgs.linux.icecap.nixosLite.eval {
     modules = [
       ./realm.nix
     ];

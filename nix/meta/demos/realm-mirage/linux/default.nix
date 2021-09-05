@@ -8,9 +8,7 @@
 with lib;
 let
 
-  pkgs = linuxPkgs;
-  inherit (linuxPkgs) nixosLite;
-  inherit (linuxPkgs.icecap) linuxKernel;
+  inherit (linuxPkgs.icecap) linuxKernel nixosLite;
 
 in rec {
 
