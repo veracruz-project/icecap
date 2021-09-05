@@ -4,7 +4,7 @@
 , icecapPlat
 , emptyFile
 
-, kernel, repos, linuxPkgs
+, kernel, linuxPkgs
 }:
 
 mkInstance (self: with self; {

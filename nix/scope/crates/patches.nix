@@ -5,7 +5,7 @@ let
     mkIceCapSrc {
       repo = pre;
       inherit rev;
-      inherit suffix;
+      innerSuffix = suffix;
     };
 
 in {

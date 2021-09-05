@@ -1,9 +1,9 @@
 { object-sizes
 , lib, runCommand, writeText
 , buildPackages, python3Packages
-, icecapSrcAbsSplit, icecapSrcRelSplit, mkTrivialSrc
+, icecapSrcAbsSplit, icecapSrcRelSplit, triviallySplitSrc
 , icecapPlat
-, repos
+, seL4EcosystemRepos
 
 , icecap-append-devices
 , icecap-serialize-runtime-config
@@ -21,7 +21,7 @@ let
     object_sizes = object-sizes;
   };
 
-  capdlSrc = mkTrivialSrc (repos.rel.capdl "python-capdl-tool");
+  capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";
   icedlSrc = icecapSrcRelSplit "python";
   srcSplit = icecapSrcAbsSplit src;
   f = attr: runCommand "manifest" {

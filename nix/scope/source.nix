@@ -1,101 +1,101 @@
-{ lib, linux-ng, uboot-ng }:
+{ lib, linux-ng, uboot-ng, makeOverridable' }:
 
-let
-  clean = remote // {
-    inherit (local)
-      # seL4
-      # capdl
-      # seL4_tools
-    ;
+rec {
+
+  icecapSrc = rec {
+
+    filter = name: type: true; # TODO
+    clean = src: lib.cleanSourceWith {
+      src = lib.cleanSource src;
+      inherit filter;
+    };
+
+    absolute = clean;
+    absoluteSplit = src: {
+      store = absolute src;
+      env = toString src;
+    };
+
+    relative = suffix: (relativeSplit suffix).store;
+    relativeSplit = suffix: absoluteSplit (relativeRaw suffix);
+    relativeRaw = suffix: ../../src + "/${suffix}";
+
+    splitTrivially = store: { inherit store; env = store; };
+
+
+    gitUrlOf = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";
+    keepRefOf = rev: "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";
+
+    localPathOf = repo: ../../../local + "/${repo}";
+
+    localPathWithBranchOf = repo: branch:
+      let
+        withoutBranch = ../../../local + "/${repo}";
+        withBranch = withoutBranch + "+${branch}";
+      in if builtins.pathExists withBranch then withBranch else withoutBranch;
+
+
+    repo = lib.fix (self: makeOverridable' (
+
+      { repo, ref ? null, rev, submodules ? false, local ? false, innerSuffix ? "", outerSuffix ? "" } @ args:
+
+        let
+
+          remoteBase = builtins.fetchGit {
+            inherit rev submodules;
+            url = gitUrlOf repo;
+            ref = if ref != null then ref else keepRefOf rev;
+          };
+
+          remoteIntermediate = "${remoteBase}/${innerSuffix}";
+          localIntermediate = toString (clean (localPathOf repo + "/${innerSuffix}"));
+          envIntermediate = "${toString (localPathOf repo)}/${innerSuffix}";
+
+        in rec {
+
+          store = (if local then localIntermediate else remoteIntermediate) + outerSuffix;
+          env = (if local then envIntermediate else remoteIntermediate) + outerSuffix;
+
+          # hack or great idea?
+          outPath = store;
+
+          # convenient overrides
+          extendInnerSuffix = suffix: (self args).override' (attrs: { innerSuffix = (attrs.innerSuffix or "") + suffix; });
+          extendOuterSuffix = suffix: (self args).override' (attrs: { outerSuffix = (attrs.outerSuffix or "") + suffix; });
+          forceLocal = (self args).override' { local = true; };
+          forceRemote = (self args).override' { local = false; };
+        }
+    ));
+
   };
 
-  local = repos mkLocal;
-  remote = repos mkRemote;
+  seL4EcosystemRepos = {
 
-  mkBase = path: {}: rev: mkIceCapSrc {
-    repo = path;
-    inherit rev;
-  };
+    seL4 = icecapSrc.repo {
+      repo = "seL4";
+      rev = "62f761d7e6304e8b18d926a050d81df512e6419e";
+      # local = true;
+    };
 
-  mkRemote = path: args: rev: (mkBase path args rev).store;
-  mkLocal = path: args: rev: (mkBase path args rev).forceLocal.store;
-
-  repos = mk: {
-
-    seL4 = mk "seL4" {} "62f761d7e6304e8b18d926a050d81df512e6419e";
-    capdl = mk "capdl" {} "dc37aaabf6486806e0e002cdff7ee05a1b23d5fc";
+    capdl = icecapSrc.repo {
+      repo = "capdl";
+      rev = "dc37aaabf6486806e0e002cdff7ee05a1b23d5fc";
+      # local = true;
+    };
 
     # for elfloader and some python scripts
-    seL4_tools = mk "minor-patches/seL4/seL4_tools" {} "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
-
-  };
-
-  mkAttrs = repos: {
-    rel = lib.mapAttrs (k: v: relOf v) repos;
-    relLib = lib.mapAttrs (k: v: suffix: relOf v "lib${suffix}") repos;
-  };
-
-  relOf = path: suffix: path + "/${suffix}";
-
-  mkIceCapGitUrl = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";
-  mkIceCapKeepRef = rev: "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";
-
-  mkIceCapLocalPath = repo: ref:
-    let
-      base = ../../../local + "/${repo}";
-      withBranch = base + "+${ref}";
-    in if builtins.pathExists withBranch then withBranch else base;
-
-  mkIceCapSrc = { repo, rev ? null, submodules ? false, local ? false, suffix ? "", postfix ? "" } @ args:
-    let
-      ref = mkIceCapKeepRef rev;
-      local_ = local;
-    in rec {
-      remoteTop = builtins.fetchGit {
-        url = mkIceCapGitUrl repo;
-        inherit ref rev submodules;
-      };
-      remote = "${remoteTop}${suffix}";
-      local = lib.cleanSourceWith {
-        # TODO generalize
-        filter = name: type: builtins.match ".*nix-shell\\.tmp.*" name == null && builtins.match ".*dist-newstyle.*" name == null;
-        src = lib.cleanSource (mkIceCapLocalPath repo ref + "/${suffix}");
-      };
-      store = (if local_ then local else remote) + postfix;
-      envRaw = "${toString (mkIceCapLocalPath repo ref)}/${suffix}${postfix}";
-      env = if local_ then envRaw else remote;
-      override = newArgs: mkIceCapSrc (args // newArgs);
-      withSuffix = suffix_: override { suffix = suffix + suffix_; };
-      withPostfix = postfix_: override { postfix = postfix + postfix_; };
-      forceLocal = override { local = true; };
+    seL4_tools = icecapSrc.repo {
+      repo = "minor-patches/seL4/seL4_tools";
+      rev = "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
+      # local = true;
     };
 
-in rec {
-  inherit mkIceCapGitUrl mkIceCapKeepRef mkIceCapLocalPath mkIceCapSrc;
-  inherit clean local remote;
-  forceLocal = mkAttrs local;
-  forceRemote = mkAttrs remote;
-
-  icecapSrcRel = suffix: (icecapSrcRelSplit suffix).store;
-  icecapSrcAbs = src: (icecapSrcAbsSplit src).store;
-  icecapSrcRelRaw = suffix: ../../src + "/${suffix}";
-  icecapSrcFilter = name: type: builtins.match ".*nix-shell\\.tmp.*" name == null; # TODO
-  icecapSrcRelSplit = suffix: icecapSrcAbsSplit (icecapSrcRelRaw suffix);
-  icecapSrcAbsSplit = src: {
-    store = lib.cleanSourceWith {
-      src = lib.cleanSource src;
-      filter = icecapSrcFilter;
-    };
-    env = toString src;
   };
-
-  mkTrivialSrc = store: { inherit store; env = store; };
-  mkAbsSrc = path: { store = lib.cleanSource path; env = toString path; };
 
   linuxKernelUnifiedSource = with linux-ng; doSource {
     version = "5.6.0";
     extraVersion = "-rc2";
-    src = (mkIceCapSrc {
+    src = (icecapSrc.repo {
       repo = "linux";
       rev = "a51b1b13cfa49ee6ff06a6807e9f68faf2de217f"; # branch icecap
     }).store;
@@ -103,10 +103,10 @@ in rec {
 
   uBootUnifiedSource = with uboot-ng; doSource {
     version = "2019.07";
-    src = (mkIceCapSrc {
+    src = (icecapSrc.repo {
       repo = "u-boot";
       rev = "9626efe72a2200d3dc6852ce41e4c34f791833bf"; # branch icecap-host
     }).store;
   };
 
-} // mkAttrs clean
+}

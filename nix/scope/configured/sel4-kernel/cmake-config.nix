@@ -1,4 +1,4 @@
-{ lib, configUtils, repos
+{ lib, configUtils, seL4EcosystemRepos
 , config, icecapPlat
 }:
 
@@ -40,7 +40,7 @@ in {
   };
 
   sel4test = common // {
-    KernelDomainSchedule = STRING (repos.rel.sel4test "domain_schedule.c");
+    KernelDomainSchedule = STRING (seL4EcosystemRepos.sel4test.extendInnerSuffix "domain_schedule.c");
 
     # TODO
     Sel4testHaveCache = {

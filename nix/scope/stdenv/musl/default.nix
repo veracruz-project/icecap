@@ -1,5 +1,4 @@
 { stdenv
-, repos
 }:
 
 stdenv.mkDerivation rec {

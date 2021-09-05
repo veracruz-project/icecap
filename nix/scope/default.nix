@@ -34,19 +34,23 @@ superCallPackage ./ocaml {} self //
 
   byIceCapPlat = f: lib.listToAttrs (map (plat: { name = plat; value = f plat; }) icecapPlats);
 
-  # TODO name
-  repos = callPackage ./source.nix {};
-  inherit (repos)
-    mkIceCapGitUrl mkIceCapKeepRef mkIceCapLocalPath mkIceCapSrc
-    icecapSrcRel
-    icecapSrcAbs
-    icecapSrcRelRaw
-    icecapSrcFilter
-    icecapSrcRelSplit
-    icecapSrcAbsSplit
-    mkAbsSrc mkTrivialSrc
+  inherit (callPackage ./source.nix {})
+    icecapSrc
+    seL4EcosystemRepos
     linuxKernelUnifiedSource uBootUnifiedSource
     ;
+
+  icecapSrcRel = icecapSrc.relative;
+  icecapSrcAbs = icecapSrc.absolute;
+  icecapSrcRelRaw = icecapSrc.relativeRaw;
+  icecapSrcFilter = icecapSrc.filter;
+  icecapSrcRelSplit = icecapSrc.relativeSplit;
+  icecapSrcAbsSplit = icecapSrc.absoluteSplit;
+  triviallySplitSrc = icecapSrc.splitTrivially;
+  mkIceCapGitUrl = icecapSrc.gitUrlOf;
+  mkIceCapKeepRef = icecapSrc.keepRefOf;
+  mkIceCapLocalPath = icecapSrc.localPathOf;
+  mkIceCapSrc = icecapSrc.repo;
 
   deviceTree = callPackage ./device-tree {};
 

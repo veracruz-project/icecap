@@ -1,5 +1,5 @@
 { stdenv, haskellPackages
-, repos
+, seL4EcosystemRepos
 , which, libxml2, graphviz
 , lib
 , mkIceCapSrc
@@ -11,8 +11,7 @@ haskellPackages.mkDerivation {
 
   # TODO make configurable
 
-  src = repos.rel.capdl "capDL-tool";
-  # src = repos.forceLocal.rel.capdl "capDL-tool";
+  src = seL4EcosystemRepos.capdl.extendInnerSuffix "capDL-tool";
 
   doCheck = false;
 

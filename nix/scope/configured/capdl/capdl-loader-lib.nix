@@ -1,4 +1,4 @@
-{ lib, libs, repos
+{ lib, libs, seL4EcosystemRepos
 , linkFarm, writeText, runCommand
 , python3, python3Packages
 , libsel4
@@ -12,7 +12,7 @@ let
   py = runCommand "x.py" {
     nativeBuildInputs = [ python3 ];
   } ''
-    install -D -t $out ${repos.rel.seL4_tools "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
+    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
     patchShebangs --build $out
     cp -r ${kernel.source}/tools/hardware $out
   '';
@@ -31,8 +31,7 @@ in
 libs.mk {
   name = "capdl-loader-lib";
   root = {
-    store = repos.rel.capdl "capdl-loader-app";
-    # store = repos.forceLocal.rel.capdl "capdl-loader-app";
+    store = seL4EcosystemRepos.capdl.extendInnerSuffix "capdl-loader-app";
   };
   buildInputs = [
     platformInfo

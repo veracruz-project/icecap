@@ -5,7 +5,7 @@
 , dtb-helpers
 , patchSrc, virtUtils, raspios
 
-, stdenvBoot, repos, makeOverridable'
+, stdenvBoot, seL4EcosystemRepos, makeOverridable'
 
 , cmakeConfig
 , icecapPlat
@@ -20,7 +20,7 @@ let
 
   _source = makeOverridable' patchSrc {
     name = "sel4-kernel-source";
-    src = repos.clean.seL4;
+    src = seL4EcosystemRepos.seL4;
     nativeBuildInputs = [ python3 ];
 
     postPatch = ''
@@ -44,7 +44,7 @@ let
   ];
 
   extraConfig = ''
-    include(${repos.clean.seL4}/configs/seL4Config.cmake)
+    include(${seL4EcosystemRepos.seL4}/configs/seL4Config.cmake)
   '';
 
   cacheScript = writeText "config.cmake" ''

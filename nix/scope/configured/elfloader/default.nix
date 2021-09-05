@@ -4,7 +4,7 @@
 , cmake, ninja, rsync
 , dtc, libxml2, python3, python3Packages
 
-, stdenvBoot, repos
+, stdenvBoot, seL4EcosystemRepos
 , kernel, libsel4, libcpio
 , mkCpio, mkCpioObj
 
@@ -28,7 +28,7 @@ let
   py = runCommand "x.py" {
     nativeBuildInputs = [ python3 ];
   } ''
-    install -D -t $out ${repos.rel.seL4_tools "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
+    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
     patchShebangs --build $out
     cp -r ${kernel-source}/tools/hardware $out
   '';
@@ -62,7 +62,7 @@ in
 stdenvBoot.mkDerivation rec {
   name = "elfloader";
 
-  source = repos.rel.seL4_tools "elfloader-tool";
+  source = seL4EcosystemRepos.seL4_tools.extendInnerSuffix "elfloader-tool";
 
   buildInputs = [
     libcpio kernel
@@ -97,8 +97,8 @@ stdenvBoot.mkDerivation rec {
 
         project(elfloader ASM C)
 
-        include(${repos.rel.seL4 "tools/helpers.cmake"})
-        include(${repos.rel.seL4 "tools/internal.cmake"})
+        include(${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/helpers.cmake"})
+        include(${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/internal.cmake"})
 
         # HACK
         if(DEFINED ENV{NIX_SHELL_SRC})
