@@ -84,8 +84,6 @@ superCallPackage ./ocaml {} self //
   serializeConfig = callPackage ./linux-user/dev/serialize-config.nix {};
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};
-  inherit (callPackage ./nix-utils/trivial-builders.nix {})
-    emptyFile emptyDirectory;
 
   elfUtils = callPackage ./nix-utils/elf-utils.nix {};
   cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
