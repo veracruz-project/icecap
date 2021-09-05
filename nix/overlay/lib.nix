@@ -1,7 +1,5 @@
 { lib, pkgsHostTarget }:
 
-with lib;
-
 rec {
 
   makeSplicedScope = makeSplicedScopeOf pkgsHostTarget;
@@ -54,7 +52,7 @@ rec {
           pkgsTargetTarget = tryGetOutputs valueTargetTarget;
         };
     in
-      mapAttrs spliceAttr pkgsHostTarget;
+      lib.mapAttrs spliceAttr pkgsHostTarget;
 
   makeSplicedScopeOf = pkgSet: f_: args:
     let
