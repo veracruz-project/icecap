@@ -158,9 +158,6 @@ superCallPackage ./ocaml {} self //
   inherit (callPackage ./nix-utils/trivial-builders.nix {})
     writeShellScript emptyFile emptyDirectory;
 
-  intToHex = callPackage ./nix-utils/int-to-hex.nix {};
-  toposort = callPackage ./nix-utils/toposort {};
-
   stripElf = callPackage ./nix-utils/strip-elf.nix {};
   stripElfSplit = callPackage ./nix-utils/strip-elf-split.nix {};
   stripElfSplitTrivial = callPackage ./nix-utils/strip-elf-split-trivial.nix {};
@@ -168,7 +165,6 @@ superCallPackage ./ocaml {} self //
   mkCpio = callPackage ./nix-utils/mk-cpio.nix {};
   mkCpioFrom = callPackage ./nix-utils/mk-cpio-from.nix {};
   mkCpioObj = callPackage ./nix-utils/mk-cpio-obj.nix {};
-  mkFilesObj = callPackage ./nix-utils/mk-files-obj.nix {};
 
   configUtils = callPackage ./nix-utils/config-utils.nix {};
 
