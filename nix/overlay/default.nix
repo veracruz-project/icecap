@@ -17,7 +17,7 @@ self: super: with self;
     packageOverrides = callPackage ./python.nix {};
   };
 
-  # Augment QEMU virt machine with a simple timer device model and a simple channel device model
+  # Augment qemu -M virt with a simple timer device model and a simple channel device model
   qemu-base = super.qemu-base.overrideDerivation (attrs: {
     patches = attrs.patches ++ [
       (fetchurl {

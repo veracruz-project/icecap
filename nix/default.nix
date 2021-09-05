@@ -12,7 +12,7 @@ let
     none.config = "aarch64-none-elf";
   };
 
-  baseArgs = crossSystem: allPkgs: {
+  mkBaseArgs = crossSystem: allPkgs: {
     inherit crossSystem;
     overlays = [
       (import ./nix-linux/overlay.nix)
@@ -24,10 +24,10 @@ let
     };
   };
 
-  mkTopLevel = args:
+  mkTopLevel = mkArgs:
     let
       pkgs = lib.fix (self: lib.mapAttrs (_: crossSystem:
-        import ../nixpkgs (args crossSystem self)
+        import ../nixpkgs (mkArgs crossSystem self)
       ) crossSystems);
     in
       lib.fix (self: {
@@ -35,7 +35,7 @@ let
         meta = import ./meta self;
       });
 
-  topLevel = makeOverridableWith lib.id mkTopLevel baseArgs;
+  topLevel = makeOverridableWith lib.id mkTopLevel mkBaseArgs;
 
 in
   topLevel
