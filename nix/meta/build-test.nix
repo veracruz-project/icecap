@@ -2,9 +2,8 @@
 
 let
   inherit (pkgs) dev none linux musl;
-  inherit (none.icecap) icecapPlats;
-in
-  lib.concatLists (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
+
+  roots = lib.concatLists (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
     meta.demos.minimal.${k}.run
     meta.demos.minimal-root.${k}.run
     meta.demos.realm-mirage.${k}.run
@@ -17,4 +16,7 @@ in
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot
     musl.icecap.icecap-host
-  ]
+  ];
+
+in
+pkgs.dev.writeText "build-test-roots" (toString roots)

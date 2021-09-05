@@ -7,4 +7,4 @@ let
   ];
 
 in
-pkgs.dev.writeText "root" (toString roots)
+pkgs.dev.writeText "cache-roots" (toString roots)
