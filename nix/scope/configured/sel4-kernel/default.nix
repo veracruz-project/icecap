@@ -3,9 +3,9 @@
 , dtc, libxml2, python3, python3Packages
 
 , dtb-helpers
-, patchSrc, virtUtils, raspios
+, virtUtils, raspios
 
-, stdenvBoot, seL4EcosystemRepos, makeOverridable'
+, stdenv, stdenvBoot, seL4EcosystemRepos, makeOverridable'
 
 , cmakeConfig
 , icecapPlat
@@ -18,10 +18,12 @@ let
     rpi4 = with dtb-helpers; decompile "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
   }.${icecapPlat};
 
-  _source = makeOverridable' patchSrc {
+  _source = makeOverridable' stdenv.mkDerivation {
     name = "sel4-kernel-source";
     src = seL4EcosystemRepos.seL4;
     nativeBuildInputs = [ python3 ];
+
+    phases = [ "unpackPhase" "patchPhase" "installPhase" ];
 
     postPatch = ''
       # patchShebangs can't handle env -S
@@ -34,6 +36,12 @@ let
         rpi4 = "rpi4";
         virt = "virt";
       }.${icecapPlat}}.dts
+    '';
+
+    installPhase = ''
+      here=$(pwd)
+      cd $NIX_BUILD_TOP
+      mv $here $out
     '';
   };
 

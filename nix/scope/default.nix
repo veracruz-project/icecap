@@ -83,8 +83,6 @@ superCallPackage ./ocaml {} self //
 
   serializeConfig = callPackage ./linux-user/dev/serialize-config.nix {};
 
-  patchSrc = callPackage ./nix-utils/patch-src.nix {};
-
   elfUtils = callPackage ./nix-utils/elf-utils.nix {};
   cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
   cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
