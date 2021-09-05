@@ -3,7 +3,7 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
-  inherit (pkgs.none.icecap) stripElfSplit icecapSrc platUtils;
+  inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
 
 in rec {
 
@@ -11,7 +11,7 @@ in rec {
     src = ./cdl;
     config = {
       components = {
-        minimal.image = stripElfSplit "${minimal}/bin/minimal.elf";
+        minimal.image = elfUtils.split "${minimal}/bin/minimal.elf";
       };
     };
   };

@@ -85,16 +85,10 @@ superCallPackage ./ocaml {} self //
 
   patchSrc = callPackage ./nix-utils/patch-src.nix {};
   inherit (callPackage ./nix-utils/trivial-builders.nix {})
-    writeShellScript emptyFile emptyDirectory;
+    emptyFile emptyDirectory;
 
-  stripElf = callPackage ./nix-utils/strip-elf.nix {};
-  stripElfSplit = callPackage ./nix-utils/strip-elf-split.nix {};
-  stripElfSplitTrivial = callPackage ./nix-utils/strip-elf-split-trivial.nix {};
-
-  mkCpio = callPackage ./nix-utils/mk-cpio.nix {};
-  mkCpioFrom = callPackage ./nix-utils/mk-cpio-from.nix {};
-  mkCpioObj = callPackage ./nix-utils/mk-cpio-obj.nix {};
-
-  configUtils = callPackage ./nix-utils/config-utils.nix {};
+  elfUtils = callPackage ./nix-utils/elf-utils.nix {};
+  cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
+  cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
 
 }

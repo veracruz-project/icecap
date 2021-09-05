@@ -1,7 +1,7 @@
 { lib, hostPlatform
 , buildRustPackageIncrementally, crateUtils
 , mkGlobalCrates
-, stripElfSplit
+, elfUtils
 , stdenv
 , globalCrates
 , icecapPlat
@@ -28,7 +28,7 @@ lib.fix (self: buildRustPackageIncrementally ({
     dontPatchELF = true;
     hardeningDisable = [ "all" ];
     passthru = {
-      split = stripElfSplit "${self}/bin/${args.rootCrate.name}.elf";
+      split = elfUtils.split "${self}/bin/${args.rootCrate.name}.elf";
     } // ((args.extraArgs or {}).passthru or {});
   } // builtins.removeAttrs (args.extraArgs or {}) [
     "passthru"

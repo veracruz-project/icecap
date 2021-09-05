@@ -1,8 +1,8 @@
 { lib, runCommand
 , deviceTree, linuxPkgs
 , elfloader, mkCapDLLoader, bins
-, mkCpioFrom, mkIceDL, dtb-helpers
-, stripElf, stripElfSplit
+, cpioUtils, mkIceDL, dtb-helpers
+, elfUtils
 , icecapPlat
 
 , _kernel
@@ -18,7 +18,7 @@ let
 
   components = lib.fix (self: with self; {
 
-    loader-elf = stripElfSplit "${loader}/boot/elfloader";
+    loader-elf = elfUtils.split "${loader}/boot/elfloader";
 
     loader = elfloader {
       inherit kernel-dtb;
@@ -27,12 +27,12 @@ let
     };
 
     kernel-dtb = "${kernel}/boot/kernel.dtb";
-    kernel-elf = stripElfSplit "${kernel}/boot/kernel.elf";
-    app-elf = stripElfSplit "${app}/bin/capdl-loader.elf";
+    kernel-elf = elfUtils.split "${kernel}/boot/kernel.elf";
+    app-elf = elfUtils.split "${app}/bin/capdl-loader.elf";
 
     app = mkCapDLLoader {
       cdl = "${cdl}/icecap.cdl";
-      elfs-cpio = mkCpioFrom "${cdl}/links";
+      elfs-cpio = cpioUtils.mkFrom "${cdl}/links";
     };
 
     cdl = mkIceDL {

@@ -3,7 +3,7 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
-  inherit (pkgs.none.icecap) platUtils stripElfSplit;
+  inherit (pkgs.none.icecap) platUtils elfUtils;
   inherit (configured)
     icecapPlat icecapFirmware
     mkMirageBinary mkDynDLSpec mkIceDL;
@@ -46,7 +46,7 @@ in rec {
     src = ./ddl;
     config = {
       components = {
-        mirage.image = stripElfSplit "${mirageBinary}/bin/mirage.elf";
+        mirage.image = elfUtils.split "${mirageBinary}/bin/mirage.elf";
       };
     };
   };

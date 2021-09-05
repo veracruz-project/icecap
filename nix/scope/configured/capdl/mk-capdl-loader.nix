@@ -1,5 +1,5 @@
 { runCommand
-, mkCpioObj
+, cpioUtils
 , capdl-loader-lib
 , capdl-tool
 , object-sizes
@@ -11,7 +11,7 @@
 }:
 
 let
-  images = mkCpioObj {
+  images = cpioUtils.mkObj {
     archive-cpio = elfs-cpio;
     symbolName = "_capdl_archive";
     libName = "images";

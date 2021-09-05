@@ -1,8 +1,8 @@
-{ lib, configUtils, seL4EcosystemRepos
+{ lib, cmakeUtils, seL4EcosystemRepos
 , config, icecapPlat
 }:
 
-with configUtils;
+with cmakeUtils;
 
 let
 

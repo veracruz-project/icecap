@@ -1,5 +1,4 @@
 { runCommand
-, mkCpioObj
 , capdl-loader-lib
 , capdl-tool
 , object-sizes

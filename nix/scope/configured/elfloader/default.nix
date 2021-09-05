@@ -6,7 +6,7 @@
 
 , stdenvBoot, seL4EcosystemRepos
 , kernel, libsel4, libcpio
-, mkCpio, mkCpioObj
+, cpioUtils
 
 , cmakeConfig
 }:
@@ -15,10 +15,10 @@
 
 let
 
-  images = mkCpioObj {
+  images = cpioUtils.mkObj {
     symbolName = "_archive_start";
     libName = "images";
-    archive-cpio = mkCpio [
+    archive-cpio = cpioUtils.mk [
       { path = "kernel.elf"; contents = kernel-elf; }
       { path = "kernel.dtb"; contents = kernel-dtb; }
       { path = "app.elf"; contents = app-elf; }

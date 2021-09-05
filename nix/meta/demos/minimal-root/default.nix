@@ -3,12 +3,12 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
-  inherit (pkgs.none.icecap) stripElfSplit icecapSrc platUtils;
+  inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
 
 in rec {
 
   composition = configured.compose {
-    app-elf = stripElfSplit "${minimal}/bin/minimal.elf";
+    app-elf = elfUtils.split "${minimal}/bin/minimal.elf";
   };
 
   minimal = configured.libs.mkRoot {
