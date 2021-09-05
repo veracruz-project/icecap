@@ -25,15 +25,9 @@ let
     seL4 = mk "seL4" {} "62f761d7e6304e8b18d926a050d81df512e6419e";
     capdl = mk "capdl" {} "dc37aaabf6486806e0e002cdff7ee05a1b23d5fc";
 
-    # for elfloader
+    # for elfloader and some python scripts
     seL4_tools = mk "minor-patches/seL4/seL4_tools" {} "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
 
-    # for use with MirageOS
-    musllibc = fetchSeL4 {
-      repo = "musllibc";
-      ref = "sel4";
-      rev = "a0a3af0e3a54fb3985352b4a3160503ecc8c260c";
-    };
   };
 
   mkAttrs = repos: {
@@ -42,11 +36,6 @@ let
   };
 
   relOf = path: suffix: path + "/${suffix}";
-
-  fetchSeL4 = { repo, ref ? "master", rev }: builtins.fetchGit {
-    url = "https://github.com/sel4/${repo}";
-    inherit ref rev;
-  };
 
   mkIceCapGitUrl = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";
   mkIceCapKeepRef = rev: "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";

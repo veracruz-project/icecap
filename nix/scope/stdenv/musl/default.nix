@@ -4,7 +4,12 @@
 
 stdenv.mkDerivation rec {
   name = "muslc";
-  src = repos.clean.musllibc;
+
+  src = builtins.fetchGit {
+    url = "https://github.com/sel4/musllibc";
+    ref = "sel4";
+    rev = "a0a3af0e3a54fb3985352b4a3160503ecc8c260c";
+  };
 
   hardeningDisable = [ "all" ]; # TODO
 
