@@ -3,7 +3,7 @@
 , dtc, libxml2, python3, python3Packages
 
 , dtb-helpers
-, virtUtils, raspios
+, platUtils, raspios
 
 , stdenv, stdenvBoot, seL4EcosystemRepos, makeOverridable'
 
@@ -14,7 +14,7 @@
 let
 
   dts = {
-    virt = with dtb-helpers; decompile virtUtils.dtb;
+    virt = with dtb-helpers; decompile platUtils.virt.extra.dtb;
     rpi4 = with dtb-helpers; decompile "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
   }.${icecapPlat};
 

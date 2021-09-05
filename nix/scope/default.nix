@@ -44,8 +44,6 @@ superCallPackage ./ocaml {} self //
 
   # TODO distinguish between interface and unique
   platUtils = byIceCapPlat (plat: callPackage (./plat-utils + "/${plat}") {});
-  virtUtils = platUtils.virt;
-  rpi4Utils = platUtils.rpi4;
 
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};

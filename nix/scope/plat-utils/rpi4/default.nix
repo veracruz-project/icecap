@@ -115,7 +115,8 @@ let
     '';
 
 in {
-  inherit uBoot bootPartitionLinks;
-
   inherit bundle;
+  extra = {
+    inherit uBoot bootPartitionLinks;
+  };
 }

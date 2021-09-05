@@ -1,10 +1,9 @@
 { lib, buildPackages, runCommand, writeScript, writeText
-, virtUtils, icecapPlat
+, platUtils, icecapPlat
 , devPkgs, linuxPkgs
 
 , mkInstance
 
-, rpi4Utils
 , dtb-helpers
 , closureInfo
 , callPackage
@@ -98,7 +97,7 @@ lib.fix (self: with self; {
 
 } // lib.optionalAttrs (icecapPlat == "virt") {
 
-  run = writeScript "run.sh" (with virtUtils; ''
+  run = writeScript "run.sh" (with platUtils.virt.extra; ''
       #!${devPkgs.runtimeShell}
       exec ${cmdPrefix} \
         -d unimp,guest_errors \
@@ -109,7 +108,7 @@ lib.fix (self: with self; {
 
 } // lib.optionalAttrs (icecapPlat == "rpi4") {
 
-  boot = rpi4Utils.bootPartitionLinks {
+  boot = platUtils.rpi4.extra.bootPartitionLinks {
     payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
       linuxImage = host.linuxImage;
       initramfs = host.initrd;

@@ -8,8 +8,6 @@ let
   vmMemorySize = 4096 + 1024;
   # TODO make this configurable
   vmCores = 4;
-in
-rec {
 
   exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;
@@ -119,6 +117,11 @@ rec {
       } // extraLinks;
     };
 
+in {
+  inherit bundle;
+  extra = {
+    inherit dtb dts;
+  };
 }
 
 # TODO
