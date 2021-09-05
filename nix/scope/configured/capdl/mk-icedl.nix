@@ -1,7 +1,7 @@
 { object-sizes
 , lib, runCommand, writeText
 , buildPackages, python3Packages
-, icecapSrcAbsSplit, icecapSrcRelSplit, triviallySplitSrc
+, icecapSrc
 , icecapPlat
 , seL4EcosystemRepos
 
@@ -22,8 +22,8 @@ let
   };
 
   capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";
-  icedlSrc = icecapSrcRelSplit "python";
-  srcSplit = icecapSrcAbsSplit src;
+  icedlSrc = icecapSrc.relativeSplit "python";
+  srcSplit = icecapSrc.absoluteSplit src;
   f = attr: runCommand "manifest" {
     nativeBuildInputs = [
       buildPackages.stdenv.cc

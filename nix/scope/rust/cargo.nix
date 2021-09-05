@@ -1,6 +1,5 @@
 { stdenv, pkgconfig, openssl, git, cacert
 , crateUtils, fetchCrates, fetchCargoBootstrap
-, mkIceCapSrc
 , buildPackages, nixToToml
 
 , rustc, cargo

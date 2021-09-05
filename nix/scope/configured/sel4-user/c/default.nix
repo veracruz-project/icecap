@@ -1,5 +1,5 @@
 { stdenv, stdenvMirage, lib
-, icecapSrcRel, icecapSrcRelRaw, icecapSrcRelSplit, icecapSrcAbsSplit
+, icecapSrc
 , icecap-ocaml-runtime
 , libsel4, muslc
 , linkFarm, writeText
@@ -19,7 +19,7 @@ let
     , stdenv ? _stdenv
     }:
     let
-      makefile = icecapSrcAbsSplit ./Makefile;
+      makefile = icecapSrc.absoluteSplit ./Makefile;
 
       f = attr: stdenv.mkDerivation ({
         inherit name;
@@ -68,7 +68,7 @@ let
 
   mkBasicWith = name: inputs: graph: extra: mk {
     inherit name;
-    root = icecapSrcRelSplit "c/${name}";
+    root = icecapSrc.relativeSplit "c/${name}";
     propagatedBuildInputs = [
       libsel4
     ] ++ inputs;
@@ -134,7 +134,7 @@ rec {
   icecap-mirage-glue = mk {
     stdenv = stdenvMirage;
     name = "icecap-mirage-glue";
-    root = icecapSrcRelSplit "c/icecap-mirage-glue";
+    root = icecapSrc.relativeSplit "c/icecap-mirage-glue";
     propagatedBuildInputs = [
       stdenvMirage.cc.libc # HACK
       libsel4

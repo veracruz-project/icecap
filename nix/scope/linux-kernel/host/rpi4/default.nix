@@ -1,6 +1,6 @@
 { lib, fetchgit, linux-ng
 , linuxKernelUnifiedSource
-, mkIceCapSrc
+, icecapSrc
 }:
 
 with linux-ng;
@@ -10,7 +10,7 @@ let
   # source = linuxKernelUnifiedSource;
   source = doSource {
     version = "5.4.47";
-    src = (mkIceCapSrc {
+    src = (icecapSrc.repo {
       repo = "linux";
       rev = "d681ecad8f55f5d6be411d410498ed5cf50ef546"; # branch: icecap-rpi4
     }).store;

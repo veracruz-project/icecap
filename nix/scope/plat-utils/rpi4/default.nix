@@ -1,6 +1,6 @@
 { lib, writeText, writeScript, runCommand
 , raspios
-, mkIceCapSrc
+, icecapSrc
 , linuxPkgs
 }:
 
@@ -8,7 +8,7 @@ let
 
   uBootSource = linuxPkgs.uboot-ng.doSource {
     version = "2019.07";
-    src = (mkIceCapSrc {
+    src = (icecapSrc.repo {
       repo = "u-boot";
       rev = "62b6e39a53c56a9085aeab1b47b5cc6020fcdb6f"; # branch icecap
     }).store;

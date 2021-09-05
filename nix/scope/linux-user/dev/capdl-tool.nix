@@ -2,7 +2,6 @@
 , seL4EcosystemRepos
 , which, libxml2, graphviz
 , lib
-, mkIceCapSrc
 }:
 
 haskellPackages.mkDerivation {

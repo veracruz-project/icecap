@@ -3,7 +3,7 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
-  inherit (pkgs.none.icecap) stripElfSplit icecapSrcAbsSplit platUtils;
+  inherit (pkgs.none.icecap) stripElfSplit icecapSrc platUtils;
 
 in rec {
 
@@ -13,7 +13,7 @@ in rec {
 
   minimal = configured.libs.mkRoot {
     name = "minimal";
-    root = icecapSrcAbsSplit ./minimal;
+    root = icecapSrc.absoluteSplit ./minimal;
     propagatedBuildInputs = with configured.libs; [
       icecap-runtime-root
       icecap-utils

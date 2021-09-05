@@ -1,7 +1,7 @@
-{ crateUtils, icecapSrcAbsSplit }:
+{ crateUtils, icecapSrc }:
 
 crateUtils.mkGeneric {
   name = "rust-helper";
   isBin = true;
-  src = icecapSrcAbsSplit ./src;
+  src = icecapSrc.absoluteSplit ./src;
 }

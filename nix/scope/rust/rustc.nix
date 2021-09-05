@@ -5,7 +5,6 @@
 , file, which
 , cmake, ninja, python3
 
-, mkIceCapSrc
 , nixToToml, crateUtils, fetchCrates, fetchCargoBootstrap, rustTargets
 , rustc, cargo, rustfmt
 }:

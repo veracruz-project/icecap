@@ -1,5 +1,5 @@
 { lib, hostPlatform, callPackage, newScope
-, icecapSrcAbsSplit, icecapSrcRelRaw, mkIceCapSrc
+, icecapSrc
 , crateUtils
 }:
 
@@ -11,14 +11,14 @@ let
 
   localCrates = mapAttrs (name: path:
     let crate = callCrate path; in assert head (splitString "_" name) == crate.name; crate
-   ) (import (icecapSrcRelRaw "rust/crates.nix") {
+   ) (import (icecapSrc.relativeRaw "rust/crates.nix") {
      inherit lib seL4 debug benchmark;
    });
 
   callCrate = path:
     let
       mkBase = ext: args: crateUtils.mkGeneric ({
-        src = icecapSrcAbsSplit (path + "/src");
+        src = icecapSrc.absoluteSplit (path + "/src");
       } // ext // args);
     in newScope ({
       inherit localCrates patches;
@@ -34,7 +34,7 @@ let
     } // extraArgs) (path + "/cargo.nix") {};
 
   patches = import ./patches.nix {
-    inherit mkIceCapSrc;
+    inherit icecapSrc;
   };
 
 in localCrates // {

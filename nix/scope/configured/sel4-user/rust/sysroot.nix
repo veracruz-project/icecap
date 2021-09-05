@@ -2,7 +2,7 @@
 , rustc, cargo
 , fetchCrates, cratesIOIndexCache
 , nixToToml, crateUtils, rustTargets, globalCrates
-, mkIceCapGitUrl, mkIceCapSrc
+, icecapSrc
 
 , release ? true
 , extraManifest ? {
@@ -22,7 +22,7 @@ let
 
   srcs = {
 
-    rust = mkIceCapSrc {
+    rust = icecapSrc.repo {
       repo = "rust";
       rev = "d23fbea08fc8e0cedd885187910077c97a87262e"; # branch: icecap-sysroot
 
@@ -30,12 +30,12 @@ let
       # local = true;
     };
 
-    libc = mkIceCapSrc {
+    libc = icecapSrc.repo {
       repo = "minor-patches/rust/libc";
       rev = "1d30655bc094bfdc36cd10547b409f3b3989248c";
     };
 
-    dlmalloc = mkIceCapSrc {
+    dlmalloc = icecapSrc.repo {
       repo = "minor-patches/rust/dlmalloc";
       # rev = "412ba0f99f5fc1dcd28865988f838db197604e49"; # branch: icecap-supervisee
       rev = "f6759cfed44dc4135eaa43c8c26599357749af39"; # branch: icecap

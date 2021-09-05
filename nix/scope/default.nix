@@ -40,18 +40,6 @@ superCallPackage ./ocaml {} self //
     linuxKernelUnifiedSource uBootUnifiedSource
     ;
 
-  icecapSrcRel = icecapSrc.relative;
-  icecapSrcAbs = icecapSrc.absolute;
-  icecapSrcRelRaw = icecapSrc.relativeRaw;
-  icecapSrcFilter = icecapSrc.filter;
-  icecapSrcRelSplit = icecapSrc.relativeSplit;
-  icecapSrcAbsSplit = icecapSrc.absoluteSplit;
-  triviallySplitSrc = icecapSrc.splitTrivially;
-  mkIceCapGitUrl = icecapSrc.gitUrlOf;
-  mkIceCapKeepRef = icecapSrc.keepRefOf;
-  mkIceCapLocalPath = icecapSrc.localPathOf;
-  mkIceCapSrc = icecapSrc.repo;
-
   deviceTree = callPackage ./device-tree {};
 
   # TODO distinguish between interface and unique

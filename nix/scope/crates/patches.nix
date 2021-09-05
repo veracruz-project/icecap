@@ -1,8 +1,8 @@
-{ mkIceCapSrc }:
+{ icecapSrc }:
 
 let
   mkPatch = pre: { suffix ? "" }: rev:
-    mkIceCapSrc {
+    icecapSrc.repo {
       repo = pre;
       inherit rev;
       innerSuffix = suffix;

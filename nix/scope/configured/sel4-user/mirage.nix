@@ -1,4 +1,4 @@
-{ lib, icecapSrcRelSplit
+{ lib
 , libs, muslc, liboutline, stdenv
 , buildIceCapCrate, crateUtils, globalCrates
 }:
