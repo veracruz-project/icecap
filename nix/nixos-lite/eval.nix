@@ -1,23 +1,18 @@
-{ lib
-, pkgs
-, system ? builtins.currentSystem
-}:
+{ lib, pkgs }:
 
-{ modules ? [] }:
+{ modules }:
 
 let
-  baseModule = import ./modules;
-
-  pkgsModule = {
+  metaModule = {
     config = {
-      _module.args.pkgs = lib.mkIf (pkgs != null) (lib.mkForce pkgs);
+      _module.args.pkgs = lib.mkForce pkgs;
       _module.check = true;
-      # TODO
-      # nixpkgs.system = lib.mkDefault system;
     };
   };
 
+  baseModule = import ./modules;
+
 in
 lib.evalModules {
-  modules = [ baseModule ] ++ [ pkgsModule ] ++ modules;
+  modules = [ metaModule baseModule ] ++ modules;
 }
