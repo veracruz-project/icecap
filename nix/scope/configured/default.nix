@@ -1,19 +1,12 @@
-{ lib, callPackage, makeOverridable'
+{ lib, makeOverridable'
+, mkGlobalCrates
+, stdenv
 }:
 
 config:
 
-let
-  superCallPackage = callPackage;
-in
-
 self: with self;
 
-let
-  callPackage = self.callPackage;
-in
-
-superCallPackage ./rust {} self //
 {
   inherit config;
 
@@ -53,6 +46,25 @@ superCallPackage ./rust {} self //
   stdenvIceCap = mkStdenv (callPackage ./sel4-user/c/libc-wrapper.nix {});
 
   libs = callPackage ./sel4-user/c {};
-  bins = callPackage ./sel4-user/rust.nix {};
+  bins = callPackage ./sel4-user/rust/bins.nix {};
   inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
+
+  globalCrates = mkGlobalCrates {
+    seL4 = true;
+    inherit (icecapConfig) benchmark;
+    extraArgs = {
+      inherit stdenv icecap-sel4-sys-gen;
+    };
+  };
+
+  icecap-sel4-sys-gen = callPackage ./sel4-user/rust/icecap-sel4-sys-gen {};
+  inherit (icecap-sel4-sys-gen) liboutline;
+
+  sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {
+    # HACK wasmtime violates some assertions in core
+    release = true;
+  };
+
+  buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
+
 }
