@@ -142,7 +142,7 @@ class EventServer(ElfComponent):
 
             for i_core in range(NUM_CORES):
                 irq_threads.append({
-                    'thread': self.secondary_thread('irq_group_{}_thread_for_core_{}'.format(i_group, i_core)).endpoint,
+                    'thread': self.secondary_thread('irq_group_{}_thread_for_core_{}'.format(i_group, i_core), affinity=i_core).endpoint,
                     'notification': caps[i_core],
                     'irqs': bits,
                     })
