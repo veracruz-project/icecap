@@ -69,16 +69,15 @@ superCallPackage ./ocaml {} self //
 
   serializeConfig = callPackage ./dev/serialize-config.nix {};
 
-  elfUtils = callPackage ./nix-utils/elf-utils.nix {};
-  cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
-  cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
-
-  # TODO
+  inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 
   musl = callPackage ./stdenv/musl.nix {};
-  inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};
+
+  elfUtils = callPackage ./nix-utils/elf-utils.nix {};
+  cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
+  cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
 
 }
