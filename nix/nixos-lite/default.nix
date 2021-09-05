@@ -1,11 +1,22 @@
-{ busybox }:
-
-self: with self;
+{ lib, pkgs }:
 
 {
-  eval = callPackage ./eval.nix {};
 
-  mkExtraUtils = callPackage ./pkgs/mk-extra-utils.nix {};
-  mkNixInitramfs = callPackage ./pkgs/mk-nix-initramfs.nix {};
+  eval = { modules }:
+
+    let
+      metaModule = {
+        config = {
+          _module.args.pkgs = lib.mkForce pkgs;
+          _module.check = true;
+        };
+      };
+
+      baseModule = import ./modules;
+
+    in
+      lib.evalModules {
+        modules = [ metaModule baseModule ] ++ modules;
+      };
 
 }

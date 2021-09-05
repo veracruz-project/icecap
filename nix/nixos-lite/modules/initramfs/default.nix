@@ -7,14 +7,17 @@ let
 
   allModules = cfg.includeModules ++ cfg.loadModules;
 
-  modulesClosure = pkgs.nixosLite.mkModulesClosure {
+  mkExtraUtils = pkgs.callPackage ./mk-extra-utils.nix {};
+  mkNixInitramfs = pkgs.callPackage ./mk-nix-initramfs.nix {};
+
+  modulesClosure = pkgs.linux-ng.mkModulesClosure {
     rootModules = allModules;
     kernel = modules;
     firmware = modules;
     allowMissing = true;
   };
 
-  extraUtils = pkgs.nixosLite.mkExtraUtils {
+  extraUtils = mkExtraUtils {
     inherit (cfg) extraUtilsCommands;
   };
 
@@ -89,7 +92,7 @@ let
 
   initramfs =
     assert cfg.modules == null -> allModules == [];
-    pkgs.nixosLite.mkNixInitramfs {
+    mkNixInitramfs {
       content = pkgs.runCommand "content" {
         nativeBuildInputs = [
           pkgs.buildPackages.nukeReferences

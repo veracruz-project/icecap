@@ -3,7 +3,7 @@ self: super: with self;
 {
   icecap = makeSplicedScope ../scope {};
 
-  nixosLite = lib.makeScope newScope (callPackage ../nixos-lite {});
+  nixosLite = callPackage ../nixos-lite {};
 
   inherit (callPackage ./lib.nix {}) makeSplicedScope makeSplicedScopeOf makeOverridable';
 

@@ -1,7 +1,7 @@
 {
   imports = [
     ./build.nix
-    ./initramfs.nix
+    ./initramfs
     ./net.nix
   ];
 }
