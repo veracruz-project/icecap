@@ -5,7 +5,7 @@
 with outerGlobalCrates;
 
 buildRustPackageIncrementally rec {
-  rootCrate = icecap-p9-server-linux-cli;
+  rootCrate = crosvm-9p-server-cli;
   layers = [ [] ];
 
   debug = true;

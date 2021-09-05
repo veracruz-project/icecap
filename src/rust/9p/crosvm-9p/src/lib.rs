@@ -3,7 +3,7 @@
 // found in the chromiumos.LICENSE file.
 
 #[macro_use]
-extern crate icecap_p9_wire_format_derive;
+extern crate crosvm_9p_wire_format_derive;
 
 mod messages;
 mod wire_format;

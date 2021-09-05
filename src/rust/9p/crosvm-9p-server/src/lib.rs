@@ -3,9 +3,9 @@
 // found in the chromiumos.LICENSE file.
 
 extern crate libc;
-extern crate icecap_p9;
+extern crate crosvm_9p;
 
-use icecap_p9 as protocol;
+use crosvm_9p as protocol;
 
 use std::cmp::min;
 use std::collections::{btree_map, BTreeMap};

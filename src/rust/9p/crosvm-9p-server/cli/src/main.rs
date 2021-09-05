@@ -10,9 +10,9 @@ extern crate getopts;
 extern crate libc;
 #[macro_use]
 extern crate log;
-extern crate icecap_p9_server_linux;
+extern crate crosvm_9p_server;
 
-use icecap_p9_server_linux as p9;
+use crosvm_9p_server as p9;
 
 use libc::gid_t;
 

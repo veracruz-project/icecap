@@ -11,7 +11,7 @@ let
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
   ])) ++ lib.concatMap (host: [
-    host.icecap._9p-server
+    host.icecap.crosvm-9p-server
   ]) [ dev linux ] ++ [
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot

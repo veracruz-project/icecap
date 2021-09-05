@@ -65,7 +65,7 @@ superCallPackage ./ocaml {} self //
   nixosLite = callPackage ./linux-user/nixos-lite {};
 
   icecap-host = callPackage ./linux-user/icecap-host.nix {};
-  _9p-server = callPackage ./linux-user/9p-server.nix {};
+  crosvm-9p-server = callPackage ./linux-user/crosvm-9p-server.nix {};
 
   firecracker = callPackage ./linux-user/firecracker/firecracker.nix {};
   firecracker-prebuilt = callPackage ./linux-user/firecracker/firecracker-prebuilt.nix {};

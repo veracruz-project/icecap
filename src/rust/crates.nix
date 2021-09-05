@@ -34,10 +34,10 @@ filterAttrs (_: v: v != null) {
   icecap-config-sys = ./icecap/icecap-config/sys + "/${if seL4 then "icecap" else "linux"}";
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
 
-  icecap-p9 = ./9p/icecap-p9;
-  icecap-p9-wire-format-derive = ./9p/icecap-p9/wire-format-derive;
-  icecap-p9-server-linux = ./9p/icecap-p9-server-linux;
-  icecap-p9-server-linux-cli = ./9p/icecap-p9-server-linux/cli;
+  crosvm-9p = ./9p/crosvm-9p;
+  crosvm-9p-wire-format-derive = ./9p/crosvm-9p/wire-format-derive;
+  crosvm-9p-server = ./9p/crosvm-9p-server;
+  crosvm-9p-server-cli = ./9p/crosvm-9p-server/cli;
 
   generated-module-hack = ./helpers/generated-module-hack;
   biterate = ./helpers/biterate;

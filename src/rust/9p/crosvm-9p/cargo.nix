@@ -1,9 +1,9 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-p9-server-linux";
+  name = "crosvm-9p";
   localDependencies = with localCrates; [
-    icecap-p9
+    crosvm-9p-wire-format-derive
   ];
   dependencies = {
     libc = "*";

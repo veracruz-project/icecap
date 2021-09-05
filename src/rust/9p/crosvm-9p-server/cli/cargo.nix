@@ -1,9 +1,9 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "icecap-p9-server-linux-cli";
+  name = "crosvm-9p-server-cli";
   localDependencies = with localCrates; [
-    icecap-p9-server-linux
+    crosvm-9p-server
   ];
   dependencies = {
     getopts = "*";
