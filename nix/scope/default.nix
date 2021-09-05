@@ -50,6 +50,9 @@ superCallPackage ./ocaml {} self //
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};
 
+  muslc = callPackage ./stdenv/musl {};
+  inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
+
   uBoot = assert hostPlatform.system == "aarch64-linux"; { # HACK
     host = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
   };
@@ -59,29 +62,25 @@ superCallPackage ./ocaml {} self //
     guest = callPackage ./linux-kernel/guest {};
   };
 
-  muslc = callPackage ./stdenv/musl {};
-  inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
-
-  icecap-host = callPackage ./linux-user/host/icecap-host.nix {};
-
-  firecracker = callPackage ./linux-user/host/firecracker.nix {};
-  firecracker-prebuilt = callPackage ./linux-user/host/firecracker-prebuilt.nix {};
-  firectl = callPackage ./linux-user/host/firectl.nix {};
-
-  libfdt = callPackage ./linux-user/libfdt/default.nix {};
-  _9p-server = callPackage ./linux-user/9p-server {};
-
   nixosLite = callPackage ./linux-user/nixos-lite {};
 
-  capdl-tool = callPackage ./linux-user/dev/capdl-tool.nix {};
-  sel4-manual = callPackage ./sel4-manual {};
+  icecap-host = callPackage ./linux-user/icecap-host.nix {};
+  _9p-server = callPackage ./linux-user/9p-server.nix {};
 
-  icecap-show-backtrace = callPackage ./linux-user/dev/icecap-show-backtrace.nix {};
-  icecap-append-devices = callPackage ./linux-user/dev/icecap-append-devices.nix {};
-  dyndl-serialize-spec = callPackage ./linux-user/dev/dyndl-serialize-spec.nix {};
-  icecap-serialize-runtime-config = callPackage ./linux-user/dev/icecap-serialize-runtime-config.nix {};
+  firecracker = callPackage ./linux-user/firecracker/firecracker.nix {};
+  firecracker-prebuilt = callPackage ./linux-user/firecracker/firecracker-prebuilt.nix {};
+  firectl = callPackage ./linux-user/firecracker/firectl.nix {};
+  libfdt = callPackage ./linux-user/firecracker/libfdt {};
 
-  serializeConfig = callPackage ./linux-user/dev/serialize-config.nix {};
+  capdl-tool = callPackage ./dev/capdl-tool.nix {};
+  sel4-manual = callPackage ./dev/sel4-manual.nix {};
+
+  icecap-show-backtrace = callPackage ./dev/icecap-show-backtrace.nix {};
+  icecap-append-devices = callPackage ./dev/icecap-append-devices.nix {};
+  dyndl-serialize-spec = callPackage ./dev/dyndl-serialize-spec.nix {};
+  icecap-serialize-runtime-config = callPackage ./dev/icecap-serialize-runtime-config.nix {};
+
+  serializeConfig = callPackage ./dev/serialize-config.nix {};
 
   elfUtils = callPackage ./nix-utils/elf-utils.nix {};
   cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
