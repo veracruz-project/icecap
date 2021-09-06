@@ -2,19 +2,15 @@
 , pkgconfig, dbus
 }:
 
-with outerGlobalCrates;
-
 buildRustPackageIncrementally rec {
-  rootCrate = crosvm-9p-server-cli;
+  rootCrate = outerGlobalCrates.crosvm-9p-server-cli;
   layers = [ [] ];
 
-  debug = true;
-
   extraArgs = {
-    PKG_CONFIG_ALLOW_CROSS = 1;
-
     nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ dbus ];
+
+    PKG_CONFIG_ALLOW_CROSS = 1;
 
     passthru = {
       exe = rootCrate.name;

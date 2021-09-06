@@ -4,7 +4,7 @@
 
 { rootCrate
 , layers ? []
-, debug ? true
+, debug ? false
 , extraCargoConfig ? {}
 , extraManifest ? {}
 , extraManifestLocal ? {}

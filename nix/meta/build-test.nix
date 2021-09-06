@@ -16,6 +16,9 @@ let
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot
     musl.icecap.icecap-host
+    musl.icecap.firecracker
+    musl.icecap.firecracker-prebuilt
+    musl.icecap.firectl
   ];
 
 in

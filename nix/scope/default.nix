@@ -39,13 +39,15 @@ superCallPackage ./ocaml {} self //
 
   platUtils = byIceCapPlat (plat: callPackage (./plat-utils + "/${plat}") {});
 
-  deviceTree = callPackage ./device-tree {};
+  linuxOnly = assert hostPlatform.system == "aarch64-linux"; lib.id;
 
-  uBoot = assert hostPlatform.system == "aarch64-linux"; { # HACK
+  deviceTree = linuxOnly callPackage ./device-tree {};
+
+  uBoot = linuxOnly {
     host = byIceCapPlat (plat: callPackage (./u-boot + "/${plat}") {});
   };
 
-  linuxKernel = assert hostPlatform.system == "aarch64-linux"; { # HACK
+  linuxKernel = linuxOnly {
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
     guest = callPackage ./linux-kernel/guest {};
   };

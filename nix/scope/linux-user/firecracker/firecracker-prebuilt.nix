@@ -8,7 +8,6 @@ let
 
   sha256 = {
     aarch64 = "sha256-RXYiKKqD3ta75TKSwd59BqsdjDVlVXyqSqbOwo9QAIg=";
-    x86_64 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   }.${arch};
 
 in
@@ -24,10 +23,7 @@ stdenv.mkDerivation rec {
   phases = [ "unpackPhase" "installPhase" ];
 
   installPhase = ''
-    cat *spec*
-    mkdir -p $out/bin
-    mv firecracker-* $out/bin/firecracker
-    mv jailer-* $out/bin/jailer
-    chmod +x $out/bin/firecracker
+    install -D -t $out/doc *.yaml
+    install -D -t $out/bin firecracker-* jailer-*
   '';
 }

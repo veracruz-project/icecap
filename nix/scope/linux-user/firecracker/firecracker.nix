@@ -1,10 +1,8 @@
 { buildRustPackage
-, fetchCrates
 , fetchFromGitHub
+, fetchCrates
 , libfdt
 }:
-
-# TODO musl
 
 buildRustPackage rec {
   pname = "firecracker";
@@ -20,18 +18,8 @@ buildRustPackage rec {
 
   buildInputs = [ libfdt ];
 
-  targetDir = "build/cargo_target";
-
-  # HACK
-
   prePatch = ''
     rm .cargo/config
   '';
 
-  extraCargoConfig = {
-    target."cfg(any(target_arch=\"arm\", target_arch=\"aarch64\"))".rustflags = [
-      "-C" "link-arg=-lgcc"
-      "-C" "link-arg=-lfdt"
-    ];
-  };
 }
