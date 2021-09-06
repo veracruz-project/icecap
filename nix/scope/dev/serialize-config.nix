@@ -12,12 +12,13 @@ let
 
       layers =  [ [] ] ++ lib.optionals (crate != null) [ [ crate ] ];
 
+      debug = true;
+
       rootCrate = crateUtils.mkGeneric {
 
         name = "serialize-${name}-config";
 
         isBin = true;
-        debug = true;
 
         src.store = linkFarm "src" [
           { name = "main.rs";
