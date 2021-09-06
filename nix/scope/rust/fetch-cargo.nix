@@ -1,4 +1,4 @@
-{ stdenv, lib, runCommand, cacert, git, cargo }:
+{ lib, stdenv, runCommand, cacert, git, cargo }:
 
 { sha256, ... } @ args:
 

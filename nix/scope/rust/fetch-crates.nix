@@ -1,4 +1,4 @@
-{ stdenv, lib, linkFarm, writeText, cargoLockToNix, nixToToml }:
+{ lib, linkFarm, cargoLockToNix, nixToToml }:
 
 cargoLock:
 

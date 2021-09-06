@@ -1,15 +1,13 @@
 { lib, runCommand
-, fetchgit, cargo
+, cargo
 , nixToToml, cratesIOIndexCache
 , crateUtils
 }:
 
-with crateUtils;
-
 { rootCrate, extraManifest ? {} }:
 
 let
-  crates = lib.attrValues (flatDepsWithRoot rootCrate);
+  crates = lib.attrValues (crateUtils.flatDepsWithRoot rootCrate);
 
   workspace = nixToToml (crateUtils.clobber [
     {
@@ -19,7 +17,7 @@ let
     extraManifest
   ]);
 
-  src = collectDummies [] crates;
+  src = crateUtils.collectDummies [] crates;
 
 in
 runCommand "Cargo.lock" {
