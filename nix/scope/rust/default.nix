@@ -70,13 +70,13 @@ in {
 
   cargo = cargo0;
 
-  rustfmt = (callPackage ./in-tree-component.nix {} {
-    package = "rustfmt-nightly";
-  }).overrideAttrs (attrs: {
-    RUSTC_BOOTSTRAP = 1;
-  });
+  # rustfmt = (callPackage ./in-tree-component.nix {} {
+  #   package = "rustfmt-nightly";
+  # }).overrideAttrs (attrs: {
+  #   RUSTC_BOOTSTRAP = 1;
+  # });
 
-  # rustfmt = rustfmtPrebuilt;
+  rustfmt = rustfmtPrebuilt;
 
   fetchCargo = callPackage ./fetch-cargo.nix {};
   fetchCargoBootstrap = callPackage ./fetch-cargo.nix {
