@@ -15,7 +15,7 @@
   "panic-strategy": "abort",
   "pre-link-args": {
     "ld": [
-        "--eh-frame-hdr", "-z,noexecstack"
+      "--eh-frame-hdr", "-z,noexecstack"
     ]
   },
   "relocation-model": "static",

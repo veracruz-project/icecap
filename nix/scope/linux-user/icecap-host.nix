@@ -23,4 +23,8 @@ buildRustPackageIncrementally rec {
       "-C" "link-arg=-lgcc"
     ];
   };
+
+  extraArgs = {
+  RUST_BACKTRACE="full";
+  };
 }

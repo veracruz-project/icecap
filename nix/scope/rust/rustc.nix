@@ -1,5 +1,5 @@
-{ lib, stdenvNoCC, pkgs, targetPackages, buildPackages
-, buildPlatform, hostPlatform, targetPlatform
+{ lib, stdenvNoCC
+, buildPlatform, hostPlatform
 , file, which
 , cmake, ninja, python3
 
@@ -7,12 +7,11 @@
 , nixToToml, fetchCargoBootstrap
 
 , rustc, cargo, rustfmt
+
+, targets
 }:
 
 let
-
-  # TODO remove
-  python = "${buildPackages.python3}/bin/python3";
 
   configToml = nixToToml {
 
@@ -21,12 +20,11 @@ let
     build = {
       build = buildPlatform.config;
       host = [ hostPlatform.config ];
-      target = [ hostPlatform.config targetPlatform.config ];
+      target = map (target: target.hostPlatform.config) targets;
 
       rustc = "${rustc}/bin/rustc";
       cargo = "${cargo}/bin/cargo";
       rustfmt = "${rustfmt}/bin/rustfmt";
-      inherit python;
 
       docs = false;
       compiler-docs = false;
@@ -36,21 +34,20 @@ let
       vendor = true;
 
       # verbose = 2;
-    
+
       # TODO local-rebuild = true for cross?
     };
 
     install.prefix = "@out@";
 
+    # TODO evaluate or drop
     rust.lld = true;
+
     rust.default-linker = "/var/empty/nope";
 
     target = lib.foldr (x: y: x // y) {} (map (pkgs_:
       let
         env = pkgs_.stdenv;
-        llvmPkgs = if env.hostPlatform.config == buildPlatform.config
-          then (if buildPlatform.config == hostPlatform.config then pkgs else pkgs_)
-          else (if env.hostPlatform.config == hostPlatform.config then pkgs_ else null);
       in {
         ${env.hostPlatform.config} = lib.optionalAttrs (!env.hostPlatform.isWasm) {
           cc     = "${env.cc}/bin/${env.cc.targetPrefix}cc";
@@ -58,6 +55,7 @@ let
           cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
           ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ar";
           ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ranlib";
+        # TODO remove
         } // lib.optionalAttrs env.hostPlatform.isWasm {
           ar     = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ar";
           ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ranlib";
@@ -67,7 +65,7 @@ let
         } // lib.optionalAttrs env.hostPlatform.isMusl {
           musl-root = "${env.cc.libc}";
         };
-    }) [ buildPackages targetPackages ]);
+    }) targets);
   };
 
 in stdenvNoCC.mkDerivation rec {
@@ -90,15 +88,27 @@ in stdenvNoCC.mkDerivation rec {
   '';
 
   buildPhase = ''
-    ${python} x.py build --jobs $NIX_BUILD_CORES
+    python x.py build --jobs $NIX_BUILD_CORES
   '';
 
   installPhase = ''
     mkdir $out
-    ${python} x.py install
+    python x.py install
+
+    python x.py dist rustc-dev
+    cp build/dist/rustc-dev*tar.gz $out
   '';
 
   passthru = {
     inherit configToml;
   };
 }
+
+    # install rustc-dev components. Necessary to build rls, clippy...
+    # tar xf build/dist/rustc-dev*tar.gz
+    # cp -r rustc-dev*/rustc-dev*/lib/* $out/lib/
+    # rm $out/lib/rustlib/install.log
+    # for m in $out/lib/rustlib/manifest-rust*
+    # do
+    #   sort --output=$m < $m
+    # done

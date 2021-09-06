@@ -1,5 +1,5 @@
 { lib, hostPlatform, targetPlatform
-, emptyDirectory
+, devPkgs, linuxPkgs, muslPkgs, nonePkgs
 , zlib
 }:
 
@@ -48,18 +48,18 @@ in {
     sha256 = "sha256-Z3XCOhvOVJ6DT+XpS2hAHubFwgvnaUBRjfaBa8HJ0jo=";
   };
 
-  rustTargets =
-    if targetPlatform.config == "aarch64-none-elf" || hostPlatform.config == "aarch64-none-elf"
-    then lib.cleanSource ./targets
-    else emptyDirectory;
+  # TODO tune
+  rustTargets = icecapSrc.clean ./targets;
 
   rustc0 = callPackage ./rustc.nix {
     rustc = pkgsBuildHostScope.rustcPrebuilt;
     cargo = pkgsBuildHostScope.cargoPrebuilt;
     rustfmt = pkgsBuildHostScope.rustfmtPrebuilt;
+    targets = [ devPkgs linuxPkgs muslPkgs nonePkgs ];
   };
 
-  rustc = rustc0;
+  # HACK
+  rustc = devPkgs.icecap.rustc0;
 
   cargo0 = callPackage ./in-tree-component.nix {
     rustc = pkgsBuildHostScope.rustc0;
@@ -70,13 +70,13 @@ in {
 
   cargo = cargo0;
 
-  # rustfmt = (callPackage ./in-tree-component.nix {} {
-  #   package = "rustfmt-nightly";
-  # }).overrideAttrs (attrs: {
-  #   RUSTC_BOOTSTRAP = 1;
-  # });
+  rustfmt = (callPackage ./in-tree-component.nix {} {
+    package = "rustfmt-nightly";
+  }).overrideAttrs (attrs: {
+    RUSTC_BOOTSTRAP = 1;
+  });
 
-  rustfmt = rustfmtPrebuilt;
+  # rustfmt = rustfmtPrebuilt;
 
   fetchCargo = callPackage ./fetch-cargo.nix {};
   fetchCargoBootstrap = callPackage ./fetch-cargo.nix {
