@@ -2,10 +2,8 @@
 , outerGlobalCrates
 }:
 
-with outerGlobalCrates;
-
 buildRustPackageIncrementally rec {
-  rootCrate = icecap-show-backtrace;
+  rootCrate = outerGlobalCrates.icecap-show-backtrace;
   layers =  [ [] ];
 
   debug = true;

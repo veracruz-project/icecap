@@ -10,9 +10,15 @@ let
 
     buildRustPackageIncrementally rec {
 
+      layers =  [ [] ] ++ lib.optionals (crate != null) [ [ crate ] ];
+
       rootCrate = crateUtils.mkGeneric {
+
         name = "serialize-${name}-config";
+
         isBin = true;
+        debug = true;
+
         src.store = linkFarm "src" [
           { name = "main.rs";
             path = writeText "main.rs" ''
@@ -26,11 +32,13 @@ let
             '';
           }
         ];
-        localDependencies = lib.optionals (crate != null) [
-          crate
-        ] ++ [
+
+        localDependencies = [
           outerGlobalCrates.icecap-config-cli-core
+        ] ++ lib.optionals (crate != null) [
+          crate
         ];
+
         dependencies = {
           serde = "*";
           serde_json = "*";
@@ -38,11 +46,6 @@ let
         };
       };
 
-      layers =  [ [] ] ++ lib.optionals (crate != null) [
-        [ crate ]
-      ];
-
-      debug = true;
     };
 
 in {

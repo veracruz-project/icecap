@@ -2,10 +2,8 @@
 , outerGlobalCrates
 }:
 
-with outerGlobalCrates;
-
 buildRustPackageIncrementally rec {
-  rootCrate = icecap-serialize-runtime-config;
+  rootCrate = outerGlobalCrates.icecap-serialize-runtime-config;
   layers =  [ [] ];
 
   debug = true;
