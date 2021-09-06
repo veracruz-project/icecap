@@ -1,7 +1,5 @@
-/config.nix
-/local
-/mnt
-/tmp
-
 result
 result-*
+
+/mnt
+/tmp
