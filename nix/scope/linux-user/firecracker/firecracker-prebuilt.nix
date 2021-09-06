@@ -24,6 +24,7 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     install -D -t $out/doc *.yaml
-    install -D -t $out/bin firecracker-* jailer-*
+    install -D -T firecracker-* $out/bin/firecracker
+    install -D -T jailer-* $out/bin/jailer
   '';
 }
