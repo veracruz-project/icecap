@@ -55,10 +55,6 @@ let
           cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
           ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ar";
           ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ranlib";
-        # TODO remove
-        } // lib.optionalAttrs env.hostPlatform.isWasm {
-          ar     = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ar";
-          ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.targetPrefix}ranlib";
         } // lib.optionalAttrs (env.hostPlatform.config == "aarch64-none-elf") {
           linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
           no-std = true;
