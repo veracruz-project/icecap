@@ -1,14 +1,12 @@
-{ stdenv, haskellPackages
-, seL4EcosystemRepos
+{ lib, stdenv
+, haskellPackages
 , which, libxml2, graphviz
-, lib
+, seL4EcosystemRepos
 }:
 
 haskellPackages.mkDerivation {
   pname = "capdl-tool";
   version = "1.0.0.1";
-
-  # TODO make configurable
 
   src = seL4EcosystemRepos.capdl.extendInnerSuffix "capDL-tool";
 
@@ -22,7 +20,7 @@ haskellPackages.mkDerivation {
   ];
   license = lib.licenses.bsd2;
 
-  testToolDepends = map (x: x.nativeDrv) [ which libxml2 graphviz ];
+  testToolDepends = [ which libxml2 graphviz ];
   checkPhase = ''
     PATH=dist/build/parse-capDL:$PATH make tests
   '';
@@ -30,14 +28,15 @@ haskellPackages.mkDerivation {
   buildTools = [
     haskellPackages.cabal-install
   ];
-}
 
-#   shellHook = ''
-#     builddir=${toString ../../../tmp/dist}
-#     c() {
-#       cabal configure --builddir=$builddir
-#     }
-#     b() {
-#       cabal build --builddir=$builddir
-#     }
-#   '';
+  shellHook = ''
+    builddir=${toString ../../../tmp/dist}
+    c() {
+      cabal configure --builddir=$builddir
+    }
+    b() {
+      cabal build --builddir=$builddir
+    }
+  '';
+
+}
