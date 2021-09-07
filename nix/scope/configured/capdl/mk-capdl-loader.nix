@@ -1,9 +1,8 @@
-{ runCommand
+{ runCommand, linkFarm, writeText
 , cpioUtils
-, capdl-loader-lib
 , capdl-tool
-, object-sizes
-, libs, linkFarm, writeText, libsel4
+, object-sizes, libsel4
+, capdl-loader-lib, libs
 }:
 
 { cdl
@@ -24,7 +23,7 @@ let
   } ''
     parse-capDL --code-dynamic-alloc --object-sizes=${object-sizes} --code=$out ${cdl}
   '';
-    # parse-capDL --code-static-alloc --code=$out ${cdl}
+    # TODO consider parse-capDL --code-static-alloc
 
 in
 libs.mkRoot rec {

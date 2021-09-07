@@ -1,9 +1,10 @@
-{ object-sizes
-, lib, runCommand, writeText
-, buildPackages, python3Packages
-, icecapSrc
+{ lib, buildPackages, runCommand, writeText
+, python3Packages
+
+, icecapSrc, seL4EcosystemRepos
+
 , icecapPlat
-, seL4EcosystemRepos
+, object-sizes
 
 , icecap-append-devices
 , icecap-serialize-runtime-config
@@ -14,43 +15,54 @@
 , src
 }:
 
-
 let
   augmentedConfig = config // {
     plat = icecapPlat;
     object_sizes = object-sizes;
   };
 
+  serializers = with buildPackages.icecap.serializeConfig; [
+    generic
+    fault-handler
+    timer-server
+    serial-server
+    host-vmm
+    realm-vmm
+    resource-server
+    event-server
+  ];
+
   capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";
   icedlSrc = icecapSrc.relativeSplit "python";
   srcSplit = icecapSrc.absoluteSplit src;
+
   f = attr: runCommand "manifest" {
+
     nativeBuildInputs = [
       buildPackages.stdenv.cc
       icecap-append-devices
       icecap-serialize-runtime-config
-      buildPackages.icecap.serializeConfig.generic
-      buildPackages.icecap.serializeConfig.fault-handler
-      buildPackages.icecap.serializeConfig.timer-server
-      buildPackages.icecap.serializeConfig.serial-server
-      buildPackages.icecap.serializeConfig.host-vmm
-      buildPackages.icecap.serializeConfig.realm-vmm
-      buildPackages.icecap.serializeConfig.resource-server
-      buildPackages.icecap.serializeConfig.event-server
-
+    ] ++ serializers ++ [
       dyndl-serialize-spec
     ] ++ (with python3Packages; [
       future six
       aenum orderedset sortedcontainers
       pyyaml pyelftools pyfdt
     ]);
-    PYTHONPATH_ = lib.concatMapStringsSep ":" (x: x.${attr}) [ srcSplit icedlSrc capdlSrc ];
+
     CONFIG = writeText "config.json" (builtins.toJSON augmentedConfig);
+
+    PYTHONPATH_ = lib.concatMapStringsSep ":" (x: x.${attr}) [ srcSplit icedlSrc capdlSrc ];
+
     setup = ''
       export PYTHONPATH=$PYTHONPATH_:$PYTHONPATH
     '';
-    passthru.env = f "env";
-    passthru.config = augmentedConfig;
+
+    passthru = {
+      env = f "env";
+      config = augmentedConfig;
+    };
+
     shellHook = ''
       eval "$setup"
       export OUT_DIR=.
@@ -58,11 +70,13 @@ let
         python3 -m x
       }
     '';
+
   } ''
     eval "$setup"
     export OUT_DIR=$out
     mkdir $OUT_DIR
     python3 -m x
   '';
+
 in
   f "store"

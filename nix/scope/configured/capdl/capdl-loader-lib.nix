@@ -1,11 +1,9 @@
-{ lib, libs, seL4EcosystemRepos
-, linkFarm, writeText, runCommand
+{ lib, linkFarm, writeText, runCommand
 , python3, python3Packages
-, libsel4
-
-, kernel
+, seL4EcosystemRepos
+, kernel, libsel4
+, libs
 }:
-
 
 let
 
@@ -36,22 +34,23 @@ libs.mk {
   buildInputs = [
     platformInfo
   ];
-  propagatedBuildInputs = with libs; [
+  propagatedBuildInputs = [
     libsel4
-    icecap-autoconf
-    icecap-runtime-root
-    icecap-pure
-    icecap-utils
-    cpio
-    capdl-support-hack
+    libs.icecap-autoconf
+    libs.icecap-runtime-root
+    libs.icecap-pure
+    libs.icecap-utils
+    libs.cpio
+    libs.capdl-support-hack
   ];
   extraCFlagsCompile = [
-    # "-Wno-error=unused-variable"
-    # "-Wno-error=unused-function"
-    # "-Wno-error=unused-but-set-variable"
     "-Wno-unused-variable"
     "-Wno-unused-function"
     "-Wno-unused-but-set-variable"
+    # TODO
+    # "-Wno-error=unused-variable"
+    # "-Wno-error=unused-function"
+    # "-Wno-error=unused-but-set-variable"
   ];
   extra.CONFIG = linkFarm "config" [
     { name = "capdl_loader_app/gen_config.h";
@@ -71,6 +70,7 @@ libs.mk {
   };
 }
 
+# TODO
 # CapDLLoaderCallingConvention-STRINGS:INTERNAL=standard;registers
 # CapDLLoaderCallingConvention:STRING=standard
 # CapDLLoaderCallingConventionRegisters:INTERNAL=OFF

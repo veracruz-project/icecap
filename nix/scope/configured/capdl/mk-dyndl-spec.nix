@@ -1,8 +1,7 @@
 { runCommand
-, capdl-loader-lib
 , capdl-tool
-, object-sizes
 , dyndl-serialize-spec
+, object-sizes
 }:
 
 { cdl, root, extraPassthru ? {} }:
