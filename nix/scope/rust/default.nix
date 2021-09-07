@@ -7,7 +7,7 @@ self: with self;
 
 let
 
-  mkPrebuilt = callPackage ./prebuilt {};
+  mkPrebuilt = callPackage ./prebuilt.nix {};
 
 in {
 
@@ -78,6 +78,8 @@ in {
 
   rustfmt = rustfmtPrebuilt;
 
+  bindgen = callPackage ./bindgen.nix {};
+
   fetchCargo = callPackage ./fetch-cargo.nix {};
   fetchCargoBootstrap = callPackage ./fetch-cargo.nix {
     cargo = pkgsBuildHostScope.cargoPrebuilt;
@@ -97,7 +99,5 @@ in {
   buildRustPackage = callPackage ./build-rust-package.nix {};
   buildRustPackageIncrementally = callPackage ./build-rust-package-incrementally.nix {};
   crateUtils = callPackage ./crate-utils.nix {};
-
-  bindgen = callPackage ./bindgen {};
 
 }
