@@ -75,9 +75,6 @@ let
     extraCFlagsCompile = [
       "-Wno-deprecated-declarations"
     ];
-    graph = {
-      "outline" = [ "sel4" ];
-    };
   };
 
 in

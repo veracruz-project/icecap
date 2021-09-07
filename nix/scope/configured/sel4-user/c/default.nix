@@ -10,7 +10,7 @@ let
   _stdenv = stdenv;
 
   mk =
-    { name, root ? null, roots ? [ root ], graph ? {}
+    { name, root ? null, roots ? [ root ]
     , extraCFlagsCompile ? []
     , extraCFlagsLink ? []
     , buildInputs ? [], propagatedBuildInputs ? []
@@ -41,7 +41,6 @@ let
         ];
 
         passthru = {
-          inherit graph;
           env = f "env";
         } // passthru;
 
@@ -66,16 +65,16 @@ let
     ];
   });
 
-  mkBasicWith = name: inputs: graph: extra: mk {
+  mkBasicWith = name: inputs: extra: mk {
     inherit name;
     root = icecapSrc.relativeSplit "c/${name}";
     propagatedBuildInputs = [
       libsel4
     ] ++ inputs;
-    inherit graph extra;
+    inherit extra;
   };
 
-  mkBasic = name: inputs: graph: mkBasicWith name inputs graph {};
+  mkBasic = name: inputs: mkBasicWith name inputs {};
 
 in
 
@@ -84,14 +83,11 @@ rec {
   inherit mk mkRoot;
 
   icecap-autoconf = mkBasic "icecap-autoconf" [
-  ] {
-  };
+  ];
 
   icecap-runtime = mkBasicWith "icecap-runtime" [
     icecap-autoconf
   ] {
-    "icecap_runtime" = [ "sel4" ];
-  } {
     CONFIG = linkFarm "config" [
       { name = "icecap_runtime/config.h";
         path = writeText "config.h" ''
@@ -104,8 +100,6 @@ rec {
   icecap-runtime-root = mkBasicWith "icecap-runtime" [
     icecap-autoconf
   ] {
-    "icecap_runtime" = [ "sel4" ];
-  } {
     CONFIG = linkFarm "config" [
       { name = "icecap_runtime/config.h";
         path = writeText "config.h" ''
@@ -121,15 +115,11 @@ rec {
   icecap-utils = mkBasic "icecap-utils" [
     icecap-autoconf
     icecap-runtime
-  ] {
-    "icecap_utils" = [ "sel4" "icecap_runtime" ];
-  };
+  ];
 
   icecap-pure = mkBasic "icecap-pure" [
     icecap-autoconf
-  ] {
-    "icecap_pure" = [ ];
-  };
+  ];
 
   icecap-mirage-glue = mk {
     stdenv = stdenvMirage;
@@ -143,22 +133,15 @@ rec {
       icecap-ocaml-runtime
       icecap-utils # HACK
     ];
-    graph = {
-      "icecap_mirage_glue" = [ ];
-    };
   };
 
   cpio = mkBasic "cpio" [
-  ] {
-    "cpio" = [ ];
-  };
+  ];
 
   capdl-support-hack = mkBasic "capdl-support-hack" [
     icecap-autoconf
     icecap-utils
     icecap-pure
-  ] {
-    "capdl_support_hack" = [ "sel4" "icecap_utils" "icecap_pure" ];
-  };
+  ];
 
 }
