@@ -12,7 +12,7 @@ buildRustPackageIncrementally rec {
 
     PKG_CONFIG_ALLOW_CROSS = 1;
 
-    passthru = attrs.passthru // {
+    passthru = (attrs.passthru or {}) // {
       exe = rootCrate.name;
     };
   };

@@ -10,14 +10,12 @@ let
 
     buildRustPackageIncrementally rec {
 
-      layers =  [ [] ] ++ lib.optionals (crate != null) [ [ crate ] ];
-
+      layers = [ [] ] ++ lib.optionals (crate != null) [ [ crate ] ];
       debug = true;
 
       rootCrate = crateUtils.mkCrate {
 
         nix.name = "serialize-${name}-config";
-
         nix.isBin = true;
 
         nix.src.store = linkFarm "src" [
