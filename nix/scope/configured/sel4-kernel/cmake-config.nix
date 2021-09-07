@@ -37,16 +37,4 @@ in {
     # KernelStackBits = STRING "15";
   };
 
-  sel4test = common // {
-    KernelDomainSchedule = STRING (seL4EcosystemRepos.sel4test.extendInnerSuffix "domain_schedule.c");
-
-    # TODO
-    Sel4testHaveCache = selectIceCapPlat {
-      virt = OFF;
-      rpi4 = ON;
-    };
-
-    LibUtilsDefaultZfLogLevel = STRING "3"; # 0-5, 0 is most verbose
-  };
-
 }.${icecapConfig.profile}
