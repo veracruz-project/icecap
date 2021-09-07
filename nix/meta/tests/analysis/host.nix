@@ -54,6 +54,9 @@ in
         ln -s $(which sh) /bin/sh
 
         mount -t debugfs none /sys/kernel/debug/
+
+        # HACK
+        # head -c $(cat /proc/sys/kernel/random/poolsize) /dev/random > /dev/urandom
       '';
 
       initramfs.extraUtilsCommands = ''

@@ -1,6 +1,6 @@
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.common import Composition as BaseComposition, FaultHandler, RingBufferObjects, RingBufferSideObjects
+from icedl.common import BaseComposition, FaultHandler, RingBufferObjects, RingBufferSideObjects
 from icedl.realm.components.vm import RealmVM
 from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
 
@@ -9,14 +9,6 @@ NUM_NODES = 1
 REALM_ID = 0
 
 class Composition(BaseComposition):
-
-    @classmethod
-    def run(cls):
-        cls.from_env().complete()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.compose()
 
     def compose(self):
         # self.fault_handler = self.component(FaultHandler, 'fault_handler', affinity=1, prio=250)

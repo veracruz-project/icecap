@@ -1,13 +1,10 @@
 { mkInstance
-, deviceTree, bins
-, compose, mkLinuxRealm
-, icecapPlat
 , emptyFile
-
-, kernel, linuxPkgs
+, linuxPkgs
+, seL4EcosystemRepos
 }:
 
-mkInstance { benchmark = true; } (self: with self; {
+mkInstance { benchmark = true; } (self: with self.configured; with self; {
 
   payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
@@ -49,6 +46,14 @@ mkInstance { benchmark = true; } (self: with self; {
     modules = [
       ./realm.nix
     ];
+  };
+
+  kernel = configured.kernel.override' {
+    source = seL4EcosystemRepos.seL4.forceLocal;
+  };
+
+  composition = configured.icecapFirmware.override' {
+    inherit (self) kernel;
   };
 
 })

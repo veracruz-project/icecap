@@ -12,7 +12,7 @@ class Mirage(GenericElfComponent):
             },
         }
 
-composition = Composition.from_env()
+composition = BaseComposition.from_env()
 
 mirage = composition.component(Mirage, 'mirage')
 

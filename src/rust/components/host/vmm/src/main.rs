@@ -200,13 +200,13 @@ impl Extension {
     fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
         match request {
             DirectRequest::Start => {
-                debug_println!("host-vmm: bench start");
+                // debug_println!("host-vmm: bench start");
                 let resp = RPCClient::new(node.extension.benchmark_server_ep)
                     .call::<benchmark_server::Response>(&benchmark_server::Request::Start);
                 resp.unwrap();
             }
             DirectRequest::Finish => {
-                debug_println!("host-vmm: bench finish");
+                // debug_println!("host-vmm: bench finish");
                 let resp = RPCClient::new(node.extension.benchmark_server_ep)
                     .call::<benchmark_server::Response>(&benchmark_server::Request::Finish);
                 resp.unwrap();

@@ -10,6 +10,7 @@ let
     meta.demos.realm-vm.${k}.run
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
+    meta.tests.benchmark-utilisation.${k}.run
   ])) ++ lib.concatMap (host: [
     host.icecap.crosvm-9p-server
   ]) [ dev linux ] ++ [

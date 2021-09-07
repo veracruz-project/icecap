@@ -1,6 +1,6 @@
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.common import Composition as BaseComposition, FaultHandler
+from icedl.common import BaseComposition, FaultHandler
 from icedl.firmware.components.idle import Idle
 from icedl.firmware.components.timer_server import TimerServer
 from icedl.firmware.components.serial_server import SerialServer
@@ -15,14 +15,6 @@ NUM_REALMS = 2
 HACK_AFFINITY = 1
 
 class Composition(BaseComposition):
-
-    @classmethod
-    def run(cls):
-        cls.from_env().complete()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.compose()
 
     def compose(self):
         self.idle = self.component(Idle, 'idle', affinity=self.num_nodes(), prio=251)

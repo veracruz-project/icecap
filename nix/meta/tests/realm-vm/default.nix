@@ -1,13 +1,14 @@
 { mkInstance
-, deviceTree, bins
-, compose, mkLinuxRealm
-, icecapPlat
+, deviceTree
 , emptyFile
-
-, kernel, linuxPkgs
+, linuxPkgs
 }:
 
-mkInstance {} (self: with self; {
+mkInstance {} (self: with self;
+
+let
+  inherit (self.configured) icecapPlat compose kernel mkLinuxRealm bins;
+in {
 
   payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;

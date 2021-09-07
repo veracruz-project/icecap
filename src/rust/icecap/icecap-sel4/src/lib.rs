@@ -80,3 +80,9 @@ pub use fault::{
 pub use debug::{
     debug_put_char, debug_snapshot,
 };
+
+pub fn yield_() {
+    unsafe {
+        sys::seL4_Yield()
+    }
+}

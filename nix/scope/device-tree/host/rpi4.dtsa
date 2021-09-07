@@ -4,6 +4,7 @@
     /delete-node/ memory;
     /delete-node/ memory@0;
     /delete-node/ chosen;
+    /delete-node/ arm-pmu;
 
     soc {
         /delete-node/ aux@7e215000;

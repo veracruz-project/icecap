@@ -5,7 +5,7 @@
 
 let
   # TODO move most of this into buildIceCapCrate, with better approach to composing overrides
-  mk = crateName: buildIceCapCrate {
+  mk = crateName: args: buildIceCapCrate ({
     rootCrate = globalCrates.${crateName};
     extraLayers = [ [ globalCrates.icecap-std ] ];
     extraManifest = {
@@ -20,20 +20,22 @@ let
         liboutline
       ];
     };
-  };
+  } // args);
 
 in
 
-lib.mapAttrs (crateName: _: mk crateName) {
+(lib.mapAttrs (crateName: args: mk crateName args) {
 
-  fault-handler = null;
-  serial-server = null;
-  timer-server = null;
-  event-server = null;
-  resource-server = null;
-  benchmark-server = null;
-  host-vmm = null;
-  realm-vmm = null;
-  idle = null;
+  fault-handler = {};
+  serial-server = {};
+  timer-server = {};
+  event-server = {};
+  resource-server = {};
+  benchmark-server = {};
+  host-vmm = {};
+  realm-vmm = {};
+  idle = {};
 
-}
+} // {
+  inherit mk;
+})

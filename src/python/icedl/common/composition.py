@@ -15,7 +15,13 @@ ARCH = 'aarch64'
 RingBufferObjects = namedtuple('RingBufferObjects', 'read write')
 RingBufferSideObjects = namedtuple('RingBufferSideObjects', 'size ctrl data')
 
-class Composition:
+class BaseComposition:
+
+    @classmethod
+    def run(cls):
+        composition = cls.from_env()
+        composition.compose()
+        composition.complete()
 
     @classmethod
     def from_env(cls):
@@ -40,6 +46,9 @@ class Composition:
         self.files = {}
 
         self._gic_vcpu_frame = None # allocate lazily
+
+    def compose(self):
+        raise NotImplementedError
 
     def register_component(self, component):
         self.components.add(component)

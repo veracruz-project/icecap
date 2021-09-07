@@ -32,8 +32,6 @@ const NUM_NODES: usize = 4;
 
 declare_main!(main);
 
-
-#[cfg(feature = "benchmark")]
 pub fn main(config: Config) -> Fallible<()> {
     let ep = config.ep;
     let tcb = config.self_tcb;
@@ -62,11 +60,11 @@ fn handle(tcb: TCB, request: &Request) -> Fallible<Response> {
             }
         }
         Request::Finish => {
-            debug_println!("benchmark-server: finish");
+            // debug_println!("benchmark-server: finish");
             for affinity in 0..NUM_NODES {
                 tcb.set_affinity(affinity as u64)?;
-                sel4::benchmark::dump_all_thread_utilisation();
                 assert_eq!(sel4::benchmark::finalize_log(), 0);
+                sel4::benchmark::dump_all_thread_utilisation();
             }
         }
     }

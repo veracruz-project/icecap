@@ -1,4 +1,4 @@
-from icedl.common.composition import Composition, RingBufferObjects, RingBufferSideObjects
+from icedl.common.composition import BaseComposition, RingBufferObjects, RingBufferSideObjects
 
 from icedl.common.components.base import BaseComponent
 from icedl.common.components.elf import ElfComponent, ElfThread

@@ -1,5 +1,5 @@
 { lib, buildPackages, runCommand, writeScript, writeText
-, platUtils, icecapPlat
+, platUtils
 , devPkgs, linuxPkgs
 
 , mkInstance
@@ -11,6 +11,8 @@
 
 let
   inherit (linuxPkgs.icecap) linuxKernel nixosLite;
+  instance = mkInstance {} (self: {});
+  inherit (instance.configured) icecapPlat;
 in
 
 lib.fix (self: with self; {
