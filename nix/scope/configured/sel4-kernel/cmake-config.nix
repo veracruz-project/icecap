@@ -1,14 +1,19 @@
-{ lib, cmakeUtils, seL4EcosystemRepos
+{ lib, cmakeUtils
 , icecapConfig, selectIceCapPlat
 }:
 
-with cmakeUtils;
+with cmakeUtils.types;
 
 let
 
   kernelPlat = selectIceCapPlat {
     virt = "qemu-arm-virt";
     rpi4 = "bcm2711";
+  };
+
+  numNodes = selectIceCapPlat {
+    virt = 4;
+    rpi4 = 4;
   };
 
   common = {
@@ -19,10 +24,7 @@ let
     KernelVerificationBuild = OFF;
     KernelDebugBuild = ON;
     KernelOptimisation = STRING "-O3"; # TODO beware (default is -O2)
-    KernelMaxNumNodes = selectIceCapPlat {
-      virt = STRING "4";
-      rpi4 = STRING "4";
-    };
+    KernelMaxNumNodes = STRING (toString numNodes);
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
