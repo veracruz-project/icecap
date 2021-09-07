@@ -1,15 +1,15 @@
 { lib, cmakeUtils, seL4EcosystemRepos
-, icecapConfig, icecapPlat
+, icecapConfig, selectIceCapPlat
 }:
 
 with cmakeUtils;
 
 let
 
-  kernelPlat = {
+  kernelPlat = selectIceCapPlat {
     virt = "qemu-arm-virt";
     rpi4 = "bcm2711";
-  }.${icecapPlat};
+  };
 
   common = {
     KernelArch = STRING "arm";
@@ -19,10 +19,10 @@ let
     KernelVerificationBuild = OFF;
     KernelDebugBuild = ON;
     KernelOptimisation = STRING "-O3";
-    KernelMaxNumNodes = {
+    KernelMaxNumNodes = selectIceCapPlat {
       virt = STRING "4";
       rpi4 = STRING "4"; # TODO
-    }.${icecapPlat};
+    };
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
@@ -43,10 +43,10 @@ in {
     KernelDomainSchedule = STRING (seL4EcosystemRepos.sel4test.extendInnerSuffix "domain_schedule.c");
 
     # TODO
-    Sel4testHaveCache = {
+    Sel4testHaveCache = selectIceCapPlat {
       virt = OFF;
       rpi4 = ON;
-    }.${icecapPlat};
+    };
     LibUtilsDefaultZfLogLevel = STRING "3"; # 0-5, 0 is most verbose
   };
 

@@ -8,15 +8,15 @@
 , stdenv, stdenvBoot, seL4EcosystemRepos, makeOverridable'
 
 , cmakeConfig
-, icecapPlat
+, selectIceCapPlat
 }:
 
 let
 
-  dts = {
+  dts = selectIceCapPlat {
     virt = with dtb-helpers; decompile platUtils.virt.extra.dtb;
     rpi4 = with dtb-helpers; decompile "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
-  }.${icecapPlat};
+  };
 
   _source = makeOverridable' stdenv.mkDerivation {
     name = "sel4-kernel-source";
@@ -31,11 +31,11 @@ let
 
       patchShebangs --build .
 
-      cp ${dts} tools/dts/${{
+      cp ${dts} tools/dts/${selectIceCapPlat {
         # The alignment of these names is a coincidence
         rpi4 = "rpi4";
         virt = "virt";
-      }.${icecapPlat}}.dts
+      }}.dts
     '';
 
     installPhase = ''
@@ -78,7 +78,6 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
 
   phases = [
     "configurePhase" "buildPhase" "installPhase"
-    # would fixupPhase be safe and beneficial?
   ];
 
   cmakeDir = linkFarm "x" [
