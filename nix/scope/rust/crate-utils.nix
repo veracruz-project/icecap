@@ -1,10 +1,7 @@
-# TODO camlCase
-
-{ lib, runCommand, writeText, linkFarm, emptyFile
+{ lib, stdenv, buildPackages, buildPlatform, hostPlatform
+, writeText, linkFarm, emptyFile
 , nixToToml
 , rustTargets
-, stdenv, buildPackages, buildPlatform, hostPlatform
-, rustc
 }:
 
 with lib;
@@ -45,7 +42,7 @@ rec {
             path = "${src'}/lib.rs";
           } // optionalAttrs isStaticlib {
             crate-type = [ "staticlib" ];
-            name = "${kebabToCaml name}_rs";
+            name = "${kebabToSnake name}_rs";
           };
         })
 
@@ -130,7 +127,7 @@ rec {
               go (seen // ext) (queue' // ext);
     in roots: go {} (attrsOf roots);
 
-  flatDepsWithRoot = rootCrate: flatDepsWithRoots  [ rootCrate ];
+  flatDepsWithRoot = rootCrate: flatDepsWithRoots [ rootCrate ];
 
   flatDepsWithRoots = roots: flatDeps roots // lib.listToAttrs (map (root: {
     inherit (root) name;
@@ -155,7 +152,7 @@ rec {
     path = crate.srcDummy;
   }) dummies);
 
-  kebabToCaml = lib.replaceStrings [ "-" ] [ "_" ];
+  kebabToSnake = lib.replaceStrings [ "-" ] [ "_" ];
 
   ccEnv = {
     "CC_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
@@ -180,8 +177,6 @@ rec {
     RUST_TARGET_PATH = rustTargets;
   };
 
-  baseCargoConfig = linkerCargoConfig // {
-    build.rustc = "${rustc.nativeDrv or rustc}/bin/rustc";
-  };
+  baseCargoConfig = linkerCargoConfig;
 
 }

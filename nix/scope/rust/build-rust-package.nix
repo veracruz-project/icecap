@@ -18,7 +18,7 @@ let
 in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   depsBuildBuild = [ buildPackages.stdenv.cc ] ++ (args.depsBuildBuild or []);
-  nativeBuildInputs = [ cargo ] ++ (args.nativeBuildInputs or []);
+  nativeBuildInputs = [ cargo rustc ] ++ (args.nativeBuildInputs or []);
 
   configurePhase = ''
     runHook preConfigure
