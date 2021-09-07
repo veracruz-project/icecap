@@ -1,4 +1,4 @@
-{ lib, hostPlatform, runCommand, runCommandCC
+{ lib, hostPlatform, buildPackages, runCommand, runCommandCC
 , bindgen, rustfmt, python3
 , linkFarm, writeText
 , libs, musl, libsel4
@@ -85,6 +85,7 @@ runCommandCC "icecap-gen.rs" {
   nativeBuildInputs = [
     bindgen rustfmt
   ];
+  LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
   buildInputs = libs' ++ [
     autoconf liboutline
   ];
@@ -92,6 +93,6 @@ runCommandCC "icecap-gen.rs" {
     inherit preprocessed outline liboutline;
   };
 } ''
-  bindgen ${liboutline}/include/outline.h -o $out --use-core --ctypes-prefix=c_types --with-derive-default --rust-target nightly -- -target ${hostPlatform.config}
+  bindgen ${liboutline}/include/outline.h -o $out --use-core --ctypes-prefix=c_types --with-derive-default --rust-target nightly -- -target ${hostPlatform.config} $NIX_CFLAGS_COMPILE
   sed -i 's,^    pub fn ${prefix}\([a-zA-Z_][a-zA-Z0-9_]*\)(,    #[link_name = "${prefix}\1"]\n    pub fn \1(,' $out
 ''

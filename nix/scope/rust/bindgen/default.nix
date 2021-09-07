@@ -1,9 +1,5 @@
-{ stdenv, fetchFromGitHub, writeShellScriptBin
-, llvmPackages, clang
-, fetchCargo, buildRustPackage
-, rustfmt
-, runtimeShell
-, fetchCrates
+{ fetchFromGitHub
+, buildRustPackage, fetchCrates
 }:
 
 buildRustPackage rec {
@@ -17,40 +13,6 @@ buildRustPackage rec {
   };
 
   cargoVendorConfig = fetchCrates "${src}/Cargo.lock";
-  # cargoVendorConfig = fetchCargo {
-  #   inherit src;
-  #   sha256 = "0nb1wi31gdvalk6g645sya9bxlq3z8w1hwkxl6b5mxslk3605gba";
-  # };
-
-  LIBCLANG_PATH = "${libclang}/lib";
-  libclang = llvmPackages.libclang.lib;
-  inherit runtimeShell;
-
-  buildInputs = [ libclang ];
-  # propagatedNativeBuildInputs = [ clang ]; # to populate NIX_CXXSTDLIB_COMPILE
 
   doCheck = false;
-
-  # checkInputs =
-  #   let fakeRustup = writeShellScriptBin "rustup" ''
-  #     shift
-  #     shift
-  #     exec "$@"
-  #   '';
-  # in [
-  #   rustfmt
-  #   fakeRustup
-  #   clang.nativeDrv
-  # ];
-
-  # preCheck = ''
-  #   patchShebangs ci
-  # '';
-
-  postInstall = ''
-    mv $out/bin/{bindgen,.bindgen-wrapped};
-    substituteAll ${./wrapper.sh} $out/bin/bindgen
-    chmod +x $out/bin/bindgen
-  '';
-
 }
