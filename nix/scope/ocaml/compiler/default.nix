@@ -7,11 +7,11 @@
 let
 
   name = "ocaml-${version}";
-  major_version = "4";
-  minor_version = "07";
-  patch_version = "1";
-  version = "${versionNoPatch}.${patch_version}";
-  versionNoPatch = "${major_version}.${minor_version}";
+  majorVersion = "4";
+  minorVersion = "07";
+  patchVersion = "1";
+  version = "${versionNoPatch}.${patchVersion}";
+  versionNoPatch = "${majorVersion}.${minorVersion}";
   src = assert buildPlatform.config == hostPlatform.config; fetchurl {
     url = "http://caml.inria.fr/pub/distrib/ocaml-${versionNoPatch}/ocaml-${version}.tar.xz";
     sha256 = "1f07hgj5k45cylj1q3k5mk8yi02cwzx849b1fwnwia8xlcfqpr6z";
