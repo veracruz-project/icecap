@@ -12,7 +12,7 @@ self: with self;
   inherit (icecapConfig) icecapPlat;
 
   selectIceCapPlat = attrs: attrs.${icecapPlat};
-  selectIceCapPlatOr = attrs: default: attrs.${icecapPlat} or default;
+  selectIceCapPlatOr = default: attrs: attrs.${icecapPlat} or default;
 
   compose = callPackage ./compose {
     _kernel = kernel;

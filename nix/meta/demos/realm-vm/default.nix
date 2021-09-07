@@ -4,28 +4,28 @@ lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
   inherit (pkgs.none.icecap) platUtils;
-  inherit (configured) icecapPlat mkLinuxRealm icecapFirmware;
+  inherit (configured)
+    icecapFirmware icecapPlat selectIceCapPlatOr
+    mkLinuxRealm;
 
 in rec {
 
-  run = platUtils.${configured.icecapPlat}.bundle {
+  run = platUtils.${icecapPlat}.bundle {
     firmware = icecapFirmware.image;
-    inherit payload;
-    platArgs = {
+    payload = icecapFirmware.mkDefaultPayload {
+      linuxImage = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
+      initramfs = hostUser.config.build.initramfs;
+      bootargs = commonBootargs ++ [
+        "spec=${spec}"
+      ];
+    };
+    platArgs = selectIceCapPlatOr {} {
       rpi4 = {
         extraBootPartitionCommands = ''
           ln -s ${spec} $out/spec.bin
         '';
       };
-    }.${icecapPlat} or {};
-  };
-
-  payload = icecapFirmware.mkDefaultPayload {
-    linuxImage = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
-    initramfs = hostUser.config.build.initramfs;
-    bootargs = commonBootargs ++ [
-      "spec=${spec}"
-    ];
+    };
   };
 
   spec = mkLinuxRealm {
@@ -33,8 +33,6 @@ in rec {
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs;
   };
-
-  inherit (spec) ddl;
 
   commonBootargs = [
     "earlycon=icecap_vmm"
