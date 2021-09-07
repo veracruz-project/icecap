@@ -258,8 +258,12 @@ in
 
   installPhase = ''
     lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\)'
-    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 -type f -executable -not -regex "$lib_re" | xargs -r install -D -t $out/bin
-    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1                          -regex "$lib_re" | xargs -r install -D -t $out/lib
+    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 \
+      -regex "$lib_re" \
+      | xargs -r install -D -t $out/lib
+    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 \
+      -type f -executable -not -regex "$lib_re" \
+      | xargs -r install -D -t $out/bin
   '';
 
   passthru = {
