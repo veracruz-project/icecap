@@ -97,4 +97,8 @@ filterAttrs (_: v: v != null) {
   mirage = seL4Only ./components/mirage;
   icecap-linux-syscall = seL4Only ./components/mirage/icecap-linux-syscall;
 
+  benchmark-server = seL4Only ./components/benchmark-server;
+  icecap-benchmark-server-types = ./components/benchmark-server/types;
+  icecap-benchmark-server-config = ./components/benchmark-server/config;
+
 }

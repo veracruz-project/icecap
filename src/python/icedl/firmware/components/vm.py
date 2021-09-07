@@ -388,6 +388,7 @@ class VMM(ElfComponent):
                 'event_server_client_ep': self.composition.event_server.register_client(self, { 'Host': None }),
                 'event_server_control_ep': self.composition.event_server.register_control_host(self),
                 'resource_server_ep': list(self.composition.resource_server.register_host(self)),
+                'benchmark_server_ep': self.cspace().alloc(self.composition.benchmark_server.ep, write=True, grantreply=True),
                 'log_buffer': self.cspace().alloc(self.alloc(ObjectType.seL4_FrameObject, name='log_buffer', size_bits=21), read=True, write=True),
                 })
         else:

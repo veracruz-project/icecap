@@ -6,6 +6,7 @@ from icedl.firmware.components.timer_server import TimerServer
 from icedl.firmware.components.serial_server import SerialServer
 from icedl.firmware.components.resource_server import ResourceServer
 from icedl.firmware.components.event_server import EventServer
+from icedl.firmware.components.benchmark_server import BenchmarkServer
 from icedl.firmware.components.vm import VMM, VM, HostVM
 
 NUM_NODES = 3
@@ -24,7 +25,8 @@ class Composition(BaseComposition):
         self.compose()
 
     def compose(self):
-        self.idle = self.component(Idle, 'idle', affinity=self.num_nodes(), prio=255)
+        self.idle = self.component(Idle, 'idle', affinity=self.num_nodes(), prio=251)
+        self.benchmark_server = self.component(BenchmarkServer, 'benchmark_server', prio=252)
         self.fault_handler = self.component(FaultHandler, 'fault_handler', affinity=HACK_AFFINITY, prio=250)
         self.timer_server = self.component(TimerServer, 'timer_server', prio=175, fault_handler=self.fault_handler)
         self.event_server = self.component(EventServer, 'event_server', prio=200, fault_handler=self.fault_handler)

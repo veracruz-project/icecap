@@ -19,6 +19,7 @@ pub struct Config {
     pub event_server_client_ep: Vec<Endpoint>,
     pub event_server_control_ep: Vec<Endpoint>,
     pub resource_server_ep: Vec<Endpoint>,
+    pub benchmark_server_ep: Endpoint,
     pub kicks: Vec<KickConfig>,
 
     pub ppi_map: BTreeMap<usize, HostIn>,

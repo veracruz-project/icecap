@@ -1,18 +1,13 @@
 { mkBin, localCrates, lib, benchmark }:
 
 mkBin {
-  nix.name = "host-vmm";
+  nix.name = "benchmark-server";
   nix.localDependencies = with localCrates; [
-    biterate
-    icecap-host-vmm-config
+    icecap-sel4
     icecap-std
     icecap-rpc-sel4
-    icecap-vmm
-    icecap-event-server-types
-    icecap-resource-server-types
     icecap-benchmark-server-types
-    icecap-sel4
-    icecap-host-vmm-types
+    icecap-benchmark-server-config
   ];
   features = {
     default = lib.optional benchmark "benchmark";

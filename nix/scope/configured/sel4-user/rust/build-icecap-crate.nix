@@ -27,7 +27,7 @@ lib.fix (self: buildRustPackageIncrementally ({
       dontStrip = true;
       dontPatchELF = true;
       hardeningDisable = [ "all" ];
-      passthru = attrs.passthru // {
+      passthru = (attrs.passthru or {}) // {
         split = elfUtils.split "${self}/bin/${args.rootCrate.name}.elf";
       } // (next.passthru or {});
     } // builtins.removeAttrs next [

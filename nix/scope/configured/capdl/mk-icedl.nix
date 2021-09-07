@@ -21,17 +21,6 @@ let
     object_sizes = object-sizes;
   };
 
-  serializers = with buildPackages.icecap.serializeConfig; [
-    generic
-    fault-handler
-    timer-server
-    serial-server
-    host-vmm
-    realm-vmm
-    resource-server
-    event-server
-  ];
-
   capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";
   icedlSrc = icecapSrc.relativeSplit "python";
   srcSplit = icecapSrc.absoluteSplit src;
@@ -42,9 +31,8 @@ let
       buildPackages.stdenv.cc
       icecap-append-devices
       icecap-serialize-runtime-config
-    ] ++ serializers ++ [
       dyndl-serialize-spec
-    ] ++ (with python3Packages; [
+    ] ++ buildPackages.icecap.serializeConfig.list ++ (with python3Packages; [
       future six
       aenum orderedset sortedcontainers
       pyyaml pyelftools pyfdt

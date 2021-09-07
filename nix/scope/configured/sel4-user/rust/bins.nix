@@ -31,6 +31,7 @@ lib.mapAttrs (crateName: _: mk crateName) {
   timer-server = null;
   event-server = null;
   resource-server = null;
+  benchmark-server = null;
   host-vmm = null;
   realm-vmm = null;
   idle = null;

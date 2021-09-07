@@ -100,9 +100,7 @@ in
     {
       initramfs.profile = ''
         b() {
-          for i in 0x1 0x2 0x4; do
-            taskset $i icecap-host benchmark $1
-          done
+          icecap-host benchmark $1
         }
         s() {
           b start

@@ -21,6 +21,7 @@ use icecap_host_vmm_config::*;
 use icecap_vmm::*;
 use icecap_event_server_types as event_server;
 use icecap_resource_server_types as resource_server;
+use icecap_benchmark_server_types as benchmark_server;
 use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
 
 declare_main!(main);
@@ -32,6 +33,7 @@ pub fn main(config: Config) -> Fallible<()> {
     let resource_server_ep = config.resource_server_ep;
     let event_server_client_ep = config.event_server_client_ep;
     let event_server_control_ep = config.event_server_control_ep;
+    let benchmark_server_ep = config.benchmark_server_ep;
 
     let irq_map = IRQMap {
         ppi: config.ppi_map.into_iter().map(|(ppi, in_index)| (ppi, in_index.to_nat())).collect(),
@@ -79,6 +81,7 @@ pub fn main(config: Config) -> Fallible<()> {
                 extension: Extension {
                     resource_server_ep: resource_server_ep[i],
                     event_server_control_ep: event_server_control_ep[i],
+                    benchmark_server_ep,
                 },
             }
         }).collect(),
@@ -88,6 +91,7 @@ pub fn main(config: Config) -> Fallible<()> {
 struct Extension {
     resource_server_ep: Endpoint,
     event_server_control_ep: Endpoint,
+    benchmark_server_ep: Endpoint,
 }
 
 const SYS_RESOURCE_SERVER_PASSTHRU: Word = 1338;
@@ -197,13 +201,15 @@ impl Extension {
         match request {
             DirectRequest::Start => {
                 debug_println!("host-vmm: bench start");
-                sel4::benchmark::reset_log()?;
-                sel4::benchmark::reset_all_thread_utilisation();
+                let resp = RPCClient::new(node.extension.benchmark_server_ep)
+                    .call::<benchmark_server::Response>(&benchmark_server::Request::Start);
+                resp.unwrap();
             }
             DirectRequest::Finish => {
                 debug_println!("host-vmm: bench finish");
-                sel4::benchmark::dump_all_thread_utilisation();
-                assert_eq!(sel4::benchmark::finalize_log(), 0);
+                let resp = RPCClient::new(node.extension.benchmark_server_ep)
+                    .call::<benchmark_server::Response>(&benchmark_server::Request::Finish);
+                resp.unwrap();
             }
         }
         Ok(DirectResponse)

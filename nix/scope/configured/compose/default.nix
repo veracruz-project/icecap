@@ -46,6 +46,7 @@ let
         timer_server.image = bins.timer-server.split;
         serial_server.image = bins.serial-server.split;
         event_server.image = bins.event-server.split;
+        benchmark_server.image = bins.benchmark-server.split;
 
         resource_server.image = bins.resource-server.split;
         resource_server.heap_size = 128 * 1048576;
