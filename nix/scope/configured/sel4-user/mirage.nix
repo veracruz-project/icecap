@@ -1,6 +1,6 @@
 { lib
-, libs, musl, liboutline, stdenv
-, buildIceCapCrate, crateUtils, globalCrates
+, musl, liboutline, libs
+, buildIceCapCrate, globalCrates
 }:
 
 {
@@ -17,14 +17,14 @@
         };
       };
       extraLastLayer = attrs: {
-        buildInputs = (attrs.buildInputs or []) ++ (with libs; [
-          icecap-autoconf
-          icecap-runtime
-          icecap-utils icecap-pure # TODO
-          icecap-mirage-glue
+        buildInputs = (attrs.buildInputs or []) ++ [
+          libs.icecap-autoconf
+          libs.icecap-runtime
+          libs.icecap-utils libs.icecap-pure # TODO
+          libs.icecap-mirage-glue
           musl
           mirageLibrary
-        ]);
+        ];
       };
       extra = attrs: {
         buildInputs = (attrs.buildInputs or []) ++ [

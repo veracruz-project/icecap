@@ -1,5 +1,4 @@
 { runCommandCC
-, lib, hostPlatform
 , writeText
 }:
 
@@ -21,6 +20,8 @@ runCommandCC "libc" {} ''
   ln -s ${empty-a} $out/lib/libc.a
   ln -s ${empty-a} $out/lib/libg.a
 ''
+
+# TODO
 #   ln -s ${libs.icecap-runtime}/lib/crt0.o $out/lib
 # '' + lib.optionalString (hostPlatform.system == "aarch64-linux") ''
 #   mv $out/lib/crt0.o $out/lib/crt1.o

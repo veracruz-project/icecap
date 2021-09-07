@@ -37,13 +37,13 @@ self: with self;
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
 
-  # TODO does this belong here?
   mkLinuxRealm = callPackage ./capdl/mk-linux-realm {};
 
+  # TODO use or drop
   stdenvIceCap = mkStdenv (callPackage ./sel4-user/c/libc-wrapper.nix {});
 
   libs = callPackage ./sel4-user/c {};
-  bins = callPackage ./sel4-user/rust/bins.nix {};
+
   inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
 
   globalCrates = mkGlobalCrates {
@@ -54,14 +54,14 @@ self: with self;
     };
   };
 
+  buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
+
   icecap-sel4-sys-gen = callPackage ./sel4-user/rust/icecap-sel4-sys-gen {};
   inherit (icecap-sel4-sys-gen) liboutline;
 
-  sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {
-    # HACK wasmtime violates some assertions in core
-    release = true;
-  };
+  bins = callPackage ./sel4-user/rust/bins.nix {};
 
-  buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
+  # TODO fix and generalize or move to target project's repo
+  sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
 
 }

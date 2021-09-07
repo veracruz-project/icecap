@@ -1,10 +1,6 @@
 { lib, hostPlatform
-, buildRustPackageIncrementally, crateUtils
-, mkGlobalCrates
-, elfUtils
-, stdenv
-, globalCrates
-, icecapPlat
+, buildRustPackageIncrementally, crateUtils, elfUtils
+, icecapPlat, globalCrates
 }:
 
 { extraLayers ? [], extraCargoConfig ? {}, extra ? {}, ... } @ args:
@@ -19,12 +15,13 @@ lib.fix (self: buildRustPackageIncrementally ({
     }
     extraCargoConfig
   ];
-  layers = with globalCrates; [
-    [ icecap-sel4-sys ]
+  layers = [
+    [ globalCrates.icecap-sel4-sys ]
   ] ++ extraLayers;
   debug = false;
   extra = attrs: 
     let
+      # TODO HACK find better way to compose these overrides
       next = (if lib.isAttrs extra then lib.const extra else extra) attrs;
     in {
       dontStrip = true;

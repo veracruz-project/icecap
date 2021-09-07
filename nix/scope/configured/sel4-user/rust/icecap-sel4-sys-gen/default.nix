@@ -1,13 +1,12 @@
-{ lib, hostPlatform, buildPackages, runCommand, runCommandCC
+{ lib, hostPlatform, buildPackages, runCommandCC, linkFarm, writeText
 , bindgen, rustfmt, python3
-, linkFarm, writeText
-, libs, musl, libsel4
+, libsel4, libs
 }:
 
 let
-  libs' = with libs; [
-    libsel4 icecap-autoconf
-    icecap-runtime icecap-utils icecap-pure # TODO these should be elsewhere
+  libs' = [
+    libsel4 libs.icecap-autoconf
+    libs.icecap-runtime libs.icecap-utils libs.icecap-pure # TODO these should be elsewhere
   ];
 
   allProp = x:

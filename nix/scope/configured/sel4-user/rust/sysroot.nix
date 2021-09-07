@@ -4,7 +4,9 @@
 , nixToToml, crateUtils, rustTargets, globalCrates
 , icecapSrc
 
+# NOTE wasmtime violates some assertions in core, so debug profile doesn't work
 , release ? true
+
 , extraManifest ? {
     profile.release = {
       panic = "abort";

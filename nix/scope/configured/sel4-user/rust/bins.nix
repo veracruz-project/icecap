@@ -1,13 +1,12 @@
 { lib
 , buildIceCapCrate, globalCrates
-, libs, liboutline, libsel4
+, liboutline
 }:
 
 let
-  mk = crateName: {}: buildIceCapCrate {
+  # TODO move most of this into buildIceCapCrate, with better approach to composing overrides
+  mk = crateName: buildIceCapCrate {
     rootCrate = globalCrates.${crateName};
-    debug = false;
-    # debug = true;
     extraLayers = [ [ globalCrates.icecap-std ] ];
     extraManifest = {
       profile.release = {
@@ -25,15 +24,15 @@ let
 
 in
 
-lib.mapAttrs mk {
+lib.mapAttrs (crateName: _: mk crateName) {
 
-  fault-handler = {};
-  serial-server = {};
-  timer-server = {};
-  event-server = {};
-  resource-server = {};
-  host-vmm = {};
-  realm-vmm = {};
-  idle = {};
+  fault-handler = null;
+  serial-server = null;
+  timer-server = null;
+  event-server = null;
+  resource-server = null;
+  host-vmm = null;
+  realm-vmm = null;
+  idle = null;
 
 }

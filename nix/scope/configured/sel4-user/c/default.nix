@@ -1,8 +1,8 @@
-{ stdenv, stdenvMirage, lib
+{ lib, linkFarm, writeText
+, stdenv, stdenvMirage
 , icecapSrc
 , icecap-ocaml-runtime
 , libsel4, musl
-, linkFarm, writeText
 }:
 
 let
