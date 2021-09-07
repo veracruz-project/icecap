@@ -12,7 +12,7 @@ buildRustPackage rec {
     sha256 = "0ncdk3fdxww0k1x0009gvizpcvnf4n3b7w9cvr4jixvv05jcbnm0";
   };
 
-  cargoVendorConfig = fetchCrates "${src}/Cargo.lock";
+  extraCargoConfig = (fetchCrates "${src}/Cargo.lock").config;
 
   doCheck = false;
 }
