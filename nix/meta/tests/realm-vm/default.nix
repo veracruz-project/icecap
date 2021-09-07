@@ -9,12 +9,11 @@
 
 mkInstance {} (self: with self; {
 
-  payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
+  payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
     # linuxImage = ../../../../../local/linux/arch/arm64/boot/Image;
     # linuxImage = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
     initramfs = hostUser.config.build.initramfs;
-    dtb = composition.host-dtb;
     bootargs = commonBootargs ++ [
       "spec=${spec}"
     ];

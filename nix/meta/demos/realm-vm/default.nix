@@ -20,10 +20,9 @@ in rec {
     }.${icecapPlat} or {};
   };
 
-  payload = pkgs.linux.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
+  payload = icecapFirmware.mkDefaultPayload {
     linuxImage = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
     initramfs = hostUser.config.build.initramfs;
-    dtb = icecapFirmware.host-dtb;
     bootargs = commonBootargs ++ [
       "spec=${spec}"
     ];

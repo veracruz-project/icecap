@@ -9,10 +9,9 @@
 
 mkInstance { benchmark = true; } (self: with self; {
 
-  payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
+  payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
     initramfs = hostUser.config.build.initramfs;
-    dtb = composition.host-dtb;
     bootargs = commonBootargs ++ [
       "spec=${spec}"
     ];

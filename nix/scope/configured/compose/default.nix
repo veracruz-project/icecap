@@ -9,7 +9,7 @@
 }:
 
 let
-  _u-boot = "${linuxPkgs.icecap.uBoot.host.${icecapPlat}}/u-boot.bin";
+  _u-boot = linuxPkgs.icecap.uBoot.host.${icecapPlat};
 in
 
 args:
@@ -58,7 +58,7 @@ let
       };
     };
 
-    u-boot = _u-boot;
+    u-boot = "${_u-boot}/u-boot.bin";
     kernel = _kernel;
 
   } // args);
@@ -102,4 +102,6 @@ in rec {
 
   host-dtb = "${cdl}/links/host_vm.dtb";
   host-dts = dtb-helpers.decompileForce host-dtb;
+
+  mkDefaultPayload = args: _u-boot.mkDefaultPayload ({ dtb = host-dtb; } // args);
 }
