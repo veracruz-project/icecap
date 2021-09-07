@@ -2,7 +2,7 @@
 
 { sha256, ... } @ args:
 
-# TODO: normalize config.toml?
+# TODO: normalize config.toml
 
 let
 
@@ -10,12 +10,7 @@ let
 
     name = "vendor-fixed";
 
-    # TODO
-    # CARGO_HTTP_CAINFO = "${cacert}/etc/ssl/certs/ca-bundle.crt";
-
-    # TODO why need cacert in both?
     nativeBuildInputs = [ cacert git cargo ];
-    buildInputs = [ cacert ];
 
     phases = [ "unpackPhase" "patchPhase" "installPhase" ];
 
