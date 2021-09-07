@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "realm-vmm";
-  localDependencies = with localCrates; [
+  nix.name = "realm-vmm";
+  nix.localDependencies = with localCrates; [
     biterate
     icecap-realm-vmm-config
     icecap-std

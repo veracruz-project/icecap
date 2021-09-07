@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-host-vmm-config";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-host-vmm-config";
+  nix.localDependencies = with localCrates; [
     icecap-config
     icecap-event-server-types
   ];

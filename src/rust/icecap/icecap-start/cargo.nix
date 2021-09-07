@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-start";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-start";
+  nix.localDependencies = with localCrates; [
     icecap-failure
     icecap-sel4
     icecap-runtime

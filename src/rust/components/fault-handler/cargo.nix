@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "fault-handler";
-  localDependencies = with localCrates; [
+  nix.name = "fault-handler";
+  nix.localDependencies = with localCrates; [
     icecap-std
     icecap-fault-handler-config
   ];

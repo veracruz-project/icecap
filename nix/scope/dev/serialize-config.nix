@@ -14,13 +14,13 @@ let
 
       debug = true;
 
-      rootCrate = crateUtils.mkGeneric {
+      rootCrate = crateUtils.mkCrate {
 
-        name = "serialize-${name}-config";
+        nix.name = "serialize-${name}-config";
 
-        isBin = true;
+        nix.isBin = true;
 
-        src.store = linkFarm "src" [
+        nix.src.store = linkFarm "src" [
           { name = "main.rs";
             path = writeText "main.rs" ''
               #![feature(type_ascription)]
@@ -34,7 +34,7 @@ let
           }
         ];
 
-        localDependencies = [
+        nix.localDependencies = [
           outerGlobalCrates.icecap-config-cli-core
         ] ++ lib.optionals (crate != null) [
           crate

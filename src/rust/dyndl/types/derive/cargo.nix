@@ -1,7 +1,7 @@
 { mk }:
 
 mk {
-  name = "dyndl-types-derive";
+  nix.name = "dyndl-types-derive";
   lib.proc-macro = true;
   dependencies = {
     proc-macro2 = "1";

@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-std-external";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-std-external";
+  nix.localDependencies = with localCrates; [
     icecap-core
   ];
   dependencies = {

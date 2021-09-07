@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin, lib, benchmark }:
 
 mk {
-  name = "icecap-sel4";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-sel4";
+  nix.localDependencies = with localCrates; [
     icecap-sel4-derive
     icecap-sel4-sys
   ];

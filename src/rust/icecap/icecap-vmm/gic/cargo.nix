@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-vmm-gic";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-vmm-gic";
+  nix.localDependencies = with localCrates; [
     biterate
     icecap-sel4
     icecap-failure

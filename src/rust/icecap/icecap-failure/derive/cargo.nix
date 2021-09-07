@@ -1,7 +1,7 @@
 { mk }:
 
 mk {
-  name = "icecap-failure-derive";
+  nix.name = "icecap-failure-derive";
   lib.proc-macro = true;
   dependencies = {
     proc-macro2 = "1";

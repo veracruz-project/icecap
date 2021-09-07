@@ -1,8 +1,8 @@
 { mkBin, localCrates, lib, benchmark }:
 
 mkBin {
-  name = "host-vmm";
-  localDependencies = with localCrates; [
+  nix.name = "host-vmm";
+  nix.localDependencies = with localCrates; [
     biterate
     icecap-host-vmm-config
     icecap-std

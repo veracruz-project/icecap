@@ -1,7 +1,7 @@
 { mk }:
 
 mk {
-  name = "biterate";
+  nix.name = "biterate";
   dependencies = {
     num = { version = "*"; default-features = false; };
   };

@@ -1,7 +1,7 @@
 { mk }:
 
 mk {
-  name = "icecap-sel4-derive";
+  nix.name = "icecap-sel4-derive";
   lib.proc-macro = true;
   dependencies = {
     quote = "*";

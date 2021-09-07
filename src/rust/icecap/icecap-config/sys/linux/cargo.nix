@@ -1,7 +1,7 @@
 { mk, serdeMin }:
 
 mk {
-  name = "icecap-config-sys";
+  nix.name = "icecap-config-sys";
   dependencies = {
     serde = serdeMin;
   };

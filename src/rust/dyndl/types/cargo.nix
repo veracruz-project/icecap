@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "dyndl-types";
-  localDependencies = with localCrates; [
+  nix.name = "dyndl-types";
+  nix.localDependencies = with localCrates; [
     dyndl-types-derive
   ];
   dependencies = {

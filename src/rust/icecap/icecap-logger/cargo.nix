@@ -1,7 +1,7 @@
 { mk }:
 
 mk {
-  name = "icecap-logger";
+  nix.name = "icecap-logger";
   dependencies = {
     log = "*";
   };

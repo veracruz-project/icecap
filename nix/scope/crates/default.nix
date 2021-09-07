@@ -17,17 +17,18 @@ let
   callCrate = path:
 
     let
-      mkBase = ext: args: crateUtils.mkGeneric ({
-        src = icecapSrc.absoluteSplit (path + "/src");
-      } // ext // args);
+      mkBase = isBin: args: crateUtils.mkCrate (lib.recursiveUpdate {
+        nix.src = icecapSrc.absoluteSplit (path + "/src");
+        nix.isBin = isBin;
+      } args);
 
     in newScope ({
 
       inherit lib seL4 debug benchmark;
       inherit localCrates patches;
 
-      mk = mkBase {};
-      mkBin = mkBase { isBin = true; };
+      mk = mkBase false;
+      mkBin = mkBase true;
 
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };

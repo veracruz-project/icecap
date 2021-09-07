@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-sync";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-sync";
+  nix.localDependencies = with localCrates; [
     icecap-sel4
   ];
   dependencies = {

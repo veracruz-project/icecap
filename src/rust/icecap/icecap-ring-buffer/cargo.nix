@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-ring-buffer";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-ring-buffer";
+  nix.localDependencies = with localCrates; [
     icecap-sel4
     icecap-config
   ];

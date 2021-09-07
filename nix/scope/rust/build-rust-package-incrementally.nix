@@ -7,7 +7,7 @@
 , debug ? false
 , extraCargoConfig ? {}
 , extraManifest ? {}
-, extraManifestLocal ? {}
+, extraManifestEnv ? {}
 , extraShellHook ? ""
 , extraLastLayerBuildInputs ? [] # TODO generalize (inc. extraLastLayerArgs) with overrideAttrs
 , extraLastLayerArgs ? {}
@@ -21,7 +21,7 @@ with lib;
 
 let
   extraManifest_ = extraManifest;
-  extraManifestLocal_ = extraManifestLocal;
+  extraManifestEnv_ = extraManifestEnv;
   release = !debug;
 in
 
@@ -35,9 +35,9 @@ let
     extraManifest_
   ];
 
-  extraManifestLocal = crateUtils.clobber [
+  extraManifestEnv = crateUtils.clobber [
     (allPropagate.extrManifestLocal or {})
-    extraManifestLocal_
+    extraManifestEnv_
   ];
 
   toCrate = key: if isAttrs key then key else allCratesAttrs.${key};
@@ -154,8 +154,8 @@ let
       } // commonArgsAfter);
 
 in let
-  src = crateUtils.collect allCrates;
-  srcLocal = crateUtils.collectLocal allCrates;
+  src = crateUtils.collectStore allCrates;
+  srcEnv = crateUtils.collectEnv allCrates;
 
   workspace = nixToToml (crateUtils.clobber [
     {
@@ -169,7 +169,7 @@ in let
       workspace.members = [ "src/${rootCrate.name}" ];
     }
     extraManifest
-    extraManifestLocal
+    extraManifestEnv
   ]);
 
   manifestDir = linkFarm "x" [
@@ -181,7 +181,7 @@ in let
 
   manifestDirLocal = linkFarm "x" [
     { name = "Cargo.toml"; path = workspaceLocal; }
-    { name = "src"; path = srcLocal; }
+    { name = "src"; path = srcEnv; }
     { name = "Cargo.lock"; path = lock; }
     { name = ".cargo/config"; path = cargoConfigFor allCrates; }
   ];

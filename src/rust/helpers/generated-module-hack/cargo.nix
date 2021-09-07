@@ -1,7 +1,7 @@
 { mk }:
 
 mk {
-  name = "generated-module-hack";
+  nix.name = "generated-module-hack";
   lib.proc-macro = true;
   dependencies = {
     quote = "0.6.11";

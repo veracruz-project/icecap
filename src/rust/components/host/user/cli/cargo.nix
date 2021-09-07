@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "icecap-host";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-host";
+  nix.localDependencies = with localCrates; [
     icecap-host-user
     icecap-host-vmm-types
   ];

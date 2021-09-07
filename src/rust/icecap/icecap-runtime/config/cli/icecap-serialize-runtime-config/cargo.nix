@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "icecap-serialize-runtime-config";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-serialize-runtime-config";
+  nix.localDependencies = with localCrates; [
     icecap-runtime-config
   ];
   dependencies = {

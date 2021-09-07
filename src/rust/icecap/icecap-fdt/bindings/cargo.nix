@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-fdt-bindings";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-fdt-bindings";
+  nix.localDependencies = with localCrates; [
     icecap-fdt
   ];
   dependencies = {

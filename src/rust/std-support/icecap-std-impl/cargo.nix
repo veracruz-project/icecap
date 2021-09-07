@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-std-impl";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-std-impl";
+  nix.localDependencies = with localCrates; [
     icecap-sel4
     icecap-runtime
     icecap-sync

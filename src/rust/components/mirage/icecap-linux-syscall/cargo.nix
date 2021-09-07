@@ -1,5 +1,5 @@
 { mk }:
 
 mk {
-  name = "icecap-linux-syscall";
+  nix.name = "icecap-linux-syscall";
 }

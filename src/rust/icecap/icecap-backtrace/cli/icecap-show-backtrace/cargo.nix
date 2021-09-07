@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "icecap-show-backtrace";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-show-backtrace";
+  nix.localDependencies = with localCrates; [
     icecap-backtrace-types
   ];
   dependencies = {

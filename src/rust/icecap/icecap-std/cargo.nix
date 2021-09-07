@@ -1,21 +1,21 @@
 { mk, localCrates, patches }:
 
 mk {
-  name = "icecap-std";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-std";
+  nix.localDependencies = with localCrates; [
     icecap-core
   ];
   dependencies = {
     log = "*";
     dlmalloc = { version = "=0.1.3"; };
   };
-  propagate = {
+  nix.propagate = {
     extraManifest = {
       patch.crates-io = {
         dlmalloc.path = patches.dlmalloc.store;
       };
     };
-    extraManifestLocal = {
+    extraManifestEnv = {
       patch.crates-io = {
         dlmalloc.path = patches.dlmalloc.env;
       };

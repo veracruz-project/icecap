@@ -1,8 +1,8 @@
 { mk, serdeMin, localCrates }:
 
 mk {
-  name = "icecap-host-vmm-types";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-host-vmm-types";
+  nix.localDependencies = with localCrates; [
     icecap-rpc
   ];
   dependencies = {

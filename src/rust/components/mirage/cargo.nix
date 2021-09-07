@@ -1,8 +1,8 @@
 { mkBin, localCrates, serdeMin, stdenv }:
 
 mkBin {
-  name = "mirage";
-  localDependencies = with localCrates; [
+  nix.name = "mirage";
+  nix.localDependencies = with localCrates; [
     icecap-linux-syscall
     icecap-std
     icecap-start-generic
@@ -11,7 +11,7 @@ mkBin {
     serde = serdeMin;
     serde_json = { version = "*"; default-features = false; features = [ "alloc" ]; };
   };
-  buildScript = {
+  nix.buildScript = {
     # doesn't work because of circular dependencies. rustc deduplicates these
     # rustc-link-lib = [
     #   "icecap_mirage_glue" "mirage" "sel4asmrun" "c" "gcc"

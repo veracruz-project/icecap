@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-host-user";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-host-user";
+  nix.localDependencies = with localCrates; [
     icecap-host-vmm-types
     icecap-resource-server-types
     icecap-rpc

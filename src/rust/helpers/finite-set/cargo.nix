@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "finite-set";
-  localDependencies = with localCrates; [
+  nix.name = "finite-set";
+  nix.localDependencies = with localCrates; [
     finite-set-derive
   ];
   dependencies = {

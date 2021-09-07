@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "crosvm-9p";
-  localDependencies = with localCrates; [
+  nix.name = "crosvm-9p";
+  nix.localDependencies = with localCrates; [
     crosvm-9p-wire-format-derive
   ];
   dependencies = {

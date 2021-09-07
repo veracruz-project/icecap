@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-fault-handler-config";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-fault-handler-config";
+  nix.localDependencies = with localCrates; [
     icecap-config
   ];
   dependencies = {

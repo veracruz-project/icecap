@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-timer-server-client";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-timer-server-client";
+  nix.localDependencies = with localCrates; [
     icecap-sel4
     icecap-rpc-sel4
     icecap-timer-server-types

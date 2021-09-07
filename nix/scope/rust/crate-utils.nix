@@ -10,65 +10,73 @@ rec {
 
   clobber = fold recursiveUpdate {};
 
-  mkGeneric =
-    { name, src
-    , isBin ? false, isStaticlib ? false
-    , localDependencies ? [], phantomLocalDependencies ? []
-    , localDependencyAttributes ? {} # HACK
-    , propagate ? {}
-    , buildScript ? null
-    , ...
-    } @ args:
+  mkCrate =
     let
-      mk = src': nixToToml (clobber [
-
+      elaborateNix = 
+        { name, src
+        , isBin ? false, isStaticlib ? false
+        , localDependencies ? [], phantomLocalDependencies ? []
+        , localDependencyAttributes ? {} # HACK
+        , propagate ? {}
+        , buildScript ? null
+        }:
         {
-          package = {
-            inherit name;
-            version = "0.1.0";
-            edition = "2018";
-          };
-          dependencies = listToAttrs (map (crate: nameValuePair crate.name ({
-            path = "../${crate.name}";
-          } // (localDependencyAttributes.${crate.name} or {}))) localDependencies);
-        }
+          inherit
+            name src isBin isStaticlib
+            localDependencies phantomLocalDependencies localDependencyAttributes
+            propagate buildScript;
+        };
 
-        (if isBin then {
-          bin = [
-            { inherit name; path = "${src'}/main.rs"; }
-          ];
-        } else {
-          lib = {
-            path = "${src'}/lib.rs";
-          } // optionalAttrs isStaticlib {
-            crate-type = [ "staticlib" ];
-            name = "${kebabToSnake name}_rs";
-          };
-        })
+    in
+      { nix ? {}, ... } @ args:
 
-        (removeAttrs args [
-          "name" "src" "srcLocal"
-          "isBin" "isStaticlib"
-          "localDependencies" "phantomLocalDependencies" "localDependencyAttributes"
-          "propagate" "buildScript"
-        ])
+      let
+        elaboratedNix = elaborateNix nix;
 
-        (optionalAttrs (buildScript != null) {
-          package.build = emptyFile;
-          package.links = "dummy-link-${name}";
-        })
+        mk = src: nixToToml (clobber [
 
-      ]);
+          {
+            package = {
+              inherit (elaboratedNix) name;
+              version = "0.1.0";
+              edition = "2018";
+            };
+            dependencies = listToAttrs (lib.flip map elaboratedNix.localDependencies (crate: nameValuePair crate.name ({
+              path = "../${crate.name}";
+            } // (elaboratedNix.localDependencyAttributes.${crate.name} or {}))));
+          }
 
-    in {
-      type = "path";
-      inherit name;
-      src = mkLink (mk src.store);
-      srcLocal = mkLink (mk src.env);
-      srcDummy = mkLink (mk (if isBin then dummySrcBin else dummySrcLib));
-      localDependencies = localDependencies ++ phantomLocalDependencies;
-      inherit propagate buildScript;
-    };
+          (if elaboratedNix.isBin then {
+            bin = [
+              { inherit (elaboratedNix) name;
+                path = "${src}/main.rs";
+              }
+            ];
+          } else {
+            lib = {
+              path = "${src}/lib.rs";
+            } // optionalAttrs elaboratedNix.isStaticlib {
+              crate-type = [ "staticlib" ];
+              name = "${kebabToSnake elaboratedNix.name}_rs";
+            };
+          })
+
+          (optionalAttrs (elaboratedNix.buildScript != null) {
+            package.build = emptyFile;
+            package.links = "dummy-link-${elaboratedNix.name}";
+          })
+
+          (removeAttrs args [ "nix" ])
+
+        ]);
+
+      in {
+        inherit (elaboratedNix) name propagate buildScript;
+        store = mkLink (mk elaboratedNix.src.store);
+        env = mkLink (mk elaboratedNix.src.env);
+        dummy = mkLink (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib));
+        localDependencies = elaboratedNix.localDependencies ++ elaboratedNix.phantomLocalDependencies;
+      };
 
   dummySrcLib = linkFarm "dummy-src" [
     (rec {
@@ -132,22 +140,22 @@ rec {
 
     in root: go {} (toAttrs [ root ]);
 
-  collect = crates: linkFarm "crates" (map (crate: {
+  collectStore = crates: linkFarm "crates" (map (crate: {
     name = crate.name;
-    path = crate.src;
+    path = crate.store;
   }) crates);
 
-  collectLocal = crates: linkFarm "crates" (map (crate: {
+  collectEnv = crates: linkFarm "crates" (map (crate: {
     name = crate.name;
-    path = crate.srcLocal;
+    path = crate.env;
   }) crates);
 
   collectDummies = crates: dummies: linkFarm "crates" (map (crate: {
     name = crate.name;
-    path = crate.src;
+    path = crate.store;
   }) crates ++ map (crate: {
     name = crate.name;
-    path = crate.srcDummy;
+    path = crate.dummy;
   }) dummies);
 
   kebabToSnake = lib.replaceStrings [ "-" ] [ "_" ];

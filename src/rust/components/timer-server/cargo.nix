@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "timer-server";
-  localDependencies = with localCrates; [
+  nix.name = "timer-server";
+  nix.localDependencies = with localCrates; [
     icecap-std
     icecap-rpc-sel4
     icecap-timer-server-types

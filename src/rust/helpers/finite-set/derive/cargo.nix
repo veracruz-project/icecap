@@ -1,7 +1,7 @@
 { mk, localCrates }:
 
 mk {
-  name = "finite-set-derive";
+  nix.name = "finite-set-derive";
   lib.proc-macro = true;
   dependencies = {
     proc-macro2 = "1";

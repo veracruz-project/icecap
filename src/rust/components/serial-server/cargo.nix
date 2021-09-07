@@ -1,8 +1,8 @@
 { mkBin, localCrates, serdeMin }:
 
 mkBin {
-  name = "serial-server";
-  localDependencies = with localCrates; [
+  nix.name = "serial-server";
+  nix.localDependencies = with localCrates; [
     icecap-std
     icecap-serial-server-config
     icecap-timer-server-client

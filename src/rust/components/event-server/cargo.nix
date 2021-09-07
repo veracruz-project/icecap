@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "event-server";
-  localDependencies = with localCrates; [
+  nix.name = "event-server";
+  nix.localDependencies = with localCrates; [
     biterate
     finite-set
     icecap-std

@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-resource-server-core";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-resource-server-core";
+  nix.localDependencies = with localCrates; [
     dyndl-types
     icecap-core
     icecap-resource-server-types

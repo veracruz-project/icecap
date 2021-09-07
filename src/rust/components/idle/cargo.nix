@@ -1,8 +1,8 @@
 { mkBin, localCrates }:
 
 mkBin {
-  name = "idle";
-  localDependencies = with localCrates; [
+  nix.name = "idle";
+  nix.localDependencies = with localCrates; [
     icecap-std
   ];
   dependencies = {

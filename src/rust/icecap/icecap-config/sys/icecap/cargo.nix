@@ -1,12 +1,12 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-config-sys";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-config-sys";
+  nix.localDependencies = with localCrates; [
     icecap-sel4
     icecap-runtime
   ];
-  localDependencyAttributes = {
+  nix.localDependencyAttributes = {
     icecap-sel4 = {
       features = [
         "use-serde"

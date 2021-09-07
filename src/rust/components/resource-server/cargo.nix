@@ -1,8 +1,8 @@
 { mkBin, localCrates, serdeMin }:
 
 mkBin {
-  name = "resource-server";
-  localDependencies = with localCrates; [
+  nix.name = "resource-server";
+  nix.localDependencies = with localCrates; [
     icecap-std
     icecap-rpc-sel4
     icecap-event-server-types

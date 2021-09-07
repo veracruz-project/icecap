@@ -1,8 +1,8 @@
 { mk, localCrates }:
 
 mk {
-  name = "icecap-core";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-core";
+  nix.localDependencies = with localCrates; [
     icecap-sel4
     icecap-runtime
     icecap-sync
@@ -19,7 +19,7 @@ mk {
     finite-set
     biterate
   ];
-  localDependencyAttributes = {
+  nix.localDependencyAttributes = {
     icecap-sel4.features = [
       "use-serde"
     ];

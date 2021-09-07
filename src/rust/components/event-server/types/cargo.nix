@@ -1,8 +1,8 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  name = "icecap-event-server-types";
-  localDependencies = with localCrates; [
+  nix.name = "icecap-event-server-types";
+  nix.localDependencies = with localCrates; [
     finite-set
     icecap-rpc
   ];

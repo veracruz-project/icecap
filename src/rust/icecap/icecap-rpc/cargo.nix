@@ -1,7 +1,7 @@
 { mk, serdeMin }:
 
 mk {
-  name = "icecap-rpc";
+  nix.name = "icecap-rpc";
   dependencies = {
     serde = serdeMin;
     pinecone = "*";

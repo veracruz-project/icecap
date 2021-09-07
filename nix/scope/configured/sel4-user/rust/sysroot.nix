@@ -43,8 +43,8 @@ let
     };
 
     icecap = {
-      store = crateUtils.collect allImplCrates;
-      env = crateUtils.collectLocal allImplCrates;
+      store = crateUtils.collectStore allImplCrates;
+      env = crateUtils.collectEnv allImplCrates;
     };
 
   };
