@@ -12,9 +12,9 @@ let
   py = runCommand "x.py" {
     nativeBuildInputs = [ python3 ];
   } ''
-    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
+    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.patchedSource}/tools/hardware_gen.py
     patchShebangs --build $out
-    cp -r ${kernel.source}/tools/hardware $out
+    cp -r ${kernel.patchedSource}/tools/hardware $out
   '';
 
   platformInfo = linkFarm "platform-info" [

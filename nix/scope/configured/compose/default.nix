@@ -1,42 +1,40 @@
 { lib, runCommand
-, deviceTree, linuxPkgs
-, elfloader, mkCapDLLoader, bins
-, cpioUtils, mkIceDL, dtb-helpers
-, elfUtils
+, dtb-helpers
+, linuxPkgs
+, deviceTree, cpioUtils, elfUtils
 , icecapPlat
-
-, _kernel
+, mkIceDL, mkCapDLLoader
+, kernel, elfloader, bins
 }:
 
 let
-  _u-boot = linuxPkgs.icecap.uBoot.host.${icecapPlat};
+  uBoot = linuxPkgs.icecap.uBoot.host.${icecapPlat};
 in
 
 args:
 
 let
 
-  components = lib.fix (self: with self; {
+  components = lib.fix (self: {
 
-    loader-elf = elfUtils.split "${loader}/boot/elfloader";
+    loader-elf = elfUtils.split "${self.loader}/boot/elfloader";
 
     loader = elfloader {
-      inherit kernel-dtb;
-      kernel-elf = kernel-elf.min;
-      app-elf = app-elf.min;
+      inherit (self) kernel;
+      app-elf = self.app-elf.min;
     };
 
-    kernel-dtb = "${kernel}/boot/kernel.dtb";
-    kernel-elf = elfUtils.split "${kernel}/boot/kernel.elf";
-    app-elf = elfUtils.split "${app}/bin/capdl-loader.elf";
+    inherit kernel;
+
+    app-elf = elfUtils.split "${self.app}/bin/capdl-loader.elf";
 
     app = mkCapDLLoader {
-      cdl = "${cdl}/icecap.cdl";
-      elfs-cpio = cpioUtils.mkFrom "${cdl}/links";
+      cdl = "${self.cdl}/icecap.cdl";
+      elfs-cpio = cpioUtils.mkFrom "${self.cdl}/links";
     };
 
     cdl = mkIceDL {
-      inherit src config;
+      inherit (self) src config;
     };
 
     src = ./cdl;
@@ -53,13 +51,12 @@ let
         resource_server.heap_size = 128 * 1048576;
 
         host_vmm.image = bins.host-vmm.split;
-        host_vm.kernel = u-boot;
+        host_vm.kernel = self.u-boot;
         host_vm.dtb = deviceTree.host.${icecapPlat};
       };
     };
 
-    u-boot = "${_u-boot}/u-boot.bin";
-    kernel = _kernel;
+    u-boot = "${uBoot}/u-boot.bin";
 
   } // args);
 
@@ -67,14 +64,14 @@ in with components;
 let
 
   images = {
-    loader = loader-elf;
-    kernel = kernel-elf;
-    app = app-elf;
+    loader = components.loader-elf;
+    kernel = components.kernel.elf;
+    app = components.app-elf;
   };
 
   cdlImages = lib.mapAttrs'
     (k: v: lib.nameValuePair k v.image)
-    (lib.filterAttrs (k: lib.hasAttr "image") config.components);
+    (lib.filterAttrs (k: lib.hasAttr "image") components.config.components);
 
   debugFilesOf = lib.mapAttrs' (k: v: lib.nameValuePair "${k}.elf" v.full);
 
@@ -86,8 +83,8 @@ let
   '';
 
 in rec {
-  inherit cdl app loader;
   inherit components;
+  inherit (components) cdl app loader;
 
   image = loader-elf.min;
 
@@ -103,5 +100,5 @@ in rec {
   host-dtb = "${cdl}/links/host_vm.dtb";
   host-dts = dtb-helpers.decompileForce host-dtb;
 
-  mkDefaultPayload = args: _u-boot.mkDefaultPayload ({ dtb = host-dtb; } // args);
+  mkDefaultPayload = args: uBoot.mkDefaultPayload ({ dtb = host-dtb; } // args);
 }

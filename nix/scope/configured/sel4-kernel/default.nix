@@ -1,26 +1,21 @@
-{ lib, writeText, runCommand, linkFarm
+{ lib, stdenv, writeText, runCommand, linkFarm
 , cmake, ninja, rsync
 , dtc, libxml2, python3, python3Packages
 
-, dtb-helpers
-, platUtils, raspios
+, stdenvBoot, seL4EcosystemRepos, elfUtils
 
-, stdenv, stdenvBoot, seL4EcosystemRepos, makeOverridable'
-
-, cmakeConfig
 , selectIceCapPlat
+, deviceTreeConfigured
+, cmakeConfig
 }:
+
+{ source ? seL4EcosystemRepos.seL4 }:
 
 let
 
-  dts = selectIceCapPlat {
-    virt = with dtb-helpers; decompile platUtils.virt.extra.dtb;
-    rpi4 = with dtb-helpers; decompile "${raspios.latest.boot}/bcm2711-rpi-4-b.dtb";
-  };
-
-  _source = makeOverridable' stdenv.mkDerivation {
+  patchedSource = stdenv.mkDerivation {
     name = "sel4-kernel-source";
-    src = seL4EcosystemRepos.seL4;
+    src = source;
     nativeBuildInputs = [ python3 ];
 
     phases = [ "unpackPhase" "patchPhase" "installPhase" ];
@@ -31,7 +26,7 @@ let
 
       patchShebangs --build .
 
-      cp ${dts} tools/dts/${selectIceCapPlat {
+      cp ${deviceTreeConfigured.seL4} tools/dts/${selectIceCapPlat {
         # The alignment of these names is a coincidence
         rpi4 = "rpi4";
         virt = "virt";
@@ -67,7 +62,7 @@ let
     all: prefixes: filterAttrs (k: v: any (prefix: hasPrefix prefix k) prefixes) all;
 
 in
-makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
+lib.fix (self: stdenvBoot.mkDerivation rec {
   name = "sel4";
 
   nativeBuildInputs = [
@@ -85,8 +80,8 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
       path = writeText "CMakeLists.txt" ''
         cmake_minimum_required(VERSION 3.13)
         project(seL4 ASM C)
-        add_subdirectory(${source} kernel)
-        add_subdirectory(${source}/libsel4 libsel4)
+        add_subdirectory(${patchedSource} kernel)
+        add_subdirectory(${patchedSource}/libsel4 libsel4)
         install(TARGETS sel4 ARCHIVE DESTINATION lib)
       '';
     }
@@ -114,7 +109,7 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
     mkdir -p $out/include
 
     includePrefixes="${lib.concatStringsSep " " [
-      "libsel4" "${source}/libsel4"
+      "libsel4" "${patchedSource}/libsel4"
     ]}"
 
     includeSuffixes="${lib.concatStringsSep " " [
@@ -159,9 +154,10 @@ makeOverridable' ({ source }: stdenvBoot.mkDerivation rec {
   '';
 
   passthru = {
-    inherit dts source;
+    inherit patchedSource;
+
+    dtb = "${self}/boot/kernel.dtb";
+    elf = elfUtils.split "${self}/boot/kernel.elf";
   };
 
-}) {
-  source = _source;
-}
+})

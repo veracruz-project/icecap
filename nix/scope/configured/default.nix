@@ -14,18 +14,17 @@ self: with self;
   selectIceCapPlat = attrs: attrs.${icecapPlat};
   selectIceCapPlatOr = default: attrs: attrs.${icecapPlat} or default;
 
-  compose = callPackage ./compose {
-    _kernel = kernel;
-  };
+  compose = callPackage ./compose {};
 
   icecapFirmware = makeOverridable' compose {};
 
+  # TODO unify with parent scope deviceTree attribute
+  deviceTreeConfigured = callPackage ./device-tree {};
+
   cmakeConfig = callPackage ./sel4-kernel/cmake-config.nix {};
 
-  _sel4 = callPackage ./sel4-kernel {};
-  # can be overridden individually
-  kernel = _sel4;
-  libsel4 = _sel4;
+  kernel = makeOverridable' (callPackage ./sel4-kernel {}) {};
+  libsel4 = kernel;
 
   object-sizes = callPackage ./sel4-kernel/object-sizes.nix {};
 

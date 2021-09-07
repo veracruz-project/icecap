@@ -4,14 +4,14 @@
 , cmake, ninja, rsync
 , dtc, libxml2, python3, python3Packages
 
-, stdenvBoot, seL4EcosystemRepos
-, kernel, libsel4, libcpio
-, cpioUtils
+, seL4EcosystemRepos, cpioUtils
+, stdenvBoot
 
+, kernel, libsel4, libcpio
 , cmakeConfig
 }:
 
-{ app-elf, kernel-elf, kernel-dtb, kernel-source ? kernel.source }:
+{ kernel, app-elf }:
 
 let
 
@@ -19,8 +19,8 @@ let
     symbolName = "_archive_start";
     libName = "images";
     archive-cpio = cpioUtils.mk [
-      { path = "kernel.elf"; contents = kernel-elf; }
-      { path = "kernel.dtb"; contents = kernel-dtb; }
+      { path = "kernel.elf"; contents = kernel.elf.min; }
+      { path = "kernel.dtb"; contents = kernel.dtb; }
       { path = "app.elf"; contents = app-elf; }
     ];
   };
@@ -28,9 +28,9 @@ let
   py = runCommand "x.py" {
     nativeBuildInputs = [ python3 ];
   } ''
-    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.source}/tools/hardware_gen.py
+    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.patchedSource}/tools/hardware_gen.py
     patchShebangs --build $out
-    cp -r ${kernel-source}/tools/hardware $out
+    cp -r ${kernel.patchedSource}/tools/hardware $out
   '';
 
   configPrefixes = [
@@ -65,7 +65,7 @@ stdenvBoot.mkDerivation rec {
   source = seL4EcosystemRepos.seL4_tools.extendInnerSuffix "elfloader-tool";
 
   buildInputs = [
-    libcpio kernel
+    libcpio libsel4
     autoconf
     images
   ];
@@ -112,9 +112,9 @@ stdenvBoot.mkDerivation rec {
         set(FOO_SHOEHORN ${py}/shoehorn.py CACHE STRING "")
         set(FOO_PLATFORM_SIFT ${py}/platform_sift.py CACHE STRING "")
         set(FOO_KERNEL_DTB ${kernel}/boot/kernel.dtb CACHE STRING "")
-        set(FOO_KERNEL_TOOLS ${kernel.source}/tools CACHE STRING "")
+        set(FOO_KERNEL_TOOLS ${kernel.patchedSource}/tools CACHE STRING "")
         set(FOO_HARDWARE_GEN ${py}/hardware_gen.py CACHE STRING "")
-        set(platform_yaml ${libsel4}/sel4-aux/platform_gen.yaml CACHE STRING "")
+        set(platform_yaml ${kernel}/sel4-aux/platform_gen.yaml CACHE STRING "")
 
         add_subdirectory(''${source} elfloader)
 
@@ -142,7 +142,7 @@ stdenvBoot.mkDerivation rec {
   '';
 
   passthru = {
-    inherit kernel-source kernel-elf kernel-dtb app-elf;
+    inherit kernel app-elf;
   };
 
 }
