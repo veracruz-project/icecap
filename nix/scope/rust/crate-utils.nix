@@ -109,30 +109,28 @@ rec {
     { name = "Cargo.toml"; path = manifest; }
   ];
 
-  flatDeps =
+  closure =
     let
-      attrsOf = crates: listToAttrs (map pairOf crates);
-      pairOf = crate: nameValuePair crate.name crate;
+      nameOf = crate: crate.name;
+      dependenciesOf = crate: crate.localDependencies;
+
+      toAttrs = crates: listToAttrs (map (crate: nameValuePair (nameOf crate) crate) crates);
+
       go = seen: queue:
-        let
-          queueNames = attrNames queue;
-        in
-          if length queueNames == 0
-          then seen
-          else
-            let
-              queue' = attrsOf (attrVals (tail queueNames) queue);
-              ext = attrsOf queue.${head queueNames}.localDependencies;
-            in
-              go (seen // ext) (queue' // ext);
-    in roots: go {} (attrsOf roots);
+        if queue == {}
+        then seen
+        else
+          let
+            queueNames = attrNames queue;
+            current = queue.${head queueNames};
+            currentDependencies = dependenciesOf queue.${head queueNames};
+            queue' = toAttrs (attrVals (tail queueNames) queue);
+            seenExtension = toAttrs ([ current ] ++ currentDependencies);
+            queueExtension = toAttrs currentDependencies;
+          in
+            go (seen // seenExtension) (queue' // queueExtension);
 
-  flatDepsWithRoot = rootCrate: flatDepsWithRoots [ rootCrate ];
-
-  flatDepsWithRoots = roots: flatDeps roots // lib.listToAttrs (map (root: {
-    inherit (root) name;
-    value = root;
-  }) roots);
+    in root: go {} (toAttrs [ root ]);
 
   collect = crates: linkFarm "crates" (map (crate: {
     name = crate.name;

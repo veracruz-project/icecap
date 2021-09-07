@@ -7,7 +7,7 @@
 { rootCrate, extraManifest ? {} }:
 
 let
-  crates = lib.attrValues (crateUtils.flatDepsWithRoot rootCrate);
+  crates = lib.attrValues (crateUtils.closure rootCrate);
 
   workspace = nixToToml (crateUtils.clobber [
     {

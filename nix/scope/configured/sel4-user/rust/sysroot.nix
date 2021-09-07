@@ -18,7 +18,7 @@
 with lib;
 
 let
-  allImplCrates = attrValues (crateUtils.flatDepsWithRoot globalCrates.icecap-std-impl);
+  allImplCrates = attrValues (crateUtils.closure globalCrates.icecap-std-impl);
 
   srcs = {
 

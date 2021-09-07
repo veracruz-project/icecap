@@ -26,7 +26,7 @@ let
 in
 
 let
-  allCratesAttrs = crateUtils.flatDepsWithRoot rootCrate;
+  allCratesAttrs = crateUtils.closure rootCrate;
   allCrates = lib.attrValues allCratesAttrs;
   allPropagate = crateUtils.clobber (map (x: x.propagate or {}) allCrates);
 
@@ -59,7 +59,7 @@ let
 
   allAccumulatedLayers =
     let
-      expandLayer = layer: concatAttrs (map (key: crateUtils.flatDepsWithRoot (toCrate key)) layer);
+      expandLayer = layer: concatAttrs (map (key: crateUtils.closure (toCrate key)) layer);
     in
       reverseList (map attrValues (accumulate (map expandLayer layers)));
 
