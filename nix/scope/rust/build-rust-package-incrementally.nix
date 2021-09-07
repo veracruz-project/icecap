@@ -1,5 +1,7 @@
-{ lib, hostPlatform, buildPlatform, linkFarm, buildPackages, stdenv, mkShell
-, cargo, rustc, emptyDirectory, fetchCrates, nixToToml, generateLockfileInternal, crateUtils
+{ lib, hostPlatform, buildPlatform, buildPackages
+, stdenv, emptyDirectory, linkFarm, mkShell
+, cargo, rustc
+, nixToToml, generateLockfileInternal, fetchCrates, crateUtils
 }:
 
 { rootCrate
@@ -8,21 +10,23 @@
 , extraCargoConfig ? {}
 , extraManifest ? {}
 , extraManifestEnv ? {}
-, extraShellHook ? ""
-, extraLastLayerBuildInputs ? [] # TODO generalize (inc. extraLastLayerArgs) with overrideAttrs
-, extraLastLayerArgs ? {}
-, extraArgs ? {}
+, extra ? {}
+, extraLastLayer ? {}
 }:
-
-# NOTE Use this to debug dirty fingerprints
-# CARGO_LOG = "cargo::core::compiler::fingerprint=trace";
 
 with lib;
 
 let
   extraManifest_ = extraManifest;
   extraManifestEnv_ = extraManifestEnv;
+  extra_ = extra;
+  extraLastLayer_ = extraLastLayer;
   release = !debug;
+in
+
+let
+  extra = if lib.isAttrs extra_ then _: extra_ else extra_;
+  extraLastLayer = if lib.isAttrs extraLastLayer_ then _: extraLastLayer_ else extraLastLayer_;
 in
 
 let
@@ -36,7 +40,7 @@ let
   ];
 
   extraManifestEnv = crateUtils.clobber [
-    (allPropagate.extrManifestLocal or {})
+    (allPropagate.extrManifestEnv or {})
     extraManifestEnv_
   ];
 
@@ -70,12 +74,11 @@ let
   lock = generateLockfileInternal {
     inherit rootCrate extraManifest;
   };
-  cargoVendorConfig = fetchCrates lock;
 
   baseCargoConfig = crateUtils.clobber [
-    cargoVendorConfig.config
+    (fetchCrates lock).config
     crateUtils.baseCargoConfig
-    (optionalAttrs (hostPlatform.system == "aarch64-none") { profile.release.panic = "abort"; }) # HACK
+    (optionalAttrs (hostPlatform.system == "aarch64-none") { profile.release.panic = "abort"; }) # TODO HACK
     (allPropagate.extraCargoConfig or {})
     extraCargoConfig
   ];
@@ -98,18 +101,14 @@ let
 
   baseCommonArgs = crateUtils.baseEnv // {
     name = rootCrate.name;
-    depsBuildBuild = [ buildPackages.stdenv.cc ] ++ (extraArgs.depsBuildBuild or []);
-    nativeBuildInputs = [ cargo rustc /* rustc for rustdoc */ ] ++ (extraArgs.nativeBuildInputs or []);
+    depsBuildBuild = [ buildPackages.stdenv.cc ];
+    nativeBuildInputs = [ cargo rustc ];
   };
 
   commonArgsFor = layer: baseCommonArgs // {
     # TODO https://github.com/rust-lang/cargo/issues/2930
     # NIX_HACK_CARGO_CONFIG = cargoConfigFor layer;
   };
-
-  commonArgsAfter = builtins.removeAttrs extraArgs [
-    "depsBuildBuild" "nativeBuildInputs" "passthru"
-  ];
 
   f = accumulatedLayers: if length accumulatedLayers == 0 then emptyDirectory else
     let
@@ -132,7 +131,7 @@ let
         extraManifest
       ]);
     in
-      stdenv.mkDerivation (commonArgsFor layer // {
+      (stdenv.mkDerivation (commonArgsFor layer // {
         phases = [ "buildPhase" ];
 
         # HACK "-Z avoid-dev-deps" for deps of std
@@ -151,7 +150,7 @@ let
         passthru = {
           inherit prev;
         };
-      } // commonArgsAfter);
+      })).overrideAttrs extra;
 
 in let
   src = crateUtils.collectStore allCrates;
@@ -164,7 +163,7 @@ in let
     extraManifest
   ]);
 
-  workspaceLocal = nixToToml (crateUtils.clobber [
+  workspaceEnv = nixToToml (crateUtils.clobber [
     {
       workspace.members = [ "src/${rootCrate.name}" ];
     }
@@ -179,14 +178,14 @@ in let
     { name = ".cargo/config"; path = cargoConfigFor allCrates; }
   ];
 
-  manifestDirLocal = linkFarm "x" [
-    { name = "Cargo.toml"; path = workspaceLocal; }
+  manifestDirEnv = linkFarm "x" [
+    { name = "Cargo.toml"; path = workspaceEnv; }
     { name = "src"; path = srcEnv; }
     { name = "Cargo.lock"; path = lock; }
     { name = ".cargo/config"; path = cargoConfigFor allCrates; }
   ];
 
-  doc = stdenv.mkDerivation (commonArgsFor allCrates // {
+  doc = (stdenv.mkDerivation (commonArgsFor allCrates // {
     phases = [ "buildPhase" "installPhase" ];
 
     buildPhase = ''
@@ -194,7 +193,7 @@ in let
       cp -r --preserve=timestamps ${lastLayer} $target_dir
       chmod -R +w $target_dir
 
-      (cd ${manifestDirLocal} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
+      (cd ${manifestDirEnv} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
         --target ${hostPlatform.config} \
         ${lib.optionalString (!debug) "--release"} \
         -Z avoid-dev-deps \
@@ -209,9 +208,9 @@ in let
       d=target/${hostPlatform.config}/doc
       [ -d $d ] && mv $d $out/${hostPlatform.config}
     '';
-  } // commonArgsAfter);
+  })).overrideAttrs extra;
 
-  env = (mkShell (commonArgsFor allCrates // {
+  env = ((mkShell (commonArgsFor allCrates // {
     shellHook = ''
       invoke_cargo() {
         cmd="$1"
@@ -219,7 +218,7 @@ in let
 
         target_dir=$(realpath ./target)
 
-        (cd ${manifestDirLocal} && cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
+        (cd ${manifestDirEnv} && cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
           --target ${hostPlatform.config} \
           ${lib.optionalString (!debug) "--release"} \
           -Z avoid-dev-deps \
@@ -237,13 +236,11 @@ in let
       r() {
         invoke_cargo run "$@"
       }
-    '' + extraShellHook;
-  } // commonArgsAfter // extraLastLayerArgs)).overrideAttrs (attrs: {
-    buildInputs = (attrs.buildInputs or []) ++ extraLastLayerBuildInputs;
-  });
+    '';
+  })).overrideAttrs extra).overrideAttrs extraLastLayer;
 
 in
-(stdenv.mkDerivation (commonArgsFor allCrates // {
+((stdenv.mkDerivation (commonArgsFor allCrates // {
   phases = [ "buildPhase" "installPhase" ];
 
   buildPhase = ''
@@ -265,17 +262,21 @@ in
     find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1                          -regex "$lib_re" | xargs -r install -D -t $out/lib
   '';
 
-  passthru = (extraArgs.passthru or {}) // {
-    inherit lastLayer env doc src workspace lock;
+  passthru = {
+    inherit env doc;
+    inherit lastLayer;
+    inherit src workspace lock;
     inherit allPropagate;
   };
-} // commonArgsAfter // extraLastLayerArgs)).overrideAttrs (attrs: {
-  buildInputs = (attrs.buildInputs or []) ++ extraLastLayerBuildInputs;
-})
+})).overrideAttrs extra).overrideAttrs extraLastLayer
 
-    # echo '${
-    #   with lib;
-    #   concatMapStrings
-    #     (accLayer: concatStringsSep " " (map (x: x.name) accLayer))
-    #     allAccumulatedLayers
-    # }'
+# NOTE Use this to debug dirty fingerprints
+# CARGO_LOG = "cargo::core::compiler::fingerprint=trace";
+
+# TODO for intermediate steps, show message listing current layers:
+# echo '${
+#   with lib;
+#   concatMapStrings
+#     (accLayer: concatStringsSep " " (map (x: x.name) accLayer))
+#     allAccumulatedLayers
+# }'

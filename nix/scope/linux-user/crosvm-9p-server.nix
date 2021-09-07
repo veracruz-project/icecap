@@ -6,13 +6,13 @@ buildRustPackageIncrementally rec {
   rootCrate = outerGlobalCrates.crosvm-9p-server-cli;
   layers = [ [] ];
 
-  extraArgs = {
-    nativeBuildInputs = [ pkgconfig ];
-    buildInputs = [ dbus ];
+  extra = attrs: {
+    nativeBuildInputs = (attrs.nativeBuildInputs or []) ++ [ pkgconfig ];
+    buildInputs = (attrs.buildInputs or []) ++ [ dbus ];
 
     PKG_CONFIG_ALLOW_CROSS = 1;
 
-    passthru = {
+    passthru = attrs.passthru // {
       exe = rootCrate.name;
     };
   };

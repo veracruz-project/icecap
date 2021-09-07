@@ -4,7 +4,7 @@
 }:
 
 let
-  mk = crateName: overrides: buildIceCapCrate {
+  mk = crateName: {}: buildIceCapCrate {
     rootCrate = globalCrates.${crateName};
     debug = false;
     # debug = true;
@@ -16,10 +16,10 @@ let
         lto = true;
       };
     };
-    extraArgs = {
-      buildInputs = with libs; [
+    extra = attrs: {
+      buildInputs = (attrs.buildInputs or []) ++ [
         liboutline
-      ] ++ (overrides.buildInputs or []);
+      ];
     };
   };
 

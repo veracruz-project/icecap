@@ -7,7 +7,7 @@
 , icecapPlat
 }:
 
-args:
+{ extraLayers ? [], extraCargoConfig ? {}, extra ? {}, ... } @ args:
 
 # TODO profile abort
 lib.fix (self: buildRustPackageIncrementally ({
@@ -17,22 +17,25 @@ lib.fix (self: buildRustPackageIncrementally ({
         "--cfg=icecap_plat=\"${icecapPlat}\""
       ];
     }
-    (args.extraCargoConfig or {})
+    extraCargoConfig
   ];
   layers = with globalCrates; [
     [ icecap-sel4-sys ]
-  ] ++ (args.extraLayers or []);
+  ] ++ extraLayers;
   debug = false;
-  extraArgs = ({
-    dontStrip = true;
-    dontPatchELF = true;
-    hardeningDisable = [ "all" ];
-    passthru = {
-      split = elfUtils.split "${self}/bin/${args.rootCrate.name}.elf";
-    } // ((args.extraArgs or {}).passthru or {});
-  } // builtins.removeAttrs (args.extraArgs or {}) [
-    "passthru"
-  ]);
+  extra = attrs: 
+    let
+      next = (if lib.isAttrs extra then lib.const extra else extra) attrs;
+    in {
+      dontStrip = true;
+      dontPatchELF = true;
+      hardeningDisable = [ "all" ];
+      passthru = attrs.passthru // {
+        split = elfUtils.split "${self}/bin/${args.rootCrate.name}.elf";
+      } // (next.passthru or {});
+    } // builtins.removeAttrs next [
+      "passthru"
+    ];
 } // builtins.removeAttrs args [
-  "extraCargoConfig" "extraLayers" "extraArgs"
+  "extraLayers" "extraCargoConfig" "extra"
 ]))

@@ -16,29 +16,31 @@
           lto = true;
         };
       };
-      extraLastLayerBuildInputs = with libs; [
-        icecap-autoconf
-        icecap-runtime
-        icecap-utils icecap-pure # TODO
-        icecap-mirage-glue
-        musl
-        mirageLibrary
-      ];
-      extraArgs = {
-        buildInputs = with libs; [
+      extraLastLayer = attrs: {
+        buildInputs = (attrs.buildInputs or []) ++ (with libs; [
+          icecap-autoconf
+          icecap-runtime
+          icecap-utils icecap-pure # TODO
+          icecap-mirage-glue
+          musl
+          mirageLibrary
+        ]);
+      };
+      extra = attrs: {
+        buildInputs = (attrs.buildInputs or []) ++ [
           liboutline
         ];
-        passthru = {
+        passthru = attrs.passthru // {
           inherit mirageLibrary;
         };
       };
-      extraLastLayerArgs = {
-        # HACK
-        # RUSTFLAGS = lib.concatMap (x: [ "-C" "link-arg=-l${x}" ]) [
-        #   "icecap_mirage_glue" "sel4asmrun" "mirage" "sel4asmrun" "icecap_mirage_glue" "c" "gcc"
-        #   "icecap_utils" # HACK
-        # ];
-      };
+      # HACK
+      # extraLastLayer = {
+      #   RUSTFLAGS = lib.concatMap (x: [ "-C" "link-arg=-l${x}" ]) [
+      #     "icecap_mirage_glue" "sel4asmrun" "mirage" "sel4asmrun" "icecap_mirage_glue" "c" "gcc"
+      #     "icecap_utils" # HACK
+      #   ];
+      # };
     };
 
 }
