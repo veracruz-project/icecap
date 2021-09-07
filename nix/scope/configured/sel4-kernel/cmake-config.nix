@@ -18,10 +18,10 @@ let
     KernelArmHypervisorSupport = ON;
     KernelVerificationBuild = OFF;
     KernelDebugBuild = ON;
-    KernelOptimisation = STRING "-O3";
+    KernelOptimisation = STRING "-O3"; # TODO beware (default is -O2)
     KernelMaxNumNodes = selectIceCapPlat {
       virt = STRING "4";
-      rpi4 = STRING "4"; # TODO
+      rpi4 = STRING "4";
     };
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
@@ -35,8 +35,6 @@ in {
   icecap = common // {
     KernelRootCNodeSizeBits = STRING "18"; # default: 12
     # KernelStackBits = STRING "15";
-    # KernelPrinting = ON;
-    # KernelUserStackTraceLength = 32;
   };
 
   sel4test = common // {
@@ -47,6 +45,7 @@ in {
       virt = OFF;
       rpi4 = ON;
     };
+
     LibUtilsDefaultZfLogLevel = STRING "3"; # 0-5, 0 is most verbose
   };
 
