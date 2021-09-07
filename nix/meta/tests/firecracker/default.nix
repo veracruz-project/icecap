@@ -19,7 +19,7 @@ lib.fix (self: with self; {
     linuxImage = linuxKernel.host.${icecapPlat}.kernel;
     bootargs = commonBootargs ++ [
       "script=${script}"
-      "nr_cpus=2"
+      "nr_cpus=3"
     ] ++ lib.optionals (icecapPlat == "virt") [
       "console=ttyAMA0"
     ] ++ lib.optionals (icecapPlat == "rpi4") [
