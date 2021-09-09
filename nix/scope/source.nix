@@ -73,7 +73,7 @@ rec {
 
     seL4 = icecapSrc.repo {
       repo = "seL4";
-      rev = "ec1643a6ec3f23bddaf582601c7be110354ef4be";
+      rev = "64b3280545ac01e843d88bb351753b550819bc2a";
       # local = true;
     };
 

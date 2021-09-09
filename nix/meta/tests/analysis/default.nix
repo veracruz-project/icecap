@@ -48,12 +48,12 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
     ];
   };
 
-  kernel = configured.kernel.override' {
-    source = seL4EcosystemRepos.seL4.forceLocal;
-  };
+  # kernel = configured.kernel.override' {
+  #   source = seL4EcosystemRepos.seL4.forceLocal;
+  # };
 
-  composition = configured.icecapFirmware.override' {
-    inherit (self) kernel;
-  };
+  # composition = configured.icecapFirmware.override' {
+  #   inherit (self) kernel;
+  # };
 
 })
