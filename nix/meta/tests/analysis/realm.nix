@@ -12,6 +12,9 @@ in
     net.interfaces.eth0.static = "${realmAddr}/24";
 
     initramfs.extraInitCommands = ''
+      # HACK
+      seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
+
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
 

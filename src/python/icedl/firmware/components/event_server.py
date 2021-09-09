@@ -107,7 +107,8 @@ class EventServer(ElfComponent):
             whole = [78, 79]
         elif self.composition.plat == 'rpi4':
             edge_triggered = frozenset()
-            no = frozenset([96, 97, 98, 99, 125])
+            gross_workaround = 48 # PMU overflow interrupt with bad arith?
+            no = frozenset([96, 97, 98, 99, 125, gross_workaround])
             whole = range(32, 216) # TODO is this correct?
         for irq in whole:
             if irq not in no:

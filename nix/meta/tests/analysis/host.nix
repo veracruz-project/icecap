@@ -50,13 +50,13 @@ in
       net.interfaces.lo.static = "127.0.0.1";
 
       initramfs.extraInitCommands = ''
+        # HACK
+        seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
+
         mkdir -p /etc /bin /mnt/nix/store
         ln -s $(which sh) /bin/sh
 
         mount -t debugfs none /sys/kernel/debug/
-
-        # HACK
-        # head -c $(cat /proc/sys/kernel/random/poolsize) /dev/random > /dev/urandom
       '';
 
       initramfs.extraUtilsCommands = ''
