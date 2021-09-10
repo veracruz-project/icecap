@@ -209,8 +209,8 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
     }
 }
 
-pub const BADGE_EXTERNAL: Badge = 0;
-pub const BADGE_VM: Badge = 1;
+pub const BADGE_VM: Badge = 0;
+pub const BADGE_EVENT: Badge = 1;
 
 const SYS_PSCI: Word = 0;
 const SYS_PUTCHAR: Word = 1337;
@@ -224,7 +224,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         loop {
             let (info, badge) = self.ep.recv();
             match badge {
-                BADGE_EXTERNAL => {
+                BADGE_EVENT => {
                     // if self.debug {
                     //     debug_println!("badge external");
                     // }

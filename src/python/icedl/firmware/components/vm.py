@@ -14,6 +14,9 @@ VIRTUAL_TIMER_IRQ = 27
 
 HACK_PRIO = 101
 
+BADGE_VM = 0
+BADGE_EVENT = 1
+
 class Addrs:
 
     def __init__(self, plat, is_host=False):
@@ -336,7 +339,7 @@ class VMM(ElfComponent):
             # endpoints. 'idx' should match the index of the new endpoint object in
             # self.ep and the associated TCB in self.vm.tcb.
             ep = self.alloc(ObjectType.seL4_EndpointObject, name='vmm_event_ep_{}'.format(node_index))
-            node.tcb.fault_ep_slot = self.vm.cspace().alloc(ep, badge=1, write=True, grant=True)
+            node.tcb.fault_ep_slot = self.vm.cspace().alloc(ep, badge=BADGE_VM, write=True, grant=True)
 
             if self.is_host:
                 nfn = self.alloc(ObjectType.seL4_NotificationObject, name='vmm_event_nfn_{}'.format(node_index))
@@ -354,7 +357,7 @@ class VMM(ElfComponent):
                 start_ep_read_write = 0
 
             full_thread.tcb['bound_notification'] = Cap(nfn, read=True)
-            self.event_server_targets.append((nfn, 0))
+            self.event_server_targets.append((nfn, BADGE_EVENT))
 
             # Create and append a Node structure for each node
             nodes.append({

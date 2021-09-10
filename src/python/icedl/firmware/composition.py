@@ -14,6 +14,8 @@ NUM_REALMS = 2
 
 HACK_AFFINITY = 1
 
+BADGE_EVENT = 1
+
 class Composition(BaseComposition):
 
     def compose(self):
@@ -51,7 +53,7 @@ class Composition(BaseComposition):
                 name = 'realm_{}_nfn_for_core_{}'.format(i, j)
                 nfn = self.alloc(ObjectType.seL4_NotificationObject, name)
                 self.resource_server.add_extern(name, 'Notification', self.resource_server.cspace().alloc(nfn, read=True))
-                nfns.append((nfn, 0))
+                nfns.append((nfn, BADGE_EVENT))
             self.event_server.register_realm_notifications(nfns)
 
             host_realm_net_objs, realm_host_net_objs = self.alloc_ring_buffer(
