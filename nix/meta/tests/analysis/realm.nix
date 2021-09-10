@@ -27,6 +27,7 @@ in
 
     initramfs.extraUtilsCommands = ''
       copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
+        copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
       copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
       cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
     '';
