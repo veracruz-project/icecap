@@ -36,8 +36,8 @@ pub fn main(config: Config) -> Fallible<()> {
     let benchmark_server_ep = config.benchmark_server_ep;
 
     let irq_map = IRQMap {
-        ppi: config.ppi_map.into_iter().map(|(ppi, in_index)| (ppi, in_index.to_nat())).collect(),
-        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid))| (spi, (in_index.to_nat(), nid))).collect(),
+        ppi: config.ppi_map.into_iter().map(|(ppi, (in_index, must_ack))| (ppi, (in_index.to_nat(), must_ack))).collect(),
+        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid, must_ack))| (spi, (in_index.to_nat(), nid, must_ack))).collect(),
     };
 
     #[cfg(feature = "benchmark")]
@@ -60,6 +60,7 @@ pub fn main(config: Config) -> Fallible<()> {
                 ep: node.ep_read,
                 fault_reply_slot: node.fault_reply_slot,
                 thread: node.thread,
+                event_server_bitfield: node.event_server_bitfield,
                 extension: Extension {
                     resource_server_ep: resource_server_ep[i],
                     event_server_control_ep: event_server_control_ep[i],

@@ -267,7 +267,7 @@ class VM(BaseComponent):
 
     def map_con(self, objs, kick, event):
         irq = self.next_virq()
-        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0)
+        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0, False)
 
         ring_buffer = self.map_ring_buffer(objs)
         ring_buffer['kick'] = kick
@@ -281,7 +281,7 @@ class VM(BaseComponent):
 
     def map_net(self, objs, kick, event):
         irq = self.next_virq()
-        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0)
+        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0, False)
 
         ring_buffer = self.map_ring_buffer(objs)
         ring_buffer['kick'] = kick
@@ -357,7 +357,11 @@ class VMM(ElfComponent):
                 start_ep_read_write = 0
 
             full_thread.tcb['bound_notification'] = Cap(nfn, read=True)
-            self.event_server_targets.append((nfn, BADGE_EVENT))
+            if self.is_host:
+                bitfield = self.alloc(ObjectType.seL4_FrameObject, name='event_bitfield_for_core_{}'.format(node_index), size_bits=12)
+            else:
+                bitfield = self.composition.extern(ObjectType.seL4_FrameObject, 'realm_{}_event_bitfield_for_core_{}'.format(self.composition.realm_id(), node_index))
+            self.event_server_targets.append((nfn, bitfield))
 
             # Create and append a Node structure for each node
             nodes.append({
@@ -366,6 +370,7 @@ class VMM(ElfComponent):
                 'thread': thread,
                 'ep_read': self.cspace().alloc(ep, read=True),
                 'fault_reply_slot': self.cspace().alloc(None),
+                'event_server_bitfield': self.map_region([(bitfield, 12)], read=True, write=True),
                 })
 
         self._arg = {
@@ -377,7 +382,7 @@ class VMM(ElfComponent):
 
 
             'ppi_map': {},
-            'spi_map': { i: ({ 'SPI': i }, 0) for i in range(32, 1020) } if self.is_host else {},
+            'spi_map': { i: ({ 'SPI': i }, 0, True) for i in range(32, 1020) } if self.is_host else {},
         }
 
         if self.is_host:

@@ -18,8 +18,8 @@ pub struct Config {
     pub nodes: Vec<Node>,
     pub event_server_client_ep: Vec<Endpoint>,
 
-    pub ppi_map: BTreeMap<usize, RealmIn>,
-    pub spi_map: BTreeMap<usize, (RealmIn, usize)>, // in_index, nid
+    pub ppi_map: BTreeMap<usize, (RealmIn, bool)>,
+    pub spi_map: BTreeMap<usize, (RealmIn, usize, bool)>, // in_index, nid
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,6 +29,7 @@ pub struct Node {
     pub thread: Thread,
     pub ep_read: Endpoint,
     pub fault_reply_slot: Endpoint,
+    pub event_server_bitfield: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -30,8 +30,8 @@ pub fn main(config: Config) -> Fallible<()> {
     let event_server_client_ep = config.event_server_client_ep;
 
     let irq_map = IRQMap {
-        ppi: config.ppi_map.into_iter().map(|(ppi, in_index)| (ppi, in_index.to_nat())).collect(),
-        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid))| (spi, (in_index.to_nat(), nid))).collect(),
+        ppi: config.ppi_map.into_iter().map(|(ppi, (in_index, must_ack))| (ppi, (in_index.to_nat(), must_ack))).collect(),
+        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid, must_ack))| (spi, (in_index.to_nat(), nid, must_ack))).collect(),
     };
 
     VMMConfig {
@@ -48,6 +48,7 @@ pub fn main(config: Config) -> Fallible<()> {
                 vcpu: node.vcpu,
                 ep: node.ep_read,
                 fault_reply_slot: node.fault_reply_slot,
+                event_server_bitfield: node.event_server_bitfield,
                 thread: node.thread,
                 extension: Extension {
                 },

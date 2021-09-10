@@ -67,14 +67,20 @@ class EventServer(ElfComponent):
 
     def register_host_notifications(self, nfns_and_badges):
         nfns = []
-        for (nfn, badge) in nfns_and_badges:
-            nfns.append(self.cspace().alloc(nfn, badge=badge, write=True))
+        for (nfn, bitfield) in nfns_and_badges:
+            nfns.append({
+                'nfn': [ self.cspace().alloc(nfn, badge=1<<i, write=True) for i in range(0, 32) ],
+                'bitfield': self.map_region([(bitfield, 12)], read=True, write=True),
+                })
         self._arg['host_notifications'] = nfns
 
     def register_realm_notifications(self, nfns_and_badges):
         nfns = []
-        for (nfn, badge) in nfns_and_badges:
-            nfns.append(self.cspace().alloc(nfn, badge=badge, write=True))
+        for (nfn, bitfield) in nfns_and_badges:
+            nfns.append({
+                'nfn': [ self.cspace().alloc(nfn, badge=1<<i, write=True) for i in range(0, 32) ],
+                'bitfield': self.map_region([(bitfield, 12)], read=True, write=True),
+                })
         self._arg['realm_notifications'].append(nfns)
 
     def register_client(self, client, client_out, id):

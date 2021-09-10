@@ -52,8 +52,11 @@ class Composition(BaseComposition):
             for j in range(self.num_nodes()):
                 name = 'realm_{}_nfn_for_core_{}'.format(i, j)
                 nfn = self.alloc(ObjectType.seL4_NotificationObject, name)
+                bitfield_name = 'realm_{}_event_bitfield_for_core_{}'.format(i, j)
+                bitfield = self.alloc(ObjectType.seL4_FrameObject, name=bitfield_name, size_bits=12)
                 self.resource_server.add_extern(name, 'Notification', self.resource_server.cspace().alloc(nfn, read=True))
-                nfns.append((nfn, BADGE_EVENT))
+                self.resource_server.add_extern(bitfield_name, 'SmallPage', self.resource_server.cspace().alloc(bitfield, read=True, write=True))
+                nfns.append((nfn, bitfield))
             self.event_server.register_realm_notifications(nfns)
 
             host_realm_net_objs, realm_host_net_objs = self.alloc_ring_buffer(

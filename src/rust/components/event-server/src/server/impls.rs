@@ -36,7 +36,8 @@ impl EventServer {
         assert!(old.is_none());
         assert!(self.host_subscriptions[nid].slot.is_none());
         self.host_subscriptions[nid].slot = Some(slot.clone());
-        in_space.borrow_mut().notify_if_necessary() // HACK
+        // in_space.borrow_mut().notify_if_necessary() // HACK
+        Ok(())
     }
 
     pub fn resource_server_subscribe(&mut self, nid: NodeIndex, host_nid: NodeIndex) -> Fallible<()> {
@@ -46,7 +47,8 @@ impl EventServer {
         assert!(old.is_none());
         assert!(self.resource_server_subscriptions[nid].slot.is_none());
         self.resource_server_subscriptions[nid].slot = Some(slot.clone());
-        in_space.borrow_mut().notify_if_necessary() // HACK
+        // in_space.borrow_mut().notify_if_necessary() // HACK
+        Ok(())
     }
 
     pub fn resource_server_unsubscribe(&mut self, nid: NodeIndex, host_nid: NodeIndex) -> Fallible<()> {
@@ -61,7 +63,8 @@ impl EventServer {
 impl Client {
 
     pub fn sev(&mut self, nid: NodeIndex) -> Fallible<()> {
-        self.in_spaces[nid].borrow_mut().notify_subscriber()
+        // self.in_spaces[nid].borrow_mut().notify_subscriber()
+        panic!()
     }
 
     pub fn signal(&mut self, index: OutIndex) -> Fallible<()> {
@@ -69,7 +72,7 @@ impl Client {
     }
 
     pub fn poll(&mut self, nid: NodeIndex) -> Fallible<Option<InIndex>> {
-        self.in_spaces[nid].borrow_mut().poll()
+        panic!()
     }
 
     pub fn end(&mut self, nid: NodeIndex, index: InIndex) -> Fallible<()> {
@@ -125,9 +128,6 @@ impl Event {
             event: event.clone(),
             // enabled: false,
             enabled: true, // TODO HACK
-            priority: 1, // TODO
-            active: false,
-            pending: false,
         });
         event.borrow_mut().target = Some(EventTarget {
             in_space: in_space.clone(),
@@ -144,45 +144,44 @@ impl InSpace {
 
     pub fn signal(&mut self, index: InIndex) -> Fallible<()> {
         let entry = self.entries[index].as_mut().unwrap();
-        entry.pending = true;
-        self.notify_if_necessary()
-    }
-
-    pub fn poll(&mut self) -> Fallible<Option<InIndex>> {
-        for (i, entry) in (&mut self.entries).into_iter().enumerate() {
-            if let Some(entry) = entry {
-                if entry.enabled && entry.pending && !entry.active {
-                    entry.pending = false;
-                    entry.active = true;
-                    return Ok(Some(i))
-                }
-            }
+        let bit_lot_index = index / 64;
+        let bit_lot_bit = index % 64;
+        // debug_println!("ix {}, addr 0x{:x}", index, self.notification.bitfield + bit_lot_index);
+        let bit_lot = unsafe {
+            &*((self.notification.bitfield + 8 * bit_lot_index) as *const core::sync::atomic::AtomicU64)
+        };
+        let old = bit_lot.fetch_or(1 << bit_lot_bit, core::sync::atomic::Ordering::SeqCst);
+        if old & (1 << bit_lot_bit) == 0 {
+            self.notification.nfn[bit_lot_index].signal();
+            self.notify_subscriber();
         }
-        Ok(None)
+        Ok(())
     }
 
     // NOTE: internally end after moving to be safe
     pub fn end(&mut self, index: InIndex) -> Fallible<()> {
         let entry = self.entries[index].as_mut().unwrap();
-        entry.active = false;
         if let Some(irq) = &entry.event.borrow().irq {
             irq.handler.ack()?;
+        } else {
+            panic!()
         }
-        self.notify_if_necessary()
+        Ok(())
     }
 
     pub fn configure(&mut self, index: InIndex, action: ConfigureAction) -> Fallible<()> {
         let entry = self.entries[index].as_mut().unwrap();
         match action {
             ConfigureAction::SetPriority(priority) => {
-                entry.priority = priority;
+                panic!("prio");
             }
             ConfigureAction::SetEnabled(enabled) => {
                 // TODO if backed by IRQ, unbind IRQ notification
                 entry.enabled = enabled;
             }
         }
-        self.notify_if_necessary()
+        // self.notify_if_necessary() // TODO
+        Ok(())
     }
 
     pub fn notify_subscriber(&self) -> Fallible<()> {
@@ -190,25 +189,6 @@ impl InSpace {
             subscriber.signal()?;
         }
         Ok(())
-    }
-
-    // HACK
-    pub fn notify_if_necessary(&mut self) -> Fallible<()> {
-        for entry in &self.entries {
-            if let Some(entry) = entry {
-                if entry.enabled && entry.pending {
-                    self.notify()?;
-                    break;
-                }
-            }
-        }
-        Ok(())
-    }
-
-    pub fn notify(&self) -> Fallible<()> {
-        // debug_println!("signalling {:?}", self.notification);
-        self.notification.signal();
-        self.notify_subscriber()
     }
 }
 
@@ -232,7 +212,7 @@ impl InactiveRealm {
             out_space: self.out_space.clone(),
             in_spaces: (0..num_nodes).map(|nid| {
                 Arc::new(RefCell::new(InSpace {
-                    notification: self.in_notifications[nid],
+                    notification: self.in_notifications[nid].clone(),
                     subscription_slot: Arc::new(RefCell::new(None)),
                     entries: (0..events::RealmIn::CARDINALITY).map(|_| None).collect(),
                 }))

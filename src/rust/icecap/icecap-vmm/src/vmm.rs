@@ -20,8 +20,8 @@ use icecap_event_server_types::{
 use crate::asm;
 
 pub struct IRQMap {
-    pub ppi: BTreeMap<usize, InIndex>,
-    pub spi: BTreeMap<usize, (InIndex, usize)>, // (in_index, nid)
+    pub ppi: BTreeMap<usize, (InIndex, bool)>, // (in_index, must_ack)
+    pub spi: BTreeMap<usize, (InIndex, usize, bool)>, // (in_index, nid, must_ack)
 }
 
 pub struct VMMConfig<E> {
@@ -42,6 +42,7 @@ pub struct VMMNodeConfig<E> {
     pub ep: Endpoint,
     pub fault_reply_slot: Endpoint,
     pub thread: Thread,
+    pub event_server_bitfield: usize, // HACK
     pub extension: E,
 }
 
@@ -59,6 +60,7 @@ pub struct VMMNode<E> {
     pub cnode: CNode,
     pub fault_reply_slot: Endpoint,
     pub event_server_client: RPCClient<event_server::calls::Client>,
+    pub event_server_bitfield: usize, // HACK,
     pub gic_dist_paddr: usize,
     pub gic: Arc<Mutex<GIC<VMMGICCallbacks>>>,
     pub nodes: Arc<Mutex<Vec<Option<(Thread, VMMNode<E>)>>>>,
@@ -80,7 +82,7 @@ impl VMMGICCallbacks {
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
                 // assert_eq!(calling_node, node); // TODO HACK
-                if let Some(in_index) = self.irq_map.ppi.get(&irq) {
+                if let Some((in_index, _must_ack)) = self.irq_map.ppi.get(&irq) {
                     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
                         nid: calling_node,
                         index: *in_index,
@@ -91,7 +93,7 @@ impl VMMGICCallbacks {
                 }
             }
             QualifiedIRQ::SPI { irq } => {
-                if let Some((in_index, nid)) = self.irq_map.spi.get(&irq) {
+                if let Some((in_index, nid, _must_ack)) = self.irq_map.spi.get(&irq) {
                     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
                         nid: *nid,
                         index: *in_index,
@@ -126,21 +128,25 @@ impl GICCallbacks for VMMGICCallbacks {
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
                 // assert_eq!(calling_node, node); // TODO HACK
-                if let Some(in_index) = self.irq_map.ppi.get(&irq) {
-                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
-                        nid: calling_node,
-                        index: *in_index,
-                    });
+                if let Some((in_index, must_ack)) = self.irq_map.ppi.get(&irq) {
+                    if *must_ack {
+                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
+                            nid: calling_node,
+                            index: *in_index,
+                        });
+                    }
                 } else {
                     self.vcpus[node].ack_vppi(irq as u64)?;
                 }
             }
             QualifiedIRQ::SPI { irq } => {
-                if let Some((in_index, nid)) = self.irq_map.spi.get(&irq) {
-                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
-                        nid: *nid,
-                        index: *in_index,
-                    });
+                if let Some((in_index, nid, must_ack)) = self.irq_map.spi.get(&irq) {
+                    if *must_ack {
+                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
+                            nid: *nid,
+                            index: *in_index,
+                        });
+                    }
                 } else {
                     // panic!("unbound irq: {}", irq); // TODO HACK
                 }
@@ -188,6 +194,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 ep: node_config.ep,
                 fault_reply_slot: node_config.fault_reply_slot,
                 event_server_client: RPCClient::<event_server::calls::Client>::new(event_server_client_ep[i]),
+                event_server_bitfield: node_config.event_server_bitfield,
                 cnode: self.cnode,
                 extension: node_config.extension,
                 gic_dist_paddr: self.gic_dist_paddr,
@@ -224,36 +231,6 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         loop {
             let (info, badge) = self.ep.recv();
             match badge {
-                BADGE_EVENT => {
-                    // if self.debug {
-                    //     debug_println!("badge external");
-                    // }
-                    // TODO should the poll be atomic w.r.t. GIC with rest of block?
-                    while let Some(in_index) = self.event_server_client.call::<Option<event_server::InIndex>>(&event_server::calls::Client::Poll { nid: self.node_index }) {
-                        // debug_println!("poll: {:?}", event_server::events::HostIn::from_nat(in_index));
-                        let mut gic = self.gic.lock();
-                        let irq = {
-                            let mut irq = None;
-                            for (ppi, ppi_in_index) in &gic.callbacks().irq_map.ppi {
-                                if *ppi_in_index == in_index {
-                                    irq = Some(QualifiedIRQ::QualifiedPPI { node: self.node_index, irq: *ppi });
-                                    break;
-                                }
-                            }
-                            if let None = irq {
-                                for (spi, (spi_in_index, nid)) in &gic.callbacks().irq_map.spi {
-                                    assert_eq!(*nid, self.node_index);
-                                    if *spi_in_index == in_index {
-                                        irq = Some(QualifiedIRQ::SPI { irq: *spi });
-                                        break;
-                                    }
-                                }
-                            }
-                            irq.unwrap()
-                        };
-                        gic.handle_irq(self.node_index, irq)?;
-                    }
-                }
                 BADGE_VM => {
                     let fault = Fault::get(info);
                     match fault {
@@ -289,8 +266,38 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                         }
                     }
                 }
-                _ => {
-                    panic!();
+                bit_lots => {
+                    let mut gic = self.gic.lock();
+                    for bit_lot_index in biterate::biterate(bit_lots) {
+                        let bit_lot = unsafe {
+                            &*((self.event_server_bitfield + ((8 * bit_lot_index) as usize)) as *const core::sync::atomic::AtomicU64)
+                        };
+                        let bits = bit_lot.swap(0, core::sync::atomic::Ordering::SeqCst);
+                        for bit in biterate::biterate(bits) {
+                            let in_index = (bit_lot_index * 64 + bit) as usize;
+                            // debug_println!("in_index = {}", in_index);
+                            let irq = {
+                                let mut irq = None;
+                                for (ppi, (ppi_in_index, must_ack)) in &gic.callbacks().irq_map.ppi {
+                                    if *ppi_in_index == in_index {
+                                        irq = Some(QualifiedIRQ::QualifiedPPI { node: self.node_index, irq: *ppi });
+                                        break;
+                                    }
+                                }
+                                if let None = irq {
+                                    for (spi, (spi_in_index, nid, must_ack)) in &gic.callbacks().irq_map.spi {
+                                        assert_eq!(*nid, self.node_index);
+                                        if *spi_in_index == in_index {
+                                            irq = Some(QualifiedIRQ::SPI { irq: *spi });
+                                            break;
+                                        }
+                                    }
+                                }
+                                irq.unwrap()
+                            };
+                            gic.handle_irq(self.node_index, irq)?;
+                        }
+                    }
                 }
             }
         }

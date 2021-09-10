@@ -18,12 +18,18 @@ pub struct Config {
 
     pub badges: Badges,
 
-    pub host_notifications: Vec<Notification>,
-    pub realm_notifications: Vec<Vec<Notification>>,
+    pub host_notifications: Vec<VMMNode>,
+    pub realm_notifications: Vec<Vec<VMMNode>>,
     pub resource_server_subscriptions: Vec<Notification>,
 
     pub irqs: BTreeMap<usize, (IRQHandler, Vec<Notification>)>,
     pub irq_threads: Vec<IRQThreadConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VMMNode {
+    pub nfn: Vec<Notification>,
+    pub bitfield: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
