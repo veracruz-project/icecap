@@ -144,7 +144,7 @@ class ResourceServer(ElfComponent):
 
     def register_host(self, host):
         for ep in self.endpoints:
-            yield host.cspace().alloc(ep, badge=0, write=True, grantreply=True)
+            yield (host.cspace().alloc(ep, badge=0, write=True, grantreply=True), host.vm.cspace().alloc(ep, badge=1, write=True, grantreply=True))
 
     def serialize_arg(self):
         return 'serialize-resource-server-config'

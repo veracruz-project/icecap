@@ -155,6 +155,7 @@ class VM(BaseComponent):
             self.devices.append({
                 'ResourceServer': {
                     'bulk_region': self.map_region(self.composition.resource_server.host_bulk_region_frames, write=True),
+                    'endpoints': self.resource_server_endpoints,
                     }
                 })
 
@@ -387,11 +388,13 @@ class VMM(ElfComponent):
 
         if self.is_host:
             event_server_client_eps = self.composition.event_server.register_client(self, self.vm, { 'Host': None })
+            resource_server_eps = list(self.composition.resource_server.register_host(self))
             self.vm.event_server_out_endpoints = [ eps[1] for eps in event_server_client_eps ]
+            self.vm.resource_server_endpoints = [ eps[1] for eps in resource_server_eps ]
             self._arg.update({
                 'event_server_client_ep': [ eps[0] for eps in event_server_client_eps ],
                 'event_server_control_ep': self.composition.event_server.register_control_host(self),
-                'resource_server_ep': list(self.composition.resource_server.register_host(self)),
+                'resource_server_ep':  [ eps[0] for eps in resource_server_eps ],
                 'benchmark_server_ep': self.cspace().alloc(self.composition.benchmark_server.ep, write=True, grantreply=True),
                 'log_buffer': self.cspace().alloc(self.alloc(ObjectType.seL4_FrameObject, name='log_buffer', size_bits=21), read=True, write=True),
                 })

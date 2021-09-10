@@ -129,6 +129,20 @@ fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bu
                     }
                     Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
                 }
+            } else if badge == 1 {
+                let swap = MR_0.get();
+                let physical_node = ((swap >> (0 * 16)) & ((1 << 16) - 1)) as usize;
+                let realm_id = ((swap >> (1 * 16)) & ((1 << 16) - 1)) as usize;
+                let virtual_node = ((swap >> (2 * 16)) & ((1 << 16) - 1)) as usize;
+                let optional_timeout = MR_1.get();
+                let timeout = if optional_timeout == 0 {
+                    None
+                } else {
+                    Some((optional_timeout & !(1 << 63)) as usize)
+                };
+                // debug_println!("yield to on {}: {} {} {} {:?}", node_index, physical_node, realm_id, virtual_node, timeout);
+                assert_eq!(physical_node, node_index);
+                resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
             } else if badge == 0x100 {
                 // debug_println!("timeout on {}", node_index);
                 resource_server.timeout(node_index)?;

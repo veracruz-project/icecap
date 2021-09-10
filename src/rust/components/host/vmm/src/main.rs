@@ -92,9 +92,6 @@ impl VMMExtension for Extension {
             sys_id::RESOURCE_SERVER_PASSTHRU => {
                 Self::sys_resource_server_passthru(node)?;
             }
-            sys_id::YIELD_TO => {
-                Self::sys_yield_to(node)?;
-            }
             sys_id::DIRECT => {
                 Self::sys_direct(node)?;
             }
@@ -130,31 +127,6 @@ impl Extension {
         ctx.x6 = r[5];
         ctx.pc += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
-        Ok(())
-    }
-
-    fn sys_yield_to(node: &mut VMMNode<Self>) -> Fallible<()> {
-        let bound = node.upper_ns_bound_interrupt()?.unwrap();
-        // HACK this shouldn't be happening so often
-        if bound <= 0 {
-            return Ok(())
-        }
-        let mut ctx = node.tcb.read_all_registers(false)?;
-        let realm_id = ctx.x0 as usize;
-        let virtual_node = ctx.x1 as usize;
-        let resp = RPCClient::new(node.extension.resource_server_ep).call::<resource_server::ResumeHostCondition>(&resource_server::Request::YieldTo {
-            physical_node: node.node_index,
-            realm_id,
-            virtual_node,
-            timeout: Some(bound as usize),
-            // timeout: None,
-        });
-        ctx.pc += 4;
-        node.tcb.write_all_registers(false, &mut ctx)?;
-        // {
-        //     let bound = node.upper_ns_bound_interrupt()?.unwrap();
-        //     assert!(bound < 0);
-        // }
         Ok(())
     }
 

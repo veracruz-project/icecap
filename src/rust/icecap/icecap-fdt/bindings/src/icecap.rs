@@ -122,6 +122,7 @@ impl RawRingBuffer<RingBuffer> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourceServer {
     pub bulk_region: Range<usize>,
+    pub endpoints: Vec<u64>
 }
 
 impl ResourceServer {
@@ -137,6 +138,9 @@ impl ResourceServer {
         node.set_property_cells("reg", spec, vec![
             Address(self.bulk_region.start), Size(self.bulk_region.len()),
         ]);
+        node.set_property_cells("endpoints", spec, self.endpoints.iter().map(|endpoint| {
+            Raw64(*endpoint)
+        }));
         dt.root.set_child(name, node);
     }
 }
@@ -169,7 +173,7 @@ impl<T> Device<T> {
             Device::Raw(RawRingBuffer { ring_buffer, irq, name, id }) => Device::Raw(RawRingBuffer { ring_buffer: f(ring_buffer)?, irq, name, id }),
             Device::Con(Con { ring_buffer, irq }) => Device::Con(Con { ring_buffer: f(ring_buffer)?, irq }),
             Device::Net(Net { ring_buffer, mtu, mac_address, irq }) => Device::Net(Net { ring_buffer: f(ring_buffer)?, mtu, mac_address, irq }),
-            Device::ResourceServer(ResourceServer { bulk_region }) => Device::ResourceServer(ResourceServer { bulk_region }),
+            Device::ResourceServer(ResourceServer { bulk_region, endpoints }) => Device::ResourceServer(ResourceServer { bulk_region, endpoints }),
         })
     }
 
