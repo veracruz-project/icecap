@@ -35,9 +35,9 @@ in
         sleep 5
       done
 
-      # (while true; do [ -f /stop ] || chrt -b 0 iperf3 -c ${hostAddr} && sleep 5 || break; done) &
+      (while true; do [ -f /stop ] || chrt -b 0 iperf3 -c ${hostAddr} && sleep 5 || break; done) &
 
-      chrt -b 0 iperf3 -c ${hostAddr}
+      # chrt -b 0 iperf3 -c ${hostAddr}
     '';
 
     initramfs.extraUtilsCommands = ''
