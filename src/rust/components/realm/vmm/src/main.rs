@@ -1,32 +1,18 @@
 #![no_std]
 #![no_main]
 #![feature(format_args_nl)]
-#![allow(unused_variables)]
-#![allow(unused_imports)]
-#![allow(unreachable_code)]
 
 extern crate alloc;
-
-use core::convert::TryFrom;
-use core::sync::atomic::{AtomicBool, Ordering};
-use alloc::collections::btree_map::BTreeMap;
-use alloc::sync::Arc;
-
-use biterate::biterate;
 
 use icecap_std::prelude::*;
 use icecap_std::sel4::fault::*;
 use icecap_std::finite_set::Finite;
-use icecap_rpc_sel4::*;
 use icecap_realm_vmm_config::*;
 use icecap_vmm::*;
-use icecap_event_server_types as event_server;
 
 declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
-    // let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
-    // icecap_std::set_print(con);
 
     let event_server_client_ep = config.event_server_client_ep;
 
@@ -63,12 +49,12 @@ struct Extension {
 
 impl VMMExtension for Extension {
 
-    fn handle_wf(node: &mut VMMNode<Self>) -> Fallible<()> {
-        panic!("wfe");
-        Ok(())
+    fn handle_wf(_node: &mut VMMNode<Self>) -> Fallible<()> {
+        panic!()
     }
 
-    fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
+    fn handle_syscall(_node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
+        #[allow(unreachable_code)]
         Ok(match fault.syscall {
             _ => {
                 panic!("unknown syscall")
@@ -76,11 +62,8 @@ impl VMMExtension for Extension {
         })
     }
 
-    fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()> {
+    fn handle_putchar(_node: &mut VMMNode<Self>, c: u8) -> Fallible<()> {
         debug_print!("{}", c as char);
         Ok(())
     }
-}
-
-impl Extension {
 }
