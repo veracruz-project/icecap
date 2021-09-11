@@ -10,22 +10,16 @@ use icecap_core::{
     rpc_sel4::RPCClient,
 };
 use icecap_vmm_gic::*;
-use icecap_event_server_types::{
-    self as event_server,
-    InIndex,
-};
+use icecap_event_server_types as event_server;
 
 use crate::psci;
 
-const BADGE_FAULT: Badge = 0;
 
 const SYS_PSCI: Word = 0;
 const SYS_PUTCHAR: Word = 1337;
 
-pub struct IRQMap {
-    pub ppi: BTreeMap<usize, (InIndex, bool)>, // (in_index, must_ack)
-    pub spi: BTreeMap<usize, (InIndex, usize, bool)>, // (in_index, nid, must_ack)
-}
+const BADGE_FAULT: Badge = 0;
+
 
 pub struct VMMConfig<E> {
     pub cnode: CNode,
@@ -55,18 +49,30 @@ pub trait VMMExtension: Sized {
     fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()>;
 }
 
+pub struct IRQMap {
+    pub ppi: BTreeMap<usize, (event_server::InIndex, bool)>, // (in_index, must_ack)
+    pub spi: BTreeMap<usize, (event_server::InIndex, usize, bool)>, // (in_index, nid, must_ack)
+}
+
+
 pub struct VMMNode<E> {
     pub node_index: NodeIndex,
+
     pub tcb: TCB,
     pub vcpu: VCPU,
     pub ep: Endpoint,
+
     pub cnode: CNode,
     pub fault_reply_slot: Endpoint,
+
     pub event_server_client: RPCClient<event_server::calls::Client>,
     pub event_server_bitfield: usize, // HACK,
+
     pub gic_dist_paddr: usize,
     pub gic: Arc<Mutex<GIC<VMMGICCallbacks>>>,
+
     pub nodes: Arc<Mutex<Vec<Option<(Thread, VMMNode<E>)>>>>,
+
     pub extension: E,
 
     pub debug: bool,
@@ -78,131 +84,57 @@ pub struct VMMGICCallbacks {
     irq_map: IRQMap,
 }
 
-impl VMMGICCallbacks {
-
-    fn configure(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, action: event_server::ConfigureAction) -> Fallible<()> {
-        debug_println!("VMMGICCallbacks::configure({}, {:?}, {:?})", calling_node, irq, action);
-        match irq {
-            QualifiedIRQ::QualifiedPPI { node, irq } => {
-                // assert_eq!(calling_node, node); // TODO
-                if let Some((in_index, _must_ack)) = self.irq_map.ppi.get(&irq) {
-                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
-                        nid: calling_node,
-                        index: *in_index,
-                        action,
-                    });
-                } else {
-                    self.vcpus[node].ack_vppi(irq as u64)?;
-                }
-            }
-            QualifiedIRQ::SPI { irq } => {
-                if let Some((in_index, nid, _must_ack)) = self.irq_map.spi.get(&irq) {
-                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
-                        nid: *nid,
-                        index: *in_index,
-                        action,
-                    });
-                } else {
-                    panic!("unbound irq: {}", irq); // TODO
-                }
-            }
-        }
-        Ok(())
-    }
-}
-
-impl GICCallbacks for VMMGICCallbacks {
-
-    fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
-        match irq {
-            QualifiedIRQ::QualifiedPPI { node, irq } => {
-                // assert_eq!(calling_node, node); // TODO
-                if let Some((in_index, must_ack)) = self.irq_map.ppi.get(&irq) {
-                    if *must_ack {
-                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
-                            nid: calling_node,
-                            index: *in_index,
-                        });
-                    }
-                } else {
-                    self.vcpus[node].ack_vppi(irq as u64)?;
-                }
-            }
-            QualifiedIRQ::SPI { irq } => {
-                if let Some((in_index, nid, must_ack)) = self.irq_map.spi.get(&irq) {
-                    if *must_ack {
-                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
-                            nid: *nid,
-                            index: *in_index,
-                        });
-                    }
-                } else {
-                    // panic!("unbound irq: {}", irq); // TODO
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()> {
-        if calling_node != target_node && irq > 15 {
-            debug_println!("warning: cross-core vcpu_inject_irq({}), {} -> {}", irq, calling_node, target_node);
-        }
-        self.vcpus[target_node].inject_irq(irq as u16, priority as u8, 0, index as u8)?;
-        Ok(())
-    }
-
-    fn set_affinity(&mut self, calling_node: NodeIndex, irq: SPI, affinity: NodeIndex) -> Fallible<()> {
-        debug_println!("VMMGICCallbacks::set_affinity({}, {}, {})", calling_node, irq, affinity);
-        Ok(())
-    }
-
-    fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()> {
-        debug_println!("VMMGICCallbacks::set_priority({}, {:?}, {})", calling_node, irq, priority);
-        self.configure(calling_node, irq, event_server::ConfigureAction::SetPriority(priority))
-    }
-
-    fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()> {
-        self.configure(calling_node, irq, event_server::ConfigureAction::SetEnabled(enabled))
-    }
-}
 
 impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
 
     pub fn run(mut self) -> Fallible<()> {
+
         let event_server_client_ep = self.event_server_client_ep;
+
         let nodes = Arc::new(Mutex::new(ExplicitMutexNotification::new(self.nodes_lock), Vec::new()));
+
         let gic = GIC::new(self.nodes.len(), VMMGICCallbacks {
-            event_server_client: event_server_client_ep.iter().map(|ep| RPCClient::<event_server::calls::Client>::new(*ep)).collect(), // HACK
-            vcpus: self.nodes.iter().map(|node| node.vcpu).collect(),
             irq_map: self.irq_map,
+            vcpus: self.nodes.iter().map(|node| node.vcpu).collect(),
+            event_server_client: event_server_client_ep.iter().map(|ep| {
+                RPCClient::<event_server::calls::Client>::new(*ep)
+            }).collect(),
         });
         let gic = Arc::new(Mutex::new(ExplicitMutexNotification::new(self.gic_lock), gic));
+
         for (i, node_config) in self.nodes.drain(..).enumerate() {
             let node = VMMNode {
+                node_index: i,
+
                 tcb: node_config.tcb,
                 vcpu: node_config.vcpu,
                 ep: node_config.ep,
+
+                cnode: self.cnode,
                 fault_reply_slot: node_config.fault_reply_slot,
+
                 event_server_client: RPCClient::<event_server::calls::Client>::new(event_server_client_ep[i]),
                 event_server_bitfield: node_config.event_server_bitfield,
-                cnode: self.cnode,
-                extension: node_config.extension,
+
                 gic_dist_paddr: self.gic_dist_paddr,
-                node_index: i,
                 gic: gic.clone(),
+
                 nodes: nodes.clone(),
+
+                extension: node_config.extension,
 
                 debug: self.debug,
             };
             nodes.lock().push(Some((node_config.thread, node)));
         }
+
         let (_thread, mut node) = {
             let mut this = None;
             let mut nodes = nodes.lock();
             core::mem::swap(&mut this, &mut nodes[0]);
             this.unwrap()
         };
+
         node.run()
     }
 }
@@ -237,10 +169,11 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             }
                         }
                         Fault::VPPIEvent(fault) => {
-                            self.gic.lock().handle_irq(self.node_index, QualifiedIRQ::QualifiedPPI {
+                            let irq = QualifiedIRQ::QualifiedPPI {
                                 node: self.node_index,
                                 irq: fault.irq as usize,
-                            })?;
+                            };
+                            self.gic.lock().handle_irq(self.node_index, irq)?;
                             reply(MessageInfo::empty());
                         }
                         _ => {
@@ -291,7 +224,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             let offset = addr - self.gic_dist_paddr;
             self.handle_dist_fault(fault, offset)?;
         } else {
-            panic!("unhandled page fault at 0x{:x}", addr);
+            panic!("unhandled page fault: {:x?}", fault);
         }
         Ok(())
     }
@@ -358,7 +291,6 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 let target = fault.x1 as usize;
                 let entry = fault.x2 as u64;
                 let ctx_id = fault.x3 as u64;
-                // debug_println!("cpu_on: {:x} {:x} {:x}", target, entry, ctx_id);
                 let (thread, mut node) = {
                     let mut this = None;
                     let mut nodes = self.nodes.lock();
@@ -386,4 +318,95 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         Ok(())
     }
 
+}
+
+
+impl GICCallbacks for VMMGICCallbacks {
+
+    fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
+        match irq {
+            QualifiedIRQ::QualifiedPPI { node, irq } => {
+                // assert_eq!(calling_node, node); // TODO
+                if let Some((in_index, must_ack)) = self.irq_map.ppi.get(&irq) {
+                    if *must_ack {
+                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
+                            nid: calling_node,
+                            index: *in_index,
+                        });
+                    }
+                } else {
+                    self.vcpus[node].ack_vppi(irq as u64)?;
+                }
+            }
+            QualifiedIRQ::SPI { irq } => {
+                if let Some((in_index, nid, must_ack)) = self.irq_map.spi.get(&irq) {
+                    if *must_ack {
+                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
+                            nid: *nid,
+                            index: *in_index,
+                        });
+                    }
+                } else {
+                    // panic!("unbound irq: {}", irq); // TODO
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()> {
+        if calling_node != target_node && irq > 15 {
+            debug_println!("warning: cross-core vcpu_inject_irq({}), node:{} -> node:{}", irq, calling_node, target_node);
+        }
+        self.vcpus[target_node].inject_irq(irq as u16, priority as u8, 0, index as u8)?;
+        Ok(())
+    }
+
+    fn set_affinity(&mut self, calling_node: NodeIndex, irq: SPI, affinity: NodeIndex) -> Fallible<()> {
+        debug_println!("VMMGICCallbacks::set_affinity({}, {}, {})", calling_node, irq, affinity);
+        // TODO
+        Ok(())
+    }
+
+    fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()> {
+        debug_println!("VMMGICCallbacks::set_priority({}, {:?}, {})", calling_node, irq, priority);
+        self.configure(calling_node, irq, event_server::ConfigureAction::SetPriority(priority))
+    }
+
+    fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()> {
+        self.configure(calling_node, irq, event_server::ConfigureAction::SetEnabled(enabled))
+    }
+}
+
+impl VMMGICCallbacks {
+
+    fn configure(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, action: event_server::ConfigureAction) -> Fallible<()> {
+        debug_println!("VMMGICCallbacks::configure({}, {:?}, {:?})", calling_node, irq, action);
+        match irq {
+            QualifiedIRQ::QualifiedPPI { node, irq } => {
+                // assert_eq!(calling_node, node); // TODO
+                if let Some((in_index, _must_ack)) = self.irq_map.ppi.get(&irq) {
+                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
+                        nid: calling_node,
+                        index: *in_index,
+                        action,
+                    });
+                } else {
+                    self.vcpus[node].ack_vppi(irq as u64)?;
+                }
+            }
+            QualifiedIRQ::SPI { irq } => {
+                if let Some((in_index, nid, _must_ack)) = self.irq_map.spi.get(&irq) {
+                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
+                        nid: *nid,
+                        index: *in_index,
+                        action,
+                    });
+                } else {
+                    panic!("unbound irq: {}", irq); // TODO
+                }
+            }
+        }
+        Ok(())
+    }
 }
