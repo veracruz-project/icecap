@@ -1,6 +1,7 @@
+#![allow(unused_variables)]
+
 use icecap_core::prelude::*;
 use core::ops::Range;
-use core::mem;
 use core::convert::TryFrom;
 
 mod set;

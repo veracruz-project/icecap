@@ -1,8 +1,6 @@
 use core::ops::Range;
 use alloc::collections::BTreeMap;
 
-use icecap_core::prelude::*;
-
 #[derive(Debug)]
 pub struct Set {
     elements: BTreeMap<usize, bool>,

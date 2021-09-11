@@ -9,6 +9,7 @@ use icecap_rpc_sel4::*;
 use icecap_benchmark_server_types::*;
 use icecap_benchmark_server_config::*;
 
+#[allow(dead_code)]
 const NUM_NODES: usize = 4;
 
 declare_main!(main);

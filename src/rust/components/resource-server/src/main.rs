@@ -3,18 +3,13 @@
 #![feature(format_args_nl)]
 #![feature(never_type)]
 #![feature(core_intrinsics)]
-#![allow(unused_variables)]
-#![allow(unused_imports)]
 
-#[macro_use]
 extern crate alloc;
 
 use icecap_std::{
     prelude::*,
     sync::*,
 };
-use icecap_std::finite_set::Finite;
-use icecap_std::config::RingBufferKicksConfig;
 use icecap_resource_server_config::*;
 use icecap_resource_server_types::*;
 use icecap_resource_server_core::*;
@@ -22,16 +17,13 @@ use icecap_timer_server_client::*;
 use icecap_rpc_sel4::*;
 
 use icecap_event_server_types::calls::ResourceServer as EventServerRequest;
-use icecap_event_server_types::{self as event_server, events};
+use icecap_event_server_types;
 
 mod realize_config;
 use realize_config::*;
 
 use core::intrinsics::volatile_copy_nonoverlapping_memory;
 use alloc::{
-    vec::Vec,
-    collections::BTreeMap,
-    rc::Rc,
     sync::Arc,
 };
 
@@ -84,9 +76,7 @@ fn main(config: Config) -> Fallible<()> {
         })
     }
 
-    run(&server, 0, config.local[0].endpoint, bulk_region, bulk_region_size)?;
-
-    Ok(())
+    run(&server, 0, config.local[0].endpoint, bulk_region, bulk_region_size)?
 }
 
 fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bulk_region: usize, bulk_region_size: usize) -> Fallible<!> {
@@ -100,8 +90,11 @@ fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bu
             let mut resource_server = server.lock();
 
             if badge == 0 {
+                #[allow(unused_variables)]
                 match rpc_server::recv(&info) {
-                    Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
+                    Request::Declare { realm_id, spec_size } => {
+                        rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?)
+                    }
                     Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset } => {
                         assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
                         let mut content = vec![0; bulk_data_size];
@@ -114,7 +107,6 @@ fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bu
                     Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset } => {
                         todo!()
                     },
-                    Request::Declare { realm_id, spec_size } => rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
                     Request::Realize { realm_id } => {
                         rpc_server::reply::<()>(&resource_server.realize(node_index, realm_id)?)
                     }

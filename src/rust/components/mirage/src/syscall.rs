@@ -92,8 +92,5 @@ fn handle_known_syscall(syscall: Syscall) -> Fallible<i64> {
             }
             ret as i64
         }
-        _ => {
-            bail!("unhandled syscall: {:?}", syscall)
-        }
     })
 }

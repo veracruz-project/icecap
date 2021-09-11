@@ -1,3 +1,7 @@
+#![allow(dead_code)]
+#![allow(unreachable_code)]
+#![allow(unused_variables)]
+
 use core::convert::TryFrom;
 
 use icecap_core::prelude::*;

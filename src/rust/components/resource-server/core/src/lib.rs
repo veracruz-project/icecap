@@ -1,10 +1,6 @@
 #![no_std]
 #![feature(alloc_prelude)]
 #![feature(format_args_nl)]
-#![allow(dead_code)]
-#![allow(unreachable_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 
 #[macro_use]
 extern crate alloc;
@@ -35,6 +31,7 @@ pub use cregion::{CRegion, Slot};
 pub use allocator::{Allocator, AllocatorBuilder};
 pub use initialize_realm_objects::{RealmObjectInitializationResources};
 
+#[allow(dead_code)]
 pub struct FillId {
     obj_id: ObjId,
     fill_index: usize,
@@ -235,7 +232,7 @@ impl ResourceServer {
         };
         ensure!(self.allocator.peek_space(&untyped_requirements));
 
-        let (mut cregion, cnode_untyped_id, managed_cnode_slot) = self.allocator.create_cnode(cnode_slots_size_bits)?;
+        let (mut cregion, cnode_untyped_id, _managed_cnode_slot) = self.allocator.create_cnode(cnode_slots_size_bits)?;
         let (local_object_slots, local_object_untyped_ids) = self.allocator.create_objects(&mut cregion, &local_object_blueprints)?;
 
         // fill pages

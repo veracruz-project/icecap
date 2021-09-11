@@ -1,17 +1,12 @@
 #![no_std]
 #![no_main]
 #![feature(alloc_prelude)]
-#![feature(array_value_iter)]
 #![feature(format_args_nl)]
 #![feature(c_variadic)]
-#![feature(type_ascription)]
 #![feature(new_uninit)]
-#![feature(slice_ptr_range)]
-#![feature(const_mut_refs)]
 #![allow(dead_code)]
-#![allow(unused_comparisons)]
-#![allow(unused_imports)]
 #![allow(unused_variables)]
+#![allow(unreachable_code)]
 
 extern crate alloc;
 
