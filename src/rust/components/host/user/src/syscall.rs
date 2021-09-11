@@ -12,8 +12,8 @@ cfg_if::cfg_if! {
     }
 }
 
-const ICECAP_VMM_PASSTHRU: Ioctl = 0xc0403300;
-const ICECAP_VMM_YIELD_TO: Ioctl = 0xc0103301;
+const ICECAP_VMM_PASSTHRU: u32 = 0xc0403300;
+const ICECAP_VMM_YIELD_TO: u32 = 0xc0103301;
 
 #[repr(C)]
 struct Passthru {
@@ -27,10 +27,10 @@ struct YieldTo {
     virtual_node: u64,
 }
 
-fn ioctl<T>(request: Ioctl, ptr: *mut T) {
+fn ioctl<T>(request: u32, ptr: *mut T) {
     let f = File::open("/sys/kernel/debug/icecap_vmm").unwrap();
     let ret = unsafe {
-        libc::ioctl(f.as_raw_fd(), request, ptr)
+        libc::ioctl(f.as_raw_fd(), request as Ioctl, ptr)
     };
     assert_eq!(ret, 0);
 }
