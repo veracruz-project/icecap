@@ -35,7 +35,9 @@ in
       #   sleep 5
       # done
 
-      (while true; do [ -f /stop ] || chrt -b 0 iperf3 -c ${hostAddr} && sleep 5 || break; done) &
+      # iperf_reverse=-R
+      iperf_reverse=
+      (while true; do [ -f /stop ] || chrt -b 0 iperf3 $iperf_reverse -c ${hostAddr} && cat /proc/interrupts && sleep 5 || break; done) &
 
       # chrt -b 0 iperf3 -c ${hostAddr}
     '';
