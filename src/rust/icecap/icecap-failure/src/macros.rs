@@ -6,10 +6,10 @@
 #[macro_export]
 macro_rules! bail {
     ($e:expr) => {
-        return Err($crate::err_msg_as_error($e));
+        return Err($crate::err_msg_as_error($e))
     };
     ($fmt:expr, $($arg:tt)*) => {
-        return Err($crate::err_msg_as_error(alloc::format!($fmt, $($arg)*)));
+        return Err($crate::err_msg_as_error(alloc::format!($fmt, $($arg)*)))
     };
 }
 

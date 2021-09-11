@@ -11,10 +11,10 @@ pub type Result<T> = result::Result<T, Error>;
 #[macro_export]
 macro_rules! bail {
     ($e:expr) => {
-        return Err($crate::warn_malformed!($e));
+        return Err($crate::warn_malformed!($e))
     };
     ($fmt:expr, $($arg:tt)*) => {
-        return Err($crate::warn_malformed!($fmt, $($arg)*));
+        return Err($crate::warn_malformed!($fmt, $($arg)*))
     };
 }
 

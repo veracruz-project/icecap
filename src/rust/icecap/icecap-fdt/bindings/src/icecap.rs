@@ -2,7 +2,7 @@ use core::ops::Range;
 use alloc::prelude::v1::*;
 use serde::{Serialize, Deserialize};
 
-use icecap_fdt::{DeviceTree, Node, Value};
+use icecap_fdt::{DeviceTree, Node};
 use icecap_fdt::bindings::{Cells, SizeSpec};
 
 

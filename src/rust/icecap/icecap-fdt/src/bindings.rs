@@ -3,15 +3,12 @@ use core::mem::size_of;
 use core::convert::{TryFrom, TryInto};
 use core::ops::{Deref, DerefMut};
 
-use crate::types::{DeviceTree, Node, Value};
+use crate::types::{Node, Value};
 
 // TODO is this the right way to have string keys?
 
 pub const DEFAULT_ADDRESS_CELLS: u32 = 2;
 pub const DEFAULT_SIZE_CELLS: u32 = 1;
-
-impl DeviceTree {
-}
 
 impl Node {
 

@@ -4,13 +4,13 @@ use alloc::prelude::v1::*;
 use icecap_fdt::{DeviceTree, Node};
 use icecap_fdt::bindings::{Cells, SizeSpec};
 
-pub struct GuestConfig {
+pub struct RealmConfig {
     pub cpu_compatible: String,
     pub memory: Range<usize>,
     pub gic_paddr_start: usize,
 }
 
-impl GuestConfig {
+impl RealmConfig {
 
     pub fn render(&self) -> DeviceTree {
         use Cells::*;
