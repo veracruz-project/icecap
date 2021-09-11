@@ -1,18 +1,7 @@
 #![no_std]
 #![no_main]
-#![feature(alloc_prelude)]
-#![feature(array_value_iter)]
 #![feature(format_args_nl)]
-#![feature(c_variadic)]
-#![feature(type_ascription)]
-#![feature(new_uninit)]
-#![feature(slice_ptr_range)]
 #![feature(llvm_asm)]
-#![feature(const_mut_refs)]
-#![allow(dead_code)]
-#![allow(unused_comparisons)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 
 extern crate alloc;
 
@@ -68,6 +57,7 @@ fn main(config: Config) -> Fallible<()> {
     Ok(())
 }
 
+#[allow(deprecated)]
 #[inline(never)]
 pub fn read_cntfrq_el0() -> u32 {
     unsafe {
@@ -77,6 +67,7 @@ pub fn read_cntfrq_el0() -> u32 {
     }
 }
 
+#[allow(deprecated)]
 #[inline(never)]
 pub fn read_cntvct_el0() -> u64 {
     unsafe {
