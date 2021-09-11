@@ -945,7 +945,7 @@ impl Distributor {
         let val: u32 = 1 << shift;
         reg.fetch_and(!val, Ordering::SeqCst);
 
-		Ok(())
+        Ok(())
     }
 
     pub(crate) fn set_pending(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
@@ -964,7 +964,7 @@ impl Distributor {
         let val: u32 = 1 << shift;
         reg.fetch_or(val, Ordering::SeqCst);
 
-		Ok(())
+        Ok(())
     }
 
     fn set_sgi_pending(&self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
@@ -997,7 +997,7 @@ impl Distributor {
             self.set_pending(irq, target_cpu).unwrap();
         }
 
-		Ok(())
+        Ok(())
     }
 
     fn clear_sgi_pending(&self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
@@ -1032,7 +1032,7 @@ impl Distributor {
             self.clear_pending(irq, target_cpu).unwrap();
         }
 
-		Ok(())
+        Ok(())
     }
 
     fn is_active(&self, irq: IRQ, cpu: CPU) -> bool {
@@ -1071,7 +1071,7 @@ impl Distributor {
         let val: u32 = 1 << shift;
         reg.fetch_and(!val, Ordering::SeqCst);
 
-		Ok(())
+        Ok(())
     }
 
     // The seL4 API does not tell userland when an interrupt is acknowledged (i.e., transitioned
@@ -1093,7 +1093,7 @@ impl Distributor {
         let val: u32 = 1 << shift;
         reg.fetch_or(val, Ordering::SeqCst);
 
-		Ok(())
+        Ok(())
     }
 
     // The seL4 API does not tell userland when an interrupt is acknowledged (i.e., transitioned

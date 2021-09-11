@@ -139,10 +139,10 @@ impl<T: GICCallbacks> GIC<T> {
     /// Handles reads from the GIC Distributor and returns the requested data.
     pub fn handle_read(&mut self, node: NodeIndex, offset: usize, width: VMFaultWidth) -> Fallible<VMFaultData> {
         let (data, read_action) = self.dist.handle_read(offset, node, width)?;
-		match read_action {
-			ReadAction::NoAction => {}
-			_ => panic!("Unexpected ReadAction")
-		};
+        match read_action {
+            ReadAction::NoAction => {}
+            _ => panic!("Unexpected ReadAction")
+        };
         Ok(data)
     }
 
@@ -150,15 +150,15 @@ impl<T: GICCallbacks> GIC<T> {
     ///
     /// The `calling_node` arg is necessary to support callbacks.  The caller may be writing data to
     /// the Distributor that affects other target nodes.
-	pub fn handle_write(&mut self, calling_node: NodeIndex, offset: usize, data: VMFaultData) -> Fallible<()> {
+    pub fn handle_write(&mut self, calling_node: NodeIndex, offset: usize, data: VMFaultData) -> Fallible<()> {
         let write_action = self.dist.handle_write(offset, calling_node, data)?;
 
-		match write_action {
-			WriteAction::NoAction => {}
-			WriteAction::InjectAndAckIRQs((to_inject, to_ack)) => {
-				// Handle acks
-				if let Some(to_ack) = to_ack {
-					for (irq, target_node) in to_ack.iter() {
+        match write_action {
+            WriteAction::NoAction => {}
+            WriteAction::InjectAndAckIRQs((to_inject, to_ack)) => {
+                // Handle acks
+                if let Some(to_ack) = to_ack {
+                    for (irq, target_node) in to_ack.iter() {
                         // Update Distributor state
                         self.dist.ack(*irq, *target_node)?;
 
@@ -173,19 +173,19 @@ impl<T: GICCallbacks> GIC<T> {
                             }
                             self.callbacks.ack(calling_node, qualified_irq)?;
                         }
-					}
-				}
+                    }
+                }
 
-				// Handle injections
-				if let Some(to_inject) = to_inject {
-					for (irq, target_node) in to_inject.iter() {
+                // Handle injections
+                if let Some(to_inject) = to_inject {
+                    for (irq, target_node) in to_inject.iter() {
                         // Inject the interrupt (or push it onto the LR overflow).
                         self.forward_irq(calling_node, *target_node, *irq)?;
-					}
-				}
-			}
-			_ => panic!("Unexpected WriteAction")
-		}
+                    }
+                }
+            }
+            _ => panic!("Unexpected WriteAction")
+        }
         Ok(())
     }
 
