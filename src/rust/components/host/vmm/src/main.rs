@@ -83,24 +83,23 @@ const SYS_YIELD_TO: Word = 1339;
 
 impl VMMExtension for Extension {
 
-    fn handle_wfe(node: &mut VMMNode<Self>) -> Fallible<()> {
+    fn handle_wf(node: &mut VMMNode<Self>) -> Fallible<()> {
         panic!("wfe");
         Ok(())
     }
 
     fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
-        match fault.syscall {
+        Ok(match fault.syscall {
             sys_id::RESOURCE_SERVER_PASSTHRU => {
-                Self::sys_resource_server_passthru(node)?;
+                Self::sys_resource_server_passthru(node, fault)?
             }
             sys_id::DIRECT => {
-                Self::sys_direct(node)?;
+                Self::sys_direct(node, fault)?
             }
             _ => {
-                panic!("unknown syscall");
+                panic!("unknown syscall")
             }
-        }
-        Ok(())
+        })
     }
 
     fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()> {
@@ -111,7 +110,7 @@ impl VMMExtension for Extension {
 
 impl Extension {
 
-    fn sys_resource_server_passthru(node: &mut VMMNode<Self>) -> Fallible<()> {
+    fn sys_resource_server_passthru(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
         let mut ctx = node.tcb.read_all_registers(false)?;
         let length = *ctx.gpr(0) as usize;
         let parameters = &[*ctx.gpr(1), *ctx.gpr(2), *ctx.gpr(3), *ctx.gpr(4), *ctx.gpr(5), *ctx.gpr(6)][..length];
@@ -128,10 +127,11 @@ impl Extension {
         *ctx.gpr_mut(6) = r[5];
         *ctx.pc_mut() += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
+        UnknownSyscall::reply(0);
         Ok(())
     }
 
-    fn sys_direct(node: &mut VMMNode<Self>) -> Fallible<()> {
+    fn sys_direct(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
         let mut ctx = node.tcb.read_all_registers(false)?;
         let length = *ctx.gpr(0) as usize;
         let parameters = &[*ctx.gpr(1), *ctx.gpr(2), *ctx.gpr(3), *ctx.gpr(4), *ctx.gpr(5), *ctx.gpr(6)][..length];
@@ -149,6 +149,7 @@ impl Extension {
         *ctx.gpr_mut(6) = r[5];
         *ctx.pc_mut() += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
+        UnknownSyscall::reply(0);
         Ok(())
     }
 

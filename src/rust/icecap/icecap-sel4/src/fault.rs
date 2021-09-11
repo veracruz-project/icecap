@@ -4,6 +4,7 @@ use crate::{
     MessageInfo,
     MessageRegister,
     UserContext,
+    reply,
 };
 
 // TODO
@@ -361,5 +362,44 @@ impl From<VMFaultData> for VMFaultWidth {
             VMFaultData::Word(_) => Self::Word,
             VMFaultData::DoubleWord(_) => Self::DoubleWord,
         }
+    }
+}
+
+///
+
+impl UnknownSyscall {
+
+    pub fn reply(num_regs: usize) {
+        reply(MessageInfo::new(0, 0, 0, num_regs as u64))
+    }
+
+    pub fn advance(&self) {
+        Self::mr_pc().set(self.fault_ip + 4)
+    }
+
+    pub fn advance_and_reply(&self) {
+        self.advance();
+        Self::reply(Self::num_regs_for_gprs_and_pc())
+    }
+
+    pub const fn num_regs_for_gprs_and_pc() -> usize {
+        sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP as usize + 1
+    }
+
+    pub const fn mr_pc() -> MessageRegister {
+        MessageRegister::new(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP as i32)
+    }
+
+    pub const fn mr_gpr(ix: usize) -> MessageRegister {
+        assert!(ix <= 7);
+        MessageRegister::new(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0 as i32 + ix as i32)
+    }
+}
+
+impl VCPUFault {
+
+    pub fn is_wf(&self) -> bool {
+        // AArch64 ESR_EL{1,2}
+        self.hsr >> 26 == 1
     }
 }

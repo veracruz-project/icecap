@@ -88,6 +88,7 @@ impl MessageInfo {
         Self(raw)
     }
 
+    // TODO types
     pub fn new(label: Word, caps_unwrapped: Word, extra_caps: Word, length: Word) -> Self {
         Self::from_raw(unsafe {
             sys::seL4_MessageInfo_new(label, caps_unwrapped, extra_caps, length)
@@ -266,6 +267,10 @@ impl UserContext {
             31 => 0,
             _ => *self.gpr(ix),
         }
+    }
+
+    pub fn advance(&mut self) {
+        *self.pc_mut() += 4;
     }
 
     pub fn gpr(&self, ix: u64) -> &u64 {

@@ -63,18 +63,17 @@ struct Extension {
 
 impl VMMExtension for Extension {
 
-    fn handle_wfe(node: &mut VMMNode<Self>) -> Fallible<()> {
+    fn handle_wf(node: &mut VMMNode<Self>) -> Fallible<()> {
         panic!("wfe");
         Ok(())
     }
 
     fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
-        match fault.syscall {
+        Ok(match fault.syscall {
             _ => {
-                panic!("unknown syscall");
+                panic!("unknown syscall")
             }
-        }
-        Ok(())
+        })
     }
 
     fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()> {

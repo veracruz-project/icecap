@@ -15,6 +15,13 @@ use icecap_event_server_types::{
     InIndex,
 };
 
+use crate::psci;
+
+const BADGE_FAULT: Badge = 0;
+
+const SYS_PSCI: Word = 0;
+const SYS_PUTCHAR: Word = 1337;
+
 pub struct IRQMap {
     pub ppi: BTreeMap<usize, (InIndex, bool)>, // (in_index, must_ack)
     pub spi: BTreeMap<usize, (InIndex, usize, bool)>, // (in_index, nid, must_ack)
@@ -43,7 +50,7 @@ pub struct VMMNodeConfig<E> {
 }
 
 pub trait VMMExtension: Sized {
-    fn handle_wfe(node: &mut VMMNode<Self>) -> Fallible<()>;
+    fn handle_wf(node: &mut VMMNode<Self>) -> Fallible<()>;
     fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()>;
     fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()>;
 }
@@ -74,7 +81,7 @@ pub struct VMMGICCallbacks {
 impl VMMGICCallbacks {
 
     fn configure(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, action: event_server::ConfigureAction) -> Fallible<()> {
-        debug_println!("XXXXXXX configure: {} {:?} {:?}", calling_node, irq, action);
+        debug_println!("XXX configure: {:?} {:?} {:?}", calling_node, irq, action);
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
                 // assert_eq!(calling_node, node); // TODO HACK
@@ -199,11 +206,6 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
     }
 }
 
-pub const BADGE_VM: Badge = 0;
-
-const SYS_PSCI: Word = 0;
-const SYS_PUTCHAR: Word = 1337;
-
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn run(&mut self) -> Fallible<()> {
@@ -212,25 +214,26 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         loop {
             let (info, badge) = self.ep.recv();
             match badge {
-                BADGE_VM => {
+                BADGE_FAULT => {
                     let fault = Fault::get(info);
                     match fault {
                         Fault::VMFault(fault) => {
-                            // TODO reply with regs
                             self.handle_page_fault(fault)?;
                             reply(MessageInfo::empty());
                         }
                         Fault::UnknownSyscall(fault) => {
                             self.handle_syscall(&fault)?;
-                            reply(MessageInfo::empty());
                         }
                         Fault::VGICMaintenance(fault) => {
                             self.gic.lock().handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
                             reply(MessageInfo::empty());
                         }
                         Fault::VCPUFault(fault) => {
-                            assert!(fault.hsr >> 26 == 1);
-                            E::handle_wfe(self)?;
+                            if fault.is_wf() {
+                                E::handle_wf(self)?;
+                            } else {
+                                panic!();
+                            }
                         }
                         Fault::VPPIEvent(fault) => {
                             self.gic.lock().handle_irq(self.node_index, QualifiedIRQ::QualifiedPPI {
@@ -283,7 +286,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_page_fault(&mut self, fault: VMFault) -> Fallible<()> {
         let addr = fault.addr as usize;
-        if addr >= self.gic_dist_paddr && addr < self.gic_dist_paddr + GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE {
+        if self.gic_dist_paddr <= addr && addr < self.gic_dist_paddr + GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE {
             let offset = addr - self.gic_dist_paddr;
             self.handle_dist_fault(fault, offset)?;
         } else {
@@ -299,13 +302,13 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             let data = fault.data(&ctx);
             self.gic.lock().handle_write(self.node_index, offset, data)?;
-            *ctx.pc_mut() += 4;
+            ctx.advance();
             self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else if fault.is_read() {
             let data = self.gic.lock().handle_read(self.node_index, offset, fault.width())?;
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             fault.emulate_read(&mut ctx, data);
-            *ctx.pc_mut() += 4;
+            ctx.advance();
             self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else {
             panic!();
@@ -314,48 +317,47 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     }
 
     fn handle_syscall(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
-        match fault.syscall {
+        Ok(match fault.syscall {
             SYS_PUTCHAR => {
-                self.sys_putchar(fault)?;
+                self.sys_putchar(fault)?
             }
             SYS_PSCI => {
-                self.sys_psci(fault)?;
+                self.sys_psci(fault)?
             }
             _ => {
-                E::handle_syscall(self, fault)?;
+                E::handle_syscall(self, fault)?
             }
-        }
-        Ok(())
+        })
     }
 
     fn sys_putchar(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
-        let mut ctx = self.tcb.read_all_registers(false).unwrap();
-        let c = *ctx.gpr(0) as u8;
-        E::handle_putchar(self, c)?;
-        *ctx.pc_mut() += 4;
-        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+        E::handle_putchar(self, fault.x0 as u8)?;
+        fault.advance_and_reply();
         Ok(())
     }
 
     fn sys_psci(&self, fault: &UnknownSyscall) -> Fallible<()> {
-        let mut ctx = self.tcb.read_all_registers(false).unwrap();
-        const FID_PSCI_VERSION: u32 = 0x8400_0000;
-        const FID_CPU_ON: u32 = 0xC400_0003;
-        const FID_MIGRATE_INFO_TYPE: u32 = 0x8400_0006;
-        const FID_PSCI_FEATURES: u32 = 0x8400_000a;
-        const RET_SUCCESS: i32 = 0;
-        const RET_NOT_SUPPORTED: i32 = -1;
-        let fid = *ctx.gpr(0) as u32;
-        match fid {
-            FID_PSCI_VERSION => {
-                const VERSION: u32 = 0x0001_0001;
-                *ctx.gpr_mut(0) = VERSION as u64;
+        let fid = fault.x0 as u32;
+        let ret = match fid {
+            psci::FID_PSCI_VERSION => {
+                psci::VERSION
             }
-            FID_CPU_ON => {
-                let target = *ctx.gpr(1) as usize;
-                let entry = *ctx.gpr(2) as u64;
-                let ctx_id = *ctx.gpr(3) as u64;
-                debug_println!("cpu_on: {:x} {:x} {:x}", target, entry, ctx_id);
+            psci::FID_PSCI_FEATURES => {
+                let qfid = fault.x1 as u32;
+                match qfid {
+                    psci::FID_CPU_ON => {
+                        0 // no feature flags
+                    }
+                    _ => {
+                        psci::RET_NOT_SUPPORTED
+                    }
+                }
+            }
+            psci::FID_CPU_ON => {
+                let target = fault.x1 as usize;
+                let entry = fault.x2 as u64;
+                let ctx_id = fault.x3 as u64;
+                // debug_println!("cpu_on: {:x} {:x} {:x}", target, entry, ctx_id);
                 let (thread, mut node) = {
                     let mut this = None;
                     let mut nodes = self.nodes.lock();
@@ -369,28 +371,17 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                     node.tcb.write_all_registers(false, &mut ctx).unwrap();
                     node.run().unwrap()
                 });
-                *ctx.gpr_mut(0) = RET_SUCCESS as u64;
+                psci::RET_SUCCESS
             }
-            FID_MIGRATE_INFO_TYPE => {
-                *ctx.gpr_mut(0) = RET_NOT_SUPPORTED as u64;
-            }
-            FID_PSCI_FEATURES => {
-                let qfid = *ctx.gpr(1) as u32;
-                *ctx.gpr_mut(0) = match qfid {
-                    FID_CPU_ON => {
-                        0
-                    }
-                    _ => {
-                        RET_NOT_SUPPORTED as u64
-                    }
-                }
+            psci::FID_MIGRATE_INFO_TYPE => {
+                psci::RET_NOT_SUPPORTED
             }
             _ => {
-                panic!("psci fid {:x}", fid);
+                panic!("unexpected psci fid {:x}", fid);
             }
-        }
-        *ctx.pc_mut() += 4;
-        self.tcb.write_all_registers(false, &mut ctx).unwrap();
+        };
+        UnknownSyscall::mr_gpr(0).set(ret as u64);
+        fault.advance_and_reply();
         Ok(())
     }
 
