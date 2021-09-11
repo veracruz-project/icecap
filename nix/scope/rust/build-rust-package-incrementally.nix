@@ -193,7 +193,7 @@ in let
       cp -r --preserve=timestamps ${lastLayer} $target_dir
       chmod -R +w $target_dir
 
-      (cd ${manifestDirEnv} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
+      (cd ${manifestDir} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
         --target ${hostPlatform.config} \
         ${lib.optionalString (!debug) "--release"} \
         -Z avoid-dev-deps \
