@@ -4,15 +4,12 @@ use core::{
 use alloc::{
     vec::Vec,
     collections::BTreeMap,
-    rc::Rc,
 };
 
 use finite_set::Finite;
-use biterate::biterate;
 
 use icecap_std::{
     prelude::*,
-    sync::Mutex,
 };
 
 use icecap_event_server_types::*;

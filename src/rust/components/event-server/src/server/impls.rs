@@ -2,8 +2,6 @@ use core::{
     cell::RefCell,
 };
 use alloc::{
-    vec::Vec,
-    collections::BTreeMap,
     sync::Arc,
 };
 
@@ -153,7 +151,7 @@ impl InSpace {
         let old = bit_lot.fetch_or(1 << bit_lot_bit, core::sync::atomic::Ordering::SeqCst);
         if old & (1 << bit_lot_bit) == 0 {
             self.notification.nfn[bit_lot_index].signal();
-            self.notify_subscriber();
+            self.notify_subscriber()?;
         }
         Ok(())
     }

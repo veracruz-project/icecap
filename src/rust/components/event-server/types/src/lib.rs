@@ -1,10 +1,8 @@
 #![no_std]
-#![allow(unused_imports)]
 
 use serde::{Serialize, Deserialize};
 
 use finite_set::*;
-use icecap_rpc::*;
 
 pub type RealmId = usize;
 pub type NodeIndex = usize;

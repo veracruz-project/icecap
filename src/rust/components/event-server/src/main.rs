@@ -1,26 +1,14 @@
 #![no_std]
 #![no_main]
-#![feature(drain_filter)]
 #![feature(format_args_nl)]
 #![feature(never_type)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
 #![allow(unused_variables)]
-#![allow(unreachable_code)]
 
 extern crate alloc;
 
-use core::{
-    cell::RefCell,
-};
 use alloc::{
-    vec::Vec,
-    collections::BTreeMap,
-    rc::Rc,
     sync::Arc,
 };
-
-use biterate::biterate;
 
 use icecap_std::{
     prelude::*,
@@ -77,9 +65,7 @@ pub fn main(config: Config) -> Fallible<()> {
         })
     }
 
-    run(&server, config.endpoints[0], &badges)?;
-
-    Ok(())
+    run(&server, config.endpoints[0], &badges)?
 }
 
 fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fallible<!> {

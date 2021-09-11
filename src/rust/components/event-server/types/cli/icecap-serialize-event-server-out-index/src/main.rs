@@ -1,5 +1,4 @@
 use std::env;
-use std::io;
 
 use finite_set::*;
 use icecap_event_server_types::*;
