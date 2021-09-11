@@ -1,9 +1,7 @@
 #![no_std]
-#![allow(dead_code)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
-#![allow(improper_ctypes)] // HACK (for u128)
 
 pub mod c_types {
     pub type c_char = u8;

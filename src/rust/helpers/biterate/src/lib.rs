@@ -1,5 +1,4 @@
 #![no_std]
-
 #![feature(type_ascription)]
 
 use num::{PrimInt, One};

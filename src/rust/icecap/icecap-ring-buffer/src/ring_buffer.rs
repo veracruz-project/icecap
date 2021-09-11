@@ -66,6 +66,7 @@ impl Deref for Ctrl {
     }
 }
 
+// TODO
 fn hack_mb() {
     unsafe {
         __dsb(SY);
@@ -75,13 +76,13 @@ fn hack_mb() {
 
 fn acquire() {
     fence(Ordering::Acquire);
-    // HACK
+    // TODO
     hack_mb();
 }
 
 fn release() {
     fence(Ordering::Release);
-    // HACK
+    // TODO
     hack_mb();
 }
 
