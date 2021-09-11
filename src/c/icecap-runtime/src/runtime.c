@@ -22,6 +22,7 @@ seL4_Word icecap_runtime_eh_frame_end = 0;
 seL4_Word icecap_runtime_tls_region_align = 0;
 seL4_Word icecap_runtime_tls_region_size = 0;
 
+seL4_Word icecap_runtime_print_lock;
 seL4_Word icecap_runtime_fault_handling;
 seL4_CPtr icecap_runtime_supervisor_ep;
 
@@ -93,6 +94,7 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         icecap_runtime_image_path = (const char *)config + config->eh_info.image_path_offset;
         icecap_runtime_tls_region_align = __icecap_runtime_tls_region_align_of(&config->tls_image);
         icecap_runtime_tls_region_size = __icecap_runtime_tls_region_size_of(&config->tls_image);
+        icecap_runtime_print_lock = config->print_lock;
         icecap_runtime_fault_handling = config->fault_handling;
         icecap_runtime_supervisor_ep = config->supervisor_ep;
         __icecap_runtime_tls_image = config->tls_image;

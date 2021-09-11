@@ -5,7 +5,7 @@ use icecap_core::sel4::debug_put_char;
 use icecap_core::ring_buffer::BufferedRingBuffer;
 use icecap_core::sync::{GenericMutex, unsafe_static_mutex};
 
-unsafe_static_mutex!(Lock, icecap_runtime_heap_lock);
+unsafe_static_mutex!(Lock, icecap_runtime_print_lock);
 
 static GLOBAL_WRITER: GenericMutex<Lock, Option<Box<IceCapConWriter>>> = GenericMutex::new(Lock, None);
 

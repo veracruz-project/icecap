@@ -1,6 +1,5 @@
 #![no_std]
 #![feature(alloc_error_handler)]
-#![feature(alloc_prelude)]
 #![feature(format_args_nl)]
 #![feature(lang_items)]
 #![feature(panic_info_message)]

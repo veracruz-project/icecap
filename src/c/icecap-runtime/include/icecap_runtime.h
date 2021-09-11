@@ -81,8 +81,8 @@ extern const char *icecap_runtime_image_path;
 extern seL4_Word icecap_runtime_tls_region_align;
 extern seL4_Word icecap_runtime_tls_region_size;
 
-extern seL4_Word icecap_runtime_fault_handling;
 extern seL4_CPtr icecap_runtime_print_lock;
+extern seL4_Word icecap_runtime_fault_handling;
 extern seL4_CPtr icecap_runtime_supervisor_ep;
 
 extern __thread seL4_CPtr icecap_runtime_tcb;
