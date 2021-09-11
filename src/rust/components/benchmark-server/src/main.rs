@@ -3,27 +3,8 @@
 #![feature(drain_filter)]
 #![feature(format_args_nl)]
 #![feature(never_type)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(unreachable_code)]
 
-extern crate alloc;
-
-use core::{
-    cell::RefCell,
-};
-use alloc::{
-    vec::Vec,
-    collections::BTreeMap,
-    rc::Rc,
-    sync::Arc,
-};
-
-use icecap_std::{
-    prelude::*,
-    sync::*,
-};
+use icecap_std::prelude::*;
 use icecap_rpc_sel4::*;
 use icecap_benchmark_server_types::*;
 use icecap_benchmark_server_config::*;
@@ -44,7 +25,7 @@ pub fn main(config: Config) -> Fallible<()> {
 }
 
 #[cfg(not(feature = "benchmark"))]
-fn handle(tcb: TCB, request: &Request) -> Fallible<Response> {
+fn handle(_tcb: TCB, _request: &Request) -> Fallible<Response> {
     Ok(Err(()))
 }
 
@@ -60,7 +41,6 @@ fn handle(tcb: TCB, request: &Request) -> Fallible<Response> {
             }
         }
         Request::Finish => {
-            // debug_println!("benchmark-server: finish");
             for affinity in 0..NUM_NODES {
                 tcb.set_affinity(affinity as u64)?;
                 assert_eq!(sel4::benchmark::finalize_log(), 0);
