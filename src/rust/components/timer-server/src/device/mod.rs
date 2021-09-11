@@ -10,8 +10,10 @@ pub trait TimerDevice {
     fn clear_interrupt(&self);
 }
 
+#[allow(dead_code)]
 mod rpi4;
 pub use rpi4::BcmSystemTimerDevice;
 
+#[allow(dead_code)]
 mod virt;
 pub use virt::QemuTimerDevice;

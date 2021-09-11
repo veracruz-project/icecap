@@ -1,6 +1,6 @@
 use icecap_std::prelude::*;
 use core::ops::Deref;
-use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, interfaces::{Readable, Writeable, ReadWriteable}, register_bitfields, register_structs};
+use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, interfaces::{Readable, Writeable}, register_structs};
 use crate::device::*;
 
 const MATCH_COUNT: usize = 4;
@@ -54,7 +54,7 @@ impl TimerDevice for BcmSystemTimerDevice {
         FREQ as u32
     }
 
-    fn set_enable(&self, enabled: bool) {
+    fn set_enable(&self, _enabled: bool) {
     }
 
     fn get_count(&self) -> u64 {

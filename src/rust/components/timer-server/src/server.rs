@@ -170,8 +170,8 @@ impl<D: TimerDevice> Server<D> {
     }
 
     fn remove_timer(&mut self, cid: ClientId, tid: TimerId) {
-        for timer_ in self.outstanding.0.drain_filter(|timer_| {
-            timer_.client == cid && timer_.timer == tid
+        for _ in self.outstanding.0.drain_filter(|timer| {
+            timer.client == cid && timer.timer == tid
         }) {
             self.completed.get_mut(&cid).unwrap().remove(&tid);
         }
@@ -235,7 +235,7 @@ impl<D: TimerDevice> Server<D> {
         mask
     }
 
-    pub fn time(&mut self, cid: ClientId) -> Nanosecond {
+    pub fn time(&mut self, _cid: ClientId) -> Nanosecond {
         self.now_ns()
     }
 

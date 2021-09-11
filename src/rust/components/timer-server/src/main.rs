@@ -3,9 +3,6 @@
 #![feature(drain_filter)]
 #![feature(format_args_nl)]
 #![feature(never_type)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 
 extern crate alloc;
 
@@ -14,19 +11,16 @@ use icecap_std::{
     sync::*,
 };
 use icecap_timer_server_config::Config;
-use icecap_timer_server_types::{*, Result as TimerServerResult};
+use icecap_timer_server_types::Request;
 use icecap_rpc_sel4::*;
-use core::result;
 use alloc::{
     sync::Arc,
 };
 
 use crate::{
-    plat::{timer_device, PlatformTimerDevice},
+    plat::timer_device,
     device::TimerDevice,
-    server::{
-        Server, Error, ClientId, TimerId, Nanosecond,
-    },
+    server::Server,
 };
 
 mod server;
@@ -55,9 +49,7 @@ pub fn main(config: Config) -> Fallible<()> {
         })
     }
 
-    run(&server, config.endpoints[0], config.irq_handlers[0])?;
-
-    Ok(())
+    run(&server, config.endpoints[0], config.irq_handlers[0])?
 }
 
 pub fn run(server: &Mutex<Server<impl TimerDevice>>, endpoint: Endpoint, irq_handler: IRQHandler) -> Fallible<!> {
