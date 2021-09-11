@@ -1,11 +1,9 @@
 #![no_std]
 #![feature(alloc_prelude)]
 
-#[macro_use]
 extern crate alloc;
 
 use alloc::prelude::v1::*;
-use alloc::str;
 use icecap_runtime::image_path;
 use icecap_backtrace_types::RawBacktrace;
 use icecap_backtrace_collect::{collect_raw_backtrace, SKIP};

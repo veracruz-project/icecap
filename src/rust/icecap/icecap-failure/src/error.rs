@@ -2,7 +2,7 @@ use core::any::TypeId;
 use core::fmt::{self, Display, Debug};
 use alloc::boxed::Box;
 
-use crate::{Causes, Fail, err_msg};
+use crate::{Causes, Fail};
 use crate::backtrace::Backtrace;
 use crate::context::Context;
 
