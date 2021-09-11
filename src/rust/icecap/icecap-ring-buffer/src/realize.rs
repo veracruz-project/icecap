@@ -1,4 +1,3 @@
-use alloc::vec::Vec;
 use alloc::boxed::Box;
 use icecap_config::*;
 use crate::{RingBuffer, RingBufferSide, RingBufferPointer, Kick};

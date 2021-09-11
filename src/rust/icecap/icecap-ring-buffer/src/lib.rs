@@ -1,8 +1,6 @@
 #![no_std]
-
 #![feature(stdsimd)]
 #![feature(core_intrinsics)]
-#![allow(unused_imports)]
 
 #[macro_use]
 extern crate alloc;

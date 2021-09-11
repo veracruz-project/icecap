@@ -1,15 +1,11 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-
 use core::arch::aarch64::{__dsb, __dmb, SY};
 use core::cmp::max;
 use core::ops::Deref;
-use core::ptr::{read_volatile, write_volatile};
 use core::intrinsics::volatile_copy_nonoverlapping_memory;
 use core::sync::atomic::{fence, Ordering};
 use alloc::vec::Vec;
 use alloc::boxed::Box;
-use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, interfaces::{Readable, Writeable, ReadWriteable}, register_bitfields, register_structs};
+use tock_registers::{registers::ReadWrite, interfaces::{Readable, Writeable, ReadWriteable}, register_bitfields, register_structs};
 
 pub type Kick = Box<dyn Fn()>;
 
