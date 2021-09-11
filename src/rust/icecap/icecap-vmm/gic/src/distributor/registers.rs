@@ -1,7 +1,5 @@
 use core::mem;
 
-use super::IRQ;
-
 // Used to identify a register number.  No register type exceeds 255 registers.
 type IRQRegNum = usize;
 

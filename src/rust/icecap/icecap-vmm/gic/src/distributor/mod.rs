@@ -1,5 +1,8 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+
 use alloc::vec::Vec; // GOAL: Only used during initial distributor allocation.
-use core::mem;
 use core::fmt;
 use core::convert::TryFrom;
 use core::sync::atomic::{AtomicU32, Ordering};

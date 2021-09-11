@@ -1,8 +1,9 @@
+#![allow(dead_code)]
+#![allow(unreachable_patterns)]
+
 use core::convert::TryFrom;
 use alloc::collections::VecDeque;
 use alloc::vec::Vec;
-
-use icecap_sel4::prelude::*; // TODO: Remove.  Just for debug.
 
 use icecap_sel4::fault::*;
 use icecap_failure::*;
@@ -10,11 +11,7 @@ use icecap_failure::*;
 use biterate::biterate;
 
 use crate::distributor::{
-    Distributor, CPU, IRQType, WriteAction, ReadAction,
-};
-
-use crate::error::{
-    IRQError, IRQErrorType,
+    Distributor, WriteAction, ReadAction,
 };
 
 pub type NodeIndex = usize;
