@@ -4,8 +4,6 @@ use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 
-pub use icecap_resource_server_types::Message;
-
 use crate::{Result, bail, syscall::{spec_chunk, fill_chunk}};
 
 const BULK_TRANSPORT_PATH: &str = "/dev/resource_server";

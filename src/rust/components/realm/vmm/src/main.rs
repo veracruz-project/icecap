@@ -15,6 +15,7 @@ use alloc::sync::Arc;
 use biterate::biterate;
 
 use icecap_std::prelude::*;
+use icecap_std::sel4::fault::*;
 use icecap_std::finite_set::Finite;
 use icecap_rpc_sel4::*;
 use icecap_realm_vmm_config::*;
@@ -67,8 +68,8 @@ impl VMMExtension for Extension {
         Ok(())
     }
 
-    fn handle_syscall(node: &mut VMMNode<Self>, syscall: u64) -> Fallible<()> {
-        match syscall {
+    fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
+        match fault.syscall {
             _ => {
                 panic!("unknown syscall");
             }

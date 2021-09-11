@@ -2,15 +2,26 @@
 
 extern crate alloc;
 
-use core::mem;
-use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
 pub type RealmId = usize;
+
 pub type PhysicalNodeIndex = usize;
 pub type VirtualNodeIndex = usize;
-
 pub type Nanoseconds = usize;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Request {
+    Declare { realm_id: RealmId, spec_size: usize },
+    SpecChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, offset: usize },
+    FillChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, object_index: usize, fill_entry_index: usize, offset: usize },
+    Realize { realm_id: RealmId },
+    Destroy { realm_id: RealmId },
+
+    // still around for benchmarking
+    HackRun { realm_id: RealmId },
+}
+
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum YieldBackCondition {
@@ -25,20 +36,6 @@ pub enum ResumeHostCondition {
     RealmYieldedBack(YieldBackCondition),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum Request {
-    Declare { realm_id: RealmId, spec_size: usize },
-    SpecChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, offset: usize },
-    FillChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, object_index: usize, fill_entry_index: usize, offset: usize },
-    Realize { realm_id: RealmId },
-    Destroy { realm_id: RealmId },
-    YieldTo { physical_node: PhysicalNodeIndex, realm_id: RealmId, virtual_node: VirtualNodeIndex, timeout: Option<Nanoseconds> },
-    HackRun { realm_id: RealmId },
-}
-
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum Message {
-
-}
+// #[derive(Clone, Debug, Serialize, Deserialize)]
+// pub enum Message {
+// }

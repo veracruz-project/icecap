@@ -194,9 +194,6 @@ impl BitAndAssign for VMAttributes {
     }
 }
 
-// TODO wrap
-pub type UserContext = sys::seL4_UserContext;
-
 // TODO hack (i32 <-> isize)
 #[allow(non_camel_case_types)]
 pub enum VCPUReg {
@@ -224,4 +221,124 @@ pub enum VCPUReg {
     CNTV_CVAL = sys::seL4_VCPUReg_seL4_VCPUReg_CNTV_CVAL as isize,
     // CNTV_TVAL = sys::seL4_VCPUReg_seL4_VCPUReg_CNTV_TVAL as isize,
     CNTVOFF = sys::seL4_VCPUReg_seL4_VCPUReg_CNTVOFF as isize,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct UserContext(sys::seL4_UserContext);
+
+impl UserContext {
+
+    #[allow(dead_code)]
+    pub(crate) fn raw(&self) -> &sys::seL4_UserContext {
+        &self.0
+    }
+
+    pub(crate) fn raw_mut(&mut self) -> &mut sys::seL4_UserContext {
+        &mut self.0
+    }
+
+    pub fn pc(&self) -> &u64 {
+        &self.0.pc
+    }
+
+    pub fn pc_mut(&mut self) -> &mut u64 {
+        &mut self.0.pc
+    }
+
+    pub fn sp(&self) -> &u64 {
+        &self.0.sp
+    }
+
+    pub fn sp_mut(&mut self) -> &mut u64 {
+        &mut self.0.sp
+    }
+
+    pub fn spsr(&self) -> &u64 {
+        &self.0.spsr
+    }
+
+    pub fn spsr_mut(&mut self) -> &mut u64 {
+        &mut self.0.spsr
+    }
+
+    pub fn read_gpr(&self, ix: u64) -> u64 {
+        match ix {
+            31 => 0,
+            _ => *self.gpr(ix),
+        }
+    }
+
+    pub fn gpr(&self, ix: u64) -> &u64 {
+        match ix {
+            0 => &self.0.x0,
+            1 => &self.0.x1,
+            2 => &self.0.x2,
+            3 => &self.0.x3,
+            4 => &self.0.x4,
+            5 => &self.0.x5,
+            6 => &self.0.x6,
+            7 => &self.0.x7,
+            8 => &self.0.x8,
+            9 => &self.0.x9,
+            10 => &self.0.x10,
+            11 => &self.0.x11,
+            12 => &self.0.x12,
+            13 => &self.0.x13,
+            14 => &self.0.x14,
+            15 => &self.0.x15,
+            16 => &self.0.x16,
+            17 => &self.0.x17,
+            18 => &self.0.x18,
+            19 => &self.0.x19,
+            20 => &self.0.x20,
+            21 => &self.0.x21,
+            22 => &self.0.x22,
+            23 => &self.0.x23,
+            24 => &self.0.x24,
+            25 => &self.0.x25,
+            26 => &self.0.x26,
+            27 => &self.0.x27,
+            28 => &self.0.x28,
+            29 => &self.0.x29,
+            30 => &self.0.x30,
+            _ => panic!(),
+        }
+    }
+
+    pub fn gpr_mut(&mut self, ix: u64) -> &mut u64 {
+        match ix {
+            0 => &mut self.0.x0,
+            1 => &mut self.0.x1,
+            2 => &mut self.0.x2,
+            3 => &mut self.0.x3,
+            4 => &mut self.0.x4,
+            5 => &mut self.0.x5,
+            6 => &mut self.0.x6,
+            7 => &mut self.0.x7,
+            8 => &mut self.0.x8,
+            9 => &mut self.0.x9,
+            10 => &mut self.0.x10,
+            11 => &mut self.0.x11,
+            12 => &mut self.0.x12,
+            13 => &mut self.0.x13,
+            14 => &mut self.0.x14,
+            15 => &mut self.0.x15,
+            16 => &mut self.0.x16,
+            17 => &mut self.0.x17,
+            18 => &mut self.0.x18,
+            19 => &mut self.0.x19,
+            20 => &mut self.0.x20,
+            21 => &mut self.0.x21,
+            22 => &mut self.0.x22,
+            23 => &mut self.0.x23,
+            24 => &mut self.0.x24,
+            25 => &mut self.0.x25,
+            26 => &mut self.0.x26,
+            27 => &mut self.0.x27,
+            28 => &mut self.0.x28,
+            29 => &mut self.0.x29,
+            30 => &mut self.0.x30,
+            _ => panic!(),
+        }
+    }
 }

@@ -121,13 +121,9 @@ fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bu
                     Request::Destroy { realm_id } => {
                         rpc_server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
                     }
-                    Request::YieldTo { physical_node, realm_id, virtual_node, timeout } => {
-                        assert_eq!(physical_node, node_index);
-                        // debug_println!("yield to, timout = {}", timeout);
-                        // save reply ep in node-specific slot here instead
-                        resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
-                    }
-                    Request::HackRun { realm_id } => rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?),
+                    Request::HackRun { realm_id } => {
+                        rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?)
+                    },
                 }
             } else if badge == 1 {
                 let swap = MR_0.get();

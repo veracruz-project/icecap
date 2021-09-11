@@ -7,7 +7,6 @@ pub fn image_path() -> Result<&'static str, str::Utf8Error> {
         let start = unsafe {
             c::icecap_runtime_image_path
         };
-        icecap_sel4::debug_print!("start = {:x?}\n", start);
         let mut size = 0;
         loop {
             match unsafe { *start.offset(size as isize) } {

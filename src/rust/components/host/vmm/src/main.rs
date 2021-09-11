@@ -15,6 +15,7 @@ use alloc::sync::Arc;
 use biterate::biterate;
 
 use icecap_std::prelude::*;
+use icecap_std::sel4::fault::*;
 use icecap_std::finite_set::Finite;
 use icecap_rpc_sel4::*;
 use icecap_host_vmm_config::*;
@@ -87,8 +88,8 @@ impl VMMExtension for Extension {
         Ok(())
     }
 
-    fn handle_syscall(node: &mut VMMNode<Self>, syscall: u64) -> Fallible<()> {
-        match syscall {
+    fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
+        match fault.syscall {
             sys_id::RESOURCE_SERVER_PASSTHRU => {
                 Self::sys_resource_server_passthru(node)?;
             }
@@ -112,41 +113,41 @@ impl Extension {
 
     fn sys_resource_server_passthru(node: &mut VMMNode<Self>) -> Fallible<()> {
         let mut ctx = node.tcb.read_all_registers(false)?;
-        let length = ctx.x0 as usize;
-        let parameters = &[ctx.x1, ctx.x2, ctx.x3, ctx.x4, ctx.x5, ctx.x6][..length];
+        let length = *ctx.gpr(0) as usize;
+        let parameters = &[*ctx.gpr(1), *ctx.gpr(2), *ctx.gpr(3), *ctx.gpr(4), *ctx.gpr(5), *ctx.gpr(6)][..length];
         let recv_info = node.extension.resource_server_ep.call(proxy::up(parameters));
         let mut r = proxy::down(&recv_info);
         assert!(r.len() <= 6);
-        ctx.x0 = r.len() as u64;
+        *ctx.gpr_mut(0) = r.len() as u64;
         r.resize_with(6, || 0);
-        ctx.x1 = r[0];
-        ctx.x2 = r[1];
-        ctx.x3 = r[2];
-        ctx.x4 = r[3];
-        ctx.x5 = r[4];
-        ctx.x6 = r[5];
-        ctx.pc += 4;
+        *ctx.gpr_mut(1) = r[0];
+        *ctx.gpr_mut(2) = r[1];
+        *ctx.gpr_mut(3) = r[2];
+        *ctx.gpr_mut(4) = r[3];
+        *ctx.gpr_mut(5) = r[4];
+        *ctx.gpr_mut(6) = r[5];
+        *ctx.pc_mut() += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
         Ok(())
     }
 
     fn sys_direct(node: &mut VMMNode<Self>) -> Fallible<()> {
         let mut ctx = node.tcb.read_all_registers(false)?;
-        let length = ctx.x0 as usize;
-        let parameters = &[ctx.x1, ctx.x2, ctx.x3, ctx.x4, ctx.x5, ctx.x6][..length];
+        let length = *ctx.gpr(0) as usize;
+        let parameters = &[*ctx.gpr(1), *ctx.gpr(2), *ctx.gpr(3), *ctx.gpr(4), *ctx.gpr(5), *ctx.gpr(6)][..length];
         let request = DirectRequest::recv_from_slice(parameters);
         let response = Self::direct(node, &request)?;
         let mut r = response.send_to_vec();
         assert!(r.len() <= 6);
-        ctx.x0 = r.len() as u64;
+        *ctx.gpr_mut(0) = r.len() as u64;
         r.resize_with(6, || 0);
-        ctx.x1 = r[0];
-        ctx.x2 = r[1];
-        ctx.x3 = r[2];
-        ctx.x4 = r[3];
-        ctx.x5 = r[4];
-        ctx.x6 = r[5];
-        ctx.pc += 4;
+        *ctx.gpr_mut(1) = r[0];
+        *ctx.gpr_mut(2) = r[1];
+        *ctx.gpr_mut(3) = r[2];
+        *ctx.gpr_mut(4) = r[3];
+        *ctx.gpr_mut(5) = r[4];
+        *ctx.gpr_mut(6) = r[5];
+        *ctx.pc_mut() += 4;
         node.tcb.write_all_registers(false, &mut ctx)?;
         Ok(())
     }

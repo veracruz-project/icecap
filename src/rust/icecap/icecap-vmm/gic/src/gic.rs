@@ -32,8 +32,6 @@ pub enum QualifiedIRQ {
 
 pub trait GICCallbacks {
 
-    fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()>;
-
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()>;
 
     fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()>;
@@ -229,7 +227,6 @@ impl<T: GICCallbacks> GIC<T> {
             self.dist.set_active(irq, target_node)?;
             self.lrs[target_node].mirror[index] = Some(irq);
             self.callbacks.vcpu_inject_irq(calling_node, target_node, index, irq, priority)?;
-            self.callbacks.event(calling_node, target_node)?;
         }
 
         Ok(())

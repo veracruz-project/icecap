@@ -88,7 +88,7 @@ impl TCB {
     pub fn read_registers(&self, suspend: bool, count: Word) -> Result<UserContext> {
         let mut regs: UserContext = Default::default();
         let err = unsafe {
-            sys::seL4_TCB_ReadRegisters(self.raw(), suspend as sys::seL4_Bool, 0, count, &mut regs)
+            sys::seL4_TCB_ReadRegisters(self.raw(), suspend as sys::seL4_Bool, 0, count, regs.raw_mut())
         };
         Error::or(regs, err)
     }
@@ -101,7 +101,7 @@ impl TCB {
     // HACK should not be mut
     pub fn write_registers(&self, resume: bool, count: Word, regs: &mut UserContext) -> Result<()> {
         Error::wrap(unsafe {
-            sys::seL4_TCB_WriteRegisters(self.raw(), resume as sys::seL4_Bool, 0, count, regs)
+            sys::seL4_TCB_WriteRegisters(self.raw(), resume as sys::seL4_Bool, 0, count, regs.raw_mut())
         })
     }
 

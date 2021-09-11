@@ -207,16 +207,16 @@ impl<'a> Initialize<'a> {
         schedule(tcb, None)?;
 
         let mut regs = UserContext::default();
-        regs.pc = obj.ip;
-        regs.sp = obj.sp;
-        regs.spsr = obj.spsr;
+        *regs.pc_mut() = obj.ip;
+        *regs.sp_mut() = obj.sp;
+        *regs.spsr_mut() = obj.spsr;
         let n = obj.gprs.len();
         ensure!(n <= 2);
         if n > 0 {
-            regs.x0 = obj.gprs[0];
+            *regs.gpr_mut(0) = obj.gprs[0];
         }
         if n > 1 {
-            regs.x1 = obj.gprs[1];
+            *regs.gpr_mut(1) = obj.gprs[1];
         }
         tcb.write_all_registers(false, &mut regs)?;
 

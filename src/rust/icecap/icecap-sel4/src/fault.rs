@@ -286,13 +286,13 @@ impl VMFault {
 
     pub fn data(&self, ctx: &UserContext) -> VMFaultData {
         assert!(self.is_write());
-        self.width().truncate(read_gpr(ctx, self.gpr_index()))
+        self.width().truncate(ctx.read_gpr(self.gpr_index()))
     }
 
     pub fn emulate_read(&self, ctx: &mut UserContext, val: VMFaultData) {
         assert!(self.is_read());
         assert_eq!(self.width(), val.into());
-        let gpr = index_gpr_mut(ctx, self.gpr_index());
+        let gpr = ctx.gpr_mut(self.gpr_index());
         *gpr = val.set(*gpr);
     }
 
@@ -361,80 +361,5 @@ impl From<VMFaultData> for VMFaultWidth {
             VMFaultData::Word(_) => Self::Word,
             VMFaultData::DoubleWord(_) => Self::DoubleWord,
         }
-    }
-}
-
-fn read_gpr(ctx: &UserContext, ix: u64) -> u64 {
-    match ix {
-        0 => ctx.x0,
-        1 => ctx.x1,
-        2 => ctx.x2,
-        3 => ctx.x3,
-        4 => ctx.x4,
-        5 => ctx.x5,
-        6 => ctx.x6,
-        7 => ctx.x7,
-        8 => ctx.x8,
-        9 => ctx.x9,
-        10 => ctx.x10,
-        11 => ctx.x11,
-        12 => ctx.x12,
-        13 => ctx.x13,
-        14 => ctx.x14,
-        15 => ctx.x15,
-        16 => ctx.x16,
-        17 => ctx.x17,
-        18 => ctx.x18,
-        19 => ctx.x19,
-        20 => ctx.x20,
-        21 => ctx.x21,
-        22 => ctx.x22,
-        23 => ctx.x23,
-        24 => ctx.x24,
-        25 => ctx.x25,
-        26 => ctx.x26,
-        27 => ctx.x27,
-        28 => ctx.x28,
-        29 => ctx.x29,
-        30 => ctx.x30,
-        31 => 0,
-        _ => panic!(),
-    }
-}
-
-fn index_gpr_mut(ctx: &mut UserContext, ix: u64) -> &mut u64 {
-    match ix {
-        0 => &mut ctx.x0,
-        1 => &mut ctx.x1,
-        2 => &mut ctx.x2,
-        3 => &mut ctx.x3,
-        4 => &mut ctx.x4,
-        5 => &mut ctx.x5,
-        6 => &mut ctx.x6,
-        7 => &mut ctx.x7,
-        8 => &mut ctx.x8,
-        9 => &mut ctx.x9,
-        10 => &mut ctx.x10,
-        11 => &mut ctx.x11,
-        12 => &mut ctx.x12,
-        13 => &mut ctx.x13,
-        14 => &mut ctx.x14,
-        15 => &mut ctx.x15,
-        16 => &mut ctx.x16,
-        17 => &mut ctx.x17,
-        18 => &mut ctx.x18,
-        19 => &mut ctx.x19,
-        20 => &mut ctx.x20,
-        21 => &mut ctx.x21,
-        22 => &mut ctx.x22,
-        23 => &mut ctx.x23,
-        24 => &mut ctx.x24,
-        25 => &mut ctx.x25,
-        26 => &mut ctx.x26,
-        27 => &mut ctx.x27,
-        28 => &mut ctx.x28,
-        29 => &mut ctx.x29,
-        30 => &mut ctx.x30,
-        _ => panic!(),
     }
 }

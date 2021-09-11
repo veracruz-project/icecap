@@ -105,12 +105,12 @@ fn hack_run(realm_id: usize) -> Result<()> {
 
 fn benchmark_start() -> Result<()> {
     let mut host = Host::new().unwrap();
-    host.direct(&DirectRequest::Start);
+    host.direct(&DirectRequest::BenchmarkUtilisationStart);
     Ok(())
 }
 
 fn benchmark_finish() -> Result<()> {
     let mut host = Host::new().unwrap();
-    host.direct(&DirectRequest::Finish);
+    host.direct(&DirectRequest::BenchmarkUtilisationFinish);
     Ok(())
 }

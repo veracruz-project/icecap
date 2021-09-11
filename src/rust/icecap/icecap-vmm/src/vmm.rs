@@ -7,17 +7,13 @@ use icecap_core::{
     sel4::fault::*,
     runtime::Thread,
     sync::{Mutex, ExplicitMutexNotification},
-    ring_buffer::Kick,
     rpc_sel4::RPCClient,
-    finite_set::Finite,
 };
 use icecap_vmm_gic::*;
 use icecap_event_server_types::{
     self as event_server,
     InIndex,
 };
-
-use crate::asm;
 
 pub struct IRQMap {
     pub ppi: BTreeMap<usize, (InIndex, bool)>, // (in_index, must_ack)
@@ -48,7 +44,7 @@ pub struct VMMNodeConfig<E> {
 
 pub trait VMMExtension: Sized {
     fn handle_wfe(node: &mut VMMNode<Self>) -> Fallible<()>;
-    fn handle_syscall(node: &mut VMMNode<Self>, syscall: u64) -> Fallible<()>;
+    fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()>;
     fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()>;
 }
 
@@ -108,21 +104,7 @@ impl VMMGICCallbacks {
     }
 }
 
-#[cfg(icecap_plat = "virt")]
-const CNTFRQ: u32 = 62500000;
-#[cfg(icecap_plat = "rpi4")]
-const CNTFRQ: u32 = 54000000;
-
 impl GICCallbacks for VMMGICCallbacks {
-
-    fn event(&mut self, calling_node: NodeIndex, target_node: NodeIndex) -> Fallible<()> {
-        // if calling_node != target_node {
-        //     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::SEV {
-        //         nid: target_node,
-        //     });
-        // }
-        Ok(())
-    }
 
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         match irq {
@@ -164,6 +146,7 @@ impl GICCallbacks for VMMGICCallbacks {
     }
 
     fn set_affinity(&mut self, calling_node: NodeIndex, irq: SPI, affinity: NodeIndex) -> Fallible<()> {
+        debug_println!("XXX set_afinity({}, {}, {}", calling_node, irq, affinity);
         Ok(())
     }
 
@@ -217,11 +200,9 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
 }
 
 pub const BADGE_VM: Badge = 0;
-pub const BADGE_EVENT: Badge = 1;
 
 const SYS_PSCI: Word = 0;
 const SYS_PUTCHAR: Word = 1337;
-const SYS_KICK: Word = 1347;
 
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
@@ -235,16 +216,13 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                     let fault = Fault::get(info);
                     match fault {
                         Fault::VMFault(fault) => {
+                            // TODO reply with regs
                             self.handle_page_fault(fault)?;
                             reply(MessageInfo::empty());
                         }
                         Fault::UnknownSyscall(fault) => {
-                            self.cnode.save_caller(self.fault_reply_slot).unwrap();
-                            self.handle_syscall(fault.syscall)?;
-                            self.fault_reply_slot.send(MessageInfo::empty());
-                        }
-                        Fault::UserException(fault) => {
-                            panic!("Fault::UserException({:x?})", fault);
+                            self.handle_syscall(&fault)?;
+                            reply(MessageInfo::empty());
                         }
                         Fault::VGICMaintenance(fault) => {
                             self.gic.lock().handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
@@ -321,13 +299,13 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             let data = fault.data(&ctx);
             self.gic.lock().handle_write(self.node_index, offset, data)?;
-            ctx.pc += 4;
+            *ctx.pc_mut() += 4;
             self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else if fault.is_read() {
             let data = self.gic.lock().handle_read(self.node_index, offset, fault.width())?;
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             fault.emulate_read(&mut ctx, data);
-            ctx.pc += 4;
+            *ctx.pc_mut() += 4;
             self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else {
             panic!();
@@ -335,31 +313,31 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         Ok(())
     }
 
-    fn handle_syscall(&mut self, syscall: Word) -> Fallible<()> {
-        match syscall {
+    fn handle_syscall(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
+        match fault.syscall {
             SYS_PUTCHAR => {
-                self.sys_putchar()?;
+                self.sys_putchar(fault)?;
             }
             SYS_PSCI => {
-                self.sys_psci()?;
+                self.sys_psci(fault)?;
             }
             _ => {
-                E::handle_syscall(self, syscall)?;
+                E::handle_syscall(self, fault)?;
             }
         }
         Ok(())
     }
 
-    fn sys_putchar(&mut self) -> Fallible<()> {
+    fn sys_putchar(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
         let mut ctx = self.tcb.read_all_registers(false).unwrap();
-        let c = ctx.x0 as u8;
+        let c = *ctx.gpr(0) as u8;
         E::handle_putchar(self, c)?;
-        ctx.pc += 4;
+        *ctx.pc_mut() += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
         Ok(())
     }
 
-    fn sys_psci(&self) -> Fallible<()> {
+    fn sys_psci(&self, fault: &UnknownSyscall) -> Fallible<()> {
         let mut ctx = self.tcb.read_all_registers(false).unwrap();
         const FID_PSCI_VERSION: u32 = 0x8400_0000;
         const FID_CPU_ON: u32 = 0xC400_0003;
@@ -367,16 +345,16 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         const FID_PSCI_FEATURES: u32 = 0x8400_000a;
         const RET_SUCCESS: i32 = 0;
         const RET_NOT_SUPPORTED: i32 = -1;
-        let fid = ctx.x0 as u32;
+        let fid = *ctx.gpr(0) as u32;
         match fid {
             FID_PSCI_VERSION => {
                 const VERSION: u32 = 0x0001_0001;
-                ctx.x0 = VERSION as u64;
+                *ctx.gpr_mut(0) = VERSION as u64;
             }
             FID_CPU_ON => {
-                let target = ctx.x1 as usize;
-                let entry = ctx.x2 as u64;
-                let ctx_id = ctx.x3 as u64;
+                let target = *ctx.gpr(1) as usize;
+                let entry = *ctx.gpr(2) as u64;
+                let ctx_id = *ctx.gpr(3) as u64;
                 debug_println!("cpu_on: {:x} {:x} {:x}", target, entry, ctx_id);
                 let (thread, mut node) = {
                     let mut this = None;
@@ -386,19 +364,19 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 };
                 thread.start(move || {
                     let mut ctx = node.tcb.read_all_registers(false).unwrap();
-                    ctx.pc = entry;
-                    ctx.x0 = ctx_id;
+                    *ctx.pc_mut() = entry;
+                    *ctx.gpr_mut(0) = ctx_id;
                     node.tcb.write_all_registers(false, &mut ctx).unwrap();
                     node.run().unwrap()
                 });
-                ctx.x0 = RET_SUCCESS as u64;
+                *ctx.gpr_mut(0) = RET_SUCCESS as u64;
             }
             FID_MIGRATE_INFO_TYPE => {
-                ctx.x0 = RET_NOT_SUPPORTED as u64;
+                *ctx.gpr_mut(0) = RET_NOT_SUPPORTED as u64;
             }
             FID_PSCI_FEATURES => {
-                let qfid = ctx.x1 as u32;
-                ctx.x0 = match qfid {
+                let qfid = *ctx.gpr(1) as u32;
+                *ctx.gpr_mut(0) = match qfid {
                     FID_CPU_ON => {
                         0
                     }
@@ -411,26 +389,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 panic!("psci fid {:x}", fid);
             }
         }
-        ctx.pc += 4;
+        *ctx.pc_mut() += 4;
         self.tcb.write_all_registers(false, &mut ctx).unwrap();
         Ok(())
     }
 
-    fn handle_exception(&mut self, _ip: Word) {
-        panic!();
-    }
-
-    pub fn upper_ns_bound_interrupt(&mut self) -> Fallible<Option<i64>> {
-        assert_eq!(self.vcpu.read_regs(VCPUReg::CNTVOFF)?, 0);
-        assert_eq!(asm::read_cntfrq_el0(), CNTFRQ);
-        let cntv_ctl = self.vcpu.read_regs(VCPUReg::CNTV_CTL)?;
-        Ok(if (cntv_ctl & asm::CNTV_CTL_EL0_ENABLE) != 0 && (cntv_ctl & asm::CNTV_CTL_EL0_IMASK) == 0 {
-            let cntv_cval = self.vcpu.read_regs(VCPUReg::CNTV_CVAL)?;
-            let cntvct = asm::read_cntvct_el0();
-            let ns = ((((cntv_cval - cntvct) as i128) * 1_000_000_000) / (CNTFRQ as i128)) as i64;
-            Some(ns)
-        } else {
-            None
-        })
-    }
 }
