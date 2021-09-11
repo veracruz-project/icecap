@@ -84,23 +84,17 @@ class ElfComponent(BaseComponent):
         self.align(PAGE_SIZE)
         config_vaddr = self.cur_vaddr
 
-        image_path_offset = runtime_config_size(self.num_threads())
-        image_path = str(self.elf_full_path).encode('ascii') + b'\0'
-        image_path_size = len(image_path)
-        arg_offset = align_up(image_path_offset + image_path_size, PAGE_SIZE) # lazy
-        arg_size = self.composition.get_file(arg_bin).stat().st_size
-
         config = {
             'common': {
                 'heap_info': heap_info,
                 'eh_info': {
                     **eh_info(self.elf_full),
-                    'image_path_offset': image_path_offset,
+                    'image_path_offset': 0,
                 },
                 'tls_image': tls_image(self.elf_min._elf),
                 'arg': {
-                    'offset': arg_offset,
-                    'size': arg_size,
+                    'offset': 0,
+                    'size': 0,
                 },
                 'fault_handling': fault_handling,
                 'print_lock': self.cspace().alloc(
@@ -110,6 +104,8 @@ class ElfComponent(BaseComponent):
                 'supervisor_ep': self.supervisor_ep,
             },
             'threads': [ thread.get_thread_runtime_config() for thread in self.threads() ],
+            'image_path': str(self.elf_full_path),
+            'arg': str(self.composition.out_dir / arg_bin),
         }
 
         path_base = self.composition.out_dir / '{}_config'.format(self.name)
@@ -120,7 +116,6 @@ class ElfComponent(BaseComponent):
         with path_json.open('r') as f_json:
             with path_bin.open('wb') as f_bin:
                 subprocess.check_call(['icecap-serialize-runtime-config'], stdin=f_json, stdout=f_bin)
-                f_bin.write(image_path)
 
         self.composition.register_file(path_bin.name, path_bin)
 
@@ -130,14 +125,6 @@ class ElfComponent(BaseComponent):
             fill = mk_fill(0, length, path_bin.name, config_offset)
             vaddr = config_vaddr + config_offset
             self.map_page(vaddr, read=True, label='config', fill=fill)
-        arg_vaddr = config_vaddr + arg_offset
-        for arg_offset in range(0, arg_size, PAGE_SIZE):
-            length = min(PAGE_SIZE, arg_size - arg_offset)
-            fill = mk_fill(0, length, arg_bin, arg_offset)
-            vaddr = arg_vaddr + arg_offset
-            self.map_page(vaddr, read=True, label='arg', fill=fill)
-
-        self.cur_vaddr = arg_vaddr + arg_size
 
         for i, thread in enumerate(self.threads()):
             thread.set_component_runtime_config(config_vaddr, i)

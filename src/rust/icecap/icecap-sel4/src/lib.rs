@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(const_if_match)]
 #![feature(format_args_nl)]
 
 // TODO remove or guard with feature

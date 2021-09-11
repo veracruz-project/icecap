@@ -9,7 +9,7 @@ use gimli::{
 };
 
 use crate::{EhRef, find_cfi_sections};
-use tock_registers::registerss::{Registers, DwarfRegister};
+use registers::{Registers, DwarfRegister};
 
 mod glue;
 mod registers;

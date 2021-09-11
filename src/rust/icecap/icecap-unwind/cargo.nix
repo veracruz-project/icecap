@@ -1,7 +1,10 @@
-{ mk }:
+{ lib, mk, localCrates, seL4 }:
 
 mk {
   nix.name = "icecap-unwind";
+  nix.localDependencies = with localCrates; lib.optionals seL4 [
+    icecap-runtime
+  ];
   dependencies = {
     fallible-iterator = { version = "*"; default-features = false; features = [ "alloc" ]; };
     gimli = { version = "0.20.0"; default-features = false; features = [ "read" ]; };

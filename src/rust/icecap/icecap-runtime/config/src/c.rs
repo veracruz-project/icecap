@@ -1,4 +1,3 @@
-use alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
 #[repr(C)]
@@ -54,10 +53,4 @@ pub struct ThreadConfig {
     pub ipc_buffer: u64,
     pub endpoint: u64,
     pub tcb: u64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {
-    pub common: CommonConfig,
-    pub threads: Vec<ThreadConfig>,
 }

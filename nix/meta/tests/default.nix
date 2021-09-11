@@ -3,4 +3,5 @@
   firecracker = ./firecracker;
   analysis = ./analysis;
   benchmark-utilisation = ./benchmark-utilisation;
+  backtrace = ./backtrace;
 }

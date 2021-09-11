@@ -8,6 +8,8 @@ use std::fs::File;
 
 use icecap_backtrace_types::RawBacktrace;
 
+// NOTE many minor TODO's here
+
 fn main() {
     let matches = App::new("")
         .arg(Arg::from_usage("<raw_backtrace>"))

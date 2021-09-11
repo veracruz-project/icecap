@@ -27,7 +27,7 @@ f: lib.fix (self:
       inherit payload;
       platArgs = icecapPlatArgs.${icecapPlat} or {};
       extraLinks = lib.mapAttrs' (k: lib.nameValuePair "debug/${k}") ({
-          icecap-show-backtrace = "${pkgs.dev.icecap.icecap-show-backtrace}/bin/show-backtrace";
+          icecap-show-backtrace = "${pkgs.dev.icecap.icecap-show-backtrace}/bin/icecap-show-backtrace";
         } // composition.debugFiles // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
       ) // extraLinks;
     };
