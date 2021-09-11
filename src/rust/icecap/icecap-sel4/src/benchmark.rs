@@ -1,5 +1,5 @@
 use crate::{
-    sys, LocalCPtr, TCB, CPtr, Result, Word, Error, LargePage,
+    sys, LocalCPtr, TCB, Result, Word, Error, LargePage,
 };
 
 pub fn reset_log() -> Result<()> {

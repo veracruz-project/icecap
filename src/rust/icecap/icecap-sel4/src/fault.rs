@@ -394,6 +394,20 @@ impl UnknownSyscall {
         assert!(ix <= 7);
         MessageRegister::new(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0 as i32 + ix as i32)
     }
+
+    pub fn gpr(&self, ix: usize) -> u64 {
+        match ix {
+            0 => self.x0,
+            1 => self.x1,
+            2 => self.x2,
+            3 => self.x3,
+            4 => self.x4,
+            5 => self.x5,
+            6 => self.x6,
+            7 => self.x7,
+            _ => panic!(),
+        }
+    }
 }
 
 impl VCPUFault {

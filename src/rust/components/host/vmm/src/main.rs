@@ -1,18 +1,8 @@
 #![no_std]
 #![no_main]
 #![feature(format_args_nl)]
-#![allow(unused_variables)]
-#![allow(unused_imports)]
-#![allow(unreachable_code)]
 
 extern crate alloc;
-
-use core::convert::TryFrom;
-use core::sync::atomic::{AtomicBool, Ordering};
-use alloc::collections::btree_map::BTreeMap;
-use alloc::sync::Arc;
-
-use biterate::biterate;
 
 use icecap_std::prelude::*;
 use icecap_std::sel4::fault::*;
@@ -20,16 +10,14 @@ use icecap_std::finite_set::Finite;
 use icecap_rpc_sel4::*;
 use icecap_host_vmm_config::*;
 use icecap_vmm::*;
-use icecap_event_server_types as event_server;
-use icecap_resource_server_types as resource_server;
-use icecap_benchmark_server_types as benchmark_server;
 use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
+
+#[allow(unused_imports)]
+use icecap_benchmark_server_types as benchmark_server;
 
 declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
-    // let con = BufferedRingBuffer::new(RingBuffer::realize_resume_unmanaged(&config.con));
-    // icecap_std::set_print(con);
 
     let resource_server_ep = config.resource_server_ep;
     let event_server_client_ep = config.event_server_client_ep;
@@ -40,11 +28,6 @@ pub fn main(config: Config) -> Fallible<()> {
         ppi: config.ppi_map.into_iter().map(|(ppi, (in_index, must_ack))| (ppi, (in_index.to_nat(), must_ack))).collect(),
         spi: config.spi_map.into_iter().map(|(spi, (in_index, nid, must_ack))| (spi, (in_index.to_nat(), nid, must_ack))).collect(),
     };
-
-    #[cfg(feature = "benchmark")]
-    {
-        // sel4::benchmark::set_log_buffer(config.log_buffer)?;
-    }
 
     VMMConfig {
         debug: false,
@@ -74,18 +57,16 @@ pub fn main(config: Config) -> Fallible<()> {
 
 struct Extension {
     resource_server_ep: Endpoint,
+    #[allow(dead_code)]
     event_server_control_ep: Endpoint,
+    #[allow(dead_code)]
     benchmark_server_ep: Endpoint,
 }
 
-const SYS_RESOURCE_SERVER_PASSTHRU: Word = 1338;
-const SYS_YIELD_TO: Word = 1339;
-
 impl VMMExtension for Extension {
 
-    fn handle_wf(node: &mut VMMNode<Self>) -> Fallible<()> {
-        panic!("wfe");
-        Ok(())
+    fn handle_wf(_node: &mut VMMNode<Self>) -> Fallible<()> {
+        panic!()
     }
 
     fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
@@ -97,12 +78,12 @@ impl VMMExtension for Extension {
                 Self::sys_direct(node, fault)?
             }
             _ => {
-                panic!("unknown syscall")
+                panic!("unknown syscall: {:?}", fault)
             }
         })
     }
 
-    fn handle_putchar(node: &mut VMMNode<Self>, c: u8) -> Fallible<()> {
+    fn handle_putchar(_node: &mut VMMNode<Self>, c: u8) -> Fallible<()> {
         debug_print!("{}", c as char);
         Ok(())
     }
@@ -110,70 +91,59 @@ impl VMMExtension for Extension {
 
 impl Extension {
 
-    fn sys_resource_server_passthru(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
-        let mut ctx = node.tcb.read_all_registers(false)?;
-        let length = *ctx.gpr(0) as usize;
-        let parameters = &[*ctx.gpr(1), *ctx.gpr(2), *ctx.gpr(3), *ctx.gpr(4), *ctx.gpr(5), *ctx.gpr(6)][..length];
-        let recv_info = node.extension.resource_server_ep.call(proxy::up(parameters));
-        let mut r = proxy::down(&recv_info);
+    fn userspace_syscall(
+        node: &mut VMMNode<Self>,
+        fault: &UnknownSyscall,
+        f: impl FnOnce(&mut VMMNode<Self>, &[u64]) -> Fallible<Vec<u64>>
+    ) -> Fallible<()> {
+        let length = fault.x0 as usize;
+        let parameters = (0..length).map(|i| fault.gpr(i + 1)).collect::<Vec<u64>>();
+        let mut r = f(node, &parameters)?;
         assert!(r.len() <= 6);
-        *ctx.gpr_mut(0) = r.len() as u64;
+        UnknownSyscall::mr_gpr(0).set(r.len() as u64);
         r.resize_with(6, || 0);
-        *ctx.gpr_mut(1) = r[0];
-        *ctx.gpr_mut(2) = r[1];
-        *ctx.gpr_mut(3) = r[2];
-        *ctx.gpr_mut(4) = r[3];
-        *ctx.gpr_mut(5) = r[4];
-        *ctx.gpr_mut(6) = r[5];
-        *ctx.pc_mut() += 4;
-        node.tcb.write_all_registers(false, &mut ctx)?;
-        UnknownSyscall::reply(0);
+        for i in 0..6 {
+            UnknownSyscall::mr_gpr(i + 1).set(r[i]);
+        }
+        fault.advance_and_reply();
         Ok(())
     }
 
+    fn sys_resource_server_passthru(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
+        Self::userspace_syscall(node, fault, |node, values| {
+            let recv_info = node.extension.resource_server_ep.call(proxy::up(values));
+            let resp = proxy::down(&recv_info);
+            Ok(resp)
+        })
+    }
+
     fn sys_direct(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
-        let mut ctx = node.tcb.read_all_registers(false)?;
-        let length = *ctx.gpr(0) as usize;
-        let parameters = &[*ctx.gpr(1), *ctx.gpr(2), *ctx.gpr(3), *ctx.gpr(4), *ctx.gpr(5), *ctx.gpr(6)][..length];
-        let request = DirectRequest::recv_from_slice(parameters);
-        let response = Self::direct(node, &request)?;
-        let mut r = response.send_to_vec();
-        assert!(r.len() <= 6);
-        *ctx.gpr_mut(0) = r.len() as u64;
-        r.resize_with(6, || 0);
-        *ctx.gpr_mut(1) = r[0];
-        *ctx.gpr_mut(2) = r[1];
-        *ctx.gpr_mut(3) = r[2];
-        *ctx.gpr_mut(4) = r[3];
-        *ctx.gpr_mut(5) = r[4];
-        *ctx.gpr_mut(6) = r[5];
-        *ctx.pc_mut() += 4;
-        node.tcb.write_all_registers(false, &mut ctx)?;
-        UnknownSyscall::reply(0);
-        Ok(())
+        Self::userspace_syscall(node, fault, |node, values| {
+            let request = DirectRequest::recv_from_slice(&values);
+            let response = Self::direct(node, &request)?;
+            Ok(response.send_to_vec())
+        })
     }
 
     #[cfg(feature = "benchmark")]
     fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
         match request {
-            DirectRequest::Start => {
-                // debug_println!("host-vmm: bench start");
-                let resp = RPCClient::new(node.extension.benchmark_server_ep)
-                    .call::<benchmark_server::Response>(&benchmark_server::Request::Start);
-                resp.unwrap();
+            DirectRequest::BenchmarkUtilisationStart => {
+                RPCClient::new(node.extension.benchmark_server_ep)
+                    .call::<benchmark_server::Response>(&benchmark_server::Request::Start)
+                    .unwrap();
             }
-            DirectRequest::Finish => {
-                // debug_println!("host-vmm: bench finish");
-                let resp = RPCClient::new(node.extension.benchmark_server_ep)
-                    .call::<benchmark_server::Response>(&benchmark_server::Request::Finish);
-                resp.unwrap();
+            DirectRequest::BenchmarkUtilisationFinish => {
+                RPCClient::new(node.extension.benchmark_server_ep)
+                    .call::<benchmark_server::Response>(&benchmark_server::Request::Finish)
+                    .unwrap();
             }
         }
         Ok(DirectResponse)
     }
 
     #[cfg(not(feature = "benchmark"))]
-    fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
+    fn direct(_node: &mut VMMNode<Self>, _request: &DirectRequest) -> Fallible<DirectResponse> {
         panic!()
     }
 

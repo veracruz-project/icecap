@@ -81,10 +81,10 @@ pub struct VMMGICCallbacks {
 impl VMMGICCallbacks {
 
     fn configure(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, action: event_server::ConfigureAction) -> Fallible<()> {
-        debug_println!("XXX configure: {:?} {:?} {:?}", calling_node, irq, action);
+        debug_println!("VMMGICCallbacks::configure({}, {:?}, {:?})", calling_node, irq, action);
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
-                // assert_eq!(calling_node, node); // TODO HACK
+                assert_eq!(calling_node, node); // TODO
                 if let Some((in_index, _must_ack)) = self.irq_map.ppi.get(&irq) {
                     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
                         nid: calling_node,
@@ -103,7 +103,7 @@ impl VMMGICCallbacks {
                         action,
                     });
                 } else {
-                    // panic!("unbound irq: {}", irq); // TODO HACK
+                    panic!("unbound irq: {}", irq); // TODO
                 }
             }
         }
@@ -116,7 +116,7 @@ impl GICCallbacks for VMMGICCallbacks {
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
-                // assert_eq!(calling_node, node); // TODO HACK
+                assert_eq!(calling_node, node); // TODO
                 if let Some((in_index, must_ack)) = self.irq_map.ppi.get(&irq) {
                     if *must_ack {
                         self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
@@ -137,7 +137,7 @@ impl GICCallbacks for VMMGICCallbacks {
                         });
                     }
                 } else {
-                    // panic!("unbound irq: {}", irq); // TODO HACK
+                    panic!("unbound irq: {}", irq); // TODO
                 }
             }
         }
@@ -153,11 +153,12 @@ impl GICCallbacks for VMMGICCallbacks {
     }
 
     fn set_affinity(&mut self, calling_node: NodeIndex, irq: SPI, affinity: NodeIndex) -> Fallible<()> {
-        debug_println!("XXX set_afinity({}, {}, {}", calling_node, irq, affinity);
+        debug_println!("VMMGICCallbacks::set_affinity({}, {}, {})", calling_node, irq, affinity);
         Ok(())
     }
 
     fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()> {
+        debug_println!("VMMGICCallbacks::set_priority({}, {:?}, {})", calling_node, irq, priority);
         self.configure(calling_node, irq, event_server::ConfigureAction::SetPriority(priority))
     }
 
@@ -259,14 +260,14 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             // debug_println!("in_index = {}", in_index);
                             let irq = {
                                 let mut irq = None;
-                                for (ppi, (ppi_in_index, must_ack)) in &gic.callbacks().irq_map.ppi {
+                                for (ppi, (ppi_in_index, _must_ack)) in &gic.callbacks().irq_map.ppi {
                                     if *ppi_in_index == in_index {
                                         irq = Some(QualifiedIRQ::QualifiedPPI { node: self.node_index, irq: *ppi });
                                         break;
                                     }
                                 }
                                 if let None = irq {
-                                    for (spi, (spi_in_index, nid, must_ack)) in &gic.callbacks().irq_map.spi {
+                                    for (spi, (spi_in_index, nid, _must_ack)) in &gic.callbacks().irq_map.spi {
                                         assert_eq!(*nid, self.node_index);
                                         if *spi_in_index == in_index {
                                             irq = Some(QualifiedIRQ::SPI { irq: *spi });
