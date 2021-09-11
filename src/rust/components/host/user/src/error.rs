@@ -2,6 +2,8 @@ use std::error::Error;
 use std::fmt;
 use std::result;
 
+// TODO unify this module with others like it
+
 pub type Result<T> = result::Result<T, Box<dyn Error>>;
 
 #[derive(Debug)]

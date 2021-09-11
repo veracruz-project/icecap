@@ -1,9 +1,6 @@
 #![no_std]
 #![no_main]
 #![feature(format_args_nl)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 
 extern crate alloc;
 

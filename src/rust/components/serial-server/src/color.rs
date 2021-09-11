@@ -2,6 +2,7 @@ use icecap_std::prelude::*;
 
 pub struct Color(BaseColor, Style);
 
+#[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub enum BaseColor {
     Black = 0,

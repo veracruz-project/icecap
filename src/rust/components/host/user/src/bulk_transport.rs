@@ -1,10 +1,8 @@
-use std::env;
 use std::fs::{self, File, OpenOptions};
-use std::io::{Read, Write};
-use std::net::{SocketAddr, TcpStream};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use crate::{Result, bail, syscall::{spec_chunk, fill_chunk}};
+use crate::{Result, syscall::spec_chunk};
 
 const BULK_TRANSPORT_PATH: &str = "/dev/resource_server";
 
@@ -16,8 +14,8 @@ impl BulkTransport {
         Ok(Self(OpenOptions::new().read(true).write(true).open(PathBuf::from(BULK_TRANSPORT_PATH))?))
     }
 
-    pub fn send_content(&mut self, content: &[u8]) -> Result<()> {
-        self.0.write_all(content)?;
+    pub fn send(&mut self, bytes: &[u8]) -> Result<()> {
+        self.0.write_all(bytes)?;
         self.0.flush()?;
         Ok(())
     }
@@ -25,7 +23,7 @@ impl BulkTransport {
     pub fn send_spec(&mut self, realm_id: usize, spec: &[u8], chunk_size: usize) -> Result<()> {
         for (i, chunk) in spec.chunks(chunk_size).enumerate() {
             let offset = i * chunk_size;
-            self.send_content(chunk)?;
+            self.send(chunk)?;
             spec_chunk(realm_id, 0, chunk.len(), offset);
         }
         Ok(())

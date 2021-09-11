@@ -1,6 +1,6 @@
 use icecap_std::prelude::*;
 use core::ops::Deref;
-use tock_registers::{registers::{ReadOnly, ReadWrite}, interfaces::{Readable, Writeable, ReadWriteable}, register_bitfields, register_structs};
+use tock_registers::{registers::ReadWrite, interfaces::{Readable, Writeable}, register_structs};
 use crate::device::SerialDevice;
 
 // TODO use structured bitfields
@@ -63,6 +63,8 @@ impl SerialDevice for Device {
         //     }
         // }
         // self.IO.set(c);
+
+        // HACK
         sel4::debug_put_char(c)
     }
 

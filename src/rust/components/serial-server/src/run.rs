@@ -140,7 +140,7 @@ impl<T: SerialDevice> SerialServer<T> {
         // let client = &mut self.clients[client_id];
         self.clients[client_id].driver.rx_callback();
         let mut buf = [0];
-        for i in 0..self.clients[client_id].driver.poll() {
+        for _ in 0..self.clients[client_id].driver.poll() {
             self.clients[client_id].driver.rx_into(&mut buf);
             self.handle_client_char(client_id, buf[0]);
         }

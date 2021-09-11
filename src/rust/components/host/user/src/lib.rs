@@ -1,5 +1,3 @@
-#![feature(with_options)]
-
 mod error;
 mod bulk_transport;
 pub mod syscall;
@@ -42,13 +40,9 @@ impl Host {
 
     pub fn run_realm_node(&mut self, realm_id: usize, virtual_node: usize) -> Result<()> {
         loop {
-            // std::thread::yield_now();
-            // println!("yielding");
+            // std::thread::yield_now(); // TODO experiment with ways of yielding fuller time slices
             syscall::yield_to(realm_id, virtual_node);
-            // println!("sleeping");
-            // std::thread::sleep(std::time::Duration::from_millis(1));
         }
-        Ok(())
     }
 
     pub fn direct(&mut self, request: &DirectRequest) -> Result<DirectResponse> {

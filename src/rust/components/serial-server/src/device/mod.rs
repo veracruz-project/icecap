@@ -1,6 +1,9 @@
 use core::fmt;
 
+#[allow(dead_code)]
 pub mod rpi4;
+
+#[allow(dead_code)]
 pub mod virt;
 
 pub trait SerialDevice {

@@ -1,12 +1,13 @@
 use core::result;
-// use log;
+
+// TODO unify this module with others like it
+
+pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
     Malformed,
 }
-
-pub type Result<T> = result::Result<T, Error>;
 
 #[macro_export]
 macro_rules! bail {
