@@ -84,7 +84,7 @@ impl VMMGICCallbacks {
         debug_println!("VMMGICCallbacks::configure({}, {:?}, {:?})", calling_node, irq, action);
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
-                assert_eq!(calling_node, node); // TODO
+                // assert_eq!(calling_node, node); // TODO
                 if let Some((in_index, _must_ack)) = self.irq_map.ppi.get(&irq) {
                     self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
                         nid: calling_node,
@@ -116,7 +116,7 @@ impl GICCallbacks for VMMGICCallbacks {
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
-                assert_eq!(calling_node, node); // TODO
+                // assert_eq!(calling_node, node); // TODO
                 if let Some((in_index, must_ack)) = self.irq_map.ppi.get(&irq) {
                     if *must_ack {
                         self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
@@ -137,7 +137,7 @@ impl GICCallbacks for VMMGICCallbacks {
                         });
                     }
                 } else {
-                    panic!("unbound irq: {}", irq); // TODO
+                    // panic!("unbound irq: {}", irq); // TODO
                 }
             }
         }
