@@ -36,8 +36,7 @@ class ElfComponent(BaseComponent):
         self.primary_thread = self.thread('primary', affinity=affinity, prio=prio, max_prio=max_prio)
         self.secondary_threads = []
 
-        self.supervisor_ep = 0 # TODO
-        self.connections = {} # TODO
+        self.supervisor_ep = 0
 
     def pre_finalize(self):
         self.runtime_config(self.heap(), self.arg())
@@ -174,51 +173,32 @@ class ElfComponent(BaseComponent):
             'lock': lock,
             }
 
-    def map_ring_buffer_with(self, objs, mapped, cached=True):
-        read = objs.read
-        write = objs.write
-
-        rx_badge = 1;
-        tx_badge = 2;
-
+    def map_ring_buffer(self, objs, cached=True):
         return {
             'read': {
-                'size': read.size,
-                'ctrl': self.map_region(read.ctrl, mapped, read=True, write=True, cached=cached),
-                'data': self.map_region(read.data, mapped, read=True, cached=cached),
+                'size': objs.read.size,
+                'ctrl': self.map_region(objs.read.ctrl, read=True, write=True, cached=cached),
+                'data': self.map_region(objs.read.data, read=True, cached=cached),
                 },
             'write': {
-                'size': write.size,
-                'ctrl': self.map_region(write.ctrl, mapped, read=True, write=True, cached=cached),
-                'data': self.map_region(write.data, mapped, read=True, write=True, cached=cached),
+                'size': objs.write.size,
+                'ctrl': self.map_region(objs.write.ctrl, read=True, write=True, cached=cached),
+                'data': self.map_region(objs.write.data, read=True, write=True, cached=cached),
                 },
             }
 
-    def map_ring_buffer(self, objs, cached=True):
-        return self.map_ring_buffer_with(objs, mapped=True, cached=cached)
-
-    def grant_ring_buffer(self, objs, cached=True):
-        return self.map_ring_buffer_with(objs, mapped=False, cached=cached)
-
-    def map_region(self, region, mapped=True, **perms):
-        if mapped:
-            self.skip(4096)
-            self.align(1 << region[0][1]) # HACK
-            start = self.cur_vaddr
-            vaddr = start
-            for frame, size_bits in region:
-                assert vaddr & ((1 << size_bits) - 1) == 0
-                cap = Cap(frame, **perms)
-                self.addr_space().add_hack_page(vaddr, 1 << size_bits, cap)
-                vaddr += 1 << size_bits
-            self.cur_vaddr = vaddr
-            return start
-        else:
-            @as_list
-            def caps():
-                for frame, _ in region:
-                    yield self.cspace().alloc(frame, **perms)
-            return caps()
+    def map_region(self, region, **perms):
+        self.skip(4096)
+        self.align(1 << region[0][1]) # HACK
+        start = self.cur_vaddr
+        vaddr = start
+        for frame, size_bits in region:
+            assert vaddr & ((1 << size_bits) - 1) == 0
+            cap = Cap(frame, **perms)
+            self.addr_space().add_hack_page(vaddr, 1 << size_bits, cap)
+            vaddr += 1 << size_bits
+        self.cur_vaddr = vaddr
+        return start
 
 
 def tls_image(elf):
@@ -234,7 +214,7 @@ def tls_image(elf):
         'align': tls.header.p_align,
     }
 
-# TODO only include if backtrace enabled (!--release)
+# TODO only include if backtrace enabled and useful debug info is present
 def eh_info(elf):
     # TODO is it reasonable to silently omit?
     eh_frame_hdr_start = 0

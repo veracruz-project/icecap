@@ -75,28 +75,6 @@ class Composition(BaseComposition):
                 { 'Realm': i }
                 )
 
-        # host_resource_server_objs, resource_server_host_objs = composition.alloc_ring_buffer(
-        #     a_name='host_resource_server_rb', a_size_bits=21,
-        #     b_name='resource_server_host_rb', b_size_bits=21,
-        #     )
-
-        # host_realm_raw_objs, realm_host_raw_objs = composition.alloc_ring_buffer(
-        #     a_name='host_realm_raw_rb', a_size_bits=21,
-        #     b_name='realm_host_raw_rb', b_size_bits=21,
-        #     )
-
-        # resource_server.map_host(resource_server_host_objs)
-        # host_vm.map_rb(host_resource_server_objs, id=0, name='rb_resource_server')
-        # resource_server.add_extern_ring_buffer('host_net', realm_host_net_objs)
-        # host_vm.map_net(host_realm_net_objs)
-        # resource_server.add_extern_ring_buffer('host_raw', realm_host_raw_objs)
-        # host_vm.map_rb(host_realm_raw_objs, id=1, name='rb_realm')
-
-        # host_vm.map_con(serial_server.connect_raw('host_vm_con'))
-        # resource_server.add_extern_ring_buffer('realm_vm_con', serial_server.connect_raw('realm_vm_con'))
-        # serial_server.connect(host_vmm)
-        # resource_server.add_extern_ring_buffer('realm_vmm_con', serial_server.connect_raw('realm_vmm_con'))
-
     def create_gic_vcpu_frame(self):
         if self.plat == 'virt':
             GIC_PADDR = 0x8000000
