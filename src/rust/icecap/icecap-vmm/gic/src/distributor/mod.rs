@@ -5,7 +5,7 @@
 use alloc::vec::Vec; // GOAL: Only used during initial distributor allocation.
 use core::fmt;
 use core::convert::TryFrom;
-use core::sync::atomic::{AtomicU32, Ordering};
+use core::sync::atomic::Ordering;
 
 use biterate::biterate;
 
@@ -15,9 +15,14 @@ use icecap_sel4::prelude::*; // TODO: Remove.  Just for debug.
 use crate::error::*;
 
 mod registers;
+mod register;
 
 use registers::{
     GICDistRegWord, GICDistRegByte,
+};
+
+use register::{
+    Register32,
 };
 
 pub const GIC_DIST_SIZE: usize = 0x1000;
@@ -52,53 +57,53 @@ pub struct Distributor {
 
     // GICD_CTLR (RW): enables the forwarding of pending interrupts from the
     // Distributor to the CPU interfaces.
-    control: AtomicU32,
+    control: Register32,
 
     // GICD_TYPER (RO): provides information about the configuration of the GIC.
-    ic_type: AtomicU32,
+    ic_type: Register32,
 
     // GICD_IIDR (RO): info about implementer and revision of the distributor.
-    dist_ident: AtomicU32,
+    dist_ident: Register32,
 
     // GICD_IGROUPR (RW): registers provide a status bit for each interrupt.
-    irq_group0: Vec<AtomicU32>,
-    irq_group: Vec<AtomicU32>,
+    irq_group0: Vec<Register32>,
+    irq_group: Vec<Register32>,
 
     // GICD_ISENABLERn (RW): provide a Set-enable bit for each interrupt.
     // GICD_ICENABLERn (RW): provide a Clear-enable bit for each interrupt.
     // NOTE: These registers are associated with the same state. Reads are
     // identical and writing 1 sets or clears the associated register bit.
-    enable0: Vec<AtomicU32>,
-    enable: Vec<AtomicU32>,
+    enable0: Vec<Register32>,
+    enable: Vec<Register32>,
 
     // GICD_ISPENDRn (RW): provide a Set-pending bit for each interrupt.
     // GICD_ICPENDRn (RW): provide a Clear-pending bit for each interrupt.
     // NOTE: These registers are associated with the same state. Reads are
     // identical and writing 1 sets or clears the associated register bit.
-    pending0: Vec<AtomicU32>,
-    pending: Vec<AtomicU32>,
+    pending0: Vec<Register32>,
+    pending: Vec<Register32>,
 
     // GICD_ISACTIVERn (RW): provide a Set-active bit for each interrupt.
     // GICD_ICACTIVERn (RW): provide a Clear-active bit for each interrupt.
     // NOTE: These registers are associated with the same state. Reads are
     // identical and writing 1 sets or clears the associated register bit.
-    active0: Vec<AtomicU32>,
-    active: Vec<AtomicU32>,
+    active0: Vec<Register32>,
+    active: Vec<Register32>,
 
     // GICD_IPRIORITYRn (RW): provide an 8-bit priority field for each interrupt.
-    priority0: Vec<Vec<AtomicU32>>,
-    priority: Vec<AtomicU32>,
+    priority0: Vec<Vec<Register32>>,
+    priority: Vec<Register32>,
 
     // GICD_ITARGETSRn (RW): provide an 8-bit CPU targets field for each interrupt.
     // NOTE: Registers 0 to 7 are RO.
-    targets0: Vec<Vec<AtomicU32>>,
-    targets: Vec<AtomicU32>,
+    targets0: Vec<Vec<Register32>>,
+    targets: Vec<Register32>,
 
     // GICD_ICFGRn (RW): provide a 2-bit Int_config field for each interrupt.
     // NOTE: Register 0 is RO.
-    config0: AtomicU32,
-    config1: Vec<AtomicU32>,
-    config: Vec<AtomicU32>,
+    config0: Register32,
+    config1: Vec<Register32>,
+    config: Vec<Register32>,
 
     // GICD_NSACRn (RW): enable Secure software to permit Non-secure software on a
     // particular processor to create and manage Group 0 interrupts.
@@ -115,11 +120,11 @@ pub struct Distributor {
     // NOTE: These registers are associated with the same state. Reads are
     // identical and writing 1 sets or clears the associated register bit.
     // NOTE: This is the view from the *target* processor.
-    sgi_pending: Vec<Vec<AtomicU32>>,
+    sgi_pending: Vec<Vec<Register32>>,
 
     // Identification registers (RO).
-    periph_id: Vec<AtomicU32>,
-    component_id: Vec<AtomicU32>,
+    periph_id: Vec<Register32>,
+    component_id: Vec<Register32>,
 }
 
 impl fmt::Display for Distributor {
@@ -131,54 +136,54 @@ impl fmt::Display for Distributor {
 impl Distributor {
 
     pub fn new(num_nodes: usize) -> Self {
-        let gic_dist = Self {
+        let mut gic_dist = Self {
             num_nodes,
 
-            control: AtomicU32::new(0),
-            ic_type: AtomicU32::new(0),
-            dist_ident: AtomicU32::new(0),
+            control: Register32::new(0),
+            ic_type: Register32::new(0),
+            dist_ident: Register32::new(0),
 
             // irq_group0 is one banked register per node.
-            irq_group0: (0..num_nodes).map(|_| AtomicU32::new(0)).collect(),
-            irq_group: (0..31).map(|_| AtomicU32::new(0)).collect(),
+            irq_group0: (0..num_nodes).map(|_| Register32::new(0)).collect(),
+            irq_group: (0..31).map(|_| Register32::new(0)).collect(),
 
             // enable0  is one banked register per node.
-            enable0: (0..num_nodes).map(|_| AtomicU32::new(0)).collect(),
-            enable: (0..31).map(|_| AtomicU32::new(0)).collect(),
+            enable0: (0..num_nodes).map(|_| Register32::new(0)).collect(),
+            enable: (0..31).map(|_| Register32::new(0)).collect(),
 
             // pending0  is one banked register per node.
-            pending0: (0..num_nodes).map(|_| AtomicU32::new(0)).collect(),
-            pending: (0..31).map(|_| AtomicU32::new(0)).collect(),
+            pending0: (0..num_nodes).map(|_| Register32::new(0)).collect(),
+            pending: (0..31).map(|_| Register32::new(0)).collect(),
 
             // active0  is one banked register per node.
-            active0: (0..num_nodes).map(|_| AtomicU32::new(0)).collect(),
-            active: (0..31).map(|_| AtomicU32::new(0)).collect(),
+            active0: (0..num_nodes).map(|_| Register32::new(0)).collect(),
+            active: (0..31).map(|_| Register32::new(0)).collect(),
 
             // priority0 is 8 banked registers for each node
             priority0: (0..num_nodes)
-                .map(|_| (0..8).map(|_| AtomicU32::new(0)).collect())
+                .map(|_| (0..8).map(|_| Register32::new(0)).collect())
                 .collect(),
-            priority: (0..247).map(|_| AtomicU32::new(0)).collect(),
+            priority: (0..247).map(|_| Register32::new(0)).collect(),
 
             // targets0 is 8 banked registers for each node
             targets0: (0..num_nodes)
-                .map(|_| (0..8).map(|_| AtomicU32::new(0)).collect())
+                .map(|_| (0..8).map(|_| Register32::new(0)).collect())
                 .collect(),
-            targets: (0..247).map(|_| AtomicU32::new(0)).collect(),
+            targets: (0..247).map(|_| Register32::new(0)).collect(),
 
             // config0 is RO.
             // config1 is one banked register per node.
-            config0: AtomicU32::new(0),
-            config1: (0..num_nodes).map(|_| AtomicU32::new(0)).collect(),
-            config: (0..62).map(|_| AtomicU32::new(0)).collect(),
+            config0: Register32::new(0),
+            config1: (0..num_nodes).map(|_| Register32::new(0)).collect(),
+            config: (0..62).map(|_| Register32::new(0)).collect(),
 
             // sgi_pending is 4 banked registers for each node
             sgi_pending: (0..num_nodes)
-                .map(|_| (0..4).map(|_| AtomicU32::new(0)).collect())
+                .map(|_| (0..4).map(|_| Register32::new(0)).collect())
                 .collect(),
 
-            periph_id: (0..12).map(|_| AtomicU32::new(0)).collect(),
-            component_id: (0..4).map(|_| AtomicU32::new(0)).collect(),
+            periph_id: (0..12).map(|_| Register32::new(0)).collect(),
+            component_id: (0..4).map(|_| Register32::new(0)).collect(),
         };
 
         gic_dist.reset();
@@ -233,7 +238,7 @@ impl Distributor {
         to_ack
     }
 
-    pub fn handle_write(&self, offset: usize, node_index: usize, val: VMFaultData) -> Result<WriteAction, IRQError> {
+    pub fn handle_write(&mut self, offset: usize, node_index: usize, val: VMFaultData) -> Result<WriteAction, IRQError> {
         match val {
             VMFaultData::Word(val) => {
                 let reg = GICDistRegWord::from_offset(offset);
@@ -283,9 +288,9 @@ impl Distributor {
                         // - NOTE: Register 0 is banked for each CPU.
                         let group_reg;
                         if reg_num == 0 {
-                            group_reg = &self.irq_group0[node_index];
+                            group_reg = &mut self.irq_group0[node_index];
                         } else {
-                            group_reg = &self.irq_group[reg_num - 1];
+                            group_reg = &mut self.irq_group[reg_num - 1];
                         }
                         group_reg.store(val, Ordering::SeqCst);
 
@@ -302,9 +307,9 @@ impl Distributor {
 
                         let enable_reg;
                         if reg_num == 0 {
-                            enable_reg = &self.enable0[node_index];
+                            enable_reg = &mut self.enable0[node_index];
                         } else {
-                            enable_reg = &self.enable[reg_num - 1];
+                            enable_reg = &mut self.enable[reg_num - 1];
                         }
                         let prev = enable_reg.fetch_or(val, Ordering::SeqCst);
 
@@ -331,9 +336,9 @@ impl Distributor {
 
                         let enable_reg;
                         if reg_num == 0 {
-                            enable_reg = &self.enable0[node_index];
+                            enable_reg = &mut self.enable0[node_index];
                         } else {
-                            enable_reg = &self.enable[reg_num];
+                            enable_reg = &mut self.enable[reg_num];
                         }
                         enable_reg.fetch_and(!val, Ordering::SeqCst);
 
@@ -358,9 +363,9 @@ impl Distributor {
                             if val & 0xFFFF != 0 {
                                 return Ok(WriteAction::NoAction);
                             }
-                            pending_reg = &self.pending0[node_index];
+                            pending_reg = &mut self.pending0[node_index];
                         } else {
-                            pending_reg = &self.pending[reg_num - 1];
+                            pending_reg = &mut self.pending[reg_num - 1];
                         }
                         let prev = pending_reg.fetch_or(val, Ordering::SeqCst);
 
@@ -396,9 +401,9 @@ impl Distributor {
                                 return Err( IRQError{ irq_error_type:
                                     IRQErrorType::InvalidRegisterWrite, });
                             }
-                            pending_reg = &self.pending0[node_index];
+                            pending_reg = &mut self.pending0[node_index];
                         } else {
-                            pending_reg  = &self.pending[reg_num - 1];
+                            pending_reg  = &mut self.pending[reg_num - 1];
                         }
                         pending_reg.fetch_and(!val, Ordering::SeqCst);
 
@@ -418,9 +423,9 @@ impl Distributor {
 
                         let active_reg;
                         if reg_num == 0 {
-                            active_reg = &self.active0[node_index];
+                            active_reg = &mut self.active0[node_index];
                         } else {
-                            active_reg = &self.active[reg_num - 1];
+                            active_reg = &mut self.active[reg_num - 1];
                         }
                         active_reg.fetch_or(val, Ordering::SeqCst);
 
@@ -440,9 +445,9 @@ impl Distributor {
 
                         let active_reg;
                         if reg_num == 0 {
-                            active_reg = &self.active0[node_index];
+                            active_reg = &mut self.active0[node_index];
                         } else {
-                            active_reg  = &self.active[reg_num - 1];
+                            active_reg  = &mut self.active[reg_num - 1];
                         }
                         active_reg.fetch_and(!val, Ordering::SeqCst);
 
@@ -456,9 +461,9 @@ impl Distributor {
                         // - NOTE: Registers 0 to 7 banked for each CPU.
                         let priority_reg;
                         if reg_num < 8 {
-                            priority_reg = &self.priority0[node_index][reg_num];
+                            priority_reg = &mut self.priority0[node_index][reg_num];
                         } else {
-                            priority_reg = &self.priority[reg_num - 8];
+                            priority_reg = &mut self.priority[reg_num - 8];
                         }
                         priority_reg.store(val, Ordering::SeqCst);
 
@@ -479,7 +484,7 @@ impl Distributor {
                             return Err( IRQError{ irq_error_type:
                                 IRQErrorType::InvalidRegisterWrite, });
                         } else {
-                            targets_reg = &self.targets[reg_num - 8];
+                            targets_reg = &mut self.targets[reg_num - 8];
                         }
                         let prev = targets_reg.swap(val, Ordering::SeqCst);
 
@@ -517,9 +522,9 @@ impl Distributor {
                             // As these are RO, writing has no effect.
                             return Ok(WriteAction::NoAction);
                         } else if reg_num == 1 {
-                            config_reg = &self.config1[node_index];
+                            config_reg = &mut self.config1[node_index];
                         } else {
-                            config_reg = &self.config[reg_num - 2];
+                            config_reg = &mut self.config[reg_num - 2];
                         }
                         config_reg.store(val, Ordering::SeqCst);
                         return Ok(WriteAction::NoAction);
@@ -592,7 +597,7 @@ impl Distributor {
                         }
 
                         let sgi_pending_reg;
-                        sgi_pending_reg  = &self.sgi_pending[node_index][reg_num];
+                        sgi_pending_reg  = &mut self.sgi_pending[node_index][reg_num];
                         let prev = sgi_pending_reg.fetch_and(!val, Ordering::SeqCst);
 
                         // Identify any IRQs for this node that are no longer
@@ -620,7 +625,7 @@ impl Distributor {
                         }
 
                         let sgi_pending_reg;
-                        sgi_pending_reg  = &self.sgi_pending[node_index][reg_num];
+                        sgi_pending_reg  = &mut self.sgi_pending[node_index][reg_num];
                         let prev = sgi_pending_reg.fetch_or(val, Ordering::SeqCst);
 
                         let num_irqs = 4;
@@ -938,16 +943,16 @@ impl Distributor {
         }
     }
 
-    fn clear_pending(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
+    fn clear_pending(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
 
         let reg;
         if irq < 32 {
-            reg = &self.pending0[cpu];
+            reg = &mut self.pending0[cpu];
         } else {
-            reg = &self.pending[irq / 32 - 1];
+            reg = &mut self.pending[irq / 32 - 1];
         }
 
         let shift = irq % 32;
@@ -957,16 +962,16 @@ impl Distributor {
         Ok(())
     }
 
-    pub(crate) fn set_pending(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
+    pub(crate) fn set_pending(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
 
         let reg;
         if irq < 32 {
-            reg = &self.pending0[cpu];
+            reg = &mut self.pending0[cpu];
         } else {
-            reg = &self.pending[irq / 32 - 1];
+            reg = &mut self.pending[irq / 32 - 1];
         }
 
         let shift = irq % 32;
@@ -976,7 +981,7 @@ impl Distributor {
         Ok(())
     }
 
-    fn set_sgi_pending(&self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
+    fn set_sgi_pending(&mut self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
         if source_cpu >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(source_cpu) });
         }
@@ -991,7 +996,7 @@ impl Distributor {
 
         // Identify the correct SGI register for the target cpu
         let reg_num = irq / 4;
-        let reg = &self.sgi_pending[target_cpu][reg_num];
+        let reg = &mut self.sgi_pending[target_cpu][reg_num];
 
         // Calculate the bit for the given IRQ and source register
         let val = 1 << (source_cpu + (irq % 4) * 8);
@@ -1009,7 +1014,7 @@ impl Distributor {
         Ok(())
     }
 
-    fn clear_sgi_pending(&self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
+    fn clear_sgi_pending(&mut self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(source_cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(source_cpu) });
         }
@@ -1024,7 +1029,7 @@ impl Distributor {
 
         // Identify the correct SGI register for the target cpu
         let reg_num = irq / 4;
-        let reg = &self.sgi_pending[target_cpu][reg_num];
+        let reg = &mut self.sgi_pending[target_cpu][reg_num];
 
         // Calculate the bit for the given IRQ and source register
         let val = 1 << (source_cpu + (irq % 4) * 8);
@@ -1064,16 +1069,16 @@ impl Distributor {
         }
     }
 
-    fn clear_active(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
+    fn clear_active(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
 
         let reg;
         if irq < 32 {
-            reg = &self.active0[cpu];
+            reg = &mut self.active0[cpu];
         } else {
-            reg = &self.active[irq / 32 - 1];
+            reg = &mut self.active[irq / 32 - 1];
         }
 
         let shift = irq % 32;
@@ -1086,16 +1091,16 @@ impl Distributor {
     // The seL4 API does not tell userland when an interrupt is acknowledged (i.e., transitioned
     // from pending to active).  Therefore, the GIC must infer the state transition and should do
     // so as soon as the seL4 API call to inject an IRQ is invoked.
-    pub(crate) fn set_active(&self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
+    pub(crate) fn set_active(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
             return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
         }
 
         let reg;
         if irq < 32 {
-            reg = &self.active0[cpu];
+            reg = &mut self.active0[cpu];
         } else {
-            reg = &self.active[irq / 32 - 1];
+            reg = &mut self.active[irq / 32 - 1];
         }
 
         let shift = irq % 32;
@@ -1108,7 +1113,7 @@ impl Distributor {
     // The seL4 API does not tell userland when an interrupt is acknowledged (i.e., transitioned
     // from pending to active).  In seL4 API terms, an ack is equivalent to an end-of-interrupt
     // (EOI), which should clear the pending state rather than setting the active state.
-    pub fn ack(&self, irq: IRQ, node_index: usize) -> Result<(), IRQError> {
+    pub fn ack(&mut self, irq: IRQ, node_index: usize) -> Result<(), IRQError> {
         let cpu = node_index as CPU;
 
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
@@ -1140,7 +1145,7 @@ impl Distributor {
     }
 
     // Establishes the reset values from the Arm GICv2 architecture spec.
-    pub fn reset(&self) {
+    pub fn reset(&mut self) {
         self.ic_type.store(0x0000fce7, Ordering::SeqCst); // RO
         self.dist_ident.store(0x0200043b, Ordering::SeqCst); // RO
 
@@ -1175,7 +1180,7 @@ impl Distributor {
         // 2. Iterate through each CPU and its 8 banked registers.
         // 3. Bitwise-or a 1 in the CPU target field for each interrupt.
         // e.g., for CPU1, targets0[1][j] = 00000010 00000010 00000010 00000010
-        for (idx, bank) in self.targets0.iter().enumerate() {
+        for (idx, bank) in self.targets0.iter_mut().enumerate() {
             for target in bank {
                 target.store(0x0, Ordering::SeqCst);
                 for irq in 0..4 {
@@ -1188,7 +1193,7 @@ impl Distributor {
         // These are the remaining 247 target registers that are shared by
         // all CPUs (which, combined with the 8 target0 registers banked on
         // a per-CPU basis, results in 255 target registers per CPU).
-        for target in self.targets.iter() {
+        for target in self.targets.iter_mut() {
             target.store(0x01010101, Ordering::SeqCst);
         }
 
