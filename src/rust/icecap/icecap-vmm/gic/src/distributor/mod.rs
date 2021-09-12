@@ -837,11 +837,7 @@ impl Distributor {
     }
 
     fn is_gic_enabled(&self) -> bool {
-        if self.control.load() == 1 {
-            return true;
-        } else {
-            return false;
-        }
+        self.control.load() == 1
     }
 
     /// Get the priority of the given irq for the given cpu.
@@ -878,11 +874,7 @@ impl Distributor {
         }
         let val = reg.load();
         let shift = irq % 32;
-        if (val >> shift) & 1 == 1 {
-            true
-        } else {
-            false
-        }
+        (val >> shift) & 1 == 1
     }
 
     // Gets the bit-packed list of target nodes for the given irq.
@@ -915,11 +907,7 @@ impl Distributor {
         let val = reg.load();
         let shift = (irq % 4) * 8;
         let cpus = (val >> shift) & 0xFF;
-        if (cpus >> cpu) & 1 == 1 {
-            true
-        } else {
-            false
-        }
+        (cpus >> cpu) & 1 == 1
     }
 
     fn is_pending(&self, irq: IRQ, cpu: CPU) -> bool {
@@ -935,11 +923,7 @@ impl Distributor {
         }
         let val = reg.load();
         let shift = irq % 32;
-        if (val >> shift) & 1 == 1 {
-            true
-        } else {
-            false
-        }
+        (val >> shift) & 1 == 1
     }
 
     fn clear_pending(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
@@ -1061,11 +1045,7 @@ impl Distributor {
         }
         let val = reg.load();
         let shift = irq % 32;
-        if (val >> shift) & 1 == 1 {
-            true
-        } else {
-            false
-        }
+        (val >> shift) & 1 == 1
     }
 
     fn clear_active(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
