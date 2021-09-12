@@ -62,20 +62,25 @@ $(host) icecap-host destroy 0
 ```
 
 The only requirement for building IceCap outside of the Docker container is Nix.
-IceCap depends on features currently present only in unstable versions of Nix since `2.4pre20200407`.
-Here are a few ways to use such a version:
+IceCap depends on features currently present only in unstable versions of Nix
+since `2.4pre20200407`.  Here are a few ways to use such a version:
 
-- You could use [https://github.com/nspin/minimally-invasive-nix-installer/](https://github.com/nspin/minimally-invasive-nix-installer/). This is what the Docker solution uses.
+- You could use
+  [https://github.com/nspin/minimally-invasive-nix-installer/](https://github.com/nspin/minimally-invasive-nix-installer/).
+  This is what the Docker solution uses.
 - If you are using NixOS, you could set `nix.package = pkgs.nixUnstable`.
-- If you already have Nix installed, you could use the output of `nix-build ./nixpkgs -A nixUnstable`. However, if your Nix installation is multi-user, then beware that a version mismatch between your Nix frontend and daemon can cause problems for some version combinations.
+- If you already have Nix installed, you could use the output of `nix-build
+  ./nixpkgs -A nixUnstable`. However, if your Nix installation is multi-user,
+  then beware that a version mismatch between your Nix frontend and daemon can
+  cause problems for some version combinations.
 
 #### Raspberry Pi 4
 
 The following steps to run the demo on the Raspberry Pi 4 expand on the
 instructions above.  Note that we have only tested on a Raspberry Pi 4 with 4GB
 of RAM. Some hard-coded physical address space constants would likely need to be
-changed to get IceCap running on a Raspberry Pi 4 with less than 4GB of RAM.
-Please reach out to [Nick Spinale
+made configurable to get IceCap running on a Raspberry Pi 4 an amout of RAM
+other than 4GB.  Please reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
 work together to do so.
 
