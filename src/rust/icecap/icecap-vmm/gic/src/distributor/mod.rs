@@ -5,7 +5,6 @@
 use alloc::vec::Vec; // GOAL: Only used during initial distributor allocation.
 use core::fmt;
 use core::convert::TryFrom;
-use core::sync::atomic::Ordering;
 
 use biterate::biterate;
 
@@ -248,7 +247,7 @@ impl Distributor {
                         // Set or clear the control register.
                         // If the state has changed, inform the vmm.
                         if val == 1 {
-                            let prev = self.control.fetch_or(val, Ordering::SeqCst);
+                            let prev = self.control.fetch_or(val);
                             if prev == 0 {
 
                                 // Identify newly enabled IRQs and either inject or acknowledge them.
@@ -264,7 +263,7 @@ impl Distributor {
                                 }
                             }
                         } else if val == 0 {
-                            let prev = self.control.fetch_and(val, Ordering::SeqCst);
+                            let prev = self.control.fetch_and(val);
                             if prev == 1 {
                                 return Ok(WriteAction::NoAction);
                             }
@@ -292,7 +291,7 @@ impl Distributor {
                         } else {
                             group_reg = &mut self.irq_group[reg_num - 1];
                         }
-                        group_reg.store(val, Ordering::SeqCst);
+                        group_reg.store(val);
 
                         return Ok(WriteAction::NoAction);
                     }
@@ -311,7 +310,7 @@ impl Distributor {
                         } else {
                             enable_reg = &mut self.enable[reg_num - 1];
                         }
-                        let prev = enable_reg.fetch_or(val, Ordering::SeqCst);
+                        let prev = enable_reg.fetch_or(val);
 
                         // Identify newly enabled IRQs and either inject or acknowledge them.
                         let num_irqs = 32;
@@ -340,7 +339,7 @@ impl Distributor {
                         } else {
                             enable_reg = &mut self.enable[reg_num];
                         }
-                        enable_reg.fetch_and(!val, Ordering::SeqCst);
+                        enable_reg.fetch_and(!val);
 
                         return Ok(WriteAction::NoAction);
                     }
@@ -367,7 +366,7 @@ impl Distributor {
                         } else {
                             pending_reg = &mut self.pending[reg_num - 1];
                         }
-                        let prev = pending_reg.fetch_or(val, Ordering::SeqCst);
+                        let prev = pending_reg.fetch_or(val);
 
                         // Identify newly pending IRQs and inject them.
                         // NOTE: We do not need to acknowledge any IRQs here because none of these
@@ -405,7 +404,7 @@ impl Distributor {
                         } else {
                             pending_reg  = &mut self.pending[reg_num - 1];
                         }
-                        pending_reg.fetch_and(!val, Ordering::SeqCst);
+                        pending_reg.fetch_and(!val);
 
                         return Ok(WriteAction::NoAction);
                     }
@@ -427,7 +426,7 @@ impl Distributor {
                         } else {
                             active_reg = &mut self.active[reg_num - 1];
                         }
-                        active_reg.fetch_or(val, Ordering::SeqCst);
+                        active_reg.fetch_or(val);
 
                         return Ok(WriteAction::NoAction);
                     }
@@ -449,7 +448,7 @@ impl Distributor {
                         } else {
                             active_reg  = &mut self.active[reg_num - 1];
                         }
-                        active_reg.fetch_and(!val, Ordering::SeqCst);
+                        active_reg.fetch_and(!val);
 
                         return Ok(WriteAction::NoAction);
                     }
@@ -465,7 +464,7 @@ impl Distributor {
                         } else {
                             priority_reg = &mut self.priority[reg_num - 8];
                         }
-                        priority_reg.store(val, Ordering::SeqCst);
+                        priority_reg.store(val);
 
                         return Ok(WriteAction::NoAction);
                     }
@@ -486,7 +485,7 @@ impl Distributor {
                         } else {
                             targets_reg = &mut self.targets[reg_num - 8];
                         }
-                        let prev = targets_reg.swap(val, Ordering::SeqCst);
+                        let prev = targets_reg.swap(val);
 
                         let new_cpus = val & !prev;
                         if new_cpus == 0 {
@@ -526,7 +525,7 @@ impl Distributor {
                         } else {
                             config_reg = &mut self.config[reg_num - 2];
                         }
-                        config_reg.store(val, Ordering::SeqCst);
+                        config_reg.store(val);
                         return Ok(WriteAction::NoAction);
                     }
                     GICDistRegWord::GICD_NSACRn(reg_num) => {
@@ -598,7 +597,7 @@ impl Distributor {
 
                         let sgi_pending_reg;
                         sgi_pending_reg  = &mut self.sgi_pending[node_index][reg_num];
-                        let prev = sgi_pending_reg.fetch_and(!val, Ordering::SeqCst);
+                        let prev = sgi_pending_reg.fetch_and(!val);
 
                         // Identify any IRQs for this node that are no longer
                         // pending and clear that IRQ in the pending register
@@ -626,7 +625,7 @@ impl Distributor {
 
                         let sgi_pending_reg;
                         sgi_pending_reg  = &mut self.sgi_pending[node_index][reg_num];
-                        let prev = sgi_pending_reg.fetch_or(val, Ordering::SeqCst);
+                        let prev = sgi_pending_reg.fetch_or(val);
 
                         let num_irqs = 4;
                         let base_irq = (reg_num * num_irqs) as IRQ;
@@ -679,17 +678,17 @@ impl Distributor {
                 match reg {
                     GICDistRegWord::GICD_CTLR => {
                         // Read the control register.
-                        let val = self.control.load(Ordering::SeqCst);
+                        let val = self.control.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_TYPER => {
                         // Read the interrupt controller type register.
-                        let val = self.ic_type.load(Ordering::SeqCst);
+                        let val = self.ic_type.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_IIDR => {
                         // Read the implementer identification register.
-                        let val = self.dist_ident.load(Ordering::SeqCst);
+                        let val = self.dist_ident.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_IGROUPRn(reg_num) => {
@@ -701,7 +700,7 @@ impl Distributor {
                         } else {
                             group_reg = &self.irq_group[reg_num - 1];
                         }
-                        let val = group_reg.load(Ordering::SeqCst);
+                        let val = group_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ISENABLERn(reg_num) |
@@ -714,7 +713,7 @@ impl Distributor {
                         } else {
                             enable_reg = &self.enable[reg_num];
                         }
-                        let val = enable_reg.load(Ordering::SeqCst);
+                        let val = enable_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ISPENDRn(reg_num) |
@@ -727,7 +726,7 @@ impl Distributor {
                         } else {
                             pending_reg = &self.pending[reg_num - 1];
                         }
-                        let val = pending_reg.load(Ordering::SeqCst);
+                        let val = pending_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ISACTIVERn(reg_num) |
@@ -740,7 +739,7 @@ impl Distributor {
                         } else {
                             active_reg = &self.active[reg_num - 1];
                         }
-                        let val = active_reg.load(Ordering::SeqCst);
+                        let val = active_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_IPRIORITYRn(reg_num) => {
@@ -754,7 +753,7 @@ impl Distributor {
                         } else {
                             priority_reg = &self.priority[reg_num - 8];
                         }
-                        let val = priority_reg.load(Ordering::SeqCst);
+                        let val = priority_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ITARGETSRn(reg_num) => {
@@ -768,7 +767,7 @@ impl Distributor {
                         } else {
                             targets_reg = &self.targets[reg_num - 8];
                         }
-                        let val = targets_reg.load(Ordering::SeqCst);
+                        let val = targets_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_ICFGRn(reg_num) => {
@@ -782,7 +781,7 @@ impl Distributor {
                         } else {
                             config = &self.config[reg_num - 2];
                         }
-                        let val = config.load(Ordering::SeqCst);
+                        let val = config.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::GICD_NSACRn(reg_num) => {
@@ -800,21 +799,21 @@ impl Distributor {
                         // NOTE: Registers are banked for each CPU.
                         let sgi_pending_reg;
                         sgi_pending_reg = &self.sgi_pending[node_index][reg_num];
-                        let val = sgi_pending_reg.load(Ordering::SeqCst);
+                        let val = sgi_pending_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::ICPIDRn(reg_num) => {
                         // Read peripheral ID registers.
                         let periph_id_reg;
                         periph_id_reg = &self.periph_id[reg_num];
-                        let val = periph_id_reg.load(Ordering::SeqCst);
+                        let val = periph_id_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     GICDistRegWord::ICCIDRn(reg_num) => {
                         // Read component ID registers.
                         let component_id_reg;
                         component_id_reg = &self.component_id[reg_num];
-                        let val = component_id_reg.load(Ordering::SeqCst);
+                        let val = component_id_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
                     _ => {
@@ -838,7 +837,7 @@ impl Distributor {
     }
 
     fn is_gic_enabled(&self) -> bool {
-        if self.control.load(Ordering::SeqCst) == 1 {
+        if self.control.load() == 1 {
             return true;
         } else {
             return false;
@@ -860,7 +859,7 @@ impl Distributor {
         }
 
         let mask = 0xFF << ((irq % 4) * 8);
-        let val = priority_reg.load(Ordering::SeqCst);
+        let val = priority_reg.load();
         let priority = (val & mask) >> ((irq % 4) * 8);
 
         Ok(priority)
@@ -877,7 +876,7 @@ impl Distributor {
         } else {
             reg = &self.enable[irq / 32 - 1];
         }
-        let val = reg.load(Ordering::SeqCst);
+        let val = reg.load();
         let shift = irq % 32;
         if (val >> shift) & 1 == 1 {
             true
@@ -894,7 +893,7 @@ impl Distributor {
         assert!(irq >= 32);
 
         let reg = &self.targets[(irq / 4) - 8];
-        let val = reg.load(Ordering::SeqCst);
+        let val = reg.load();
         let shift = (irq % 4) * 8;
         let cpus = (val >> shift) & 0xFF;
 
@@ -913,7 +912,7 @@ impl Distributor {
         } else {
             reg = &self.targets[(irq / 4) - 8];
         }
-        let val = reg.load(Ordering::SeqCst);
+        let val = reg.load();
         let shift = (irq % 4) * 8;
         let cpus = (val >> shift) & 0xFF;
         if (cpus >> cpu) & 1 == 1 {
@@ -934,7 +933,7 @@ impl Distributor {
         } else {
             reg = &self.pending[irq / 32 - 1];
         }
-        let val = reg.load(Ordering::SeqCst);
+        let val = reg.load();
         let shift = irq % 32;
         if (val >> shift) & 1 == 1 {
             true
@@ -957,7 +956,7 @@ impl Distributor {
 
         let shift = irq % 32;
         let val: u32 = 1 << shift;
-        reg.fetch_and(!val, Ordering::SeqCst);
+        reg.fetch_and(!val);
 
         Ok(())
     }
@@ -976,7 +975,7 @@ impl Distributor {
 
         let shift = irq % 32;
         let val: u32 = 1 << shift;
-        reg.fetch_or(val, Ordering::SeqCst);
+        reg.fetch_or(val);
 
         Ok(())
     }
@@ -1002,7 +1001,7 @@ impl Distributor {
         let val = 1 << (source_cpu + (irq % 4) * 8);
 
         // Update the register
-        reg.fetch_or(val, Ordering::SeqCst);
+        reg.fetch_or(val);
 
         // Identify if this is a newly-pending IRQ for this node
         // and set the pending register to support reads of
@@ -1035,7 +1034,7 @@ impl Distributor {
         let val = 1 << (source_cpu + (irq % 4) * 8);
 
         // Update the register
-        let prev = reg.fetch_and(!val, Ordering::SeqCst);
+        let prev = reg.fetch_and(!val);
 
         // Identify if this IRQ is no longer pending for this node
         // and clear the pending register to support reads of
@@ -1060,7 +1059,7 @@ impl Distributor {
         } else {
             reg = &self.active[irq / 32 - 1];
         }
-        let val = reg.load(Ordering::SeqCst);
+        let val = reg.load();
         let shift = irq % 32;
         if (val >> shift) & 1 == 1 {
             true
@@ -1083,7 +1082,7 @@ impl Distributor {
 
         let shift = irq % 32;
         let val: u32 = 1 << shift;
-        reg.fetch_and(!val, Ordering::SeqCst);
+        reg.fetch_and(!val);
 
         Ok(())
     }
@@ -1105,7 +1104,7 @@ impl Distributor {
 
         let shift = irq % 32;
         let val: u32 = 1 << shift;
-        reg.fetch_or(val, Ordering::SeqCst);
+        reg.fetch_or(val);
 
         Ok(())
     }
@@ -1146,34 +1145,34 @@ impl Distributor {
 
     // Establishes the reset values from the Arm GICv2 architecture spec.
     pub fn reset(&mut self) {
-        self.ic_type.store(0x0000fce7, Ordering::SeqCst); // RO
-        self.dist_ident.store(0x0200043b, Ordering::SeqCst); // RO
+        self.ic_type.store(0x0000fce7); // RO
+        self.dist_ident.store(0x0200043b); // RO
 
         // Reset per-CPU enable and _clr registers
         for i in 0..self.num_nodes {
-            self.enable0[i].store(0x0000ffff, Ordering::SeqCst); // 16-bit RO
+            self.enable0[i].store(0x0000ffff); // 16-bit RO
         }
 
         // Reset values for interrupt configuration registers.
         // PPIs in config1 are banked per-CPU.
-        self.config0.store(0xaaaaaaaa, Ordering::SeqCst); // RO
+        self.config0.store(0xaaaaaaaa); // RO
         for i in 0..self.num_nodes {
-            self.config1[i].store(0x55540000, Ordering::SeqCst);
+            self.config1[i].store(0x55540000);
         }
-        self.config[0].store(0x55555555, Ordering::SeqCst);
-        self.config[1].store(0x55555555, Ordering::SeqCst);
-        self.config[2].store(0x55555555, Ordering::SeqCst);
-        self.config[3].store(0x55555555, Ordering::SeqCst);
-        self.config[4].store(0x55555555, Ordering::SeqCst);
-        self.config[5].store(0x55555555, Ordering::SeqCst);
-        self.config[6].store(0x55555555, Ordering::SeqCst);
-        self.config[7].store(0x55555555, Ordering::SeqCst);
-        self.config[8].store(0x55555555, Ordering::SeqCst);
-        self.config[9].store(0x55555555, Ordering::SeqCst);
-        self.config[10].store(0x55555555, Ordering::SeqCst);
-        self.config[11].store(0x55555555, Ordering::SeqCst);
-        self.config[12].store(0x55555555, Ordering::SeqCst);
-        self.config[13].store(0x55555555, Ordering::SeqCst);
+        self.config[0].store(0x55555555);
+        self.config[1].store(0x55555555);
+        self.config[2].store(0x55555555);
+        self.config[3].store(0x55555555);
+        self.config[4].store(0x55555555);
+        self.config[5].store(0x55555555);
+        self.config[6].store(0x55555555);
+        self.config[7].store(0x55555555);
+        self.config[8].store(0x55555555);
+        self.config[9].store(0x55555555);
+        self.config[10].store(0x55555555);
+        self.config[11].store(0x55555555);
+        self.config[12].store(0x55555555);
+        self.config[13].store(0x55555555);
 
         // Configure per-CPU SGI/PPI target registers
         // 1. Reset each register to 0x0.
@@ -1182,9 +1181,9 @@ impl Distributor {
         // e.g., for CPU1, targets0[1][j] = 00000010 00000010 00000010 00000010
         for (idx, bank) in self.targets0.iter_mut().enumerate() {
             for target in bank {
-                target.store(0x0, Ordering::SeqCst);
+                target.store(0x0);
                 for irq in 0..4 {
-                    target.fetch_or( (1 << idx) << (irq * 8), Ordering::SeqCst);
+                    target.fetch_or( (1 << idx) << (irq * 8));
                 }
             }
         }
@@ -1194,18 +1193,18 @@ impl Distributor {
         // all CPUs (which, combined with the 8 target0 registers banked on
         // a per-CPU basis, results in 255 target registers per CPU).
         for target in self.targets.iter_mut() {
-            target.store(0x01010101, Ordering::SeqCst);
+            target.store(0x01010101);
         }
 
         // Identification
-        self.periph_id[4].store(0x04, Ordering::SeqCst); // RO
-        self.periph_id[8].store(0x90, Ordering::SeqCst); // RO
-        self.periph_id[9].store(0xb4, Ordering::SeqCst); // RO
-        self.periph_id[10].store(0x2b, Ordering::SeqCst); // RO
-        self.component_id[0].store(0x0d, Ordering::SeqCst); // RO
-        self.component_id[1].store(0xf0, Ordering::SeqCst); // RO
-        self.component_id[2].store(0x05, Ordering::SeqCst); // RO
-        self.component_id[3].store(0xb1, Ordering::SeqCst); // RO
+        self.periph_id[4].store(0x04); // RO
+        self.periph_id[8].store(0x90); // RO
+        self.periph_id[9].store(0xb4); // RO
+        self.periph_id[10].store(0x2b); // RO
+        self.component_id[0].store(0x0d); // RO
+        self.component_id[1].store(0xf0); // RO
+        self.component_id[2].store(0x05); // RO
+        self.component_id[3].store(0xb1); // RO
     }
 }
 
