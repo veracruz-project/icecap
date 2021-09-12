@@ -17,6 +17,8 @@
   }
 }:
 
+# NOTE broken until we bump the icecap-sysroot branch of rust
+
 with lib;
 
 let
