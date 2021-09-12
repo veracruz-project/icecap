@@ -1,3 +1,5 @@
+// HACK to make help in phasing out use of atomics
+
 #[derive(Debug)]
 pub struct Register32(pub u32);
 
