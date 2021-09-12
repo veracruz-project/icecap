@@ -4,11 +4,17 @@ rec {
 
   icecapSrc = rec {
 
-    filter = name: type: true; # TODO
     clean = src: lib.cleanSourceWith {
       src = lib.cleanSource src;
       inherit filter;
     };
+
+    filter = name: type:
+      let baseName = baseNameOf (toString name); in !(
+        false
+          # NOTE minimize this, just like .gitignore
+          || baseName == "__pycache__" # for {c,d}dl.env
+      );
 
     absolute = clean;
     absoluteSplit = src: {

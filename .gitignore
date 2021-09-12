@@ -1,5 +1,7 @@
 result
 result-*
 
+__pycache__
+
 /mnt
 /tmp
