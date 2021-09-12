@@ -19,7 +19,7 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
   '';
 
   spec = mkLinuxRealm {
-    kernel = linuxPkgs.icecap.linuxKernel.guest.kernel;
+    kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs;
   };

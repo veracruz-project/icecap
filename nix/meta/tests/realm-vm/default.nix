@@ -21,7 +21,7 @@ in {
   };
 
   spec = mkLinuxRealm {
-    kernel = linuxPkgs.icecap.linuxKernel.guest.kernel;
+    kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
     # kernel = ../../../../../local/linux/arch/arm64/boot/Image;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [

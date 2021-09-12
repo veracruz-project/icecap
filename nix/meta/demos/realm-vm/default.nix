@@ -29,7 +29,7 @@ in rec {
   };
 
   spec = mkLinuxRealm {
-    kernel = pkgs.linux.icecap.linuxKernel.guest.kernel;
+    kernel = pkgs.linux.icecap.linuxKernel.realm.kernel;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs;
   };

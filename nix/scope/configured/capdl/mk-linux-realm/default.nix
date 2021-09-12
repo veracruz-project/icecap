@@ -15,7 +15,7 @@ let
         realm_vm.bootargs = bootargs;
         realm_vm.kernel = kernel;
         realm_vm.initrd = initrd;
-        realm_vm.dtb = deviceTree.guest.${icecapPlat};
+        realm_vm.dtb = deviceTree.realm.${icecapPlat};
       };
     };
   };
