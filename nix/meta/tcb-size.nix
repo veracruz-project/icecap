@@ -1,4 +1,4 @@
-{ pkgs }:
+{ lib, pkgs }:
 
 let
   components = pkgs.none.icecap.configured.virt.icecapFirmware.components;
@@ -13,9 +13,18 @@ let
     python -c 'print("\"{}K\"".format(${toString bytes} // 1024))' > $out
   '');
 
-  untrusted = with components.config.components;
-    size host_vmm.image.min + size host_vm.kernel + size host_vm.dtb
-    + size timer_server.image.min + size serial_server.image.min;
+  sum = lib.foldl' (x: y: x + y) 0;
+
+  untrusted = with components.config.components; sum (map size [
+    host_vmm.image.min
+    host_vm.kernel
+    host_vm.dtb
+    benchmark_server.image.min
+
+    # TODO should these count?
+    # timer_server.image.min
+    # serial_server.image.min
+  ]);
 
   bytes = size components.loader-elf.min - untrusted;
 

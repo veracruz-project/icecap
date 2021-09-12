@@ -21,7 +21,7 @@ rec {
   };
 
   tcbSize = import ./tcb-size.nix {
-    inherit pkgs;
+    inherit lib pkgs;
   };
 
   mkInstance = import ./mk-instance.nix { inherit lib pkgs; };
