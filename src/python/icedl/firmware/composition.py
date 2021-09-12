@@ -14,8 +14,6 @@ NUM_REALMS = 2
 
 HACK_AFFINITY = 1
 
-BADGE_EVENT = 1
-
 class Composition(BaseComposition):
 
     def compose(self):

@@ -4,19 +4,27 @@ from icedl.common import BaseComposition, FaultHandler, RingBufferObjects, RingB
 from icedl.realm.components.vm import RealmVM
 from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
 
+# HACK
 NUM_NODES = 1
 
+# HACK
 REALM_ID = 0
 
 class Composition(BaseComposition):
 
     def compose(self):
+
+        # TODO
         # self.fault_handler = self.component(FaultHandler, 'fault_handler', affinity=1, prio=250)
+
         self.realm_vm = self.component(RealmVM, name='realm_vm', vmm_name='realm_vmm')
 
         realm_vm_con = self.extern_ring_buffer('realm_{}_serial_server_ring_buffer'.format(self.realm_id()), size=4096)
         realm_vm_con_kick = self.extern(ObjectType.seL4_NotificationObject, 'realm_{}_serial_server_kick'.format(self.realm_id()))
-        self.realm_vm.map_con(realm_vm_con, { 'Raw': { 'notification': self.realm_vm.cspace().alloc(realm_vm_con_kick, write=True) } }, { 'SerialServer': None })
+        self.realm_vm.map_con(realm_vm_con,
+            { 'Raw': { 'notification': self.realm_vm.cspace().alloc(realm_vm_con_kick, write=True) } },
+            { 'SerialServer': None }
+            )
 
         net = self.extern_ring_buffer('realm_{}_net_ring_buffer'.format(self.realm_id()), size=1<<(21 + 3))
         self.realm_vm.map_net(

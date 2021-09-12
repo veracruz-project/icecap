@@ -15,7 +15,6 @@ VIRTUAL_TIMER_IRQ = 27
 HACK_PRIO = 101
 
 BADGE_VM = 0
-BADGE_EVENT = 1
 
 class Addrs:
 
