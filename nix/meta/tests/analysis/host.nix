@@ -100,26 +100,7 @@ in
       '';
     })
 
-
     {
-      initramfs.profile = ''
-        b() {
-          icecap-host benchmark $1
-        }
-        s() {
-          b start
-        }
-        f() {
-          b finish
-        }
-        x() {
-          s
-          # taskset $iperf_affinity chrt -b 0 iperf3 -c ${realmAddr} > /dev/null
-          chrt -b 0 iperf3 -c ${realmAddr} --reverse > /dev/null
-          f
-        }
-      '';
-
       initramfs.extraInitCommands = ''
         export iperf_affinity=0x4
         export realm_affinity=0x2
@@ -129,6 +110,29 @@ in
           chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
 
         # chrt -b 0 iperf3 -s
+      '';
+
+      initramfs.profile = ''
+        x() {
+          s
+          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+          f
+        }
+        b() {
+          icecap-host benchmark $1
+        }
+        s() {
+          b start
+        }
+        f() {
+          b finish
+        }
+        # x() {
+        #   s
+        #   # taskset $iperf_affinity chrt -b 0 iperf3 -c ${realmAddr} > /dev/null
+        #   chrt -b 0 iperf3 -c ${realmAddr} --reverse > /dev/null
+        #   f
+        # }
       '';
     }
 

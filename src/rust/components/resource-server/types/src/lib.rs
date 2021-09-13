@@ -81,10 +81,23 @@ impl RPC for Yield {
     }
 }
 
+const RESUME_HOST_CONDITION_TAG_TIMEOUT: u64 = 1;
+const RESUME_HOST_CONDITION_TAG_HOST_EVENT: u64 = 2;
+
 impl RPC for ResumeHostCondition {
 
-    fn send(&self, _call: &mut impl WriteCall) {
-        // TODO
+    fn send(&self, call: &mut impl WriteCall) {
+        match self {
+            Self::Timeout => {
+                call.write_value(RESUME_HOST_CONDITION_TAG_TIMEOUT);
+            }
+            Self::HostEvent => {
+                call.write_value(RESUME_HOST_CONDITION_TAG_HOST_EVENT);
+            }
+            Self::RealmYieldedBack(_) => {
+                todo!();
+            }
+        }
     }
 
     fn recv(_call: &mut impl ReadCall) -> Self {
