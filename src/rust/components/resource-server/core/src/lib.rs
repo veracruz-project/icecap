@@ -342,7 +342,6 @@ impl ResourceServer {
             for tcb in &virtual_node.tcbs {
                 schedule(*tcb, None)?;
             }
-            self.cancel_notify_host_event(physical_node)?;
             self.cancel_timeout(physical_node)?;
             self.resume_host(physical_node, ResumeHostCondition::HostEvent)?;
         }
@@ -358,8 +357,7 @@ impl ResourceServer {
                 schedule(*tcb, None)?;
             }
             self.cancel_notify_host_event(physical_node)?;
-            self.cancel_timeout(physical_node)?;
-            self.resume_host(physical_node, ResumeHostCondition::HostEvent)?;
+            self.resume_host(physical_node, ResumeHostCondition::Timeout)?;
         }
         Ok(())
     }

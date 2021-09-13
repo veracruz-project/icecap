@@ -27,6 +27,11 @@ use alloc::{
     sync::Arc,
 };
 
+const BADGE_HOST_CONTROL: Badge = 0x0;
+const BADGE_HOST_YIELD: Badge = 0x1;
+const BADGE_HOST_EVENT: Badge = 0x101;
+const BADGE_TIMEOUT: Badge = 0x100;
+
 declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
@@ -89,56 +94,51 @@ fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bu
         {
             let mut resource_server = server.lock();
 
-            if badge == 0 {
-                #[allow(unused_variables)]
-                match rpc_server::recv(&info) {
-                    Request::Declare { realm_id, spec_size } => {
-                        rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?)
-                    }
-                    Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset } => {
-                        assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
-                        let mut content = vec![0; bulk_data_size];
-                        unsafe {
-                            volatile_copy_nonoverlapping_memory(content.as_mut_ptr(), bulk_region.offset(bulk_data_offset as isize), bulk_data_size);
+            match badge {
+                BADGE_HOST_CONTROL => {
+                    #[allow(unused_variables)]
+                    match rpc_server::recv(&info) {
+                        Request::Declare { realm_id, spec_size } => {
+                            rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?)
                         }
-                        resource_server.incorporate_spec_chunk(realm_id, offset, &content)?;
-                        rpc_server::reply::<()>(&());
-                    },
-                    Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset } => {
-                        todo!()
-                    },
-                    Request::Realize { realm_id } => {
-                        rpc_server::reply::<()>(&resource_server.realize(node_index, realm_id)?)
+                        Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset } => {
+                            assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
+                            let mut content = vec![0; bulk_data_size];
+                            unsafe {
+                                volatile_copy_nonoverlapping_memory(content.as_mut_ptr(), bulk_region.offset(bulk_data_offset as isize), bulk_data_size);
+                            }
+                            resource_server.incorporate_spec_chunk(realm_id, offset, &content)?;
+                            rpc_server::reply::<()>(&());
+                        },
+                        Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset } => {
+                            todo!()
+                        },
+                        Request::Realize { realm_id } => {
+                            rpc_server::reply::<()>(&resource_server.realize(node_index, realm_id)?)
+                        }
+                        Request::Destroy { realm_id } => {
+                            rpc_server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
+                        }
+                        Request::HackRun { realm_id } => {
+                            rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?)
+                        },
                     }
-                    Request::Destroy { realm_id } => {
-                        rpc_server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
-                    }
-                    Request::HackRun { realm_id } => {
-                        rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?)
-                    },
                 }
-            } else if badge == 1 {
-                let swap = MR_0.get();
-                let physical_node = ((swap >> (0 * 16)) & ((1 << 16) - 1)) as usize;
-                let realm_id = ((swap >> (1 * 16)) & ((1 << 16) - 1)) as usize;
-                let virtual_node = ((swap >> (2 * 16)) & ((1 << 16) - 1)) as usize;
-                let optional_timeout = MR_1.get();
-                let timeout = if optional_timeout == 0 {
-                    None
-                } else {
-                    Some((optional_timeout & !(1 << 63)) as usize)
-                };
-                // debug_println!("yield to on {}: {} {} {} {:?}", node_index, physical_node, realm_id, virtual_node, timeout);
-                assert_eq!(physical_node, node_index);
-                resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
-            } else if badge == 0x100 {
-                // debug_println!("timeout on {}", node_index);
-                resource_server.timeout(node_index)?;
-            } else if badge == 0x101 {
-                // debug_println!("sub on {}", node_index);
-                resource_server.host_event(node_index)?;
-            } else {
-                panic!("badge: {}", badge)
+                BADGE_HOST_YIELD => {
+                    let Yield { physical_node, realm_id, virtual_node, timeout } = rpc_server::recv(&info);
+                    resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
+                }
+                BADGE_HOST_EVENT => {
+                     debug_println!("host event on {}", node_index);
+                    resource_server.host_event(node_index)?;
+                }
+                BADGE_TIMEOUT => {
+                    // debug_println!("timeout on {}", node_index);
+                    resource_server.timeout(node_index)?;
+                }
+                _ => {
+                    panic!("badge: {}", badge)
+                }
             }
         }
     }
