@@ -30,14 +30,19 @@ in
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
 
-      # for _ in $(seq 3); do
-      #   sysbench --test=cpu --cpu-max-prime=20000 --num-threads=1 run
-      #   sleep 5
-      # done
+      for _ in $(seq 2); do
+        sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        sleep 5
+      done
 
-      # iperf_reverse=-R
-      iperf_reverse=
-      (while true; do [ -f /stop ] || chrt -b 0 iperf3 $iperf_reverse -c ${hostAddr} && cat /proc/interrupts && sleep 5 || break; done) &
+      (
+        while true; do
+          [ -f /stop ] || \
+            chrt -b 0 iperf3 -c ${hostAddr} && cat /proc/interrupts && sleep 10 && \
+            chrt -b 0 iperf3 -R -c ${hostAddr} && cat /proc/interrupts && sleep 10 || \
+            break;
+        done
+      ) &
 
       # chrt -b 0 iperf3 -c ${hostAddr}
     '';
