@@ -121,6 +121,8 @@ in {
   inherit bundle;
   extra = {
     inherit dtb dts;
+    # HACK
+    inherit cmdPrefix;
   };
 }
 
