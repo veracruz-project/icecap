@@ -15,7 +15,7 @@ Checksum = namedtuple('Checksum', ['package', 'sha256'])
 
 package_re = re.compile(r'(?P<name>[^ ]+)( (?P<version>[^ ]+)( \((?P<raw_source>[^ ]+)\))?)?')
 source_re = re.compile(r'(?P<type>[^+]+)\+(?P<value>.+)')
-git_re = re.compile(r'(?P<url>[^?]+)\?(?P<param_key>rev|branch|tag)=(?P<param_value>[^#]+)#(?P<actual_rev>[0-9a-f]{40})')
+git_re = re.compile(r'(?P<url>[^?]+)(\?(?P<param_key>rev|branch|tag)=(?P<param_value>[^#]+))?#(?P<actual_rev>[0-9a-f]{40})')
 
 allowed_entry_keys = frozenset(('name', 'version', 'source', 'dependencies', 'checksum'))
 
@@ -86,7 +86,13 @@ def emit_package(package):
             yield '      version = "{}";'.format(package.version)
             yield '      url = "{}";'.format(m['url'])
             yield '      rev = "{}";'.format(m['actual_rev'])
-            yield '      param = {{ key = "{}"; value = "{}"; }};'.format(m['param_key'], m['param_value'])
+            yield '      param ='
+            if m['param_key'] is not None:
+                assert m['param_value'] is not None
+                yield '         {{ key = "{}"; value = "{}"; }}'.format(m['param_key'], m['param_value'])
+            else:
+                yield '         null'
+            yield '         ;'
             yield '    };'
         else:
             assert False

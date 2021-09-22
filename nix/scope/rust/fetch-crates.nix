@@ -16,11 +16,12 @@ let
       crates-io.replace-with = "vendored-sources";
       vendored-sources.directory = vendored-sources;
     } // lib.listToAttrs (map (crateMeta: with crateMeta; {
-      name = "${url}?${param.key}=${param.value}";
+      name = "${url}${lib.optionalString (param != null) "?${param.key}=${param.value}"}";
       value = {
         git = url;
-        "${param.key}" = param.value;
         replace-with = "vendored-sources";
+      } // lib.optionalAttrs (param != null) {
+        "${param.key}" = param.value;
       };
     }) (lib.filter (crateMeta: crateMeta.source == "git") (lib.mapAttrsToList (k: v: v.crateMeta) lock.source)));
   };
