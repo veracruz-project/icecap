@@ -111,10 +111,10 @@ in
       # echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
       # echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
 
-      for _ in $(seq 2); do
-        sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
-        sleep 5
-      done
+      # for _ in $(seq 2); do
+      #   sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+      #   sleep 5
+      # done
 
       export iperf_affinity=0x4
       chrt -b 0 iperf3 -s > /dev/null &
