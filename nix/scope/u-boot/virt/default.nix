@@ -35,9 +35,9 @@ let
           smhload ${linuxImage} 0xf0080000
           smhload ${initramfs} 0xf8000000 initramfs_end
           setexpr initramfs_size ''${initramfs_end} - 0xf8000000
-          smhload ${dtb} 0xf2000000
+          smhload ${dtb} 0xf3000000
           setenv bootargs ${lib.concatStringsSep " " bootargs}
-          booti 0xf0080000 0xf8000000:''${initramfs_size} 0xf2000000
+          booti 0xf0080000 0xf8000000:''${initramfs_size} 0xf3000000
         '';
       };
     in {
