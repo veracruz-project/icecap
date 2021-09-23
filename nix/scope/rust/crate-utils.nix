@@ -173,7 +173,10 @@ rec {
       ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
     } // {
       ${hostPlatform.config}.linker =
-        if hostPlatform.system == "aarch64-none"
+        if {
+          aarch64-unknown-linux-musl = null;
+          aarch64-none-elf = null;
+        } ? ${hostPlatform.config}
         then "${stdenv.cc.targetPrefix}ld"
         else "${stdenv.cc.targetPrefix}cc";
     };

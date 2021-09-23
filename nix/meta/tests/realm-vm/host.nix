@@ -127,7 +127,7 @@ in
     '';
 
     initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
+      copy_bin_and_libs ${pkgs.muslPkgs.icecap.icecap-host}/bin/icecap-host
       copy_bin_and_libs ${pkgs.ethtool}/bin/ethtool
       copy_bin_and_libs ${pkgs.strace}/bin/strace
       copy_bin_and_libs ${pkgs.iproute}/bin/ip

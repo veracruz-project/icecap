@@ -3,16 +3,22 @@
 , buildRustPackage
 , fetchCrates
 , libfdt
-, mkShell, cargo, rustc, git, cacert, stdenv, buildPackages, crateUtils, nixToToml, python3
+
+, mkShell
+, stdenv, buildPackages
+, cargo, rustc, git, cacert, python3
+, crateUtils, nixToToml
 }:
 
 let
   # TODO why is this necessary?
-  fdtConfig = {
-    target.${hostPlatform.config}.fdt = {
-      rustc-link-search = [ "native=${libfdt}/lib" ];
-    };
-  };
+  config = crateUtils.clobber [
+    {
+      target.${hostPlatform.config}.fdt = {
+        rustc-link-search = [ "native=${libfdt}/lib" ];
+      };
+    }
+  ];
 
 in
 buildRustPackage rec {
@@ -25,17 +31,21 @@ buildRustPackage rec {
 
   buildInputs = [ libfdt ];
 
-  extraCargoConfig = (fetchCrates "${src}/Cargo.lock").config // fdtConfig;
+  extraCargoConfig = (fetchCrates "${src}/Cargo.lock").config // config;
 
   postPatch = ''
     rm -r .cargo
   '';
 
+  dontFixup = true;
+
+  # env
+
   passthru.env =
     let
       cargoConfig = nixToToml (crateUtils.clobber [
         crateUtils.baseCargoConfig
-        fdtConfig
+        config
       ]);
     in
       mkShell (crateUtils.baseEnv // {
