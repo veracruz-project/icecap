@@ -13,6 +13,8 @@
 
 let
 
+  # Informed by https://github.com/rust-lang/rust/blob/master/src/ci/run.sh
+
   configToml = nixToToml {
 
     llvm.link-shared = true;
@@ -43,7 +45,10 @@ let
     # TODO evaluate or drop
     rust.lld = true;
 
-    rust.default-linker = "/var/empty/nope";
+    # TODO keep for safety?
+    # rust.default-linker = "/var/empty/nope";
+
+    rust.codegen-units-std = 1;
 
     target = lib.foldr (x: y: x // y) {} (map (pkgs_:
       let
