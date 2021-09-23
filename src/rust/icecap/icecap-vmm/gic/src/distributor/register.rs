@@ -34,4 +34,13 @@ impl Register32 {
         self.0 |= v;
         old
     }
+
+    // HACK
+
+    pub fn set_byte(&mut self, byte_index: usize, v: u8) -> u32 {
+        let mask: u32 = !(0xff << byte_index);
+        let old = self.0;
+        self.0 = (old & mask) | (u32::from(v) << byte_index);
+        old
+    }
 }

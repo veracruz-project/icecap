@@ -665,7 +665,48 @@ impl Distributor {
             }
             VMFaultData::Byte(val) => {
                 let reg = GICDistRegByte::from_offset(offset);
-                panic!("Byte-accessible writes to GIC not yet implemented.");
+                // HACK these match arms are copied from those above, with .swap replaced with .set_byte
+                match reg {
+                    GICDistRegByte::GICD_ITARGETSRn(reg_num, byte_index) => {
+                        // Set target registers.
+                        // - Each IRQ has an 8 bit target field.
+                        // - This logic block writes an entire word, including
+                        //   target fields for four IRQs.
+                        // - For pending interrupts:
+                        //   - Adding a CPU as a target sets pending for the CPU.
+                        //   - Removing a CPU as a target clears pending for the CPU.
+                        // - NOTE: Registers 0 to 7 banked for each CPU and are RO.
+                        let targets_reg;
+                        if reg_num < 8 {
+                            // These are read-only.
+                            return Err( IRQError{ irq_error_type:
+                                IRQErrorType::InvalidRegisterWrite, });
+                        } else {
+                            targets_reg = &mut self.targets[reg_num - 8];
+                        }
+                        let prev = targets_reg.set_byte(byte_index, val);
+
+                        let new_cpus = (u32::from(val) << byte_index) & !prev;
+                        if new_cpus == 0 {
+                            return Ok(WriteAction::NoAction);
+                        }
+
+                        // Identify newly targeted IRQs and inject or ack them.
+                        let num_irqs = 4;
+                        let base_irq = (reg_num * num_irqs) as IRQ;
+                        let to_inject = self.sweep_irqs_to_inject(base_irq, num_irqs);
+                        let to_ack = self.sweep_irqs_to_ack(base_irq, num_irqs);
+
+                        if to_inject.len() == 0 && to_ack.len() == 0 {
+                            return Ok(WriteAction::NoAction);
+                        } else {
+                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
+                        }
+                    }
+                    _ => {
+                        panic!("Byte-addressed writes to {:?} not yet implemented.", reg);
+                    }
+                }
             }
             _ => panic!("Writes to GIC distributor registers must by byte- or word-aligned.")
         }
@@ -824,7 +865,7 @@ impl Distributor {
             }
             VMFaultWidth::Byte => {
                 let reg = GICDistRegByte::from_offset(offset);
-                panic!("Byte-accessible reads from GIC not yet implemented.");
+                panic!("Byte-addressed reads from {:?} not yet implemented.", reg);
             }
             _ => panic!("Reads from GIC distributor registers must by byte- or word-aligned.")
         }
