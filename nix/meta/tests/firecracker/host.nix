@@ -11,6 +11,18 @@ let
     rpi4 = "eth0";
   }.${cfg.plat};
 
+  # firecrackerPkg = pkgs.icecap.firecracker-prebuilt;
+  firecrackerPkg = pkgs.muslPkgs.icecap.firecracker;
+  # firecrackerPkg = pkgs.icecap.firecracker;
+  # firecrackerPkg = localFirecracker;
+
+  localFirecrackerPath = ../../../../../local/firecracker/target/aarch64-unknown-linux-musl/debug/firecracker;
+  # localFirecrackerPath = ../../../../../local/firecracker/target/aarch64-unknown-linux-gnu/debug/firecracker;
+
+  localFirecracker = pkgs.runCommand "firecracker-local" {} ''
+    install -D -T ${localFirecrackerPath} $out/bin/firecracker
+  '';
+
 in
 
 {
@@ -32,9 +44,8 @@ in
         ln -s $(which sh) /bin/sh
       '';
 
-        # copy_bin_and_libs ${pkgs.muslPkgs.icecap.firecracker}/bin/firecracker
       initramfs.extraUtilsCommands = ''
-        copy_bin_and_libs ${pkgs.icecap.firecracker-prebuilt}/bin/firecracker
+        copy_bin_and_libs ${firecrackerPkg}/bin/firecracker
         copy_bin_and_libs ${pkgs.icecap.firectl}/bin/firectl
         copy_bin_and_libs ${pkgs.iproute}/bin/ip
         copy_bin_and_libs ${pkgs.nftables}/bin/nft
