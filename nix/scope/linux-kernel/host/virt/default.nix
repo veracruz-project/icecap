@@ -1,5 +1,6 @@
 { linux-ng
 , linuxKernelUnifiedSource
+, runCommand, diffutils
 }:
 
 with linux-ng;
@@ -7,6 +8,11 @@ with linux-ng;
 let
 
   source = linuxKernelUnifiedSource;
+
+  configBase = makeConfig {
+    inherit source;
+    target = "defconfig";
+  };
 
   # CONFIG_ICECAP=y
   # CONFIG_TMPFS_POSIX_ACL=y
@@ -24,12 +30,28 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
+    # TODO reduce
     allconfig = ./defconfig;
   };
+
+  configDiff = runCommand "diff" {
+    nativeBuildInputs = [ diffutils ];
+  } ''
+    diff ${configBase} ${config} > $out || true
+  '';
+
+  defconfigDiff = runCommand "diff" {
+    nativeBuildInputs = [ diffutils ];
+  } ''
+    diff ${source}/arch/arm64/configs/defconfig ${./defconfig} > $out || true
+  '';
 
 in
 doKernel rec {
   inherit source config;
   modules = false;
   dtbs = true;
+  passthru = {
+    inherit configDiff defconfigDiff;
+  };
 }

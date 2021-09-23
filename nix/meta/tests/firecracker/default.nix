@@ -12,13 +12,20 @@
 let
   inherit (linuxPkgs.icecap) linuxKernel nixosLite;
   instance = mkInstance {} (self: {});
-  inherit (instance.configured) icecapPlat;
+  inherit (instance.configured) icecapPlat selectIceCapPlat;
+
+  localLinuxImages = {
+    virt = ../../../../../local/linux/arch/arm64/boot/Image;
+    rpi4 = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
+  };
+
 in
 
 lib.fix (self: with self; {
 
   host = rec {
     linuxImage = linuxKernel.host.${icecapPlat}.kernel;
+    # linuxImage = selectIceCapPlat localLinuxImages;
     bootargs = commonBootargs ++ [
       "script=${script}"
       "nr_cpus=3"

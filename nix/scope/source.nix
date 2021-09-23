@@ -99,19 +99,20 @@ rec {
   };
 
   linuxKernelUnifiedSource = with linux-ng; doSource {
-    version = "5.6.0";
+    version = "5.15.0";
     extraVersion = "-rc2";
     src = (icecapSrc.repo {
       repo = "linux";
-      rev = "26eade225675468931b48554b2ed810b370c4d3f"; # branch icecap
+      rev = "1191c08c0bfaeeb8ad55eb75abc22d2a1895e26a"; # branch icecap
     }).store;
   };
 
   linuxKernelRpi4Source = with linux-ng; doSource {
-    version = "5.4.47";
+    version = "5.15.0";
+    extraVersion = "-rc2";
     src = (icecapSrc.repo {
       repo = "linux";
-      rev = "015d42fab1edc6f591a208a93dd9ddcc8f6c2923"; # branch: icecap-rpi4
+      rev = "2a92478af4d467f6e87d1a90ddd5f90aedee5a69"; # branch: icecap-rpi4
     }).store;
   };
 

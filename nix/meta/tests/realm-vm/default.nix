@@ -7,25 +7,32 @@
 mkInstance {} (self: with self;
 
 let
-  inherit (self.configured) icecapPlat compose kernel mkLinuxRealm bins;
+  inherit (self.configured) icecapPlat selectIceCapPlat compose kernel mkLinuxRealm bins;
+
+  localLinuxImages = {
+    virt = ../../../../../local/linux/arch/arm64/boot/Image;
+    rpi4 = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
+  };
+
 in {
 
   payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
-    # linuxImage = ../../../../../local/linux/arch/arm64/boot/Image;
-    # linuxImage = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
+    # linuxImage = selectIceCapPlat localLinuxImages;
     initramfs = hostUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
       "spec=${spec}"
+      "kaslr.disclose=1"
     ];
   };
 
   spec = mkLinuxRealm {
     kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
-    # kernel = ../../../../../local/linux/arch/arm64/boot/Image;
+    # kernel = localLinuxImages.virt;
     initrd = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
-      "lamekaslr"
+      "kaslr.disclose=1"
+      "kaslr.lame=1"
     ];
   };
 
