@@ -49,7 +49,7 @@ let
       let
         env = pkgs_.stdenv;
       in {
-        ${env.hostPlatform.config} = lib.optionalAttrs (!env.hostPlatform.isWasm) {
+        ${env.hostPlatform.config} = {
           cc     = "${env.cc}/bin/${env.cc.targetPrefix}cc";
           linker = "${env.cc}/bin/${env.cc.targetPrefix}cc";
           cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
