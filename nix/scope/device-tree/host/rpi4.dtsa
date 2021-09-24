@@ -5,6 +5,19 @@
     /delete-node/ chosen;
     /delete-node/ arm-pmu;
 
+    soc {
+        /delete-node/ aux@7e215000;
+        /delete-node/ serial@7e215040;
+        /delete-node/ spi@7e215080;
+        /delete-node/ spi@7e2150c0;
+        /* /delete-node/ local_intc@40000000; */
+    };
+
+    scb {
+        /delete-node/ pcie@7d500000;
+        /* /delete-node/ genet@7d580000; */
+    };
+
 };
 
 / {

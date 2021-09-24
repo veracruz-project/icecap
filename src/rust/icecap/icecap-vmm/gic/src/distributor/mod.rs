@@ -686,7 +686,7 @@ impl Distributor {
                         }
                         let prev = targets_reg.set_byte(byte_index, val);
 
-                        let new_cpus = (u32::from(val) << byte_index) & !prev;
+                        let new_cpus = (u32::from(val) << (byte_index * 8)) & !prev;
                         if new_cpus == 0 {
                             return Ok(WriteAction::NoAction);
                         }

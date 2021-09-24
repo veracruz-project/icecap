@@ -141,6 +141,7 @@ impl EventServerConfig {
         }).collect();
 
         let irq_events = self.irqs.iter().map(|(irq, (handler, notifications))| {
+            handler.ack().unwrap(); // HACK
             let event = Arc::new(RefCell::new(Event {
                 target: None,
                 irq: Some(EventIRQ {
