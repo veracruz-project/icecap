@@ -30,10 +30,10 @@ in
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
 
-      # for _ in $(seq 2); do
-      #   sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
-      #   sleep 5
-      # done
+      for _ in $(seq 2); do
+        sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        sleep 5
+      done
 
       (
         while true; do
