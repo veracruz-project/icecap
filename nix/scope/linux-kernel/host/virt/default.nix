@@ -15,22 +15,28 @@ let
   };
 
   # CONFIG_ICECAP=y
-  # CONFIG_TMPFS_POSIX_ACL=y
-  # CONFIG_CRYPTO_USER_API_HASH=m
-  # CONFIG_NETFILTER_XT_MATCH_BPF=m
-  # CONFIG_IP_NF_IPTABLES=y
-
-  # CONFIG_NF_CONNTRACK_FTP
-  # CONFIG_NF_NAT_FTP
-  # ...
-
-  # TODO
   # CONFIG_LOCALVERSION_AUTO=n
+  # CONFIG_IPV6=y
+  # CONFIG_NF_TABLES
+  # CONFIG_NF_TABLES_INET
+  # CONFIG_NF_CONNTRACK=y
+  # CONFIG_NFT_NAT=y
+  # CONFIG_NFT_MASQ=y
+
+  # may be useful:
+  # CONFIG_SCHEDSTATS=y
+
+  # do we need to add this?
+  # CONFIG_PM_DEVFREQ=y
+
+  # do we need to add this?
+  # CONFIG_CRYPTO_USER_API_HASH=y
+
+  # config = configBase;
 
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    # TODO reduce
     allconfig = ./defconfig;
   };
 
