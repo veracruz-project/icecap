@@ -88,10 +88,10 @@ in
         ip address add 192.168.1.1/24 dev veth0
         ip link set veth0 up
 
-        for _ in $(seq 2); do
-          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
-          sleep 10
-        done
+        # for _ in $(seq 2); do
+        #   sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        #   sleep 10
+        # done
 
         export iperf_affinity=0x1
         # taskset $iperf_affinity \
