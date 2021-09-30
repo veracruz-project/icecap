@@ -117,7 +117,9 @@ rec {
     { name = "Cargo.toml"; path = manifest; }
   ];
 
-  closure =
+  closure = root: closure' [ root ];
+
+  closure' =
     let
       nameOf = crate: crate.name;
       dependenciesOf = crate: crate.localDependencies;
@@ -138,7 +140,7 @@ rec {
           in
             go (seen // seenExtension) (queue' // queueExtension);
 
-    in root: go {} (toAttrs [ root ]);
+    in roots: go {} (toAttrs roots);
 
   collectStore = crates: linkFarm "crates" (map (crate: {
     name = crate.name;
