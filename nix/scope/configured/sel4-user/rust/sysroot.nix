@@ -126,7 +126,7 @@ let
   } extraManifest);
 
 in
-stdenv.mkDerivation ({
+lib.fix (self: stdenv.mkDerivation ({
   name = "sysroot";
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
@@ -159,29 +159,32 @@ stdenv.mkDerivation ({
     mv target/${if release then "release" else "debug"}/deps/* $d
   '';
 
-  # TODO clean up
-  shellHook = ''
-    setup() {
-      mkdir -p nix-shell.tmp
-      cd nix-shell.tmp
-      mkdir -p .cargo
-      ln -s ${cargoConfig} .cargo/config
-      ln -s ${lock} Cargo.lock
-      ln -s ${workspace} Cargo.toml
-      ln -s ${src.env} src
-    }
-    clean() {
-      rm -rf nix-shell.tmp
-    }
-    cs() {
-      clean && setup
-    }
-    b() {
-      eval "$buildPhase"
-    }
-  '';
-
   passthru = {
     inherit lock srcs;
+
+    # Depends on local path (via src.env), so must not affect outer derivation
+    env = self.overrideAttrs (attrs: {
+      # TODO clean up
+      shellHook = ''
+        setup() {
+          mkdir -p nix-shell.tmp
+          cd nix-shell.tmp
+          mkdir -p .cargo
+          ln -s ${cargoConfig} .cargo/config
+          ln -s ${lock} Cargo.lock
+          ln -s ${workspace} Cargo.toml
+          ln -s ${src.env} src
+        }
+        clean() {
+          rm -rf nix-shell.tmp
+        }
+        cs() {
+          clean && setup
+        }
+        b() {
+          eval "$buildPhase"
+        }
+      '';
+    });
   };
-} // ccEnv)
+} // ccEnv))
