@@ -50,7 +50,6 @@ superCallPackage ./ocaml {} self //
   linuxKernel = linuxOnly {
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
     realm = callPackage ./linux-kernel/realm {};
-    # realm = linuxKernel.host.virt;
   };
 
   nixosLite = callPackage ./linux-user/nixos-lite {};
