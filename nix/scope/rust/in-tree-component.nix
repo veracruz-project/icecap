@@ -19,7 +19,8 @@ stdenv.mkDerivation (crateUtils.baseEnv // rec {
   src = rustSource;
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
-  nativeBuildInputs = [ cargo rustc git cacert pkgconfig ];
+  # NOTE rustc must precede cargo, because cargoPrebuilt (alias of rustcPrebuilt) contains a different rustc
+  nativeBuildInputs = [ rustc cargo git cacert pkgconfig ];
   buildInputs = [ openssl ];
 
   configurePhase = ''
