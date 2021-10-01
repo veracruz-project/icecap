@@ -1,8 +1,7 @@
 let
   source = builtins.fetchGit {
-    url = https://gitlab.com/arm-research/security/icecap/icecap.git;
+    url = ../..;
     rev = builtins.getEnv "CURRENT_REV";
-    ref = builtins.getEnv "CURRENT_REF";
     submodules = true;
   };
 
