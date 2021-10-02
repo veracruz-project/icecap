@@ -15,7 +15,6 @@ use icecap_std::{
 };
 
 use icecap_event_server_types::*;
-use icecap_event_server_config::VMMNode;
 
 mod impls;
 mod init;
@@ -47,9 +46,15 @@ pub struct Client {
 
 type OutSpace = Vec<Arc<RefCell<Event>>>;
 
+#[derive(Clone)]
+pub struct ClientNode {
+    pub nfn: Vec<Notification>,
+    pub bitfield: Bitfield,
+}
+
 pub struct InSpace {
     pub entries: Vec<Option<InSpaceEntry>>,
-    pub notification: VMMNode,
+    pub notification: ClientNode,
     pub subscription_slot: SubscriptionSlot,
 }
 
@@ -88,7 +93,7 @@ pub struct SubscriptionEntry {
 
 pub struct InactiveRealm {
     pub out_space: OutSpace,
-    pub in_notifications: Vec<VMMNode>,
+    pub in_notifications: Vec<ClientNode>,
     pub in_entries: Vec<Option<Arc<RefCell<Event>>>>,
 }
 

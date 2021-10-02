@@ -66,7 +66,7 @@ pub struct VMMNode<E> {
     pub fault_reply_slot: Endpoint,
 
     pub event_server_client: RPCClient<event_server::calls::Client>,
-    pub event_server_bitfield: usize, // HACK,
+    pub event_server_bitfield: event_server::Bitfield,
 
     pub gic_dist_paddr: usize,
     pub gic: Arc<Mutex<GIC<VMMGICCallbacks>>>,
@@ -114,7 +114,9 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 fault_reply_slot: node_config.fault_reply_slot,
 
                 event_server_client: RPCClient::<event_server::calls::Client>::new(event_server_client_ep[i]),
-                event_server_bitfield: node_config.event_server_bitfield,
+                event_server_bitfield: unsafe {
+                    event_server::Bitfield::new(node_config.event_server_bitfield)
+                },
 
                 gic_dist_paddr: self.gic_dist_paddr,
                 gic: gic.clone(),
@@ -181,38 +183,33 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                         }
                     }
                 }
-                bit_lots => {
+                event_bit_groups => {
                     let mut gic = self.gic.lock();
-                    for bit_lot_index in biterate::biterate(bit_lots) {
-                        let bit_lot = unsafe {
-                            &*((self.event_server_bitfield + ((8 * bit_lot_index) as usize)) as *const core::sync::atomic::AtomicU64)
-                        };
-                        let bits = bit_lot.swap(0, core::sync::atomic::Ordering::SeqCst);
-                        for bit in biterate::biterate(bits) {
-                            let in_index = (bit_lot_index * 64 + bit) as usize;
-                            // debug_println!("in_index = {}", in_index);
-                            let irq = {
-                                let mut irq = None;
-                                for (ppi, (ppi_in_index, _must_ack)) in &gic.callbacks().irq_map.ppi {
-                                    if *ppi_in_index == in_index {
-                                        irq = Some(QualifiedIRQ::QualifiedPPI { node: self.node_index, irq: *ppi });
+                    self.event_server_bitfield.clear(event_bit_groups, |bit| -> Fallible<()> {
+                        let in_index = bit as usize;
+                        // debug_println!("in_index = {}", in_index);
+                        let irq = {
+                            let mut irq = None;
+                            for (ppi, (ppi_in_index, _must_ack)) in &gic.callbacks().irq_map.ppi {
+                                if *ppi_in_index == in_index {
+                                    irq = Some(QualifiedIRQ::QualifiedPPI { node: self.node_index, irq: *ppi });
+                                    break;
+                                }
+                            }
+                            if let None = irq {
+                                for (spi, (spi_in_index, nid, _must_ack)) in &gic.callbacks().irq_map.spi {
+                                    assert_eq!(*nid, self.node_index);
+                                    if *spi_in_index == in_index {
+                                        irq = Some(QualifiedIRQ::SPI { irq: *spi });
                                         break;
                                     }
                                 }
-                                if let None = irq {
-                                    for (spi, (spi_in_index, nid, _must_ack)) in &gic.callbacks().irq_map.spi {
-                                        assert_eq!(*nid, self.node_index);
-                                        if *spi_in_index == in_index {
-                                            irq = Some(QualifiedIRQ::SPI { irq: *spi });
-                                            break;
-                                        }
-                                    }
-                                }
-                                irq.unwrap()
-                            };
-                            gic.handle_irq(self.node_index, irq)?;
-                        }
-                    }
+                            }
+                            irq.unwrap()
+                        };
+                        gic.handle_irq(self.node_index, irq)?;
+                        Ok(())
+                    })?;
                 }
             }
         }

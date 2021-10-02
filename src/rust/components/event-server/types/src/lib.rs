@@ -1,13 +1,65 @@
 #![no_std]
+#![feature(type_ascription)]
 
+use core::sync::atomic::{AtomicU64, Ordering};
 use serde::{Serialize, Deserialize};
 
+use biterate::biterate;
 use finite_set::*;
 
 pub type RealmId = usize;
 pub type NodeIndex = usize;
 pub type OutIndex = usize;
 pub type InIndex = usize;
+
+#[derive(Clone)]
+pub struct Bitfield {
+    addr: usize
+}
+
+impl Bitfield {
+
+    const GROUP_BITS: u32 = 64;
+
+    pub unsafe fn new(addr: usize) -> Self {
+        Self {
+            addr,
+        }
+    }
+
+    fn group(&self, group_index: u32) -> &AtomicU64 {
+        unsafe {
+            &*((self.addr + core::mem::size_of::<u64>() * (group_index as usize)) as *const AtomicU64)
+        }
+    }
+
+    pub fn set(&self, bit: u32) -> /* notify: */ bool {
+        let group_index = bit / Self::GROUP_BITS;
+        let member_index = bit % Self::GROUP_BITS;
+        let member = 1 << member_index;
+        let old = self.group(group_index).fetch_or(member, Ordering::SeqCst);
+        old & member == 0
+    }
+
+    pub fn clear<E>(&self, badge: u64, mut f: impl FnMut(/* bit: */ u32) -> Result<(), E>) -> Result<(), E> {
+        for group_index in biterate(badge) {
+            let members = self.group(group_index).swap(0, Ordering::SeqCst);
+            for member_index in biterate(members) {
+                let bit = group_index * Self::GROUP_BITS + member_index;
+                f(bit)?;
+            }
+        }
+        Ok(())
+    }
+
+    pub fn clear_ignore(&self, badge: u64) {
+        self.clear(badge, |_| (Ok(()): Result<(), ()>)).unwrap();
+    }
+
+    pub fn clear_ignore_all(&self) {
+        self.clear_ignore(!0u64)
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ConfigureAction {

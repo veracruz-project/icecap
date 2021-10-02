@@ -142,15 +142,8 @@ impl InSpace {
 
     pub fn signal(&mut self, index: InIndex) -> Fallible<()> {
         let entry = self.entries[index].as_mut().unwrap();
-        let bit_lot_index = index / 64;
-        let bit_lot_bit = index % 64;
-        // debug_println!("ix {}, addr 0x{:x}", index, self.notification.bitfield + bit_lot_index);
-        let bit_lot = unsafe {
-            &*((self.notification.bitfield + 8 * bit_lot_index) as *const core::sync::atomic::AtomicU64)
-        };
-        let old = bit_lot.fetch_or(1 << bit_lot_bit, core::sync::atomic::Ordering::SeqCst);
-        if old & (1 << bit_lot_bit) == 0 {
-            self.notification.nfn[bit_lot_index].signal();
+        if self.notification.bitfield.set(index as u32) {
+            self.notification.nfn[index / 64].signal();
             self.notify_subscriber()?;
         }
         Ok(())

@@ -17,8 +17,8 @@ pub struct Config {
 
     pub badges: Badges,
 
-    pub host_notifications: Vec<VMMNode>,
-    pub realm_notifications: Vec<Vec<VMMNode>>,
+    pub host_notifications: Vec<ClientNodeConfig>,
+    pub realm_notifications: Vec<Vec<ClientNodeConfig>>,
     pub resource_server_subscriptions: Vec<Notification>,
 
     pub irqs: BTreeMap<usize, (IRQHandler, Vec<Notification>)>,
@@ -26,7 +26,7 @@ pub struct Config {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VMMNode {
+pub struct ClientNodeConfig {
     pub nfn: Vec<Notification>,
     pub bitfield: usize,
 }

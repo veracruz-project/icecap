@@ -13,18 +13,30 @@ use icecap_std::{
 };
 
 use icecap_event_server_types::*;
-use icecap_event_server_config::VMMNode;
+use icecap_event_server_config::ClientNodeConfig;
 
 use super::*;
 
 pub struct EventServerConfig {
-    pub host_notifications: Vec<VMMNode>,
-    pub realm_notifications: Vec<Vec<VMMNode>>,
+    pub host_notifications: Vec<ClientNodeConfig>,
+    pub realm_notifications: Vec<Vec<ClientNodeConfig>>,
     pub resource_server_subscriptions: Vec<Notification>,
     pub irqs: BTreeMap<usize, (IRQHandler, Vec<Notification>)>,
 }
 
 const PRIMARY_HOST_NODE: usize = 0;
+
+impl ClientNode {
+
+    pub(crate) fn new(config: &ClientNodeConfig) -> Self {
+        Self {
+            nfn: config.nfn.clone(),
+            bitfield: unsafe {
+                Bitfield::new(config.bitfield)
+            },
+        }
+    }
+}
 
 fn mk_out_space(n: usize) -> OutSpace {
     (0..n).map(|_| Arc::new(RefCell::new(Event {
@@ -52,7 +64,7 @@ impl EventServerConfig {
             in_spaces: (0..NUM_NODES).map(|node_index| {
                 Arc::new(RefCell::new(InSpace {
                     entries: (0..events::HostIn::CARDINALITY).map(|_| None).collect(),
-                    notification: self.host_notifications[node_index].clone(),
+                    notification: ClientNode::new(&self.host_notifications[node_index]),
                     subscription_slot: Arc::new(RefCell::new(None)),
                 }))
             }).collect(),
@@ -63,7 +75,7 @@ impl EventServerConfig {
                 realm_id,
                 InactiveRealm {
                     out_space: mk_out_space(events::RealmOut::CARDINALITY),
-                    in_notifications: self.realm_notifications[realm_id].clone(),
+                    in_notifications: self.realm_notifications[realm_id].iter().map(|config| ClientNode::new(config)).collect(),
                     in_entries: (0..events::RealmIn::CARDINALITY).map(|_| None).collect(),
                 },
             )
