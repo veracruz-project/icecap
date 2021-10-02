@@ -28,8 +28,8 @@ impl RingBufferPointer for *mut u8 {
 register_bitfields! [
     u64,
     pub Status [
-        NOTIFY_READ  OFFSET(1) NUMBITS(1) [],
-        NOTIFY_WRITE OFFSET(0) NUMBITS(1) []
+        NOTIFY_READ  OFFSET(0) NUMBITS(1) [],
+        NOTIFY_WRITE OFFSET(1) NUMBITS(1) []
     ]
 ];
 
@@ -220,7 +220,7 @@ impl RingBuffer {
         release();
         if self.read.ctrl.status.read(Status::NOTIFY_WRITE) == 1 {
             self.read.ctrl.status.modify(Status::NOTIFY_WRITE.val(0));
-            (self.read.kick)();
+            self.kick_read();
         }
     }
 
@@ -230,8 +230,16 @@ impl RingBuffer {
         release();
         if self.read.ctrl.status.read(Status::NOTIFY_READ) == 1 {
             self.read.ctrl.status.modify(Status::NOTIFY_READ.val(0));
-            (self.write.kick)();
+            self.kick_write();
         }
+    }
+
+    pub fn kick_read(&self) {
+        (self.read.kick)();
+    }
+
+    pub fn kick_write(&self) {
+        (self.write.kick)();
     }
 
     pub fn enable_notify_read(&self) {
@@ -315,6 +323,14 @@ impl PacketRingBuffer {
 
     pub fn notify_write(&self) {
         self.rb.notify_write()
+    }
+
+    pub fn kick_read(&self) {
+        self.rb.kick_read()
+    }
+
+    pub fn kick_write(&self) {
+        self.rb.kick_write()
     }
 
     pub fn enable_notify_read(&self) {
