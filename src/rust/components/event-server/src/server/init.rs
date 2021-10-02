@@ -99,8 +99,8 @@ impl EventServerConfig {
         for (out_index, event) in host.out_space.iter().enumerate() {
             match events::HostOut::from_nat(out_index) {
                 events::HostOut::RingBuffer(ring_buffer) => match ring_buffer {
-                    events::HostRingBufferOut::Realm(realm_id) => {
-                        inactive_realms.get_mut(&realm_id.0).unwrap().in_entries[events::RealmIn::RingBuffer(events::RealmRingBufferIn::Host).to_nat()] = Some(event.clone());
+                    events::HostRingBufferOut::Realm(realm_id, realm_ring_buffer_id) => {
+                        inactive_realms.get_mut(&realm_id.0).unwrap().in_entries[events::RealmIn::RingBuffer(events::RealmRingBufferIn::Host(realm_ring_buffer_id)).to_nat()] = Some(event.clone());
                     }
                 }
             }
@@ -110,11 +110,11 @@ impl EventServerConfig {
             for (out_index, event) in inactive_realm.out_space.iter().enumerate() {
                 match events::RealmOut::from_nat(out_index) {
                     events::RealmOut::RingBuffer(ring_buffer) => match ring_buffer {
-                        events::RealmRingBufferOut::Host =>
+                        events::RealmRingBufferOut::Host(realm_ring_buffer_id) =>
                             Event::connect(
                                 event,
                                 &host.in_spaces[PRIMARY_HOST_NODE],
-                                events::HostIn::RingBuffer(events::HostRingBufferIn::Realm(events::RealmId::from_nat(*realm_id))).to_nat(),
+                                events::HostIn::RingBuffer(events::HostRingBufferIn::Realm(events::RealmId::from_nat(*realm_id), realm_ring_buffer_id)).to_nat(),
                             ),
                     }
                 }

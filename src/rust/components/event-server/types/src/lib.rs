@@ -50,7 +50,6 @@ pub mod events {
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmRingBufferId {
         Net,
-        Con,
         Channel,
     }
 
@@ -93,12 +92,12 @@ pub mod events {
     pub enum HostRingBufferIn {
         ResourceServer,
         SerialServer,
-        Realm(RealmId),
+        Realm(RealmId, RealmRingBufferId),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostRingBufferOut {
-        Realm(RealmId),
+        Realm(RealmId, RealmRingBufferId),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
@@ -115,13 +114,13 @@ pub mod events {
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmRingBufferIn {
-        Host,
+        Host(RealmRingBufferId),
         SerialServer,
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum RealmRingBufferOut {
-        Host,
+        Host(RealmRingBufferId),
     }
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]

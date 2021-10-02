@@ -98,6 +98,7 @@ class VM(BaseComponent):
 
         self.cur_vaddr = vaddr_at_block(3, 0, 0)
         self.cur_virq = self.addrs.virq_0
+        self.cur_channel_id = 1
 
         self.map_passthru_devices()
 
@@ -295,21 +296,19 @@ class VM(BaseComponent):
                 },
             })
 
-    def map_rb(self, objs, id, name):
-        rx_badge = 1
-        tx_badge = 2
-
+    def map_channel(self, name, objs, kick, event):
         irq = self.next_virq()
+        self.vmm._arg['spi_map'][irq] = ({ 'RingBuffer': event }, 0, False)
 
-        self.vmm._arg['virtual_irqs'].append({
-            # 'nfn': self.vmm.cspace().alloc(objs.read.nfn, read=True), # XXX
-            'thread': self.vmm.secondary_thread('virq_{}'.format(irq)).endpoint,
-            'bits': [irq, irq],
-            })
+        ring_buffer = self.map_ring_buffer(objs)
+        ring_buffer['kick'] = kick
+
+        id = self.cur_channel_id
+        self.cur_channel_id += 1
 
         self.devices.append({
-            'Raw': {
-                'ring_buffer': self.map_ring_buffer(objs),
+            'Channel': {
+                'ring_buffer': ring_buffer,
                 'irq': irq - 32,
                 'name': name,
                 'id': id,

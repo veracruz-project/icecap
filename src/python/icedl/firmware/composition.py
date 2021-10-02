@@ -66,11 +66,28 @@ class Composition(BaseComposition):
             self.host_vm.map_net(
                 host_realm_net_objs,
                 { 'Managed': {
-                    'index': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': i }}),
+                    'index': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': [i, { 'Net': None }] }}),
                     'endpoints': self.host_vm.event_server_out_endpoints,
                     },
                 },
-                { 'Realm': i }
+                { 'Realm': [i, { 'Net': None }] }
+                )
+
+            host_realm_channel_objs, realm_host_channel_objs = self.alloc_ring_buffer(
+                a_name='host_realm_{}_channel_rb'.format(i), a_size_bits=21,
+                b_name='realm_{}_host_channel_rb'.format(i), b_size_bits=21,
+                )
+
+            self.resource_server.add_extern_ring_buffer('realm_{}_channel_ring_buffer'.format(i), realm_host_channel_objs)
+            self.host_vm.map_channel(
+                'icecap_channel_realm_{}'.format(i),
+                host_realm_channel_objs,
+                { 'Managed': {
+                    'index': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': [i, { 'Channel': None }] }}),
+                    'endpoints': self.host_vm.event_server_out_endpoints,
+                    },
+                },
+                { 'Realm': [i, { 'Channel': None }] }
                 )
 
     def create_gic_vcpu_frame(self):

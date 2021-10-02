@@ -26,7 +26,7 @@ pub enum Kick {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RawRingBuffer<T> {
+pub struct Channel<T> {
     pub ring_buffer: T,
     pub irq: u32,
     pub name: String,
@@ -103,12 +103,12 @@ impl Con<RingBuffer> {
     }
 }
 
-impl RawRingBuffer<RingBuffer> {
+impl Channel<RingBuffer> {
 
     pub fn apply(&self, name: &str, dt: &mut DeviceTree) {
         let spec = dt.root.get_size_spec();
         let mut node = Node::new();
-        node.set_compatible("icecap,ring-buffer");
+        node.set_compatible("icecap,ring-buffer"); // TODO rename to "icecap,channel"
         node.set_property("name", self.name.as_str()); // TODO rename. "name" is reserved
         node.set_property("id", self.id);
         node.set_property_iter("interrupts", &[
@@ -147,7 +147,7 @@ impl ResourceServer {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Device<T> {
-    Raw(RawRingBuffer<T>),
+    Channel(Channel<T>),
     Net(Net<T>),
     Con(Con<T>),
     ResourceServer(ResourceServer),
@@ -157,7 +157,7 @@ impl Device<RingBuffer> {
 
     pub fn apply(&self, dt: &mut DeviceTree) {
         match self {
-            Device::Raw(dev) => dev.apply(&format!("icecap_raw@{:x}", dev.ring_buffer.read.ctrl.start), dt),
+            Device::Channel(dev) => dev.apply(&format!("icecap_channel@{:x}", dev.ring_buffer.read.ctrl.start), dt),
             Device::Con(dev) => dev.apply(&format!("icecap_con@{:x}", dev.ring_buffer.read.ctrl.start), dt),
             Device::Net(dev) => dev.apply(&format!("icecap_net@{:x}", dev.ring_buffer.read.ctrl.start), dt),
             Device::ResourceServer(dev) => dev.apply(&format!("icecap_resource_server@{:x}", dev.bulk_region.start), dt),
@@ -170,7 +170,7 @@ impl<T> Device<T> {
 
     pub fn traverse<T_, E>(self, mut f: impl FnMut(T) -> Result<T_, E>) -> Result<Device<T_>, E> {
         Ok(match self {
-            Device::Raw(RawRingBuffer { ring_buffer, irq, name, id }) => Device::Raw(RawRingBuffer { ring_buffer: f(ring_buffer)?, irq, name, id }),
+            Device::Channel(Channel { ring_buffer, irq, name, id }) => Device::Channel(Channel { ring_buffer: f(ring_buffer)?, irq, name, id }),
             Device::Con(Con { ring_buffer, irq }) => Device::Con(Con { ring_buffer: f(ring_buffer)?, irq }),
             Device::Net(Net { ring_buffer, mtu, mac_address, irq }) => Device::Net(Net { ring_buffer: f(ring_buffer)?, mtu, mac_address, irq }),
             Device::ResourceServer(ResourceServer { bulk_region, endpoints }) => Device::ResourceServer(ResourceServer { bulk_region, endpoints }),

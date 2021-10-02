@@ -30,11 +30,23 @@ class Composition(BaseComposition):
         self.realm_vm.map_net(
             net,
             { 'Managed': {
-                'index': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': None }}),
+                'index': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': { 'Net': None } }}),
                 'endpoints': self.realm_vm.event_server_out_endpoints,
                 },
             },
-            { 'Host': None }
+            { 'Host': { 'Net': None } }
+            )
+
+        channel = self.extern_ring_buffer('realm_{}_channel_ring_buffer'.format(self.realm_id()), size=1<<21)
+        self.realm_vm.map_channel(
+            'icecap_channel_host',
+            channel,
+            { 'Managed': {
+                'index': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': { 'Channel': None } }}),
+                'endpoints': self.realm_vm.event_server_out_endpoints,
+                },
+            },
+            { 'Host': { 'Channel': None } }
             )
 
     def extern(self, ty, name, **obj_kwargs):
