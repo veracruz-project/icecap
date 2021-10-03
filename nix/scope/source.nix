@@ -80,20 +80,17 @@ rec {
     seL4 = icecapSrc.repo {
       repo = "seL4";
       rev = "64b3280545ac01e843d88bb351753b550819bc2a";
-      # local = true;
     };
 
     capdl = icecapSrc.repo {
       repo = "capdl";
       rev = "dc37aaabf6486806e0e002cdff7ee05a1b23d5fc";
-      # local = true;
     };
 
     # for elfloader and some python scripts
     seL4_tools = icecapSrc.repo {
       repo = "minor-patches/seL4/seL4_tools";
       rev = "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
-      # local = true;
     };
 
   };
