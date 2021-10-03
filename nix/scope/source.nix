@@ -89,7 +89,7 @@ rec {
 
     # for elfloader and some python scripts
     seL4_tools = icecapSrc.repo {
-      repo = "minor-patches/seL4/seL4_tools";
+      repo = "seL4_tools";
       rev = "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
     };
 
