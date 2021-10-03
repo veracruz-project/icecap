@@ -48,7 +48,7 @@ in {
     sha256 = "sha256-Z3XCOhvOVJ6DT+XpS2hAHubFwgvnaUBRjfaBa8HJ0jo=";
   };
 
-  icecapRustTargetName = arch: "${arch}-none-elf";
+  icecapRustTargetName = arch: "${arch}-icecap";
 
   rustTargetName = if hostPlatform.isNone then icecapRustTargetName hostPlatform.parsed.cpu.name else hostPlatform.config;
 
