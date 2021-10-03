@@ -32,21 +32,12 @@ let
       submodules = true;
     };
 
-    libc = icecapSrc.repo {
-      repo = "rust-libc";
-      rev = "bcb2c71ab1377db89ca6bca3e234b8f9ea20c012"; # branch: icecap
-    };
-
-    dlmalloc = icecapSrc.repo {
-      repo = "rust-dlmalloc";
-      rev = "f6759cfed44dc4135eaa43c8c26599357749af39"; # branch: icecap
-    };
-
     icecap = {
       store = crateUtils.collectStore allImplCrates;
       env = crateUtils.collectEnv allImplCrates;
     };
 
+    inherit (globalCrates._patches) dlmalloc libc;
   };
 
   mkSrc = attr: linkFarm "src" (mapAttrsToList (k: v: { name = k; path = v.${attr}; }) srcs);
