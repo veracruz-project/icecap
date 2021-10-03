@@ -1,5 +1,5 @@
 { lib, hostPlatform
-, buildRustPackageIncrementally, crateUtils, elfUtils
+, buildRustPackageIncrementally, rustTargetName, crateUtils, elfUtils
 , icecapPlat, globalCrates
 }:
 
@@ -8,7 +8,7 @@
 lib.fix (self: buildRustPackageIncrementally ({
   extraCargoConfig = crateUtils.clobber [
     {
-      target.${hostPlatform.config}.rustflags = [
+      target.${rustTargetName}.rustflags = [
         "--cfg=icecap_plat=\"${icecapPlat}\""
       ];
     }

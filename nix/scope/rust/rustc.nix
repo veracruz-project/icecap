@@ -22,7 +22,7 @@ let
     build = {
       build = buildPlatform.config;
       host = [ hostPlatform.config ];
-      target = map (target: target.hostPlatform.config) targets;
+      target = map (target: target.icecap.rustTargetName) targets;
 
       rustc = "${rustc}/bin/rustc";
       cargo = "${cargo}/bin/cargo";
@@ -54,13 +54,13 @@ let
       let
         env = pkgs_.stdenv;
       in {
-        ${env.hostPlatform.config} = {
+        ${pkgs_.icecap.rustTargetName} = {
           cc     = "${env.cc}/bin/${env.cc.targetPrefix}cc";
           linker = "${env.cc}/bin/${env.cc.targetPrefix}cc";
           cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
           ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ar";
           ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ranlib";
-        } // lib.optionalAttrs (env.hostPlatform.config == "aarch64-none-elf") {
+        } // lib.optionalAttrs env.hostPlatform.isNone {
           linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
           no-std = true;
         } // lib.optionalAttrs env.hostPlatform.isMusl {

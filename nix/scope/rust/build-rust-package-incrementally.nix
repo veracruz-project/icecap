@@ -1,7 +1,7 @@
 { lib, hostPlatform, buildPlatform, buildPackages
 , stdenv, emptyDirectory, linkFarm, mkShell
 , cargo, rustc
-, nixToToml, generateLockfileInternal, fetchCrates, crateUtils
+, nixToToml, generateLockfileInternal, fetchCrates, crateUtils, rustTargetName
 }:
 
 { rootCrate
@@ -85,13 +85,13 @@ let
   cargoConfigFor = layer: nixToToml (crateUtils.clobber [
     baseCargoConfig
     {
-      target.${hostPlatform.config} = crateUtils.clobber (map (crate:
+      target.${rustTargetName} = crateUtils.clobber (map (crate:
       if crate.buildScript == null then {} else {
         ${"dummy-link-${crate.name}"} = {};
       }) allCrates);
     }
     {
-      target.${hostPlatform.config} = crateUtils.clobber (map (crate:
+      target.${rustTargetName} = crateUtils.clobber (map (crate:
       if crate.buildScript == null then {} else {
         ${"dummy-link-${crate.name}"} = crate.buildScript;
       }) layer);
@@ -139,7 +139,7 @@ let
           chmod -R +w $out
 
           (cd ${manifestDir} && cargo build -j $NIX_BUILD_CORES --offline --frozen \
-            --target ${hostPlatform.config} \
+            --target ${rustTargetName} \
             ${lib.optionalString (!debug) "--release"} \
             -Z avoid-dev-deps \
             --target-dir $out
@@ -193,7 +193,7 @@ in let
       chmod -R +w $target_dir
 
       (cd ${manifestDir} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
-        --target ${hostPlatform.config} \
+        --target ${rustTargetName} \
         ${lib.optionalString (!debug) "--release"} \
         -Z avoid-dev-deps \
         --target-dir=$target_dir
@@ -204,8 +204,8 @@ in let
       mkdir $out
       d=target/doc
       [ -d $d ] && mv $d $out/${buildPlatform.config}
-      d=target/${hostPlatform.config}/doc
-      [ -d $d ] && mv $d $out/${hostPlatform.config}
+      d=target/${rustTargetName}/doc
+      [ -d $d ] && mv $d $out/${rustTargetName}
     '';
   })).overrideAttrs extra;
 
@@ -218,7 +218,7 @@ in let
         target_dir=$(realpath ./target)
 
         (cd ${manifestDirEnv} && cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
-          --target ${hostPlatform.config} \
+          --target ${rustTargetName} \
           ${lib.optionalString (!debug) "--release"} \
           -Z avoid-dev-deps \
           --target-dir=$target_dir \
@@ -248,7 +248,7 @@ in
     chmod -R +w $target_dir
 
     (cd ${manifestDir} && cargo build -j $NIX_BUILD_CORES --offline --frozen \
-      --target ${hostPlatform.config} \
+      --target ${rustTargetName} \
       ${lib.optionalString (!debug) "--release"} \
       -Z avoid-dev-deps \
       --target-dir=$target_dir
@@ -257,10 +257,10 @@ in
 
   installPhase = ''
     lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\)'
-    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 \
+    find target/${rustTargetName}/${if release then "release" else "debug"} -maxdepth 1 \
       -regex "$lib_re" \
       | xargs -r install -D -t $out/lib
-    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 \
+    find target/${rustTargetName}/${if release then "release" else "debug"} -maxdepth 1 \
       -type f -executable -not -regex "$lib_re" \
       | xargs -r install -D -t $out/bin
   '';

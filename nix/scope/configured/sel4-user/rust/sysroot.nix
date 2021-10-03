@@ -1,7 +1,7 @@
 { lib, stdenv, buildPackages, buildPlatform, hostPlatform, runCommand, linkFarm, writeText
 , rustc, cargo
 , fetchCrates, cratesIOIndexCache
-, nixToToml, crateUtils, rustTargets, globalCrates
+, nixToToml, crateUtils, rustTargets, rustTargetName, globalCrates
 , icecapSrc
 
 # NOTE wasmtime violates some assertions in core, so debug profile doesn't work
@@ -71,7 +71,7 @@ let
   ccEnv = {
     "CC_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
   } // {
-    "CC_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}cc";
+    "CC_${rustTargetName}" = "${stdenv.cc.targetPrefix}cc";
   };
 
   cargoConfig = nixToToml (crateUtils.clobber [
@@ -81,11 +81,11 @@ let
       target = {
         ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
       } // {
-        ${hostPlatform.config}.linker = "${stdenv.cc.targetPrefix}cc";
+        ${rustTargetName}.linker = "${stdenv.cc.targetPrefix}cc";
       };
     }
     {
-      target.${hostPlatform.config} = crateUtils.clobber (map (crate:
+      target.${rustTargetName} = crateUtils.clobber (map (crate:
       if crate.buildScript == null then {} else {
         ${"dummy-link-${crate.name}"} = crate.buildScript;
       }) allImplCrates);
@@ -142,14 +142,14 @@ lib.fix (self: stdenv.mkDerivation ({
   '';
 
   buildPhase = ''
-    cargo build --offline --frozen --target ${hostPlatform.config} \
+    cargo build --offline --frozen --target ${rustTargetName} \
       ${optionalString release "--release"}
   '';
 
   installPhase = ''
-    d=$out/lib/rustlib/${hostPlatform.config}/lib
+    d=$out/lib/rustlib/${rustTargetName}/lib
     mkdir -p $d
-    mv target/${hostPlatform.config}/${if release then "release" else "debug"}/deps/* $d
+    mv target/${rustTargetName}/${if release then "release" else "debug"}/deps/* $d
     d=$out/lib/rustlib/${buildPlatform.config}/lib
     mkdir -p $d
     mv target/${if release then "release" else "debug"}/deps/* $d

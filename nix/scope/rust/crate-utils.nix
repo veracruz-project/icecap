@@ -1,7 +1,7 @@
 { lib, stdenv, buildPackages, buildPlatform, hostPlatform
 , writeText, linkFarm, emptyFile
 , nixToToml
-, rustTargets
+, rustTargets, rustTargetName
 }:
 
 with lib;
@@ -166,19 +166,16 @@ rec {
     "CC_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
     "CXX_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}c++";
   } // {
-    "CC_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}cc";
-    "CXX_${hostPlatform.config}" = "${stdenv.cc.targetPrefix}c++";
+    "CC_${rustTargetName}" = "${stdenv.cc.targetPrefix}cc";
+    "CXX_${rustTargetName}" = "${stdenv.cc.targetPrefix}c++";
   };
 
   linkerCargoConfig = {
     target = {
       ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
     } // {
-      ${hostPlatform.config}.linker =
-        if {
-          aarch64-unknown-linux-musl = null;
-          aarch64-none-elf = null;
-        } ? ${hostPlatform.config}
+      ${rustTargetName}.linker =
+        if hostPlatform.isNone || hostPlatform.isMusl /* HACK for proper static linking on musl */
         then "${stdenv.cc.targetPrefix}ld"
         else "${stdenv.cc.targetPrefix}cc";
     };

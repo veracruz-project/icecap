@@ -1,6 +1,6 @@
 { lib, stdenv, buildPackages, hostPlatform
 , cargo, rustc
-, nixToToml, crateUtils
+, nixToToml, crateUtils, rustTargetName
 }:
 
 { release ? true
@@ -34,7 +34,7 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
 
     cargo build --offline --frozen \
       ${lib.optionalString (release) "--release"} \
-      --target ${stdenv.hostPlatform.config} \
+      --target ${rustTargetName} \
       -j $NIX_BUILD_CORES
 
     runHook postBuild
@@ -53,10 +53,10 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
     runHook preInstall
 
     lib_re='.*\.\(so.[0-9.]+\|so\|a\|dylib\)'
-    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 \
+    find target/${rustTargetName}/${if release then "release" else "debug"} -maxdepth 1 \
       -regex "$lib_re" \
       | xargs -r install -D -t $out/lib
-    find target/${hostPlatform.config}/${if release then "release" else "debug"} -maxdepth 1 \
+    find target/${rustTargetName}/${if release then "release" else "debug"} -maxdepth 1 \
       -type f -executable -not -regex "$lib_re" \
       | xargs -r install -D -t $out/bin
 

@@ -61,16 +61,16 @@ buildRustPackage rec {
           }
           b() {
             cargo build \
-              --target ${stdenv.hostPlatform.config} \
+              --target ${hostPlatform.config} \
               -j $NIX_BUILD_CORES
           }
           d() {
             cargo doc \
-              --target ${stdenv.hostPlatform.config} \
+              --target ${hostPlatform.config} \
               -j $NIX_BUILD_CORES
           }
           s() {
-            (cd target/${stdenv.hostPlatform.config}/doc && python3 -m http.server)
+            (cd target/${hostPlatform.config}/doc && python3 -m http.server)
           }
         '';
       });

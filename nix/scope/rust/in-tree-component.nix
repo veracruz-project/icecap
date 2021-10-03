@@ -1,4 +1,4 @@
-{ lib, stdenv, buildPackages
+{ lib, stdenv, buildPackages, hostPlatform
 , pkgconfig, openssl, git, cacert
 
 , rustSource, rustVendoredSources
@@ -31,11 +31,11 @@ stdenv.mkDerivation (crateUtils.baseEnv // rec {
 
   buildPhase = ''
     cargo build -p ${package} --offline --frozen --release \
-      --target ${stdenv.hostPlatform.config} \
+      --target ${hostPlatform.config} \
       -j $NIX_BUILD_CORES
   '';
 
   installPhase = ''
-    find target/${stdenv.hostPlatform.config}/release -maxdepth 1 -type f -executable | xargs -r install -D -t $out/bin
+    find target/${hostPlatform.config}/release -maxdepth 1 -type f -executable | xargs -r install -D -t $out/bin
   '';
 })

@@ -1,6 +1,7 @@
 { lib, hostPlatform, buildPackages, runCommandCC, linkFarm, writeText
 , bindgen, rustfmt, python3
 , libsel4, libs
+, rustTargetName
 }:
 
 let
@@ -89,6 +90,6 @@ runCommandCC "icecap-gen.rs" {
     inherit preprocessed outline liboutline;
   };
 } ''
-  bindgen ${liboutline}/include/outline.h -o $out --use-core --ctypes-prefix=c_types --with-derive-default --rust-target nightly -- -target ${hostPlatform.config} $NIX_CFLAGS_COMPILE
+  bindgen ${liboutline}/include/outline.h -o $out --use-core --ctypes-prefix=c_types --with-derive-default --rust-target nightly -- -target ${rustTargetName} $NIX_CFLAGS_COMPILE
   sed -i 's,^    pub fn ${prefix}\([a-zA-Z_][a-zA-Z0-9_]*\)(,    #[link_name = "${prefix}\1"]\n    pub fn \1(,' $out
 ''
