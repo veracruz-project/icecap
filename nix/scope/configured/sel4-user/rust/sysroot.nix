@@ -34,7 +34,7 @@ let
 
     libc = icecapSrc.repo {
       repo = "minor-patches/rust/libc";
-      rev = "1d30655bc094bfdc36cd10547b409f3b3989248c"; # branch: icecap
+      rev = "bcb2c71ab1377db89ca6bca3e234b8f9ea20c012"; # branch: icecap
     };
 
     dlmalloc = icecapSrc.repo {
