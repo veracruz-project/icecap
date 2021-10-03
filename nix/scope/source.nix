@@ -43,13 +43,13 @@ rec {
 
     repo = lib.fix (self: makeOverridable' (
 
-      { repo, ref ? null, rev, submodules ? false, local ? false, innerSuffix ? "", outerSuffix ? "" } @ args:
+      { repo, ref ? null, rev, submodules ? false, local ? false, localGit ? false, innerSuffix ? "", outerSuffix ? "" } @ args:
 
         let
 
           remoteBase = builtins.fetchGit {
             inherit rev submodules;
-            url = gitUrlOf repo;
+            url = if localGit then localPathOf repo else gitUrlOf repo;
             ref = if ref != null then ref else keepRefOf rev;
           };
 
