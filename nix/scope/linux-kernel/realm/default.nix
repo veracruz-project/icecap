@@ -8,8 +8,7 @@ let
 
   source = linuxKernelUnifiedSource;
 
-  # TODO
-  # y crypto acceleration for net stack
+  # TODO crypto acceleration <- y for net stack
 
   config = makeConfig {
     inherit source;

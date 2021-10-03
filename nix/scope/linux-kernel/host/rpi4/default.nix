@@ -9,9 +9,6 @@ let
 
   source = linuxKernelRpi4Source;
 
-  # TODO
-  #   configure for nf_tables (see virt defconfig)
-
   configBase = makeConfig {
     inherit source;
     target = "bcm2711_defconfig";
@@ -20,6 +17,8 @@ let
   # CONFIG_LOCALVERSION=""
   # CONFIG_ICECAP=y
   # CONFIG_TUN=y
+
+  # TODO configure for nf_tables (see virt defconfig)
 
   config = makeConfig {
     inherit source;
