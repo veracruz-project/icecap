@@ -4,7 +4,7 @@
 
 buildRustPackageIncrementally rec {
   rootCrate = outerGlobalCrates.icecap-show-backtrace;
-  layers =  [ [] ];
+  layers = [ [] ];
 
   debug = true;
 }
