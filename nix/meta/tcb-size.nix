@@ -19,11 +19,9 @@ let
     host_vmm.image.min
     host_vm.kernel
     host_vm.dtb
+    timer_server.image.min
+    serial_server.image.min
     benchmark_server.image.min
-
-    # TODO should these count?
-    # timer_server.image.min
-    # serial_server.image.min
   ]);
 
   bytes = size components.loader-elf.min - untrusted;
