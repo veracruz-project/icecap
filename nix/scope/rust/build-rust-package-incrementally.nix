@@ -78,7 +78,6 @@ let
   baseCargoConfig = crateUtils.clobber [
     (fetchCrates lock).config
     crateUtils.baseCargoConfig
-    (optionalAttrs (hostPlatform.system == "aarch64-none") { profile.release.panic = "abort"; }) # TODO HACK
     (allPropagate.extraCargoConfig or {})
     extraCargoConfig
   ];
