@@ -5,7 +5,6 @@
 
 { extraLayers ? [], extraCargoConfig ? {}, extra ? {}, ... } @ args:
 
-# TODO profile abort
 lib.fix (self: buildRustPackageIncrementally ({
   extraCargoConfig = crateUtils.clobber [
     {

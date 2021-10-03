@@ -29,7 +29,7 @@ self: with self;
   object-sizes = callPackage ./sel4-kernel/object-sizes.nix {};
 
   elfloader = callPackage ./elfloader {
-    libcpio = libs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare metal?
+    libcpio = libs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare-metal?
   };
 
   capdl-loader-lib = callPackage ./capdl/capdl-loader-lib.nix {};
@@ -61,7 +61,7 @@ self: with self;
 
   bins = callPackage ./sel4-user/rust/bins.nix {};
 
-  # TODO fix and generalize or move to target project's repo
+  # TODO fix and generalize or leave up to downstream projects
   sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
 
 }
