@@ -59,7 +59,6 @@ superCallPackage ./ocaml {} self //
   firecracker-prebuilt = callPackage ./linux-user/firecracker/firecracker-prebuilt.nix {};
   firectl = callPackage ./linux-user/firecracker/firectl.nix {};
   libfdt = callPackage ./linux-user/firecracker/libfdt {};
-  vmm-reference = callPackage ./linux-user/firecracker/vmm-reference.nix {};
 
   capdl-tool = callPackage ./dev/capdl-tool.nix {};
   sel4-manual = callPackage ./dev/sel4-manual.nix {};
