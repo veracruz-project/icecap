@@ -6,15 +6,9 @@ rec {
     import path { inherit lib pkgs; }
   );
 
-  tests = lib.flip lib.mapAttrs (import ./tests) (_: path:
-    lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
-      pkgs.none.icecap.callPackage path {
-        mkInstance = icecapConfigOverride: mkInstance {
-          configured = configured.override' icecapConfigOverride;
-        };
-      }
-    )
-  );
+  tests = import ./tests {
+    inherit lib pkgs;
+  };
 
   buildTest = import ./build-test.nix {
     inherit lib pkgs meta;
@@ -23,7 +17,5 @@ rec {
   tcbSize = import ./tcb-size.nix {
     inherit lib pkgs;
   };
-
-  mkInstance = import ./mk-instance.nix { inherit lib pkgs; };
 
 }
