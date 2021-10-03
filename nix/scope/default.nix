@@ -1,6 +1,4 @@
-{ lib, hostPlatform, callPackage
-, makeOverridable'
-}:
+{ lib, hostPlatform, callPackage }:
 
 self: with self;
 
@@ -81,8 +79,11 @@ superCallPackage ./ocaml {} self //
   mkGlobalCrates = callPackage ./crates {};
   outerGlobalCrates = mkGlobalCrates {};
 
+  nixUtils = callPackage ./nix-utils {};
   elfUtils = callPackage ./nix-utils/elf-utils.nix {};
   cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
   cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
+
+  inherit (nixUtils) makeOverridable';
 
 }

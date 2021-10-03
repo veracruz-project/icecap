@@ -1,10 +1,12 @@
 self: super: with self;
 
-{
+let
+
+  inherit (callPackage ./lib.nix {}) makeSplicedScope;
+
+in {
 
   icecap = makeSplicedScope ../scope {};
-
-  inherit (callPackage ./lib.nix {}) makeSplicedScope makeOverridable';
 
   stdenv = rec {
     # Use toolchain without newlib. This is equivalent to crossLibcStdenv
