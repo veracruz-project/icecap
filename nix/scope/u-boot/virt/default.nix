@@ -16,6 +16,7 @@ let
   };
 
   # config = preConfig;
+
   config = runCommand "config" {} ''
     substitute ${preConfig} $out \
       --replace 'BOOTCOMMAND="x"' 'BOOTCOMMAND="${bootcmd}"'

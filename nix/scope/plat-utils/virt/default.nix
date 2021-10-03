@@ -1,13 +1,11 @@
-# TODO should this exist in the devPkgs scope?
 { lib, runCommand, writeScript, dtc
 , devPkgs
 , dtb-helpers
 }:
 
 let
-  vmMemorySize = 4096 + 1024;
-  # TODO make this configurable
   vmCores = 4;
+  vmMemorySize = 4096 + 1024;
 
   exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;

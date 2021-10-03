@@ -161,8 +161,7 @@ in {
 
   config = {
     build = {
-      inherit initramfs;
-      inherit extraUtils;
+      inherit initramfs extraUtils;
     };
   };
 }
