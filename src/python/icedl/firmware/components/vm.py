@@ -109,10 +109,6 @@ class VM(BaseComponent):
         # Establish IPC buffers, TCBs, and vCPUs for each node in the list of affinities.
         for node_index in range(self.composition.num_nodes()):
             affinity = node_index
-            # MEGA HACK
-            # if not is_host:
-            #     assert node_index == 0
-            #     affinity = 3
 
             ipc_buffer_frame = self.alloc(ObjectType.seL4_FrameObject, '{}_ipc_buffer_frame_{}'.format(self.name, node_index), size=PAGE_SIZE)
             ipc_buffer_addr = vaddr_at_page(4, 0, 0, node_index)
@@ -187,8 +183,6 @@ class VM(BaseComponent):
                 subprocess.check_call(['icecap-append-devices', mod_path], stdin=f_in, stdout=f_out)
 
         self.dtb_fname = self.composition.register_file(dtb_path_out.name, dtb_path_out)
-
-    # TODO connect ring buffers
 
     def pre_finalize(self):
         self.device_tree()

@@ -96,8 +96,3 @@ class BaseComponent:
             self.map_with_size(size, vaddr, label=label, read=True, write=True, fill=fill)
             vaddr += size
         return vaddr_end
-
-    # extern
-
-    def extern_cap(self, ty, name, **cap_kwargs):
-        return self.cspace().alloc(self.composition.extern(ty, name), **cap_kwargs)

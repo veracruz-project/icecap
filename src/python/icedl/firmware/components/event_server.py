@@ -28,8 +28,6 @@ class EventServer(ElfComponent):
             else:
                 thread = self.primary_thread
 
-            # thread.tcb['bound_notification'] = Cap(nfn, read=True)
-
         host_badge = 1
         resource_server_badge = 2
         self.export_host_badge = BADGE_TYPE_CONTROL | host_badge
