@@ -2,7 +2,6 @@ with import ../..;
 
 let
   roots = [
-    # HACK
     meta.buildTest
   ];
 
