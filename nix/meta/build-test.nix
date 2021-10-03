@@ -11,9 +11,9 @@ let
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
     meta.tests.benchmark-utilisation.${k}.run
-  ])) ++ lib.concatMap (host: [
+  ])) ++ lib.flip lib.concatMap [ dev linux ] (host: [
     host.icecap.crosvm-9p-server
-  ]) [ dev linux ] ++ [
+  ]) ++ [
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot
     musl.icecap.icecap-host
