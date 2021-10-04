@@ -104,7 +104,7 @@ $ screen /dev/ttyUSB0 115200
 Build the demo and copy it to the boot partition of your SD card:
 
 ```bash
-$(container) nix-build -A meta.demos.realm-vm.rpi4.run # optional: -j$(nproc)
+$ nix-build -A meta.demos.realm-vm.rpi4.run # optional: -j$(nproc)
 $ ls -l ./result/boot/
 # ./result/boot and its subdirectories contain symlinks which are to be resolved
 # and copied to the boot partition of your SD card. For example:
@@ -112,6 +112,11 @@ $ mount /dev/disk/by-label/ICECAP_BOOT ./mnt
 $ cp -rvL ./result/boot/* ./mnt
 $ umount ./mnt
 ```
+
+Note that, you are running Nix inside of a Docker container, you will have to
+resolve those links and copy them onto the SD card some other way. For example,
+you could use the IceCap source directory, which is shared between the container
+and the rest of the system, as a buffer.
 
 The entire demo resides in the boot partition. Power up the board and interact
 with the demo via serial.
