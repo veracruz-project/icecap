@@ -2,17 +2,17 @@
 
 IceCap is a virtualization platform from [Arm
 Research](https://developer.arm.com/solutions/research/research-publications)
-with a minimal trusted computing base centered around the formally verified
-[seL4 microkernel](https://sel4.systems/) that aims to provide guests with
-confidentiality and integrity guarentees.
+with a minimal trusted computing base that aims to provide guests with
+confidentiality and integrity guarentees. At the foundation of IceCap is
+[seL4](https://sel4.systems/), the formally verified microkernel.
 
 [This seL4 Summit 2020 talk](https://nickspinale.com/talks/sel4-summit-2020.html)
-provides a high-level overview of IceCap's design. Aside from the content of
-that talk, one notable aspect of this project is its codebase. This project
-replaces the C-based seL4 userspace and CMake-based build system of the [seL4
-software ecosystem](https://github.com/seL4) with a Rust-based seL4 userspace
-and Nix-based build system. With the exception of CapDL, IceCap's seL4 userspace
-contains [less than 350 lines of C](./src/c/icecap-runtime).
+provides a high-level overview of IceCap's design.
+
+Notably, IceCap replaces the C-based seL4 userspace and CMake-based build system
+of the [seL4 software ecosystem](https://github.com/seL4) with a Rust-based seL4
+userspace and Nix-based build system. With the exception of CapDL, IceCap's seL4
+userspace contains [less than 350 lines of C](./src/c/icecap-runtime).
 
 This is a _soft launch_. We are still working on adding documentation to this
 repository.  In the meantime, we are eager to share and discuss any aspect of
@@ -39,9 +39,9 @@ Next, build, run, and enter a Docker container for development:
 $ make -C docker run && make -C docker exec
 ```
 
-Finally, build and run a demo where a host virtual machine spawns a confidential
-virtual machine called a realm, and then communicates with it via the virtual
-network:
+Finally, build and run a demo emulated by QEMU (`-M virt`) where a host virtual
+machine spawns a confidential virtual machine called a realm, and then
+communicates with it via the virtual network:
 
 ```bash
 $(container) nix-build -A meta.demos.realm-vm.virt.run # optional: -j$(nproc)
@@ -61,9 +61,10 @@ $(host) icecap-host destroy 0
 # '<ctrl>-a x' quits QEMU
 ```
 
-The only requirement for building IceCap outside of the Docker container is Nix.
-IceCap depends on features currently present only in unstable versions of Nix
-since `2.4pre20200407`.  Here are a few ways to use such a version:
+If you want to build IceCap without Docker, the only requirement is
+[Nix](https://nixos.org/manual/nix/stable/).  IceCap depends on features
+currently present only in unstable versions of Nix since `2.4pre20200407`.  Here
+are a few ways to use such a version:
 
 - You could use
   [https://github.com/nspin/minimally-invasive-nix-installer/](https://github.com/nspin/minimally-invasive-nix-installer/).
@@ -113,7 +114,7 @@ $ cp -rvL ./result/boot/* ./mnt
 $ umount ./mnt
 ```
 
-Note that, you are running Nix inside of a Docker container, you will have to
+Note that, if you are running Nix inside of a Docker container, you will have to
 resolve those links and copy them onto the SD card some other way. For example,
 you could use the IceCap source directory, which is shared between the container
 and the rest of the system, as a buffer.
