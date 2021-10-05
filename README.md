@@ -87,10 +87,10 @@ are a few ways to use such a version:
 #### Raspberry Pi 4
 
 The following steps to run the demo on the Raspberry Pi 4 expand on the
-instructions above.  Note that we have only tested on a Raspberry Pi 4 with 4GiB
-of RAM. Some hard-coded physical address space constants would likely need to be
-made configurable to get IceCap running on a Raspberry Pi 4 an amout of RAM
-other than 4GiB.  Please reach out to [Nick Spinale
+instructions above.  Note that we have only tested on a Raspberry Pi 4 Model B
+with 4GiB of RAM. Some hard-coded physical address space constants would likely
+need to be made configurable to get IceCap running on a Raspberry Pi 4 Model B
+with an amout of RAM other than 4GiB.  Please reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
 work together to do so.
 
@@ -152,4 +152,4 @@ seL4 has the notion of a `KernelPlatform` (e.g. `bcm2711` for the Raspberry Pi
 
 - `virt`: A minimal, made-up platform emulated by QEMU with `qemu-system-aarch64 -M virt`
 
-- `rpi4`: Rasberry Pi 4
+- `rpi4`: Raspberry Pi 4 Model B (with =4GiB RAM, see note above)
