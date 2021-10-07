@@ -12,4 +12,6 @@ buildGoModule rec {
   };
 
   vendorSha256 = "sha256-6nTmUDfToQ19ezn4OZwXkCVGBIF7LazTZqbzfNcVvMY=";
+
+  doCheck = false;
 }

@@ -6,11 +6,12 @@ let
   roots = lib.concatLists (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
     meta.demos.minimal.${k}.run
     meta.demos.minimal-root.${k}.run
-    meta.demos.realm-mirage.${k}.run
     meta.demos.realm-vm.${k}.run
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
     meta.tests.benchmark-utilisation.${k}.run
+  ] ++ lib.optionals dev.hostPlatform.isx86_64 [
+    meta.demos.realm-mirage.${k}.run
   ])) ++ lib.flip lib.concatMap [ dev linux ] (host: [
     host.icecap.crosvm-9p-server
   ]) ++ [

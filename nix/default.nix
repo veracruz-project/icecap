@@ -33,16 +33,19 @@ let
     override = x': makeOverridableWith f g (f x' x);
   };
 
-  crossSystems = {
-    # The development system which hosts the build.
-    dev = null;
-    # Linux userland on AArch64 with glibc
-    linux.config = "aarch64-unknown-linux-gnu";
-    # Linux userland on AArch64 with musl
-    musl.config = "aarch64-unknown-linux-musl";
-    # Bare-metal AArch64
-    none.config = "aarch64-none-elf";
-  };
+  crossSystems =
+    let
+      guard = config: if config == topLevel.pkgs.dev.hostPlatform.config then null else { inherit config; };
+    in {
+      # The development system which hosts the build.
+      dev = null;
+      # Linux userland on AArch64 with glibc
+      linux = guard "aarch64-unknown-linux-gnu";
+      # Linux userland on AArch64 with musl
+      musl = guard "aarch64-unknown-linux-musl";
+      # Bare-metal AArch64
+      none = guard "aarch64-none-elf";
+    };
 
   mkBaseArgs = crossSystem: allPkgs: {
     inherit crossSystem;

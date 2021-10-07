@@ -14,7 +14,7 @@ in stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://static.rust-lang.org/dist${dateSuffixWith "/"}/${name}-${version}-${hostPlatform.config}.tar.gz";
-    inherit sha256;
+    sha256 = sha256.${hostPlatform.config};
   };
 
   postPatch = ''

@@ -17,7 +17,10 @@ in {
     name = "rust";
     version = "nightly";
     date = "2021-08-25";
-    sha256 = "sha256-mrVjtmI9w7uvHvlqZ0C7tFWMFKyGXPfnotrPWVyEnl0=";
+    sha256 = {
+      x86_64-unknown-linux-gnu = "sha256-mrVjtmI9w7uvHvlqZ0C7tFWMFKyGXPfnotrPWVyEnl0=";
+      aarch64-unknown-linux-gnu = "sha256-88KRQrHg4qynlkUzAZo831iJo5jRyOUJBr71rFbDurc=";
+    };
     components = [ "rustc" "rust-std-${hostPlatform.config}" "cargo" ];
     binaries = [ "rustc" "rustdoc" "cargo" ];
     postInstall = ''
@@ -31,7 +34,10 @@ in {
     name = "rustfmt";
     version = "nightly";
     date = "2021-08-25";
-    sha256 = "sha256-lTm51x51Hx2/p+MS6wPydo6Uj+VROxy4H8oXbWXNgdU=";
+    sha256 = {
+      x86_64-unknown-linux-gnu = "sha256-lTm51x51Hx2/p+MS6wPydo6Uj+VROxy4H8oXbWXNgdU=";
+      aarch64-unknown-linux-gnu = "sha256-CN4m2EI5CGDXDT43I0N170sY9AEqYeTxePOedLTQuv4=";
+    };
     components = [ "rustfmt-preview" ];
     binaries = [ "rustfmt" ];
   };
