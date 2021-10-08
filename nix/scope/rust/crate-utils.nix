@@ -163,11 +163,11 @@ rec {
   kebabToSnake = lib.replaceStrings [ "-" ] [ "_" ];
 
   ccEnv = {
-    "CC_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
-    "CXX_${buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}c++";
+    "CC_${kebabToSnake buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}cc";
+    "CXX_${kebabToSnake buildPlatform.config}" = "${buildPackages.stdenv.cc.targetPrefix}c++";
   } // {
-    "CC_${rustTargetName}" = "${stdenv.cc.targetPrefix}cc";
-    "CXX_${rustTargetName}" = "${stdenv.cc.targetPrefix}c++";
+    "CC_${kebabToSnake rustTargetName}" = "${stdenv.cc.targetPrefix}cc";
+    "CXX_${kebabToSnake rustTargetName}" = "${stdenv.cc.targetPrefix}c++";
   };
 
   linkerCargoConfig = {
