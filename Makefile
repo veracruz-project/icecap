@@ -14,7 +14,7 @@ clean:
 
 .PHONY: deep-clean
 deep-clean: clean
-	git clean -xdf --exclude=$(tmp)
+	git clean -xdf --exclude=$(tmp) --exclude=docker/nix-root
 
 $(out):
 	mkdir -p $@
