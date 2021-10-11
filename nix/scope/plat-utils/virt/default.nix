@@ -58,6 +58,8 @@ let
   basicScript = { kernel }:
     writeScript "run.sh" ''
       #!${devPkgs.runtimeShell}
+      set -eu
+      cd "$(dirname "$0")"
       exec ${cmdPrefix} -kernel ${kernel} "$@"
     '';
 
@@ -74,6 +76,8 @@ let
   devScript = { kernel, extraArgs ? [] }:
     writeScript "run.sh" ''
       #!${devPkgs.runtimeShell}
+      set -eu
+      cd "$(dirname "$0")"
       debug=
       if [ "$1" = "-d" ]; then
         debug="${join debugArgs}"

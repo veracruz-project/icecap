@@ -24,7 +24,7 @@ let
 
   scriptAddr = "0xf0000000";
   scriptName = "script.uimg";
-  scriptPath = "./result/payload/${scriptName}"; # HACK
+  scriptPath = "./payload/${scriptName}"; # HACK
 
   bootcmd = "smhload ${scriptPath} ${scriptAddr}; source ${scriptAddr}";
 
