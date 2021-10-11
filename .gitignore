@@ -3,4 +3,5 @@ result-*
 
 __pycache__
 
+/out
 /tmp
