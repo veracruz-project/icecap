@@ -44,8 +44,8 @@ machine spawns a confidential virtual machine called a realm, and then
 communicates with it via the virtual network:
 
 ```
-   [container] nix-build -A meta.demos.realm-vm.virt.run # optional: -j$(nproc)
-   [container] ./result/run
+   [container] make demo
+   [container] ./out/demo/run
 
                # ... wait for the host VM to boot to a shell ...
 
@@ -117,13 +117,13 @@ screen /dev/ttyUSB0 115200
 Build the demo and copy it to the boot partition of your SD card:
 
 ```
-nix-build -A meta.demos.realm-vm.rpi4.run # optional: -j$(nproc)
+make demo PLAT=rpi4
 
-# ./result/boot and its subdirectories contain symlinks which are to be resolved
+# ./out/demo/boot and its subdirectories contain symlinks which are to be resolved
 # and copied to the boot partition of your SD card. For example:
 
 mount /dev/disk/by-label/ICECAP_BOOT mnt/
-cp -rLv result/boot/* mnt/ # even better: rsync -rLv --checksum --delete result/boot/ mnt/
+cp -rLv out/demo/boot/* mnt/ # even better: rsync -rLv --checksum --delete out/demo/boot/ mnt/
 umount mnt/
 ```
 
@@ -138,7 +138,7 @@ like this from outside of the container:
 
 ```
 container_name=icecap_stateful
-rsync -rLv --checksum --delete -e 'docker exec -i' $container_name:/icecap/result/boot/ mnt/
+rsync -rLv --checksum --delete -e 'docker exec -i' $container_name:/icecap/out/demo/boot/ mnt/
 ```
 
 
