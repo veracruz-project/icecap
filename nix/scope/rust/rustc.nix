@@ -58,8 +58,8 @@ let
           cc     = "${env.cc}/bin/${env.cc.targetPrefix}cc";
           linker = "${env.cc}/bin/${env.cc.targetPrefix}cc";
           cxx    = "${env.cc}/bin/${env.cc.targetPrefix}c++";
-          ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ar";
-          ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.bintools.targetPrefix}ranlib";
+          ar     = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.targetPrefix}ar";
+          ranlib = "${env.cc.bintools.bintools}/bin/${env.cc.bintools.targetPrefix}ranlib";
         } // lib.optionalAttrs env.hostPlatform.isNone {
           linker = "${env.cc}/bin/${env.cc.targetPrefix}ld";
           no-std = true;
