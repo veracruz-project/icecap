@@ -9,8 +9,8 @@ alias r="./result/run"
 alias rd="./result/run -d"
 
 k() {
-    remote="$1"
-    ref="$2"
+    remote="${1:-origin}"
+    ref="${2:-HEAD}"
     short_rev=$(git rev-parse --short=32 "$ref")
     tag=icecap/keep/$short_rev
     git tag $tag $short_rev
