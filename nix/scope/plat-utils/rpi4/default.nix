@@ -87,7 +87,7 @@ let
     }:
 
     let
-      expandedPlatArgs = (
+      elaboratedPlatArgs = (
         { extraBootPartitionCommands ? "" }:
         { inherit extraBootPartitionCommands; }
       ) platArgs;
@@ -95,7 +95,7 @@ let
       boot = bootPartitionLinks {
         image = firmware;
         inherit payload;
-        inherit (expandedPlatArgs) extraBootPartitionCommands;
+        inherit (elaboratedPlatArgs) extraBootPartitionCommands;
       };
 
       links = {

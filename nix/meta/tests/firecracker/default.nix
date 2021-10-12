@@ -108,7 +108,7 @@ lib.fix (self: with self; {
 
   run = writeScript "run.sh" (with platUtils.virt.extra; ''
       #!${devPkgs.runtimeShell}
-      exec ${cmdPrefix} \
+      exec ${cmdPrefix {}} \
         -d unimp,guest_errors \
         -kernel ${host.linuxImage} \
         -initrd ${host.initrd} \

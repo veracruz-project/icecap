@@ -39,6 +39,7 @@ in {
   inherit (composition) cdl;
   inherit (spec) ddl;
 
+  icecapPlatArgs.virt.devScript = true;
   icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
     ln -s ${spec} $out/spec.bin
   '';

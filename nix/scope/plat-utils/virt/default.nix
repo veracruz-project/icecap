@@ -5,7 +5,7 @@
 
 let
   vmCores = 4;
-  vmMemorySize = 4096 + 1024;
+  vmMemorySize = 4096 + 1024; # TODO make configurable
 
   exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;
@@ -29,21 +29,29 @@ let
     "-fsdev" "local,id=store,security_model=none,readonly,path=."
   ];
 
-  backendArgs = [
+  backendArgs = { extraNetDevArgs }: [
     "-serial" "mon:stdio"
-    "-serial" "chardev:ss"
-    "-serial" "chardev:rb0"
-    "-serial" "chardev:rb1"
-    "-chardev" "socket,id=ss,host=127.0.0.1,port=5554,server,nowait"
-    "-chardev" "socket,id=rb0,host=127.0.0.1,port=5557,server,nowait"
-    "-chardev" "socket,id=rb1,host=127.0.0.1,port=5558,server,nowait"
-    "-netdev" "user,id=netdev0,hostfwd=tcp::5555-:22,hostfwd=tcp::5556-:80,hostfwd=tcp::5559-:8080"
+    "-netdev" "user,id=netdev0,${extraNetDevArgs}"
     "-fsdev" "local,id=store,security_model=none,readonly,path=${builtins.storeDir}"
   ];
+
+    # NOTE
+    # example extraNetDevArgs:
+    # hostfwd=tcp::5555-:22,hostfwd=tcp::5556-:80,hostfwd=tcp::5559-:8080
+
+    # TODO
+    # "-serial" "chardev:ss"
+    # "-serial" "chardev:rb0"
+    # "-serial" "chardev:rb1"
+    # "-chardev" "socket,id=ss,host=127.0.0.1,port=5554,server,nowait"
+    # "-chardev" "socket,id=rb0,host=127.0.0.1,port=5557,server,nowait"
+    # "-chardev" "socket,id=rb1,host=127.0.0.1,port=5558,server,nowait"
 
   debugArgs = [
     "-s" "-S"
   ];
+
+  join = lib.concatStringsSep " ";
 
   dtb = runCommand "virt.dtb" {} ''
     ${exeDtb} ${join (frontendArgsWith ",dumpdtb=$out" ++ dummyBackendArgs)}
@@ -51,42 +59,32 @@ let
 
   dts = with dtb-helpers; decompileWithName "virt.dts" dtb;
 
-  cmdPrefix = "${exeRun} ${join (frontendArgs ++ backendArgs)}";
+  cmdPrefix = { extraNetDevArgs ? "" }: "${exeRun} ${join (frontendArgs ++ backendArgs { inherit extraNetDevArgs; })}";
 
-  join = lib.concatStringsSep " ";
-
-  basicScript = { kernel }:
+  basicScript = { kernel, extraNetDevArgs, extraQemuArgs }:
     writeScript "run.sh" ''
       #!${devPkgs.runtimeShell}
       set -eu
       cd "$(dirname "$0")"
-      exec ${cmdPrefix} -kernel ${kernel} "$@"
+      exec ${cmdPrefix { inherit extraNetDevArgs; }} -kernel ${kernel} ${extraQemuArgs} "$@"
     '';
 
-  basicRun = { firmware, payload, extraLinks ? {} }:
-    genericRun {
-      inherit payload;
-      links = {
-        run = basicScript {
-          kernel = firmware;
-        };
-      } // extraLinks;
-    };
-
-  devScript = { kernel, extraArgs ? [] }:
+  devScript = { kernel, extraNetDevArgs, extraQemuArgs }:
     writeScript "run.sh" ''
       #!${devPkgs.runtimeShell}
       set -eu
       cd "$(dirname "$0")"
       debug=
-      if [ "$1" = "-d" ]; then
+      if [ "''${1:-}" = "-d" ]; then
         debug="${join debugArgs}"
+        shift
       fi
-      exec ${cmdPrefix} \
+      exec ${cmdPrefix { inherit extraNetDevArgs; }} \
         -d unimp,guest_errors \
-        ${join extraArgs} \
         $debug \
-        -kernel ${kernel}
+        -kernel ${kernel} \
+        ${extraQemuArgs} \
+        "$@"
     '';
 
   genericRun = { links, payload }:
@@ -103,27 +101,40 @@ let
       '') payload)}
     '';
 
+  elaboratePlatArgs = { devScript ? false, extraNetDevArgs ? "", extraQemuArgs ? "" }: {
+    inherit devScript extraNetDevArgs extraQemuArgs;
+  };
+
   bundle =
     { firmware, payload ? {}
     , extraLinks ? {}
     , platArgs ? {}
     }:
-
-    genericRun {
-      inherit payload;
-      links = {
-        run =
-          if platArgs.devScript or false
-          then devScript { kernel = firmware; }
-          else basicScript { kernel = firmware; };
-      } // extraLinks;
-    };
+    let
+      elaboratedPlatArgs = elaboratePlatArgs platArgs;
+    in
+      genericRun {
+        inherit payload;
+        links = {
+          run =
+            let
+              script =
+                if elaboratedPlatArgs.devScript
+                then devScript
+                else basicScript;
+            in
+              script {
+                kernel = firmware;
+                inherit (elaboratedPlatArgs) extraNetDevArgs extraQemuArgs;
+              };
+        } // extraLinks;
+      };
 
 in {
   inherit bundle;
   extra = {
     inherit dtb dts;
-    # HACK
+    # HACK exposed for firecracker test
     inherit cmdPrefix;
   };
 }
