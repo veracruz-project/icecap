@@ -3,13 +3,13 @@ nix_root := ./nix-root
 
 label := icecap
 
-image_tag_base := icecap
-image_tag_stateless := $(image_tag_base)_stateless
-image_tag_stateful := $(image_tag_base)_stateful
+image_repository := icecap
+image_tag_stateless := $(image_repository):stateless
+image_tag_stateful := $(image_repository):stateful
 
 container_name_base := icecap
-container_name_stateless := $(container_name_base)_stateless
-container_name_stateful := $(container_name_base)_stateful
+container_name_stateless := $(container_name_base)-stateless
+container_name_stateful := $(container_name_base)-stateful
 
 dockerfile_base := Dockerfile
 dockerfile_stateless := $(dockerfile_base).stateless
@@ -94,7 +94,7 @@ clean:
 	done
 
 .PHONY: deep-clean
-deep-clean: clean
+deep-clean:
 	for id in $$(docker ps -aq -f "label=$(label)"); do \
 		docker rm -f $$id; \
 	done
