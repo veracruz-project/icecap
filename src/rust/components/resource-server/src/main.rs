@@ -129,7 +129,7 @@ fn run(server: &Mutex<ResourceServer>, node_index: usize, endpoint: Endpoint, bu
                     resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
                 }
                 BADGE_HOST_EVENT => {
-                     debug_println!("host event on {}", node_index);
+                    //  debug_println!("host event on {}", node_index);
                     resource_server.host_event(node_index)?;
                 }
                 BADGE_TIMEOUT => {
