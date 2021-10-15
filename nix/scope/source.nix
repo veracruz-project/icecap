@@ -117,7 +117,7 @@ rec {
     version = "2019.07";
     src = (icecapSrc.repo {
       repo = "u-boot";
-      rev = "9626efe72a2200d3dc6852ce41e4c34f791833bf"; # branch icecap-host
+      rev = "ad3de5e2cffe741371b50b2f58c82eba0b8edb96"; # branch icecap-host
     }).store;
   };
 

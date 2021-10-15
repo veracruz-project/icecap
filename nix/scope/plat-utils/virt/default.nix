@@ -5,7 +5,7 @@
 
 let
   vmCores = 4;
-  vmMemorySize = 4096 + 1024; # TODO make configurable
+  vmMemorySize = 1024 * 3; # TODO make configurable
 
   exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;

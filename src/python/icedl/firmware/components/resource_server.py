@@ -25,14 +25,15 @@ class ResourceServer(ElfComponent):
         allocator_cnode = self.alloc(ObjectType.seL4_CapTableObject, name='allocator_cnode', size_bits=allocator_cnode_size_bits)
         allocator_cnode_shift = root_cnode_size_bits
 
-        ut_size_bits = 29
-        ut_slot = self.cspace().alloc(self.alloc(ObjectType.seL4_UntypedObject, name='allocator_untyped_0', size_bits=ut_size_bits))
-        ut = {
-            'slot': ut_slot,
-            'size_bits': ut_size_bits,
-            'paddr': 0,
-            'device': False,
-        }
+        ut_size_bits_spec = [29]
+        for i, ut_size_bits in enumerate(ut_size_bits_spec):
+            ut_slot = self.cspace().alloc(self.alloc(ObjectType.seL4_UntypedObject, name='allocator_untyped_{}'.format(i), size_bits=ut_size_bits))
+            ut = {
+                'slot': ut_slot,
+                'size_bits': ut_size_bits,
+                'paddr': i,
+                'device': False,
+            }
 
         self.align(BLOCK_SIZE)
         large_frame_addr = self.cur_vaddr

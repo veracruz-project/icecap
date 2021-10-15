@@ -6,9 +6,9 @@
     #size-cells = <2>;
     interrupt-parent = <&intc>;
 
-    memory@f0000000 {
+    memory@80000000 {
         device_type = "memory";
-        reg = <0x00 0xf0000000 0x00 0x10000000>;
+        reg = <0x00 0x80000000 0x00 0x10000000>;
     };
 
     psci {

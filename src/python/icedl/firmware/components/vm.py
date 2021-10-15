@@ -20,11 +20,11 @@ class Addrs:
 
     def __init__(self, plat, is_host=False):
         if plat == 'virt':
-            self.ram_base    = 0xf0000000
+            self.ram_base    = 0x80000000
             self.ram_size    = 0x10000000
-            self.kernel_addr = 0xf0080000
-            self.dtb_addr    = 0xf2000000
-            self.initrd_addr = 0xf8000000
+            self.kernel_addr = 0x80080000
+            self.dtb_addr    = 0x82000000
+            self.initrd_addr = 0x88000000
 
             self.gic_paddr = 0x8000000
             self.gic_dist_paddr = self.gic_paddr + 0x00000
