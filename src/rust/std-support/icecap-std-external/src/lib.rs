@@ -1,12 +1,12 @@
 #![feature(panic_info_message)]
 #![feature(rustc_private)]
 
-use std::sync::{Arc, Mutex};
-use std::alloc::{Layout};
-use std::alloc::GlobalAlloc;
-
 use icecap_core::prelude::*;
 use icecap_core::backtrace::Backtrace;
+
+pub use std::icecap_impl::{
+    set_now,
+};
 
 pub fn early_init() {
     set_panic()
