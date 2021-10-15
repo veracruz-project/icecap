@@ -4,12 +4,6 @@ from icedl.common import BaseComposition, FaultHandler, RingBufferObjects, RingB
 from icedl.realm.components.vm import RealmVM
 from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
 
-# HACK
-NUM_NODES = 1
-
-# HACK
-REALM_ID = 0
-
 class BaseRealmComposition(BaseComposition):
 
     def __init__(self, *args, **kwargs):
