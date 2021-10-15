@@ -4,8 +4,8 @@
 }:
 
 let
-  vmCores = 4;
-  vmMemorySize = 1024 * 3; # TODO make configurable
+  numCores = 4;
+  memorySize = 1024 * 3; # TODO make configurable
 
   exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;
@@ -14,8 +14,8 @@ let
   frontendArgsWith = extraMachine: [
     "-machine" "virt,virtualization=on${extraMachine},gic-version=2"
     "-cpu" "cortex-a57"
-    "-smp" (toString vmCores)
-    "-m" (toString vmMemorySize)
+    "-smp" (toString numCores)
+    "-m" (toString memorySize)
     "-nographic"
     "-semihosting-config" "enable=on,target=native"
     "-device" "virtio-net-device,netdev=netdev0"
