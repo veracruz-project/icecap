@@ -1,5 +1,5 @@
-{ lib, cmakeUtils
-, icecapConfig, selectIceCapPlat
+{ lib, cmakeUtils, platUtils
+, icecapConfig, icecapPlat, selectIceCapPlat
 }:
 
 with cmakeUtils.types;
@@ -11,11 +11,6 @@ let
     rpi4 = "bcm2711";
   };
 
-  numNodes = selectIceCapPlat {
-    virt = 4;
-    rpi4 = 4;
-  };
-
   common = {
     KernelArch = STRING "arm";
     KernelSel4Arch = STRING "aarch64";
@@ -24,7 +19,7 @@ let
     KernelVerificationBuild = OFF;
     KernelDebugBuild = ON;
     KernelOptimisation = STRING "-O3"; # TODO beware (default is -O2)
-    KernelMaxNumNodes = STRING (toString numNodes);
+    KernelMaxNumNodes = STRING (toString platUtils.${icecapPlat}.numCores);
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
