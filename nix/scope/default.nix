@@ -19,9 +19,12 @@ superCallPackage ./ocaml {} self //
 
   byIceCapPlat = f: lib.listToAttrs (map (plat: lib.nameValuePair plat (f plat)) icecapPlats);
 
-  elaborateIceCapConfig = { icecapPlat, profile ? "icecap" , debug ? false, benchmark ? false }: {
-    inherit icecapPlat debug benchmark profile;
-  };
+  elaborateIceCapConfig =
+    { icecapPlat, icecapPlatParams ? {}
+    , profile ? "icecap", debug ? false, benchmark ? false
+    }: {
+      inherit icecapPlat icecapPlatParams profile debug benchmark;
+    };
 
   configure = icecapConfig: lib.makeScope newScope (callPackage ./configured {} icecapConfig);
 
