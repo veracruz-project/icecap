@@ -10,7 +10,7 @@ use icecap_benchmark_server_types::*;
 use icecap_benchmark_server_config::*;
 
 #[allow(dead_code)]
-const NUM_NODES: usize = 4;
+const NUM_NODES: usize = icecap_plat::NUM_CORES;
 
 declare_main!(main);
 

@@ -5,6 +5,7 @@ mk {
   nix.localDependencies = with localCrates; [
     dyndl-types
     icecap-core
+    icecap-plat
     icecap-resource-server-types
     icecap-event-server-types
     icecap-timer-server-client

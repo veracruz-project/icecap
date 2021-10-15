@@ -21,7 +21,7 @@ mod init;
 
 pub use init::EventServerConfig;
 
-pub const NUM_NODES: usize = 3;
+pub const NUM_NODES: usize = icecap_plat::NUM_CORES - 1;
 
 // HACK
 unsafe impl Send for EventServer {}

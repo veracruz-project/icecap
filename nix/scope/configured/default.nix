@@ -51,6 +51,7 @@ self: with self;
     inherit (icecapConfig) debug benchmark;
     extraArgs = {
       inherit stdenv icecap-sel4-sys-gen;
+      inherit callPackage; # HACK
     };
   };
 

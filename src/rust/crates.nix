@@ -58,6 +58,8 @@ filterAttrs (_: v: v != null) {
   icecap-core = seL4Only ./icecap/icecap-core;
   icecap-std = seL4Only ./icecap/icecap-std;
 
+  icecap-plat = seL4Only ./icecap/icecap-plat;
+
   icecap-vmm = seL4Only ./icecap/icecap-vmm;
   icecap-vmm-gic = seL4Only ./icecap/icecap-vmm/gic;
 
