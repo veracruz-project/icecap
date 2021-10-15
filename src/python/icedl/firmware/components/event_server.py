@@ -8,8 +8,6 @@ BADGE_TYPE_CLIENT = 3 << BADGE_TYPE_SHIFT
 BADGE_TYPE_CLIENT_OUT = 2 << BADGE_TYPE_SHIFT
 BADGE_TYPE_CONTROL = 1 << BADGE_TYPE_SHIFT
 
-NUM_CORES = 3 # HACK
-
 class EventServer(ElfComponent):
 
     def __init__(self, *args, **kwargs):
@@ -134,7 +132,7 @@ class EventServer(ElfComponent):
         for i_group, group in enumerate(groups_of(48, self.owned_irqs())):
             nfns = [
                 self.alloc(ObjectType.seL4_NotificationObject, 'irq_group_{}_nfn_for_core_{}'.format(i_group, i_core))
-                for i_core in range(NUM_CORES)
+                for i_core in range(self.composition.num_nodes())
                 ]
 
             bits = []
@@ -143,7 +141,7 @@ class EventServer(ElfComponent):
                 badge = 1 << i_irq
                 caps = [
                     self.cspace().alloc(nfns[i_core], badge=badge, read=True)
-                    for i_core in range(NUM_CORES)
+                    for i_core in range(self.composition.num_nodes())
                     ]
                 initial_cap = Cap(nfns[0], badge=badge, write=True) # HACK
                 handler = self.cspace().alloc(
@@ -151,7 +149,7 @@ class EventServer(ElfComponent):
                     )
                 irqs[irq] = (handler, caps)
 
-            for i_core in range(NUM_CORES):
+            for i_core in range(self.composition.num_nodes()):
                 irq_threads.append({
                     'thread': self.secondary_thread('irq_group_{}_thread_for_core_{}'.format(i_group, i_core), affinity=i_core).endpoint,
                     'notification': caps[i_core],
