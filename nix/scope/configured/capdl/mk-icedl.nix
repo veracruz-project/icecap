@@ -20,6 +20,9 @@ let
   augmentedConfig = config // {
     plat = icecapPlat;
     object_sizes = object-sizes;
+
+    # HACK
+    hack_realm_affinity = 1;
   };
 
   capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";

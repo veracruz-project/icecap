@@ -116,6 +116,7 @@ let
 
 in {
   inherit bundle;
+  numCores = 4;
   extra = {
     inherit uBoot bootPartitionLinks;
   };

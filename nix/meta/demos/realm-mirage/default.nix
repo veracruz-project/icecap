@@ -42,6 +42,8 @@ in rec {
   ddl = mkIceDL {
     src = ./ddl;
     config = {
+      realm_id = 0;
+      num_cores = 1;
       components = {
         mirage.image = elfUtils.split "${mirageBinary}/bin/mirage.elf";
       };

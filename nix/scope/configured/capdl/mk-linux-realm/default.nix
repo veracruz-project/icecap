@@ -9,6 +9,8 @@ let
   ddl = mkIceDL {
     src = ./ddl;
     config = {
+      realm_id = 0;
+      num_cores = 1;
       components = {
         fault_handler.image = bins.fault-handler.split;
         realm_vmm.image = bins.realm-vmm.split;

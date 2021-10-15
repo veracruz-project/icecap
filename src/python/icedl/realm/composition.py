@@ -12,6 +12,12 @@ REALM_ID = 0
 
 class BaseRealmComposition(BaseComposition):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._num_cores = self.config['num_cores']
+        self._realm_id = self.config['realm_id']
+        self._hack_realm_affinity = self.config['hack_realm_affinity']
+
     def compose(self):
         raise NotImplementedError
 
@@ -50,15 +56,15 @@ class BaseRealmComposition(BaseComposition):
         return self.extern(ObjectType.seL4_FrameObject, 'realm_{}_gic_vcpu_frame'.format(self.realm_id()))
 
     def num_nodes(self):
-        return NUM_NODES
+        return self._num_cores
 
     def realm_id(self):
-        return REALM_ID
+        return self._realm_id
 
     # HACK
     def virt_to_phys_node_map(self, virt_node):
         return ({
-            0: 1,
+            0: self._hack_realm_affinity,
         })[virt_node]
 
 

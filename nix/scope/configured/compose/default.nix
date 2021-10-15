@@ -1,7 +1,7 @@
 { lib, runCommand
 , dtb-helpers
 , linuxPkgs
-, deviceTree, cpioUtils, elfUtils
+, deviceTree, platUtils, cpioUtils, elfUtils
 , icecapPlat
 , mkIceDL, mkCapDLLoader
 , kernel, elfloader, bins
@@ -40,6 +40,11 @@ let
     src = ./cdl;
 
     config = {
+
+      num_cores = platUtils.${icecapPlat}.numCores;
+      num_realms = 2;
+      default_affinity = 1;
+
       components = {
         idle.image = bins.idle.split;
         fault_handler.image = bins.fault-handler.split;

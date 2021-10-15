@@ -132,6 +132,7 @@ let
 
 in {
   inherit bundle;
+  inherit numCores;
   extra = {
     inherit dtb dts;
     # HACK exposed for firecracker test

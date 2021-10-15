@@ -9,21 +9,23 @@ from icedl.firmware.components.event_server import EventServer
 from icedl.firmware.components.benchmark_server import BenchmarkServer
 from icedl.firmware.components.vm import VMM, VM, HostVM
 
-NUM_NODES = 3
-NUM_REALMS = 2
-
-HACK_AFFINITY = 1
-
 class Composition(BaseComposition):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._num_cores = self.config['num_cores']
+        self._num_realms = self.config['num_realms']
+        self._default_affinity = self.config['default_affinity']
+        self._hack_realm_affinity = self.config['hack_realm_affinity']
 
     def compose(self):
         self.idle = self.component(Idle, 'idle', affinity=self.num_nodes(), prio=251)
         self.benchmark_server = self.component(BenchmarkServer, 'benchmark_server', prio=252)
-        self.fault_handler = self.component(FaultHandler, 'fault_handler', affinity=HACK_AFFINITY, prio=250)
+        self.fault_handler = self.component(FaultHandler, 'fault_handler', affinity=self._default_affinity, prio=250)
         self.timer_server = self.component(TimerServer, 'timer_server', prio=175, fault_handler=self.fault_handler)
         self.event_server = self.component(EventServer, 'event_server', prio=200, fault_handler=self.fault_handler)
         self.resource_server = self.component(ResourceServer, 'resource_server', prio=150, max_prio=255, fault_handler=self.fault_handler)
-        self.serial_server = self.component(SerialServer, 'serial_server', affinity=HACK_AFFINITY, prio=180, fault_handler=self.fault_handler)
+        self.serial_server = self.component(SerialServer, 'serial_server', affinity=self._default_affinity, prio=180, fault_handler=self.fault_handler)
         self.host_vm = self.component(HostVM, name='host_vm', vmm_name='host_vmm')
 
         cfg = self.serial_server.register_host(self.host_vm)
@@ -100,7 +102,7 @@ class Composition(BaseComposition):
         return frame
 
     def num_nodes(self):
-        return NUM_NODES
+        return self._num_cores - 1
 
     def num_realms(self):
-        return NUM_REALMS
+        return self._num_realms
