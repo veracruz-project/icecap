@@ -18,9 +18,4 @@ rec {
     inherit lib pkgs;
   };
 
-  # HACK
-  export = import ./export {
-    inherit lib pkgs;
-  };
-
 }
