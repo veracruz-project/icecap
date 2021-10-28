@@ -10,7 +10,7 @@ confidentiality and integrity guarentees. At the foundation of IceCap is
 provides a high-level overview of IceCap's design.
 
 Notably, IceCap replaces the C-based seL4 userspace of the
-[seL4 software ecosystem](https://github.com/seL4) with a Rust. With the
+[seL4 software ecosystem](https://github.com/seL4) with Rust. With the
 exception of CapDL, IceCap's seL4 userspace contains
 [less than 350 lines of C](./src/c/icecap-runtime).
 
