@@ -12,7 +12,7 @@ let
 
   configured = pkgs.none.icecap.configured.${plat};
 
-in {
+in icecap // {
 
   shadow-vmm = pkgs.musl.icecap.icecap-host;
 
