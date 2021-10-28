@@ -3,16 +3,16 @@ import json
 import toml
 from collections import OrderedDict
 
-class TomlOrderedDecoder(toml.TomlDecoder):
+class TomlOrderedDecoder(toml.TomlPreserveCommentDecoder):
 
     def __init__(self):
         super(self.__class__, self).__init__(_dict=OrderedDict)
 
 
-class TomlPreserveInlineOrderedEncoder(toml.TomlPreserveInlineDictEncoder):
+class TomlNixEncoder(toml.TomlPreserveCommentEncoder):
 
     def __init__(self):
-        super(self.__class__, self).__init__(_dict=OrderedDict)
+        super(self.__class__, self).__init__(_dict=OrderedDict, preserve=True)
 
 manifest = toml.load(sys.stdin, decoder=TomlOrderedDecoder())
 
@@ -45,4 +45,4 @@ if len(extra['rest']) != 0:
     print(extra['rest'], file=sys.stderr)
     assert 0
 
-toml.dump(manifest, sys.stdout, encoder=TomlPreserveInlineOrderedEncoder())
+toml.dump(manifest, sys.stdout, encoder=TomlNixEncoder())

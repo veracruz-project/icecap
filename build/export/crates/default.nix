@@ -44,6 +44,11 @@ let
             name = "${elaboratedNix.name}"
             version = "0.1.0"
             edition = "2018"
+            ${lib.optionalString (elaboratedNix.buildScript != null) ''
+              # This crate depends on extra information passed via the Cargo 'links' mechanism.
+              # See the 'buildScript' attribute in ./crate.nix for details.
+              build = "/dev/null"
+            ''}
             ${lib.optionalString (lib.hasAttr "lib" rest) ''
               [lib]
               proc-macro = true
