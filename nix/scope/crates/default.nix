@@ -33,7 +33,7 @@ let
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
 
-    } // extraArgs) (path + "/cargo.nix");
+    } // extraArgs) (path + "/crate.nix");
 
   patches = import ./patches.nix {
     inherit icecapSrc;
