@@ -20,7 +20,7 @@ filterAttrs (_: v: v != null) {
   icecap-append-devices = ./icecap/icecap-fdt/bindings/cli/icecap-append-devices;
 
   icecap-unwind = ./icecap/icecap-unwind;
-  icecap-backtrace = ./icecap/icecap-backtrace;
+  icecap-backtrace = seL4Only ./icecap/icecap-backtrace;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
   icecap-backtrace-collect = ./icecap/icecap-backtrace/collect + lib.optionalString (!debug || !seL4) "/dummy";
   icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
@@ -91,7 +91,6 @@ filterAttrs (_: v: v != null) {
   event-server = seL4Only ./components/event-server;
   icecap-event-server-types = ./components/event-server/types;
   icecap-event-server-config = ./components/event-server/config;
-  icecap-event-server-client = seL4Only ./components/event-server/client;
   icecap-serialize-event-server-out-index = ./components/event-server/types/cli/icecap-serialize-event-server-out-index;
 
   serial-server = seL4Only ./components/serial-server;
