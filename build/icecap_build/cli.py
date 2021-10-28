@@ -21,20 +21,20 @@ def parse_args():
     subparser.add_argument('--kernel', metavar='KERNEL', type=Path)
     subparser.add_argument('--initramfs', metavar='INITRAMFS', type=Path, required=True)
     subparser.add_argument('--bootargs', metavar='BOOTARGS')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', required=True)
+    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
 
     subparser = subparsers.add_parser('realm')
     subparser.add_argument('--kernel', metavar='KERNEL', type=Path)
     subparser.add_argument('--initramfs', metavar='INITRAMFS', type=Path, required=True)
     subparser.add_argument('--bootargs', metavar='BOOTARGS')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', required=True)
+    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
 
     subparser = subparsers.add_parser('shadow-vmm')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', required=True)
+    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
 
     subparser = subparsers.add_parser('target')
     subparser.add_argument('target', metavar='TARGET')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', required=True)
+    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
 
     return parser.parse_args()
 
