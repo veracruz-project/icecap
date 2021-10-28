@@ -1,8 +1,7 @@
-{ lib, pkgs }:
-
 let
+  icecap = import ../..;
 
-  inherit (lib) toPath;
+  inherit (icecap) lib pkgs;
 
   byPlat = f: lib.flip lib.mapAttrs pkgs.none.icecap.configured
     (_: configured: f {
@@ -28,7 +27,7 @@ in {
     { kernel ? null, initramfs, bootargs }:
 
     let
-      kernel_ = if kernel == null then defaultKernel else toPath kernel;
+      kernel_ = if kernel == null then defaultKernel else lib.toPath kernel;
     in
       platUtils.${icecapPlat}.bundle {
         firmware = icecapFirmware.image;
@@ -54,11 +53,11 @@ in {
     { kernel ? null, initramfs, bootargs }:
 
     let
-      kernel_ = if kernel == null then defaultKernel else toPath kernel;
+      kernel_ = if kernel == null then defaultKernel else lib.toPath kernel;
     in
       mkLinuxRealm {
         kernel = kernel_;
-        initrd = toPath initramfs;
+        initrd = lib.toPath initramfs;
         bootargs = lib.splitString bootargs;
       }
   );

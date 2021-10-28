@@ -1,4 +1,4 @@
-{ lib, pkgs, meta, export /* HACK */ } @ topLevel:
+{ lib, pkgs, meta } @ topLevel:
 
 rec {
 
