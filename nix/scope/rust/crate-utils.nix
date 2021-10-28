@@ -19,12 +19,14 @@ rec {
         , localDependencyAttributes ? {} # HACK
         , propagate ? {}
         , buildScript ? null
+        , hack ? {}, # HACK
         }:
         {
           inherit
             name src isBin isStaticlib
             localDependencies phantomLocalDependencies localDependencyAttributes
-            propagate buildScript;
+            propagate buildScript
+            hack; # HACK
         };
 
     in
@@ -76,6 +78,10 @@ rec {
         env = mkLink (mk elaboratedNix.src.env);
         dummy = mkLink (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib));
         localDependencies = elaboratedNix.localDependencies ++ elaboratedNix.phantomLocalDependencies;
+        # HACK
+        hack = {
+          inherit elaboratedNix args;
+        };
       };
 
   dummySrcLib = linkFarm "dummy-src" [

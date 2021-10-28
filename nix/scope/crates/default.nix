@@ -20,6 +20,7 @@ let
       mkBase = isBin: args: crateUtils.mkCrate (lib.recursiveUpdate {
         nix.src = icecapSrc.absoluteSplit (path + "/src");
         nix.isBin = isBin;
+        nix.hack.path = path; # HACK
       } args);
 
     in newScope ({
