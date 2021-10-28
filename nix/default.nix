@@ -68,6 +68,7 @@ let
       lib.fix (self: {
         inherit lib pkgs;
         meta = import ./meta self;
+        inherit (self.meta) export; # HACK
       });
 
   topLevel = makeOverridableWith lib.id mkTopLevel mkBaseArgs;

@@ -1,4 +1,4 @@
-{ lib, pkgs, meta } @ topLevel:
+{ lib, pkgs, meta, export /* HACK */ } @ topLevel:
 
 rec {
 
@@ -15,6 +15,11 @@ rec {
   };
 
   tcbSize = import ./tcb-size.nix {
+    inherit lib pkgs;
+  };
+
+  # HACK
+  export = import ./export {
     inherit lib pkgs;
   };
 
