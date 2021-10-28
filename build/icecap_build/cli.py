@@ -1,15 +1,12 @@
 import os
 from pathlib import Path
 from argparse import ArgumentParser
-import subprocess
 import logging
 logger = logging.getLogger(__name__)
 
-import icecap_build.driver
+from icecap_build.driver import Driver
 
 ICECAP_PLAT_ENV = 'ICECAP_PLAT'
-
-EXPORT = Path(__file__).parent.parent / 'export'
 
 LOG_LEVELS = [logging.WARNING, logging.INFO, logging.DEBUG]
 
@@ -59,49 +56,33 @@ def main():
 
 def run(args):
 
-    if args.cmd == 'host':
-        require_plat(args)
-        invoke(args.plat, args.out_link, 'host', filter_attrs(
-            kernel=map_absolute(args.kernel),
-            initramfs=map_absolute(args.initramfs),
-            bootargs=args.bootargs,
-            ))
+    driver = Driver(plat=args.plat)
 
-    elif args.cmd == 'realm':
-        require_plat(args)
-        invoke(args.plat, args.out_link, 'realm', filter_attrs(
-            kernel=map_absolute(args.kernel),
-            initramfs=map_absolute(args.initramfs),
+    if args.cmd == 'host':
+        driver.host(
+            args.out_link,
+            kernel=args.kernel,
+            initramfs=args.initramfs,
             bootargs=args.bootargs,
-            ))
+            )
+
+    if args.cmd == 'realm':
+        driver.realm(
+            args.out_link,
+            kernel=args.kernel,
+            initramfs=args.initramfs,
+            bootargs=args.bootargs,
+            )
 
     elif args.cmd == 'shadow-vmm':
-        invoke(args.plat, args.out_link, 'shadow-vmm', {})
+        driver.target(args.out_link, 'shadow-vmm')
 
     elif args.cmd == 'target':
-        invoke(args.plat, args.out_link, args.target, {})
+        driver.target(args.out_link, args.target)
 
     else:
         assert False
 
-def filter_attrs(**kwargs):
-    return { k: v for k, v in kwargs.items() if v is not None }
-
-def require_plat(args):
-    plat = args.plat
-    assert plat is not None
-    return plat
-
-def map_absolute(path):
-    return path if path is None else path.absolute()
-
-def invoke(plat, out_link, target, attrs):
-    nix_args = ['nix-build', str(EXPORT), '--out-link', out_link, '--attr', target]
-    for k, v in attrs.items():
-        nix_args.extend(['--argstr', k, v])
-    env = filter_attrs(ICECAP_PLAT=plat)
-    env['PATH'] = os.environ['PATH']
-    subprocess.run(nix_args, env=env, check=True)
 
 if __name__ == '__main__':
     main()
