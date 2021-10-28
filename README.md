@@ -9,10 +9,10 @@ confidentiality and integrity guarentees. At the foundation of IceCap is
 [This seL4 Summit 2020 talk](https://nickspinale.com/talks/sel4-summit-2020.html)
 provides a high-level overview of IceCap's design.
 
-Notably, IceCap replaces the C-based seL4 userspace and CMake-based build system
-of the [seL4 software ecosystem](https://github.com/seL4) with a Rust-based seL4
-userspace and Nix-based build system. With the exception of CapDL, IceCap's seL4
-userspace contains [less than 350 lines of C](./src/c/icecap-runtime).
+Notably, IceCap replaces the C-based seL4 userspace of the
+[seL4 software ecosystem](https://github.com/seL4) with a Rust. With the
+exception of CapDL, IceCap's seL4 userspace contains
+[less than 350 lines of C](./src/c/icecap-runtime).
 
 This is a _soft launch_. We are still working on adding documentation to this
 repository.  In the meantime, we are eager to share and discuss any aspect of
@@ -70,20 +70,6 @@ communicates with it via the virtual network:
                # '<ctrl>-a x' quits QEMU
 ```
 
-If you want to build IceCap without Docker, the only requirement is
-[Nix](https://nixos.org/manual/nix/stable/).  IceCap depends on features
-currently present only in unstable versions of Nix since `2.4pre20200407`.  Here
-are a few ways to use such a version:
-
-- You could use
-  [https://github.com/nspin/minimally-invasive-nix-installer/](https://github.com/nspin/minimally-invasive-nix-installer/).
-  This is what the Docker solution uses.
-- If you are using NixOS, you could set `nix.package = pkgs.nixUnstable`.
-- If you already have Nix installed, you could use the output of `nix-build
-  ./nixpkgs -A nixUnstable`. However, if your Nix installation is multi-user,
-  then beware that a version mismatch between your Nix frontend and daemon can
-  cause problems for some version combinations.
-
 #### Raspberry Pi 4
 
 The following steps to run the demo on the Raspberry Pi 4 expand on the
@@ -130,7 +116,7 @@ umount mnt/
 The entire demo resides in the boot partition. Power up the board and interact
 with the demo via serial.
 
-Note that, if you are running Nix inside of a Docker container, you will have to
+Note that, if you are building inside of a Docker container, you will have to
 resolve those links and copy them onto the SD card some other way. For example,
 you could use the IceCap source directory, which is shared between the container
 and the rest of the system, as a buffer. Alternatively, you could run something
