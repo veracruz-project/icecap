@@ -8,9 +8,11 @@ let
       inherit configured;
     });
 
+  inherit (builtins) toPath;
+
 in {
 
-  icecap-host = pkgs.musl.icecap.icecap-host;
+  shadow-vmm = pkgs.musl.icecap.icecap-host;
 
   host = byPlat (
 
@@ -20,21 +22,21 @@ in {
       inherit (pkgs.linux.icecap) linuxKernel;
       inherit (pkgs.none.icecap) platUtils;
       inherit (configured) icecapFirmware icecapPlat;
-      
+
       defaultKernel = linuxKernel.host.${icecapPlat}.kernel;
     in
 
-    { kernel ? null, initramfs, bootargs }:
+    { kernel ? null, initramfs, bootargs ? "" }:
 
     let
-      kernel_ = if kernel == null then defaultKernel else lib.toPath kernel;
+      kernel_ = if kernel == null then defaultKernel else toPath kernel;
     in
       platUtils.${icecapPlat}.bundle {
         firmware = icecapFirmware.image;
         payload = icecapFirmware.mkDefaultPayload {
-          linuxImage = kernel;
-          inherit initramfs;
-          bootargs = lib.splitString bootargs;
+          linuxImage = kernel_;
+          initramfs = toPath initramfs;
+          bootargs = lib.splitString " " bootargs;
         };
       }
   );
@@ -50,15 +52,15 @@ in {
       defaultKernel = linuxKernel.realm.kernel;
     in
 
-    { kernel ? null, initramfs, bootargs }:
+    { kernel ? null, initramfs, bootargs ? "" }:
 
     let
-      kernel_ = if kernel == null then defaultKernel else lib.toPath kernel;
+      kernel_ = if kernel == null then defaultKernel else toPath kernel;
     in
       mkLinuxRealm {
         kernel = kernel_;
-        initrd = lib.toPath initramfs;
-        bootargs = lib.splitString bootargs;
+        initrd = toPath initramfs;
+        bootargs = lib.splitString " " bootargs;
       }
   );
 
