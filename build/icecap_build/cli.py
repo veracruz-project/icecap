@@ -5,6 +5,8 @@ import subprocess
 import logging
 logger = logging.getLogger(__name__)
 
+import icecap_build.driver
+
 ICECAP_PLAT_ENV = 'ICECAP_PLAT'
 
 EXPORT = Path(__file__).parent.parent / 'export'

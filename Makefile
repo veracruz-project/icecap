@@ -1,5 +1,3 @@
-# Exposes a few Nix derivations, mostly for the sake of documentation.
-
 PLAT ?= virt
 
 out := out
@@ -16,16 +14,16 @@ $(out):
 
 .PHONY: firmware
 firmware: | $(out)
-	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/icecap.img
+	./build.py --plat=$(PLAT) target $@ -o $(out)/icecap.img
 
 .PHONY: shadow-vmm
 shadow-vmm: | $(out)
-	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/icecap.img
+	./build.py --plat=$(PLAT) target $@ -o $(out)/icecap.img
 
 .PHONY: demo
 demo: | $(out)
-	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/demo
+	./build.py --plat=$(PLAT) target $@ -o $(out)/demo
 
 .PHONY: everything
 everything: | $(out)
-	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/roots
+	./build.py --plat=$(PLAT) target $@ -o $(out)/roots
