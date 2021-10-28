@@ -15,13 +15,17 @@ $(out):
 	mkdir -p $@
 
 .PHONY: firmware
-firmware: $(out)
-	nix-build -A pkgs.none.icecap.configured.$(PLAT).icecapFirmware.image -o $(out)/icecap.img
+firmware: | $(out)
+	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/icecap.img
+
+.PHONY: shadow-vmm
+shadow-vmm: | $(out)
+	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/icecap.img
 
 .PHONY: demo
-demo: $(out)
-	nix-build -A meta.demos.realm-vm.$(PLAT).run -o $(out)/demo
+demo: | $(out)
+	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/demo
 
 .PHONY: everything
-everything: $(out)
-	nix-build -A meta.buildTest -o $(out)/roots
+everything: | $(out)
+	./build-tool.sh --plat=$(PLAT) target $@ -o $(out)/roots

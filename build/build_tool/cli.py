@@ -33,6 +33,10 @@ def parse_args():
     subparser = subparsers.add_parser('shadow-vmm')
     subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', required=True)
 
+    subparser = subparsers.add_parser('target')
+    subparser.add_argument('target', metavar='TARGET')
+    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', required=True)
+
     return parser.parse_args()
 
 def update_args_from_env(args):
@@ -54,23 +58,26 @@ def main():
 def run(args):
 
     if args.cmd == 'host':
-        plat = require_plat(args)
-        invoke(args.out_link, 'host.{}'.format(plat), filter_attrs(
+        require_plat(args)
+        invoke(args.plat, args.out_link, 'host', filter_attrs(
             kernel=map_absolute(args.kernel),
             initramfs=map_absolute(args.initramfs),
             bootargs=args.bootargs,
             ))
 
     elif args.cmd == 'realm':
-        plat = require_plat(args)
-        invoke(args.out_link, 'realm.{}'.format(plat), filter_attrs(
+        require_plat(args)
+        invoke(args.plat, args.out_link, 'realm', filter_attrs(
             kernel=map_absolute(args.kernel),
             initramfs=map_absolute(args.initramfs),
             bootargs=args.bootargs,
             ))
 
     elif args.cmd == 'shadow-vmm':
-        invoke(args.out_link, 'shadow-vmm', {})
+        invoke(args.plat, args.out_link, 'shadow-vmm', {})
+
+    elif args.cmd == 'target':
+        invoke(args.plat, args.out_link, args.target, {})
 
     else:
         assert False
@@ -86,11 +93,13 @@ def require_plat(args):
 def map_absolute(path):
     return path if path is None else path.absolute()
 
-def invoke(out_link, target, attrs):
+def invoke(plat, out_link, target, attrs):
     nix_args = ['nix-build', str(EXPORT), '--out-link', out_link, '--attr', target]
     for k, v in attrs.items():
         nix_args.extend(['--argstr', k, v])
-    subprocess.run(nix_args, check=True)
+    env = filter_attrs(ICECAP_PLAT=plat)
+    env['PATH'] = os.environ['PATH']
+    subprocess.run(nix_args, env=env, check=True)
 
 if __name__ == '__main__':
     main()

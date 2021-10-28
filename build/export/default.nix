@@ -1,23 +1,22 @@
 let
   icecap = import ../..;
 
-  inherit (icecap) lib pkgs;
-
-  byPlat = f: lib.flip lib.mapAttrs pkgs.none.icecap.configured
-    (_: configured: f {
-      inherit configured;
-    });
-
+  inherit (icecap) lib pkgs meta;
   inherit (builtins) toPath;
+
+  plat =
+    let
+      k = "ICECAP_PLAT";
+      v = builtins.getEnv k;
+    in if lib.stringLength v == 0 then throw "${k} must be set" else v;
+
+  configured = pkgs.none.icecap.configured.${plat};
 
 in {
 
   shadow-vmm = pkgs.musl.icecap.icecap-host;
 
-  host = byPlat (
-
-    { configured }:
-
+  host =
     let
       inherit (pkgs.linux.icecap) linuxKernel;
       inherit (pkgs.none.icecap) platUtils;
@@ -38,13 +37,9 @@ in {
           initramfs = toPath initramfs;
           bootargs = lib.splitString " " bootargs;
         };
-      }
-  );
+      };
 
-  realm = byPlat (
-
-    { configured }:
-
+  realm =
     let
       inherit (pkgs.linux.icecap) linuxKernel;
       inherit (configured) icecapFirmware mkLinuxRealm;
@@ -61,7 +56,12 @@ in {
         kernel = kernel_;
         initrd = toPath initramfs;
         bootargs = lib.splitString " " bootargs;
-      }
-  );
+      };
+
+  # extra
+
+  firmware = configured.icecapFirmware.image;
+  everything = meta.buildTest;
+  demo = meta.demos.realm-vm.${configured.icecapPlat}.run;
 
 }
