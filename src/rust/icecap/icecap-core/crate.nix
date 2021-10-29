@@ -19,7 +19,7 @@ mk {
     finite-set
     biterate
   ];
-  nix.localAttrs.dependencies = {
+  dependencies = {
     icecap-sel4.features = [
       "use-serde"
     ];

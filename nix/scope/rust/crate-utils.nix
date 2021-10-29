@@ -18,14 +18,13 @@ rec {
         , keepFilesHack ? []
         , isBin ? false
         , local ? {}
-        , localAttrs ? {}
         , propagate ? {}
         , hack ? {}, # HACK
         }:
         {
           inherit
             name src buildScriptHack keepFilesHack isBin
-            local localAttrs
+            local
             propagate
             hack; # HACK
         };
@@ -38,8 +37,6 @@ rec {
 
         localNotTarget = lib.filterAttrs (k: _: k != "target") elaboratedNix.local;
         localTarget = elaboratedNix.local.target or {};
-        localAttrsNotTarget = lib.filterAttrs (k: _: k != "target") elaboratedNix.localAttrs;
-        localAttrsTarget = elaboratedNix.localAttrs.target or {};
 
         mk = src: buildRs:
           nixToToml (clobber [
@@ -52,12 +49,12 @@ rec {
               target = flip mapAttrs localTarget (target: attrs: {
                 dependencies = listToAttrs (forEach attrs.dependencies (crate: nameValuePair crate.name ({
                   path = "../${crate.name}";
-                } // (localAttrsTarget.${target}.dependencies.${crate.name} or {}))));
+                })));
               });
             } // flip mapAttrs localNotTarget (depType: deps:
               listToAttrs (forEach deps (crate: nameValuePair crate.name ({
                 path = "../${crate.name}";
-              } // (localAttrsNotTarget.${depType}.${crate.name} or {}))))
+              })))
             ))
 
             (if elaboratedNix.isBin then {

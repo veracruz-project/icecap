@@ -52,13 +52,9 @@ let
             ''}
             ${lib.optionalString (lib.hasAttr "lib" rest) ''
               [lib]
-              proc-macro = true
             ''}
             ${lib.optionalString (lib.hasAttr "features" rest) ''
               [features]
-              ${let mk = attrs: lib.concatStrings (lib.flip lib.mapAttrsToList attrs (k: v: ''
-                ${k} = [${lib.concatStringsSep ", " (lib.forEach v (s: "\"${s}\""))}]
-              '')); in mk (lib.filterAttrs (k: v: k == "default") rest.features) + mk (lib.filterAttrs (k: v: k != "default") rest.features)}
             ''}
 
             ${lib.concatStrings (lib.flip lib.mapAttrsToList elaboratedNix.local (k: v:
@@ -91,8 +87,6 @@ let
           '';
 
           manifest = appendToManifest base (builtins.toJSON {
-            # depAttrs = elaboratedNix.localDependencyAttributes;
-            depAttrs = {};
             inherit rest;
           });
         in {

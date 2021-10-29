@@ -6,7 +6,7 @@ mk {
     icecap-sel4
     icecap-runtime
   ];
-  nix.localAttrs.target."cfg(target_os = \"icecap\")".dependencies = {
+  target."cfg(target_os = \"icecap\")".dependencies = {
     icecap-sel4 = {
       features = [
         "use-serde"
