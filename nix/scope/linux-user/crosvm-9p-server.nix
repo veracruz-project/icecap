@@ -1,9 +1,9 @@
-{ buildRustPackageIncrementally, outerGlobalCrates
+{ buildRustPackageIncrementally, globalCrates
 , pkgconfig, dbus
 }:
 
 buildRustPackageIncrementally rec {
-  rootCrate = outerGlobalCrates.crosvm-9p-server-cli;
+  rootCrate = globalCrates.crosvm-9p-server-cli;
   layers = [ [] ];
 
   extra = attrs: {

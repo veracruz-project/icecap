@@ -1,8 +1,8 @@
-{ buildRustPackageIncrementally, outerGlobalCrates
+{ buildRustPackageIncrementally, globalCrates
 }:
 
 buildRustPackageIncrementally rec {
-  rootCrate = outerGlobalCrates.icecap-host;
+  rootCrate = globalCrates.icecap-host;
   layers = [ [] ];
 
   extraManifest = {
