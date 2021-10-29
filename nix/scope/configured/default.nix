@@ -1,6 +1,6 @@
 { lib, makeOverridable'
+, platUtils
 , mkGlobalCrates
-, stdenv
 }:
 
 icecapConfig:
@@ -51,7 +51,7 @@ self: with self;
     inherit (icecapConfig) debug benchmark;
     extraArgs = {
       inherit icecap-sel4-sys-gen;
-      inherit callPackage; # HACK
+      numCores = platUtils.${icecapPlat}.numCores;
     };
   };
 

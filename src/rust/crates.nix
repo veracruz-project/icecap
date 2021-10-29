@@ -39,10 +39,11 @@ filterAttrs (_: v: v != null) {
   crosvm-9p-server = ./9p/crosvm-9p-server;
   crosvm-9p-server-cli = ./9p/crosvm-9p-server/cli;
 
-  generated-module-hack = ./helpers/generated-module-hack;
   biterate = ./helpers/biterate;
   finite-set = ./helpers/finite-set;
   finite-set-derive = ./helpers/finite-set/derive;
+  generated-module-hack = ./helpers/generated-module-hack;
+  numeric-literal-env-hack = ./helpers/numeric-literal-env-hack;
 
   icecap-sel4 = seL4Only ./icecap/icecap-sel4;
   icecap-sel4-sys = seL4Only ./icecap/icecap-sel4/sys;

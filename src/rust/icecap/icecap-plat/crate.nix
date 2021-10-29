@@ -1,16 +1,13 @@
-{ mk, callPackage }:
-
-# HACK
-with callPackage ({ icecapPlat, platUtils, writeText } @ args: args) {};
+{ mk, localCrates, numCores }:
 
 mk {
   nix.name = "icecap-plat";
   nix.buildScript = {
-    # HACK use a file to get around the fact that rust's 'env!()' can only be used for string constants
-    rustc-env.NUM_CORES = writeText "num_cores.rs" ''
-      ${toString platUtils.${icecapPlat}.numCores}
-    '';
+    rustc-env.NUM_CORES = toString numCores;
   };
+  nix.localDependencies = with localCrates; [
+    numeric-literal-env-hack
+  ];
   dependencies = {
     cfg-if = "*";
   };
