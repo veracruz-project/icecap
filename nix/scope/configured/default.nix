@@ -57,7 +57,7 @@ self: with self;
 
   buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
 
-  icecap-sel4-sys-gen = callPackage ./sel4-user/rust/icecap-sel4-sys-gen {};
+  icecap-sel4-sys-gen = callPackage ./sel4-user/rust/icecap-sel4-sys-gen.nix {};
 
   bins = callPackage ./sel4-user/rust/bins.nix {};
 
