@@ -134,6 +134,7 @@ let
           chmod -R +w $out
 
           (cd ${manifestDir} && cargo build -j $NIX_BUILD_CORES --offline --frozen \
+            -p ${rootCrate.name} \
             --target ${rustTargetName} \
             ${lib.optionalString (!debug) "--release"} \
             -Z avoid-dev-deps \
@@ -192,6 +193,7 @@ in let
       chmod -R +w $target_dir
 
       (cd ${manifestDir} && cargo doc -j $NIX_BUILD_CORES --offline --frozen \
+        -p ${rootCrate.name} \
         --target ${rustTargetName} \
         ${lib.optionalString (!debug) "--release"} \
         -Z avoid-dev-deps \
@@ -217,6 +219,7 @@ in let
         target_dir=$(realpath ./target)
 
         (cd ${manifestDirEnv} && cargo $cmd -j $NIX_BUILD_CORES --offline --frozen \
+          -p ${rootCrate.name} \
           --target ${rustTargetName} \
           ${lib.optionalString (!debug) "--release"} \
           -Z avoid-dev-deps \
@@ -249,6 +252,7 @@ in
     chmod -R +w $target_dir
 
     (cd ${manifestDir} && cargo build -j $NIX_BUILD_CORES --offline --frozen \
+      -p ${rootCrate.name} \
       --target ${rustTargetName} \
       ${lib.optionalString (!debug) "--release"} \
       -Z avoid-dev-deps \

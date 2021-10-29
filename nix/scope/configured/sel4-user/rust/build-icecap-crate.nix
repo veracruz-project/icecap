@@ -23,7 +23,7 @@ lib.fix (self: buildRustPackageIncrementally ({
     [] [ globalCrates.icecap-sel4-sys ]
   ] ++ extraLayers;
   debug = false;
-  extra = attrs: 
+  extra = attrs:
     let
       # TODO HACK find better way to compose these overrides
       next = (if lib.isAttrs extra then lib.const extra else extra) attrs;

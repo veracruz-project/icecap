@@ -39,7 +39,7 @@ rec {
         localNotTarget = lib.filterAttrs (k: _: k != "target") elaboratedNix.local;
         localTarget = elaboratedNix.local.target or {};
         localAttrsNotTarget = lib.filterAttrs (k: _: k != "target") elaboratedNix.localAttrs;
-        localAttrsTarget = elaboratedNix.local.localAttrs or {};
+        localAttrsTarget = elaboratedNix.localAttrs.target or {};
 
         mk = src: buildRs:
           nixToToml (clobber [
