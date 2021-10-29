@@ -28,6 +28,7 @@ if 'features' in extra:
 
 if 'lib' in extra:
     assert extra['lib']['proc-macro'] is True # literally True
+    manifest['lib']['proc-macro'] = extra['lib']['proc-macro']
     del extra['lib']['proc-macro']
     assert len(extra['lib']) == 0
     del extra['lib']
