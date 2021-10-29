@@ -2,6 +2,11 @@ let
   icecap = import ../..;
 
   inherit (icecap) lib pkgs meta;
+
+  inherit (pkgs.linux.icecap) linuxKernel;
+  inherit (pkgs.none.icecap) platUtils;
+  inherit (configured) icecapFirmware icecapPlat mkLinuxRealm;
+
   inherit (builtins) toPath;
 
   plat =
@@ -16,49 +21,32 @@ in icecap // {
 
   shadow-vmm = pkgs.musl.icecap.icecap-host;
 
-  host =
+  host = { kernel ? null, initramfs, bootargs ? "" }:
     let
-      inherit (pkgs.linux.icecap) linuxKernel;
-      inherit (pkgs.none.icecap) platUtils;
-      inherit (configured) icecapFirmware icecapPlat;
-
       defaultKernel = linuxKernel.host.${icecapPlat}.kernel;
-    in
-
-    { kernel ? null, initramfs, bootargs ? "" }:
-
-    let
-      kernel_ = if kernel == null then defaultKernel else toPath kernel;
     in
       platUtils.${icecapPlat}.bundle {
         firmware = icecapFirmware.image;
         payload = icecapFirmware.mkDefaultPayload {
-          linuxImage = kernel_;
+          linuxImage = if kernel == null then defaultKernel else toPath kernel;
           initramfs = toPath initramfs;
           bootargs = lib.splitString " " bootargs;
         };
       };
 
-  realm =
+  realm = { kernel ? null, initramfs, bootargs ? "" }:
     let
-      inherit (pkgs.linux.icecap) linuxKernel;
-      inherit (configured) icecapFirmware mkLinuxRealm;
-      
       defaultKernel = linuxKernel.realm.kernel;
     in
-
-    { kernel ? null, initramfs, bootargs ? "" }:
-
-    let
-      kernel_ = if kernel == null then defaultKernel else toPath kernel;
-    in
       mkLinuxRealm {
-        kernel = kernel_;
+        kernel = if kernel == null then defaultKernel else toPath kernel;
         initrd = toPath initramfs;
         bootargs = lib.splitString " " bootargs;
       };
 
-  # extra
+  # crates = { crateNames }:
+
+  # shortcuts
 
   firmware = configured.icecapFirmware.image;
   everything = meta.buildTest;
