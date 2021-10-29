@@ -66,11 +66,17 @@ superCallPackage ./ocaml {} self //
   capdl-tool = callPackage ./dev/capdl-tool.nix {};
   sel4-manual = callPackage ./dev/sel4-manual.nix {};
 
-  dyndl-serialize-spec = callPackage ./dev/dyndl-serialize-spec.nix {};
-  icecap-show-backtrace = callPackage ./dev/icecap-show-backtrace.nix {};
-  icecap-append-devices = callPackage ./dev/icecap-append-devices.nix {};
-  icecap-serialize-runtime-config = callPackage ./dev/icecap-serialize-runtime-config.nix {};
-  icecap-serialize-event-server-out-index = callPackage ./dev/icecap-serialize-event-server-out-index.nix {};
+  mkTool = rootCrate: buildRustPackageIncrementally {
+    inherit rootCrate;
+    layers =  [ [] ];
+    debug = true;
+  };
+
+  dyndl-serialize-spec = mkTool globalCrates.dyndl-serialize-spec;
+  icecap-show-backtrace = mkTool globalCrates.icecap-show-backtrace;
+  icecap-append-devices = mkTool globalCrates.icecap-append-devices;
+  icecap-serialize-runtime-config = mkTool globalCrates.icecap-serialize-runtime-config;
+  icecap-serialize-event-server-out-index = mkTool globalCrates.icecap-serialize-event-server-out-index;
 
   serializeConfig = callPackage ./dev/serialize-config.nix {};
 
