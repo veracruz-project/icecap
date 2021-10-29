@@ -125,7 +125,7 @@ impl Extension {
         })
     }
 
-    #[cfg(feature = "benchmark")]
+    #[cfg(icecap_benchmark)]
     fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
         match request {
             DirectRequest::BenchmarkUtilisationStart => {
@@ -142,7 +142,7 @@ impl Extension {
         Ok(DirectResponse)
     }
 
-    #[cfg(not(feature = "benchmark"))]
+    #[cfg(not(icecap_benchmark))]
     fn direct(_node: &mut VMMNode<Self>, _request: &DirectRequest) -> Fallible<DirectResponse> {
         panic!()
     }

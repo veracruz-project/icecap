@@ -49,11 +49,11 @@ rec {
                 version = "0.1.0";
                 edition = "2018";
               };
-              # target = flip mapAttrs localTarget (target: attrs: {
-              #   dependencies = listToAttrs (forEach attrs.dependencies (crate: nameValuePair crate.name ({
-              #     path = "../${crate.name}";
-              #   } // (localAttrsTarget.${target}.dependencies.${crate.name} or {}))));
-              # });
+              target = flip mapAttrs localTarget (target: attrs: {
+                dependencies = listToAttrs (forEach attrs.dependencies (crate: nameValuePair crate.name ({
+                  path = "../${crate.name}";
+                } // (localAttrsTarget.${target}.dependencies.${crate.name} or {}))));
+              });
             } // flip mapAttrs localNotTarget (depType: deps:
               listToAttrs (forEach deps (crate: nameValuePair crate.name ({
                 path = "../${crate.name}";

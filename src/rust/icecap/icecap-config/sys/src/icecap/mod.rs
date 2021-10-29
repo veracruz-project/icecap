@@ -1,5 +1,3 @@
-#![no_std]
-
 pub use icecap_sel4::{
     Badge,
     Slot,

@@ -4,7 +4,7 @@ crateUtils.mkCrate {
   nix.name = "test";
   nix.isBin = true;
   nix.src = icecapSrc.absoluteSplit ./src;
-  nix.localDependencies = with globalCrates; [
+  nix.local.dependences = with globalCrates; [
     icecap-std
     icecap-start-generic
   ];

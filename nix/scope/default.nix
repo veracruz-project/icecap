@@ -78,8 +78,8 @@ superCallPackage ./ocaml {} self //
 
   musl = callPackage ./stdenv/musl.nix {};
 
-  mkGlobalCrates = callPackage ./crates {};
-  outerGlobalCrates = mkGlobalCrates {};
+  globalCrates = callPackage ./crates {};
+  outerGlobalCrates = globalCrates;
 
   nixUtils = callPackage ./nix-utils {};
   elfUtils = callPackage ./nix-utils/elf-utils.nix {};

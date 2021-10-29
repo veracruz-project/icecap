@@ -1,6 +1,5 @@
 { lib, makeOverridable'
 , platUtils
-, mkGlobalCrates
 }:
 
 icecapConfig:
@@ -45,11 +44,6 @@ self: with self;
   libs = callPackage ./sel4-user/c {};
 
   inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
-
-  globalCrates = mkGlobalCrates {
-    seL4 = true;
-    inherit (icecapConfig) debug benchmark;
-  };
 
   buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
 

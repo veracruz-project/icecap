@@ -11,6 +11,8 @@ lib.fix (self: buildRustPackageIncrementally ({
     {
       target.${rustTargetName}.rustflags = [
         "--cfg=icecap_plat=\"${icecapPlat}\""
+        "--cfg=icecap_debug"
+        "--cfg=icecap_benchmark"
       ];
     }
     extraCargoConfig

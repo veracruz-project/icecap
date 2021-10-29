@@ -1,4 +1,4 @@
-{ mkBin, localCrates, lib, benchmark }:
+{ mkBin, localCrates }:
 
 mkBin {
   nix.name = "benchmark-server";
@@ -10,8 +10,4 @@ mkBin {
     icecap-benchmark-server-types
     icecap-benchmark-server-config
   ];
-  features = {
-    default = lib.optional benchmark "benchmark";
-    benchmark = [ "icecap-sel4/benchmark" ];
-  };
 }

@@ -3,16 +3,12 @@
 , crateUtils
 }:
 
-{ seL4 ? false, debug ? false, benchmark ? false }:
-
 let
 
   localCrates = lib.mapAttrs (name: path:
     let crate = callCrate path {};
     in assert name == crate.name; crate
-   ) (import (icecapSrc.relativeRaw "rust/crates.nix") {
-     inherit lib seL4 debug benchmark;
-   });
+   ) (import (icecapSrc.relativeRaw "rust/crates.nix"));
 
   callCrate = path:
 
@@ -33,7 +29,7 @@ let
 
     in newScope {
 
-      inherit lib seL4 debug benchmark;
+      inherit lib;
       inherit localCrates patches;
 
       mk = mkBase false;

@@ -25,12 +25,12 @@ pub fn main(config: Config) -> Fallible<()> {
     }
 }
 
-#[cfg(not(feature = "benchmark"))]
+#[cfg(not(icecap_benchmark))]
 fn handle(_tcb: TCB, _request: &Request) -> Fallible<Response> {
     Ok(Err(()))
 }
 
-#[cfg(feature = "benchmark")]
+#[cfg(icecap_benchmark)]
 fn handle(tcb: TCB, request: &Request) -> Fallible<Response> {
     match request {
         Request::Start => {

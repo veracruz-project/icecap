@@ -1,4 +1,4 @@
-{ mkBin, localCrates, lib, benchmark }:
+{ mkBin, localCrates }:
 
 mkBin {
   nix.name = "host-vmm";
@@ -14,8 +14,4 @@ mkBin {
     icecap-sel4
     icecap-host-vmm-types
   ];
-  features = {
-    default = lib.optional benchmark "benchmark";
-    benchmark = [ "icecap-sel4/benchmark" ];
-  };
 }

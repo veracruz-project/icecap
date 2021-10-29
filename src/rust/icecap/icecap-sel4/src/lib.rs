@@ -19,7 +19,7 @@ mod endpoint;
 pub mod fault; // TODO
 mod debug;
 
-#[cfg(feature = "benchmark")]
+#[cfg(icecap_benchmark)]
 pub mod benchmark;
 
 pub mod prelude;

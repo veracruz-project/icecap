@@ -32,7 +32,7 @@ let
           }
         ];
 
-        nix.localDependencies = [
+        nix.local.dependences = [
           outerGlobalCrates.icecap-config-cli-core
         ] ++ lib.optionals (crate != null) [
           crate

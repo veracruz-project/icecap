@@ -1,8 +1,4 @@
-{ lib, seL4, debug, benchmark }:
-
-with lib;
-
-filterAttrs (_: v: v != null) {
+{
 
   dyndl-types = ./dyndl/types;
   dyndl-types-derive = ./dyndl/types/derive;
@@ -18,7 +14,7 @@ filterAttrs (_: v: v != null) {
   icecap-unwind = ./icecap/icecap-unwind;
   icecap-backtrace = ./icecap/icecap-backtrace;
   icecap-backtrace-types = ./icecap/icecap-backtrace/types;
-  icecap-backtrace-collect = ./icecap/icecap-backtrace/collect + lib.optionalString (!debug || !seL4) "/dummy";
+  icecap-backtrace-collect = ./icecap/icecap-backtrace/collect;
   icecap-show-backtrace = ./icecap/icecap-backtrace/cli/icecap-show-backtrace;
 
   icecap-runtime-config = ./icecap/icecap-runtime/config;
@@ -27,7 +23,7 @@ filterAttrs (_: v: v != null) {
   icecap-rpc = ./icecap/icecap-rpc;
   icecap-rpc-sel4 = ./icecap/icecap-rpc/sel4;
   icecap-config = ./icecap/icecap-config;
-  icecap-config-sys = ./icecap/icecap-config/sys + "/${if seL4 then "icecap" else "linux"}";
+  icecap-config-sys = ./icecap/icecap-config/sys;
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
 
   crosvm-9p = ./9p/crosvm-9p;
