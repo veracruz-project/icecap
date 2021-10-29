@@ -19,26 +19,8 @@ let
 
   inputs = allProp libs';
 
-  autoconf = runCommandCC "autoconf" {} ''
-    h=$out/include/autoconf.h
-    mkdir -p $(dirname $h)
-
-    cat << EOF >> $h
-    #pragma once
-    EOF
-
-    for dep in ${lib.concatStringsSep " " inputs}; do
-      headers="$(find $dep -path "*/include/*/gen_config.h" | sed -r 's,^.*/include/(.*)$,\1,')"
-      for header in $headers; do
-        echo "#include <$header>" >> $h
-      done
-    done
-  '';
-
   preprocessed = runCommandCC "icecap-raw.h" {
-    buildInputs = libs' ++ [
-      autoconf
-    ];
+    buildInputs = libs';
   } ''
     $CC -E -P ${./bindgen.h} | tr '\n' ' ' > $out
   '';
@@ -84,7 +66,7 @@ runCommandCC "icecap-gen.rs" {
   ];
   LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
   buildInputs = libs' ++ [
-    autoconf liboutline
+    liboutline
   ];
   passthru = {
     inherit preprocessed outline liboutline;
