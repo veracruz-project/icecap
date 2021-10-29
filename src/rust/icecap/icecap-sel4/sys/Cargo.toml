@@ -5,13 +5,19 @@
 name = "icecap-sel4-sys"
 version = "0.1.0"
 edition = "2018"
-# This crate depends on extra information passed via the Cargo 'links' mechanism.
-# See the 'buildScript' attribute in ./crate.nix for details.
-build = "/dev/null"
+build = "build.rs"
 
 [features]
 rustc-dep-of-std = [ "core", "compiler_builtins/rustc-dep-of-std",]
 
-[dependencies]
-compiler_builtins = { version = "0.1.0", optional = true }
-core = { version = "1.0.0", optional = true, package = "rustc-std-workspace-core" }
+[build-dependencies]
+bindgen = "*"
+
+[dependencies.compiler_builtins]
+optional = true
+version = "0.1.0"
+
+[dependencies.core]
+optional = true
+package = "rustc-std-workspace-core"
+version = "1.0.0"

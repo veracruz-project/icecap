@@ -7,6 +7,10 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 icecap-config = { path = "../../../icecap/icecap-config" }
 icecap-event-server-types = { path = "../../event-server/types" }
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

@@ -7,7 +7,11 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 biterate = { path = "../../../helpers/biterate" }
 finite-set = { path = "../../../helpers/finite-set" }
 icecap-rpc = { path = "../../../icecap/icecap-rpc" }
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

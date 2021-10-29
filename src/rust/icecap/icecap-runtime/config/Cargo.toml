@@ -6,5 +6,7 @@ name = "icecap-runtime-config"
 version = "0.1.0"
 edition = "2018"
 
-[dependencies]
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

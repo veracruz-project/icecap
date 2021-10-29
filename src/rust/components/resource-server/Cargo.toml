@@ -7,8 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-pinecone = "*"
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 icecap-std = { path = "../../icecap/icecap-std" }
 icecap-rpc-sel4 = { path = "../../icecap/icecap-rpc/sel4" }
 icecap-event-server-types = { path = "../event-server/types" }
@@ -17,3 +15,9 @@ icecap-resource-server-config = { path = "./config" }
 icecap-resource-server-core = { path = "./core" }
 icecap-timer-server-client = { path = "../timer-server/client" }
 dyndl-types = { path = "../../dyndl/types" }
+pinecone = "*"
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

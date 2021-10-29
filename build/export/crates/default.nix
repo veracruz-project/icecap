@@ -14,7 +14,10 @@ let
   ensureDot = s: if lib.hasPrefix "." s then s else "./${s}";
 
   appendToManifest = base: extra: runCommand "Cargo.toml" {
-    nativeBuildInputs = [ pkgs.dev.python3Packages.toml ];
+    nativeBuildInputs = [
+      pkgs.dev.python3Packages.toml
+      pkgs.dev.python3Packages.pydantic
+    ];
   } ''
     cat ${frontmatter} > $out
     echo >> $out
@@ -44,10 +47,8 @@ let
             name = "${elaboratedNix.name}"
             version = "0.1.0"
             edition = "2018"
-            ${lib.optionalString (elaboratedNix.buildScript != null) ''
-              # This crate depends on extra information passed via the Cargo 'links' mechanism.
-              # See the 'buildScript' attribute in ./crate.nix for details.
-              build = "/dev/null"
+            ${lib.optionalString (elaboratedNix.buildScriptHack != null) ''
+              build = "build.rs"
             ''}
             ${lib.optionalString (lib.hasAttr "lib" rest) ''
               [lib]
@@ -59,24 +60,39 @@ let
                 ${k} = [${lib.concatStringsSep ", " (lib.forEach v (s: "\"${s}\""))}]
               '')); in mk (lib.filterAttrs (k: v: k == "default") rest.features) + mk (lib.filterAttrs (k: v: k != "default") rest.features)}
             ''}
-            [dependencies]
-            ${lib.concatStrings (lib.flip lib.mapAttrsToList (rest.dependencies or {}) (k: v:
-              let
-              in ''
-                ${k} = ${if lib.isString v then "\"${v}\"" else "{ version = \"${v.version}\" }"}
-              ''))}
-            ${lib.concatStrings (lib.forEach elaboratedNix.localDependencies (otherCrate:
-              let
-                path = ensureDot (pathBetween
-                  (toString elaboratedNix.hack.path)
-                  (toString otherCrate.hack.elaboratedNix.hack.path));
-              in ''
-                ${otherCrate.name} = { path = "${path}" }
-              ''))}
+
+            ${lib.concatStrings (lib.flip lib.mapAttrsToList elaboratedNix.local (k: v:
+              if k == "target"
+              then lib.concatStrings (lib.flip lib.mapAttrsToList v (targetName: attrs: ''
+                  [target."${lib.replaceStrings ["\""] ["\\\""] targetName}".dependencies]
+                  ${lib.concatStrings (lib.forEach attrs.dependencies (otherCrate:
+                    let
+                      path = ensureDot (pathBetween
+                        (toString elaboratedNix.hack.path)
+                        (toString otherCrate.hack.elaboratedNix.hack.path));
+                    in ''
+                      ${otherCrate.name} = { path = "${path}" }
+                    ''
+                  ))}
+                ''))
+              else ''
+                  [${k}]
+                  ${lib.concatStrings (lib.forEach v (otherCrate:
+                    let
+                      path = ensureDot (pathBetween
+                        (toString elaboratedNix.hack.path)
+                        (toString otherCrate.hack.elaboratedNix.hack.path));
+                    in ''
+                      ${otherCrate.name} = { path = "${path}" }
+                    ''
+                  ))}
+                ''
+            ))}
           '';
 
           manifest = appendToManifest base (builtins.toJSON {
-            depAttrs = elaboratedNix.localDependencyAttributes;
+            # depAttrs = elaboratedNix.localDependencyAttributes;
+            depAttrs = {};
             inherit rest;
           });
         in {
@@ -87,10 +103,9 @@ let
 
   configured = pkgs.none.icecap.configured.virt.override' { debug = true; };
 
-  innerCrates = configured.globalCrates._localCrates;
-  outerCrates = (pkgs.dev.icecap.mkGlobalCrates { debug = true; })._localCrates;
+  globalCrates = pkgs.dev.icecap.globalCrates._localCrates;
 
-  realized = realize innerCrates // realize outerCrates;
+  realized = realize globalCrates;
 
   links = pkgs.dev.linkFarm "crates" (
     lib.flip lib.mapAttrsToList realized (_: { relativePath, manifest }: {
@@ -105,11 +120,10 @@ let
     cd ${toString (icecapSrc.relativeRaw "rust")}
     ${lib.concatStrings (lib.flip lib.mapAttrsToList realized (_: { relativePath, manifest }: ''
       test -f ${relativePath}/crate.nix
-      cp -vL ${manifest} ${relativePath}/Cargo.toml
+      cp -vL --no-preserve=all ${manifest} ${relativePath}/Cargo.toml
     ''))}
   '';
 
 in {
   inherit realized links script;
-  inherit innerCrates outerCrates;
 }

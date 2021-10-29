@@ -2,15 +2,15 @@
 # It is checked in to version control for the sake of documentation.
 
 [package]
-name = "icecap-resource-server-config"
+name = "icecap-config-sys"
 version = "0.1.0"
 edition = "2018"
-
-[dependencies]
-icecap-config = { path = "../../../icecap/icecap-config" }
-dyndl-types = { path = "../../../dyndl/types" }
 
 [dependencies.serde]
 default-features = false
 features = [ "alloc", "derive",]
 version = "*"
+
+[target."cfg(target_os = \\\"icecap\\\")".dependencies]
+icecap-sel4 = { path = "../../icecap-sel4" }
+icecap-runtime = { path = "../../icecap-runtime" }

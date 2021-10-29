@@ -3,7 +3,6 @@
 mk {
   nix.name = "icecap-unwind";
   nix.local.target."cfg(target_os = \"icecap\")".dependencies = with localCrates; [
-  # nix.local.dependencies = with localCrates; [
     icecap-runtime
   ];
   dependencies = {

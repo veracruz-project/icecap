@@ -7,5 +7,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 icecap-rpc = { path = "../../../icecap/icecap-rpc" }
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

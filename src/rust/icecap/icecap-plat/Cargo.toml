@@ -5,10 +5,7 @@
 name = "icecap-plat"
 version = "0.1.0"
 edition = "2018"
-# This crate depends on extra information passed via the Cargo 'links' mechanism.
-# See the 'buildScript' attribute in ./crate.nix for details.
-build = "/dev/null"
 
 [dependencies]
+icecap-sel4 = { path = "../icecap-sel4" }
 cfg-if = "*"
-numeric-literal-env-hack = { path = "../../helpers/numeric-literal-env-hack" }

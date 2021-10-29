@@ -7,6 +7,14 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-hex = { version = "*", default-features = false, features = [ "alloc",] }
 pinecone = "*"
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+
+[dependencies.hex]
+default-features = false
+features = [ "alloc",]
+version = "*"
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

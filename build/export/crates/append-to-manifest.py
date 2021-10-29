@@ -1,6 +1,7 @@
 import sys
 import json
 import toml
+from pydantic.utils import deep_update
 from collections import OrderedDict
 
 class TomlOrderedDecoder(toml.TomlPreserveCommentDecoder):
@@ -22,7 +23,15 @@ with open(sys.argv[1]) as f:
 # print(extra, file=sys.stderr)
 
 for k, v in extra['depAttrs'].items():
-    manifest['dependencies'][k].update(v)
+    if k == 'target':
+        for targetName, attrs in v:
+            for k_, deps in attrs:
+                assert k_ == 'dependencies'
+                for k__, v__ in deps:
+                    manifest[k][targetName][k_][k__].update(v__)
+    else:
+        for k_, v_ in v:
+            manifest[k][k_].update(v)
 
 if 'features' in extra['rest']:
     del extra['rest']['features']
@@ -33,16 +42,18 @@ if 'lib' in extra['rest']:
         assert 0
     del extra['rest']['lib']
 
-if 'dependencies' in extra['rest']:
-    for k, v in extra['rest']['dependencies'].items():
-        if not isinstance(v, str):
-            del v['version']
-            manifest['dependencies'][k].update(v)
+manifest = deep_update(manifest, extra['rest'])
 
-    del extra['rest']['dependencies']
+# if 'dependencies' in extra['rest']:
+#     for k, v in extra['rest']['dependencies'].items():
+#         if not isinstance(v, str):
+#             del v['version']
+#             manifest['dependencies'][k].update(v)
 
-if len(extra['rest']) != 0:
-    print(extra['rest'], file=sys.stderr)
-    assert 0
+#     del extra['rest']['dependencies']
+
+# if len(extra['rest']) != 0:
+#     print(extra['rest'], file=sys.stderr)
+#     assert 0
 
 toml.dump(manifest, sys.stdout, encoder=TomlNixEncoder())

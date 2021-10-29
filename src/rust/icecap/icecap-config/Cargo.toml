@@ -7,5 +7,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-icecap-config-sys = { path = "./sys/linux" }
+icecap-config-sys = { path = "./sys" }
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

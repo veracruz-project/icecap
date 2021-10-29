@@ -7,8 +7,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+crosvm-9p-server = { path = ".." }
 env_logger = "*"
 getopts = "*"
 libc = "*"
 log = "*"
-crosvm-9p-server = { path = ".." }

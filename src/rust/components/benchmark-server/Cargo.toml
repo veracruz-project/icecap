@@ -6,10 +6,6 @@ name = "benchmark-server"
 version = "0.1.0"
 edition = "2018"
 
-[features]
-default = []
-benchmark = [ "icecap-sel4/benchmark",]
-
 [dependencies]
 icecap-sel4 = { path = "../../icecap/icecap-sel4" }
 icecap-std = { path = "../../icecap/icecap-std" }

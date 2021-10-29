@@ -6,10 +6,6 @@ name = "host-vmm"
 version = "0.1.0"
 edition = "2018"
 
-[features]
-default = []
-benchmark = [ "icecap-sel4/benchmark",]
-
 [dependencies]
 biterate = { path = "../../../helpers/biterate" }
 icecap-host-vmm-config = { path = "./config" }

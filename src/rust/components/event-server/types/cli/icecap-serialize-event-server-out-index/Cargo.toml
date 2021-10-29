@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-serde = "*"
-serde_json = "*"
 icecap-event-server-types = { path = "../.." }
 finite-set = { path = "../../../../../helpers/finite-set" }
+serde = "*"
+serde_json = "*"

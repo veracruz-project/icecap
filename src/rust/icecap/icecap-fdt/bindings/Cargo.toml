@@ -7,6 +7,10 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-log = "*"
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 icecap-fdt = { path = ".." }
+log = "*"
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"

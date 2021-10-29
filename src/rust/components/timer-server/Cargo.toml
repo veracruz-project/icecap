@@ -7,8 +7,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-tock-registers = "*"
 icecap-std = { path = "../../icecap/icecap-std" }
 icecap-rpc-sel4 = { path = "../../icecap/icecap-rpc/sel4" }
 icecap-timer-server-types = { path = "./types" }
 icecap-timer-server-config = { path = "./config" }
+tock-registers = "*"

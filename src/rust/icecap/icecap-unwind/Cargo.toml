@@ -7,6 +7,17 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-fallible-iterator = { version = "*", default-features = false, features = [ "alloc",] }
-gimli = { version = "0.20.0", default-features = false, features = [ "read",] }
 log = "*"
+
+[dependencies.fallible-iterator]
+default-features = false
+features = [ "alloc",]
+version = "*"
+
+[dependencies.gimli]
+default-features = false
+features = [ "read",]
+version = "0.20.0"
+
+[target."cfg(target_os = \\\"icecap\\\")".dependencies]
+icecap-runtime = { path = "../icecap-runtime" }

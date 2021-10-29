@@ -8,4 +8,8 @@ edition = "2018"
 
 [dependencies]
 pinecone = "*"
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+
+[dependencies.serde]
+default-features = false
+features = [ "alloc", "derive",]
+version = "*"
