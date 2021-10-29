@@ -75,12 +75,6 @@ let
         ${rustTargetName}.linker = "${stdenv.cc.targetPrefix}cc";
       };
     }
-    {
-      target.${rustTargetName} = crateUtils.clobber (map (crate:
-      if crate.buildScript == null then {} else {
-        ${"dummy-link-${crate.name}"} = crate.buildScript;
-      }) allImplCrates);
-    }
   ]);
 
   workspace = nixToToml (recursiveUpdate {

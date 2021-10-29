@@ -84,18 +84,6 @@ let
 
   cargoConfigFor = layer: nixToToml (crateUtils.clobber [
     baseCargoConfig
-    {
-      target.${rustTargetName} = crateUtils.clobber (map (crate:
-      if crate.buildScript == null then {} else {
-        ${"dummy-link-${crate.name}"} = {};
-      }) allCrates);
-    }
-    {
-      target.${rustTargetName} = crateUtils.clobber (map (crate:
-      if crate.buildScript == null then {} else {
-        ${"dummy-link-${crate.name}"} = crate.buildScript;
-      }) layer);
-    }
   ]);
 
   baseCommonArgs = crateUtils.baseEnv // {

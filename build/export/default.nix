@@ -18,21 +18,6 @@ let
 
   configured = pkgs.none.icecap.configured.${plat};
 
-  cratesCommon = { crateNames }:
-    let
-      crates = lib.attrValues (crateUtils.closure' (lib.attrValues (lib.getAttrs crateNames configured.globalCrates)));
-      env = crateUtils.collectEnv crates;
-      config = nixToToml {
-        target.${pkgs.none.icecap.rustTargetName} = crateUtils.clobber (lib.forEach crates (crate:
-          lib.optionalAttrs (crate.buildScript != null) {
-            ${"dummy-link-${crate.name}"} = crate.buildScript;
-          }
-        ));
-      };
-    in {
-      inherit env config;
-    };
-
 in icecap // {
 
   shadow-vmm = pkgs.musl.icecap.icecap-host;
@@ -60,8 +45,13 @@ in icecap // {
         bootargs = lib.splitString " " bootargs;
       };
 
-  crates = { crateNames }: (cratesCommon { inherit crateNames; }).env;
-  cargoConfigForCrates = { crateNames }: (cratesCommon { inherit crateNames; }).config;
+  crates = { crateNames }:
+    let
+      crates = lib.attrValues (crateUtils.closure' (lib.attrValues (lib.getAttrs crateNames configured.globalCrates)));
+      env = crateUtils.collectEnv crates;
+    in {
+      inherit env;
+    };
 
   # shortcuts
 

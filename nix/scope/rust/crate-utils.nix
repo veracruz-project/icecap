@@ -20,14 +20,13 @@ rec {
         , localDependencies ? [], phantomLocalDependencies ? []
         , localDependencyAttributes ? {} # HACK
         , propagate ? {}
-        , buildScript ? null
         , hack ? {}, # HACK
         }:
         {
           inherit
             name src buildScriptHack keepFilesHack isBin isStaticlib
             localDependencies phantomLocalDependencies localDependencyAttributes
-            propagate buildScript
+            propagate
             hack; # HACK
         };
 
@@ -69,17 +68,12 @@ rec {
               package.build = buildRs;
             })
 
-            (optionalAttrs (elaboratedNix.buildScript != null) {
-              package.build = emptyFile;
-              package.links = "dummy-link-${elaboratedNix.name}";
-            })
-
             (removeAttrs args [ "nix" ])
 
           ]);
 
       in {
-        inherit (elaboratedNix) name propagate buildScript;
+        inherit (elaboratedNix) name propagate;
         store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
         env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
         dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
