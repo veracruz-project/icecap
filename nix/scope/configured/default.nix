@@ -51,7 +51,6 @@ self: with self;
     inherit (icecapConfig) debug benchmark;
     extraArgs = {
       inherit icecap-sel4-sys-gen;
-      numCores = platUtils.${icecapPlat}.numCores;
     };
   };
 

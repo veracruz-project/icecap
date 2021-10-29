@@ -1,12 +1,9 @@
-{ mk, localCrates, numCores }:
+{ mk, localCrates }:
 
 mk {
   nix.name = "icecap-plat";
-  nix.buildScript = {
-    rustc-env.NUM_CORES = toString numCores;
-  };
   nix.localDependencies = with localCrates; [
-    numeric-literal-env-hack
+    icecap-sel4
   ];
   dependencies = {
     cfg-if = "*";
