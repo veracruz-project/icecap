@@ -11,6 +11,7 @@ let
 
   workspace = nixToToml (crateUtils.clobber [
     {
+      workspace.resolver = "2";
       workspace.members = [ "src/${rootCrate.name}" ];
       workspace.exclude = [ "src/*" ];
     }

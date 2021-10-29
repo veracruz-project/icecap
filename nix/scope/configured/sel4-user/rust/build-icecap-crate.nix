@@ -1,6 +1,7 @@
-{ lib, hostPlatform
+{ lib, hostPlatform, buildPackages
 , buildRustPackageIncrementally, rustTargetName, crateUtils, elfUtils
 , icecapPlat, globalCrates
+, libsel4, libs
 }:
 
 { extraLayers ? [], extraCargoConfig ? {}, extra ? {}, ... } @ args:
@@ -15,7 +16,7 @@ lib.fix (self: buildRustPackageIncrementally ({
     extraCargoConfig
   ];
   layers = [
-    [ globalCrates.icecap-sel4-sys ]
+    [] [ globalCrates.icecap-sel4-sys ]
   ] ++ extraLayers;
   debug = false;
   extra = attrs: 
@@ -23,6 +24,13 @@ lib.fix (self: buildRustPackageIncrementally ({
       # TODO HACK find better way to compose these overrides
       next = (if lib.isAttrs extra then lib.const extra else extra) attrs;
     in {
+      preBuild = ''
+        export BINDGEN_EXTRA_CLANG_ARGS="$NIX_CFLAGS_COMPILE"
+      '';
+      buildInputs = (attrs.buildInputs or []) ++ [
+        libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
+      ];
+      LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
       dontStrip = true;
       dontPatchELF = true;
       hardeningDisable = [ "all" ];

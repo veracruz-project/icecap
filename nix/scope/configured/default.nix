@@ -49,14 +49,9 @@ self: with self;
   globalCrates = mkGlobalCrates {
     seL4 = true;
     inherit (icecapConfig) debug benchmark;
-    extraArgs = {
-      inherit icecap-sel4-sys-gen;
-    };
   };
 
   buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
-
-  icecap-sel4-sys-gen = callPackage ./sel4-user/rust/icecap-sel4-sys-gen.nix {};
 
   bins = callPackage ./sel4-user/rust/bins.nix {};
 

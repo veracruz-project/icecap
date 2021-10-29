@@ -109,6 +109,10 @@ let
     # NIX_HACK_CARGO_CONFIG = cargoConfigFor layer;
   };
 
+  workspaceCommon = {
+    workspace.resolver = "2";
+  };
+
   f = accumulatedLayers: if length accumulatedLayers == 0 then emptyDirectory else
     let
       layer = head accumulatedLayers;
@@ -124,6 +128,7 @@ let
       ];
 
       workspace = nixToToml (crateUtils.clobber [
+        workspaceCommon
         {
           workspace.members = [ "src/${rootCrate.name}" ];
         }
@@ -135,6 +140,8 @@ let
 
         # HACK "-Z avoid-dev-deps" for deps of std
         buildPhase = ''
+          runHook preBuild
+
           cp -r --preserve=timestamps ${prev} $out
           chmod -R +w $out
 
@@ -156,6 +163,7 @@ in let
   srcEnv = crateUtils.collectEnv allCrates;
 
   workspace = nixToToml (crateUtils.clobber [
+    workspaceCommon
     {
       workspace.members = [ "src/${rootCrate.name}" ];
     }
@@ -163,6 +171,7 @@ in let
   ]);
 
   workspaceEnv = nixToToml (crateUtils.clobber [
+    workspaceCommon
     {
       workspace.members = [ "src/${rootCrate.name}" ];
     }
@@ -188,6 +197,8 @@ in let
     phases = [ "buildPhase" "installPhase" ];
 
     buildPhase = ''
+      runHook preBuild
+
       target_dir=$(realpath ./target)
       cp -r --preserve=timestamps ${lastLayer} $target_dir
       chmod -R +w $target_dir
@@ -243,6 +254,8 @@ in
   phases = [ "buildPhase" "installPhase" ];
 
   buildPhase = ''
+    runHook preBuild
+
     target_dir=$(realpath ./target)
     cp -r --preserve=timestamps ${lastLayer} $target_dir
     chmod -R +w $target_dir

@@ -1,11 +1,11 @@
-{ mk, icecap-sel4-sys-gen }:
+{ mk }:
 
 mk {
   nix.name = "icecap-sel4-sys";
-  nix.buildScript = {
-    rustc-env.GEN_RS = icecap-sel4-sys-gen;
-    rustc-link-lib = [ "sel4" ];
-  };
+  nix.buildScriptHack = true;
+  nix.keepFilesHack = [
+    "wrapper.h"
+  ];
   dependencies = {
     core = {
       optional = true;
@@ -16,6 +16,9 @@ mk {
       optional = true;
       version = "0.1.0";
     };
+  };
+  build-dependencies = {
+    bindgen = "*";
   };
   features = {
     rustc-dep-of-std = [

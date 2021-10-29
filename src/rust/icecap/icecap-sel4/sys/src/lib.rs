@@ -18,4 +18,4 @@ pub mod c_types {
     pub use core::ffi::c_void;
 }
 
-include!(env!("GEN_RS"));
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));

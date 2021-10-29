@@ -15,6 +15,7 @@ rec {
       elaborateNix = 
         { name, src
         , buildScriptHack ? null
+        , keepFilesHack ? []
         , isBin ? false, isStaticlib ? false
         , localDependencies ? [], phantomLocalDependencies ? []
         , localDependencyAttributes ? {} # HACK
@@ -24,7 +25,7 @@ rec {
         }:
         {
           inherit
-            name src buildScriptHack isBin isStaticlib
+            name src buildScriptHack keepFilesHack isBin isStaticlib
             localDependencies phantomLocalDependencies localDependencyAttributes
             propagate buildScript
             hack; # HACK
@@ -64,7 +65,7 @@ rec {
               };
             })
 
-            (optionalAttrs (elaboratedNix.buildScriptHack != null && buildRs != null) {
+            (optionalAttrs (elaboratedNix.buildScriptHack != null) {
               package.build = buildRs;
             })
 
@@ -79,9 +80,9 @@ rec {
 
       in {
         inherit (elaboratedNix) name propagate buildScript;
-        store = mkLink (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
-        env = mkLink (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
-        dummy = mkLink (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) null);
+        store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
+        env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
+        dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
         localDependencies = elaboratedNix.localDependencies ++ elaboratedNix.phantomLocalDependencies;
         # HACK
         hack = {
@@ -124,9 +125,9 @@ rec {
     })
   ];
 
-  mkLink = manifest: linkFarm "crate" [
+  mkLink = extra: manifest: linkFarm "crate" ([
     { name = "Cargo.toml"; path = manifest; }
-  ];
+  ] ++ extra);
 
   closure = root: closure' [ root ];
 

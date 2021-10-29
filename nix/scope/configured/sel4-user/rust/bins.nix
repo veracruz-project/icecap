@@ -14,11 +14,6 @@ let
         lto = true;
       };
     };
-    extra = attrs: {
-      buildInputs = (attrs.buildInputs or []) ++ [
-        libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
-      ];
-    };
   } // args);
 
 in

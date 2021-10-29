@@ -19,8 +19,15 @@ let
     let
       mkBase = isBin: args: crateUtils.mkCrate (lib.recursiveUpdate args {
         nix.src = icecapSrc.absoluteSplit (path + "/src");
-        nix.buildScriptHack = if args.nix.buildScriptHack or false then icecapSrc.absoluteSplit (path + "/build.rs") else null;
         nix.isBin = isBin;
+        nix.buildScriptHack =
+          if args.nix.buildScriptHack or false
+          then icecapSrc.absoluteSplit (path + "/build.rs")
+          else null;
+        nix.keepFilesHack = lib.forEach (args.nix.keepFilesHack or []) (name: {
+          inherit name;
+          path = icecapSrc.absolute (path + "/${name}");
+        });
         nix.hack.path = path; # HACK
       });
 
