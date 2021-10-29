@@ -35,27 +35,27 @@ rec {
       let
         elaboratedNix = elaborateNix nix;
 
-        localNotTarget = lib.filterAttrs (k: _: k != "target") elaboratedNix.local;
-        localTarget = elaboratedNix.local.target or {};
+        paths = lib.flip lib.mapAttrsRecursive elaboratedNix.local (_: v:
+          if !lib.isList v then v else lib.listToAttrs (map (crate: lib.nameValuePair crate.name {
+            path = "../${crate.name}";
+          }) v)
+        );
+
+        rest = clobber [ paths (removeAttrs args [ "nix" ]) ];
+
+        flatten = x: if lib.isList x then x else lib.concatMap flatten (lib.attrValues x);
 
         mk = src: buildRs:
           nixToToml (clobber [
-            ({
+            {
               package = {
                 inherit (elaboratedNix) name;
                 version = "0.1.0";
                 edition = "2018";
+              } // optionalAttrs (elaboratedNix.buildScriptHack != null) {
+                build = buildRs;
               };
-              target = flip mapAttrs localTarget (target: attrs: {
-                dependencies = listToAttrs (forEach attrs.dependencies (crate: nameValuePair crate.name ({
-                  path = "../${crate.name}";
-                })));
-              });
-            } // flip mapAttrs localNotTarget (depType: deps:
-              listToAttrs (forEach deps (crate: nameValuePair crate.name ({
-                path = "../${crate.name}";
-              })))
-            ))
+            }
 
             (if elaboratedNix.isBin then {
               bin = [
@@ -69,12 +69,7 @@ rec {
               };
             })
 
-            (optionalAttrs (elaboratedNix.buildScriptHack != null) {
-              package.build = buildRs;
-            })
-
-            (removeAttrs args [ "nix" ])
-
+            rest
           ]);
 
       in {
@@ -82,12 +77,10 @@ rec {
         store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
         env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
         dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
-        localDependencies = lib.concatLists
-          (lib.mapAttrsToList (depType: deps: deps) localNotTarget
-            ++ lib.mapAttrsToList (target: attrs: attrs.dependencies) localTarget);
+        localDependencies = flatten elaboratedNix.local;
         # HACK
         hack = {
-          inherit elaboratedNix args;
+          inherit elaboratedNix rest;
         };
       };
 
