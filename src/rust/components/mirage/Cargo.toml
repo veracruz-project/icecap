@@ -5,9 +5,6 @@
 name = "mirage"
 version = "0.1.0"
 edition = "2018"
-# This crate depends on extra information passed via the Cargo 'links' mechanism.
-# See the 'buildScript' attribute in ./crate.nix for details.
-build = "/dev/null"
 
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }

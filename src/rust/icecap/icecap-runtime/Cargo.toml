@@ -5,6 +5,9 @@
 name = "icecap-runtime"
 version = "0.1.0"
 edition = "2018"
+# This crate depends on extra information passed via the Cargo 'links' mechanism.
+# See the 'buildScript' attribute in ./crate.nix for details.
+build = "/dev/null"
 
 [features]
 rustc-dep-of-std = [ "core", "alloc", "compiler_builtins/rustc-dep-of-std", "icecap-sel4/rustc-dep-of-std",]

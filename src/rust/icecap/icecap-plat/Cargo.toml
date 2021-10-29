@@ -11,3 +11,4 @@ build = "/dev/null"
 
 [dependencies]
 cfg-if = "*"
+numeric-literal-env-hack = { path = "../../helpers/numeric-literal-env-hack" }
