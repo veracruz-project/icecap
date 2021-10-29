@@ -4,7 +4,7 @@ crateUtils.mkCrate {
   nix.name = "test";
   nix.isBin = true;
   nix.src = icecapSrc.absoluteSplit ./src;
-  nix.local.dependences = with globalCrates; [
+  nix.local.dependencies = with globalCrates; [
     icecap-std
     icecap-start-generic
     icecap-benchmark-server-types
