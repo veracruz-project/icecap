@@ -17,24 +17,35 @@ def parse_args():
 
     subparsers = parser.add_subparsers(dest='cmd', required=True)
 
+    def add_common_arguments(subparser):
+        subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
+
     subparser = subparsers.add_parser('host')
     subparser.add_argument('--kernel', metavar='KERNEL', type=Path)
     subparser.add_argument('--initramfs', metavar='INITRAMFS', type=Path, required=True)
     subparser.add_argument('--bootargs', metavar='BOOTARGS')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
+    add_common_arguments(subparser)
 
     subparser = subparsers.add_parser('realm')
     subparser.add_argument('--kernel', metavar='KERNEL', type=Path)
     subparser.add_argument('--initramfs', metavar='INITRAMFS', type=Path, required=True)
     subparser.add_argument('--bootargs', metavar='BOOTARGS')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
+    add_common_arguments(subparser)
 
     subparser = subparsers.add_parser('shadow-vmm')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
+    add_common_arguments(subparser)
+
+    subparser = subparsers.add_parser('crates')
+    subparser.add_argument('--crate', dest='crate_names', action='append', required=True)
+    add_common_arguments(subparser)
+
+    subparser = subparsers.add_parser('cargo-config-for-crates')
+    subparser.add_argument('--crate', dest='crate_names', action='append', required=True)
+    add_common_arguments(subparser)
 
     subparser = subparsers.add_parser('target')
     subparser.add_argument('target', metavar='TARGET')
-    subparser.add_argument('-o', '--out-link', metavar='OUT_LINK', default='result')
+    add_common_arguments(subparser)
 
     return parser.parse_args()
 
@@ -76,6 +87,12 @@ def run(args):
 
     elif args.cmd == 'shadow-vmm':
         driver.target(args.out_link, 'shadow-vmm')
+
+    elif args.cmd == 'crates':
+        driver.crates(args.out_link, args.crate_names)
+
+    elif args.cmd == 'cargo-config-for-crates':
+        driver.cargo_config_for_crates(args.out_link, args.crate_names)
 
     elif args.cmd == 'target':
         driver.target(args.out_link, args.target)

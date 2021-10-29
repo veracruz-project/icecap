@@ -3,6 +3,7 @@ let
 
   inherit (icecap) lib pkgs meta;
 
+  inherit (pkgs.dev.icecap) crateUtils nixToToml;
   inherit (pkgs.linux.icecap) linuxKernel;
   inherit (pkgs.none.icecap) platUtils;
   inherit (configured) icecapFirmware icecapPlat mkLinuxRealm;
@@ -16,6 +17,21 @@ let
     in if lib.stringLength v == 0 then throw "${k} must be set" else v;
 
   configured = pkgs.none.icecap.configured.${plat};
+
+  cratesCommon = { crateNames }:
+    let
+      crates = lib.attrValues (crateUtils.closure' (lib.attrValues (lib.getAttrs crateNames configured.globalCrates)));
+      env = crateUtils.collectEnv crates;
+      config = nixToToml {
+        target.${pkgs.none.icecap.rustTargetName} = crateUtils.clobber (lib.forEach crates (crate:
+          lib.optionalAttrs (crate.buildScript != null) {
+            ${"dummy-link-${crate.name}"} = crate.buildScript;
+          }
+        ));
+      };
+    in {
+      inherit env config;
+    };
 
 in icecap // {
 
@@ -44,7 +60,8 @@ in icecap // {
         bootargs = lib.splitString " " bootargs;
       };
 
-  # crates = { crateNames }:
+  crates = { crateNames }: (cratesCommon { inherit crateNames; }).env;
+  cargoConfigForCrates = { crateNames }: (cratesCommon { inherit crateNames; }).config;
 
   # shortcuts
 
