@@ -14,6 +14,7 @@ rec {
     let
       elaborateNix = 
         { name, src
+        , buildScriptHack ? null
         , isBin ? false, isStaticlib ? false
         , localDependencies ? [], phantomLocalDependencies ? []
         , localDependencyAttributes ? {} # HACK
@@ -23,7 +24,7 @@ rec {
         }:
         {
           inherit
-            name src isBin isStaticlib
+            name src buildScriptHack isBin isStaticlib
             localDependencies phantomLocalDependencies localDependencyAttributes
             propagate buildScript
             hack; # HACK
@@ -35,48 +36,52 @@ rec {
       let
         elaboratedNix = elaborateNix nix;
 
-        mk = src: nixToToml (clobber [
+        mk = src: buildRs:
+          nixToToml (clobber [
+            {
+              package = {
+                inherit (elaboratedNix) name;
+                version = "0.1.0";
+                edition = "2018";
+              };
+              dependencies = listToAttrs (lib.flip map elaboratedNix.localDependencies (crate: nameValuePair crate.name ({
+                path = "../${crate.name}";
+              } // (elaboratedNix.localDependencyAttributes.${crate.name} or {}))));
+            }
 
-          {
-            package = {
-              inherit (elaboratedNix) name;
-              version = "0.1.0";
-              edition = "2018";
-            };
-            dependencies = listToAttrs (lib.flip map elaboratedNix.localDependencies (crate: nameValuePair crate.name ({
-              path = "../${crate.name}";
-            } // (elaboratedNix.localDependencyAttributes.${crate.name} or {}))));
-          }
+            (if elaboratedNix.isBin then {
+              bin = [
+                { inherit (elaboratedNix) name;
+                  path = "${src}/main.rs";
+                }
+              ];
+            } else {
+              lib = {
+                path = "${src}/lib.rs";
+              } // optionalAttrs elaboratedNix.isStaticlib {
+                crate-type = [ "staticlib" ];
+                name = "${kebabToSnake elaboratedNix.name}_rs";
+              };
+            })
 
-          (if elaboratedNix.isBin then {
-            bin = [
-              { inherit (elaboratedNix) name;
-                path = "${src}/main.rs";
-              }
-            ];
-          } else {
-            lib = {
-              path = "${src}/lib.rs";
-            } // optionalAttrs elaboratedNix.isStaticlib {
-              crate-type = [ "staticlib" ];
-              name = "${kebabToSnake elaboratedNix.name}_rs";
-            };
-          })
+            (optionalAttrs (elaboratedNix.buildScriptHack != null && buildRs != null) {
+              package.build = buildRs;
+            })
 
-          (optionalAttrs (elaboratedNix.buildScript != null) {
-            package.build = emptyFile;
-            package.links = "dummy-link-${elaboratedNix.name}";
-          })
+            (optionalAttrs (elaboratedNix.buildScript != null) {
+              package.build = emptyFile;
+              package.links = "dummy-link-${elaboratedNix.name}";
+            })
 
-          (removeAttrs args [ "nix" ])
+            (removeAttrs args [ "nix" ])
 
-        ]);
+          ]);
 
       in {
         inherit (elaboratedNix) name propagate buildScript;
-        store = mkLink (mk elaboratedNix.src.store);
-        env = mkLink (mk elaboratedNix.src.env);
-        dummy = mkLink (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib));
+        store = mkLink (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
+        env = mkLink (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
+        dummy = mkLink (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) null);
         localDependencies = elaboratedNix.localDependencies ++ elaboratedNix.phantomLocalDependencies;
         # HACK
         hack = {

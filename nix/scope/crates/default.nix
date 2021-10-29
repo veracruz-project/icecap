@@ -17,11 +17,12 @@ let
   callCrate = path:
 
     let
-      mkBase = isBin: args: crateUtils.mkCrate (lib.recursiveUpdate {
+      mkBase = isBin: args: crateUtils.mkCrate (lib.recursiveUpdate args {
         nix.src = icecapSrc.absoluteSplit (path + "/src");
+        nix.buildScriptHack = if args.nix.buildScriptHack or false then icecapSrc.absoluteSplit (path + "/build.rs") else null;
         nix.isBin = isBin;
         nix.hack.path = path; # HACK
-      } args);
+      });
 
     in newScope ({
 

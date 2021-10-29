@@ -2,12 +2,10 @@
 
 mk {
   nix.name = "icecap-runtime";
+  nix.buildScriptHack = true;
   nix.localDependencies = with localCrates; [
     icecap-sel4
   ];
-  nix.buildScript = {
-    rustc-link-lib = [ "icecap_runtime" "icecap_utils" ];
-  };
   dependencies = {
     serde = serdeMin // {
       optional = true;
