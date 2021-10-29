@@ -1,6 +1,6 @@
 { lib, hostPlatform, buildPackages
 , buildRustPackageIncrementally, rustTargetName, crateUtils, elfUtils
-, icecapPlat, globalCrates
+, icecapPlat, icecapConfig, globalCrates
 , libsel4, libs
 }:
 
@@ -11,7 +11,9 @@ lib.fix (self: buildRustPackageIncrementally ({
     {
       target.${rustTargetName}.rustflags = [
         "--cfg=icecap_plat=\"${icecapPlat}\""
+      ] ++ lib.optionals icecapConfig.debug [
         "--cfg=icecap_debug"
+      ] ++ lib.optionals icecapConfig.benchmark [
         "--cfg=icecap_benchmark"
       ];
     }
