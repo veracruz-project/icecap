@@ -3,7 +3,7 @@
 , crateUtils
 }:
 
-{ seL4 ? false, debug ? false, benchmark ? false, extraArgs ? {} }:
+{ seL4 ? false, debug ? false, benchmark ? false }:
 
 let
 
@@ -31,7 +31,7 @@ let
         nix.hack.path = path; # HACK
       });
 
-    in newScope ({
+    in newScope {
 
       inherit lib seL4 debug benchmark;
       inherit localCrates patches;
@@ -42,7 +42,7 @@ let
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
 
-    } // extraArgs) (path + "/crate.nix");
+    } (path + "/crate.nix");
 
   patches = import ./patches.nix {
     inherit icecapSrc;
