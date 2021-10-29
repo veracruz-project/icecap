@@ -50,7 +50,7 @@ self: with self;
     seL4 = true;
     inherit (icecapConfig) debug benchmark;
     extraArgs = {
-      inherit stdenv icecap-sel4-sys-gen;
+      inherit icecap-sel4-sys-gen;
       inherit callPackage; # HACK
     };
   };
@@ -58,7 +58,6 @@ self: with self;
   buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
 
   icecap-sel4-sys-gen = callPackage ./sel4-user/rust/icecap-sel4-sys-gen {};
-  inherit (icecap-sel4-sys-gen) liboutline;
 
   bins = callPackage ./sel4-user/rust/bins.nix {};
 

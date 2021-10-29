@@ -23,6 +23,7 @@ let
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
     KernelArmExportVCNTUser = ON; # HACK so VMM can get CNTV_FRQ
+    LibSel4FunctionAttributes = STRING "public";
   } // lib.optionalAttrs icecapConfig.benchmark {
     KernelBenchmarks = STRING "track_utilisation";
   };

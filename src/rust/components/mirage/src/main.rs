@@ -35,17 +35,20 @@ struct Config {
 
 fn main(config: Config) -> Fallible<()> {
 
-    let net: BufferedPacketRingBuffer = panic!();
-    net.packet_ring_buffer().enable_notify_read();
-    net.packet_ring_buffer().enable_notify_write();
+    // NOTE
+    // Commented out so that remainder is reachable, allowing for build test.
 
-    let state = State {
-        nfn: config.nfn,
-        net_ifaces: vec![net],
-    };
-    unsafe  {
-        GLOBAL_STATE = Some(state);
-    };
+    // let net: BufferedPacketRingBuffer = panic!();
+    // net.packet_ring_buffer().enable_notify_read();
+    // net.packet_ring_buffer().enable_notify_write();
+
+    // let state = State {
+    //     nfn: config.nfn,
+    //     net_ifaces: vec![net],
+    // };
+    // unsafe  {
+    //     GLOBAL_STATE = Some(state);
+    // };
 
     syscall::init();
 

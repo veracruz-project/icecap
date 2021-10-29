@@ -1,6 +1,5 @@
 { lib
-, buildIceCapCrate, globalCrates
-, liboutline
+, buildIceCapCrate, globalCrates, libs, libsel4
 }:
 
 let
@@ -15,9 +14,9 @@ let
         lto = true;
       };
     };
-    extra = attrs: {
+    extraLastLayer = attrs: {
       buildInputs = (attrs.buildInputs or []) ++ [
-        liboutline
+        libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
       ];
     };
   } // args);
