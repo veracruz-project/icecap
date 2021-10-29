@@ -3,6 +3,7 @@
 , fetchCrates, cratesIOIndexCache
 , nixToToml, crateUtils, rustTargets, rustTargetName, globalCrates
 , icecapSrc
+, libsel4, libs
 
 # NOTE wasmtime violates some assertions in core, so debug profile doesn't work
 , release ? true
@@ -112,9 +113,17 @@ lib.fix (self: stdenv.mkDerivation ({
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ cargo rustc ];
+  buildInputs = [
+    libsel4
+    libs.icecap-autoconf
+    libs.icecap-runtime
+    libs.icecap-utils
+  ];
 
   RUST_TARGET_PATH = rustTargets;
   __CARGO_DEFAULT_LIB_METADATA = "nix-sysroot";
+
+  LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
 
   phases = [ "configurePhase" "buildPhase" "installPhase" ];
 
@@ -124,6 +133,9 @@ lib.fix (self: stdenv.mkDerivation ({
     ln -s ${lock} Cargo.lock
     ln -s ${workspace} Cargo.toml
     ln -s ${src.store} src
+
+    # HACK
+    export BINDGEN_EXTRA_CLANG_ARGS="$NIX_CFLAGS_COMPILE"
   '';
 
   buildPhase = ''
