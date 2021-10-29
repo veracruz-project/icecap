@@ -12,6 +12,7 @@ fn main() {
         .ctypes_prefix("c_types")
         .derive_default(true)
         .rust_target(bindgen::RustTarget::Nightly)
+        .rustfmt_bindings(true)
         .generate()
         .unwrap();
 
