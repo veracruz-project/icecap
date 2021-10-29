@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "icecap-append-devices";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-fdt
     icecap-fdt-bindings
   ];

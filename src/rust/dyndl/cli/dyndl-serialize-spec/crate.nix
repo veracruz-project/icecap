@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "dyndl-serialize-spec";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     dyndl-types
   ];
   dependencies = {

@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-event-server-config";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-config
     icecap-event-server-types
   ];

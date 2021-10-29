@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-fdt-bindings";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-fdt
   ];
   dependencies = {

@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-resource-server-core";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     dyndl-types
     icecap-core
     icecap-plat

@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-vmm";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     biterate
     icecap-sel4
     icecap-failure

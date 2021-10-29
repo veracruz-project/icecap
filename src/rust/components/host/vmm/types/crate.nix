@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-host-vmm-types";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-rpc
   ];
   dependencies = {

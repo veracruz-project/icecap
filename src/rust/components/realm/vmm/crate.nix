@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "realm-vmm";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     biterate
     icecap-realm-vmm-config
     icecap-std

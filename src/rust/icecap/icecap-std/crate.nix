@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-std";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-core
   ];
   dependencies = {

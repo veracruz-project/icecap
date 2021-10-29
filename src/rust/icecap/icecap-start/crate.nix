@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-start";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-failure
     icecap-sel4
     icecap-runtime

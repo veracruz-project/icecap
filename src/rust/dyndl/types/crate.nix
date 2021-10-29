@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "dyndl-types";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     dyndl-types-derive
   ];
   dependencies = {

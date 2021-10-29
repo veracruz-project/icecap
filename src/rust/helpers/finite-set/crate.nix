@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "finite-set";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     finite-set-derive
   ];
   dependencies = {

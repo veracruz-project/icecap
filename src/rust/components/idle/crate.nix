@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "idle";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-std
   ];
   dependencies = {

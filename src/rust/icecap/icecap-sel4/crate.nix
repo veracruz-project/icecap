@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-sel4";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-sel4-derive
     icecap-sel4-sys
   ];

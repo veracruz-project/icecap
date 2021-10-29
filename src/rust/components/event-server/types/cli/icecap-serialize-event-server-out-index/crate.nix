@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "icecap-serialize-event-server-out-index";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-event-server-types
     finite-set
   ];

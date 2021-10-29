@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "benchmark-server";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-sel4
     icecap-std
     icecap-plat

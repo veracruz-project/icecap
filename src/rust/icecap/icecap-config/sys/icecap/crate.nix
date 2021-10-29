@@ -2,11 +2,11 @@
 
 mk {
   nix.name = "icecap-config-sys";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-sel4
     icecap-runtime
   ];
-  nix.localDependencyAttributes = {
+  nix.localAttrs.dependencies = {
     icecap-sel4 = {
       features = [
         "use-serde"

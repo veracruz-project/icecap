@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "mirage";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-linux-syscall
     icecap-std
     icecap-start-generic

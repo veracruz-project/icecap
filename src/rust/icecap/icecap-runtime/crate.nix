@@ -3,7 +3,7 @@
 mk {
   nix.name = "icecap-runtime";
   nix.buildScriptHack = true;
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-sel4
   ];
   dependencies = {

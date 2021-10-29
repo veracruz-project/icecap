@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "resource-server";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-std
     icecap-rpc-sel4
     icecap-event-server-types

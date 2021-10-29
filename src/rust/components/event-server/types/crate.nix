@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-event-server-types";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     biterate
     finite-set
     icecap-rpc

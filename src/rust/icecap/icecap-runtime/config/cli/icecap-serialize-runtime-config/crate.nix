@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "icecap-serialize-runtime-config";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-runtime-config
   ];
   dependencies = {

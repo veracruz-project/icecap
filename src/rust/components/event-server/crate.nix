@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "event-server";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     biterate
     finite-set
     icecap-std

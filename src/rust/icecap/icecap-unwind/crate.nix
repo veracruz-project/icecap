@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-unwind";
-  nix.localDependencies = with localCrates; lib.optionals seL4 [
+  nix.local.dependencies = with localCrates; lib.optionals seL4 [
     icecap-runtime
   ];
   dependencies = {

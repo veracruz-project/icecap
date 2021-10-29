@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-config";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-config-sys
   ];
   dependencies = {

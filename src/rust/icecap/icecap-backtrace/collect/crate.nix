@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-backtrace-collect";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-unwind
     icecap-backtrace-types
   ];

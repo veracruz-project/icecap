@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "crosvm-9p";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     crosvm-9p-wire-format-derive
   ];
   dependencies = {

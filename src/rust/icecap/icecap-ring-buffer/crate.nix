@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-ring-buffer";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-sel4
     icecap-config
   ];

@@ -2,7 +2,7 @@
 
 mkBin {
   nix.name = "fault-handler";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-std
     icecap-fault-handler-config
   ];

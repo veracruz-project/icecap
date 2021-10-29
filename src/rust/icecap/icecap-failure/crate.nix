@@ -2,7 +2,7 @@
 
 mk {
   nix.name = "icecap-failure";
-  nix.localDependencies = with localCrates; [
+  nix.local.dependencies = with localCrates; [
     icecap-failure-derive
     icecap-backtrace
     icecap-sel4
