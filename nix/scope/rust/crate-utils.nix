@@ -17,7 +17,7 @@ rec {
         , buildScriptHack ? null
         , keepFilesHack ? []
         , isBin ? false, isStaticlib ? false
-        , localDependencies ? [], phantomLocalDependencies ? []
+        , localDependencies ? []
         , localDependencyAttributes ? {} # HACK
         , propagate ? {}
         , hack ? {}, # HACK
@@ -25,7 +25,7 @@ rec {
         {
           inherit
             name src buildScriptHack keepFilesHack isBin isStaticlib
-            localDependencies phantomLocalDependencies localDependencyAttributes
+            localDependencies localDependencyAttributes
             propagate
             hack; # HACK
         };
@@ -77,7 +77,7 @@ rec {
         store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
         env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
         dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
-        localDependencies = elaboratedNix.localDependencies ++ elaboratedNix.phantomLocalDependencies;
+        localDependencies = elaboratedNix.localDependencies;
         # HACK
         hack = {
           inherit elaboratedNix args;
