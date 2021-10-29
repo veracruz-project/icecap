@@ -45,13 +45,15 @@ in icecap // {
         bootargs = lib.splitString " " bootargs;
       };
 
-  crates = { crateNames }:
-    let
-      crates = lib.attrValues (crateUtils.closure' (lib.attrValues (lib.getAttrs crateNames configured.globalCrates)));
-      env = crateUtils.collectEnv crates;
-    in {
-      inherit env;
-    };
+  c-libraries = pkgs.none.buildEnv {
+    name = "c-libraries";
+    pathsToLink = [
+      "/lib" "/include"
+    ];
+    paths = let inherit (configured) libsel4 libs; in [
+      libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
+    ];
+  };
 
   # shortcuts
 
