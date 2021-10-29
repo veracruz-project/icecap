@@ -7,19 +7,11 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-backtrace-types = { path = "../types" }
 cfg-if = "*"
 log = "*"
+icecap-backtrace-types = { path = "../types" }
 
-[target."cfg(all(target_os = \\\"icecap\\\", icecap_debug))".dependencies]
+[target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies]
+fallible-iterator = { version = "*", default-features = false, features = [ "alloc",] }
+gimli = { version = "0.20.0", default-features = false, features = [ "read",] }
 icecap-unwind = { path = "../../icecap-unwind" }
-
-[target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies.fallible-iterator]
-default-features = false
-features = [ "alloc",]
-version = "*"
-
-[target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies.gimli]
-default-features = false
-features = [ "read",]
-version = "0.20.0"

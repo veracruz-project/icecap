@@ -8,12 +8,12 @@ edition = "2018"
 
 [dependencies]
 biterate = { path = "../../../helpers/biterate" }
-icecap-host-vmm-config = { path = "./config" }
-icecap-std = { path = "../../../icecap/icecap-std" }
-icecap-rpc-sel4 = { path = "../../../icecap/icecap-rpc/sel4" }
-icecap-vmm = { path = "../../../icecap/icecap-vmm" }
-icecap-event-server-types = { path = "../../event-server/types" }
-icecap-resource-server-types = { path = "../../resource-server/types" }
 icecap-benchmark-server-types = { path = "../../benchmark-server/types" }
-icecap-sel4 = { path = "../../../icecap/icecap-sel4" }
+icecap-event-server-types = { path = "../../event-server/types" }
+icecap-host-vmm-config = { path = "./config" }
 icecap-host-vmm-types = { path = "./types" }
+icecap-resource-server-types = { path = "../../resource-server/types" }
+icecap-rpc-sel4 = { path = "../../../icecap/icecap-rpc/sel4" }
+icecap-sel4 = { path = "../../../icecap/icecap-sel4" }
+icecap-std = { path = "../../../icecap/icecap-std" }
+icecap-vmm = { path = "../../../icecap/icecap-vmm" }

@@ -10,5 +10,5 @@ edition = "2018"
 trace = []
 
 [dependencies]
-crosvm-9p-wire-format-derive = { path = "./wire-format-derive" }
 libc = "*"
+crosvm-9p-wire-format-derive = { path = "./wire-format-derive" }

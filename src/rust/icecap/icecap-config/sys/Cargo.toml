@@ -6,11 +6,9 @@ name = "icecap-config-sys"
 version = "0.1.0"
 edition = "2018"
 
-[dependencies.serde]
-default-features = false
-features = [ "alloc", "derive",]
-version = "*"
+[dependencies]
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 
-[target."cfg(target_os = \\\"icecap\\\")".dependencies]
-icecap-sel4 = { path = "../../icecap-sel4" }
+[target."cfg(target_os = \"icecap\")".dependencies]
 icecap-runtime = { path = "../../icecap-runtime" }
+icecap-sel4 = { path = "../../icecap-sel4", features = [ "use-serde",] }

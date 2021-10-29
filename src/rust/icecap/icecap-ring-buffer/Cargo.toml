@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-sel4 = { path = "../icecap-sel4" }
-icecap-config = { path = "../icecap-config" }
 log = "*"
 tock-registers = "*"
+icecap-config = { path = "../icecap-config" }
+icecap-sel4 = { path = "../icecap-sel4" }

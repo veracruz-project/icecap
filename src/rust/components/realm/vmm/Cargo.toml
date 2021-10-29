@@ -8,8 +8,8 @@ edition = "2018"
 
 [dependencies]
 biterate = { path = "../../../helpers/biterate" }
-icecap-realm-vmm-config = { path = "./config" }
-icecap-std = { path = "../../../icecap/icecap-std" }
-icecap-rpc-sel4 = { path = "../../../icecap/icecap-rpc/sel4" }
-icecap-vmm = { path = "../../../icecap/icecap-vmm" }
 icecap-event-server-types = { path = "../../event-server/types" }
+icecap-realm-vmm-config = { path = "./config" }
+icecap-rpc-sel4 = { path = "../../../icecap/icecap-rpc/sel4" }
+icecap-std = { path = "../../../icecap/icecap-std" }
+icecap-vmm = { path = "../../../icecap/icecap-vmm" }

@@ -7,13 +7,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-std = { path = "../../icecap/icecap-std" }
-icecap-serial-server-config = { path = "./config" }
-icecap-timer-server-client = { path = "../timer-server/client" }
-icecap-event-server-types = { path = "../event-server/types" }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 tock-registers = "*"
-
-[dependencies.serde]
-default-features = false
-features = [ "alloc", "derive",]
-version = "*"
+icecap-event-server-types = { path = "../event-server/types" }
+icecap-serial-server-config = { path = "./config" }
+icecap-std = { path = "../../icecap/icecap-std" }
+icecap-timer-server-client = { path = "../timer-server/client" }

@@ -36,12 +36,12 @@ rec {
         elaboratedNix = elaborateNix nix;
 
         paths = lib.flip lib.mapAttrsRecursive elaboratedNix.local (_: v:
-          if !lib.isList v then v else lib.listToAttrs (map (crate: lib.nameValuePair crate.name {
-            path = "../${crate.name}";
+          if !lib.isList v then v else lib.listToAttrs (map (otherCrate: lib.nameValuePair otherCrate.name {
+            path = "../${otherCrate.name}";
           }) v)
         );
 
-        rest = clobber [ paths (removeAttrs args [ "nix" ]) ];
+        rest = removeAttrs args [ "nix" ];
 
         flatten = x: if lib.isList x then x else lib.concatMap flatten (lib.attrValues x);
 
@@ -69,6 +69,7 @@ rec {
               };
             })
 
+            paths
             rest
           ]);
 

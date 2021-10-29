@@ -7,10 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-config = { path = "../../../icecap/icecap-config" }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 dyndl-types = { path = "../../../dyndl/types" }
-
-[dependencies.serde]
-default-features = false
-features = [ "alloc", "derive",]
-version = "*"
+icecap-config = { path = "../../../icecap/icecap-config" }

@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-dyndl-types = { path = "../../types" }
 pinecone = "*"
 serde = "*"
 serde_json = "*"
+dyndl-types = { path = "../../types" }

@@ -1,7 +1,6 @@
 import sys
 import json
 import toml
-from pydantic.utils import deep_update
 from collections import OrderedDict
 
 class TomlOrderedDecoder(toml.TomlPreserveCommentDecoder):
@@ -20,40 +19,69 @@ manifest = toml.load(sys.stdin, decoder=TomlOrderedDecoder())
 with open(sys.argv[1]) as f:
     extra = json.load(f)
 
-# print(extra, file=sys.stderr)
+if 'features' in extra:
+    if 'default' in extra['features']:
+        manifest['features']['default'] = extra['features']['default']
+        del extra['features']['default']
+    manifest['features'].update(extra['features'])
+    del extra['features']
 
-for k, v in extra['depAttrs'].items():
-    if k == 'target':
-        for targetName, attrs in v:
-            for k_, deps in attrs:
-                assert k_ == 'dependencies'
-                for k__, v__ in deps:
-                    manifest[k][targetName][k_][k__].update(v__)
-    else:
-        for k_, v_ in v:
-            manifest[k][k_].update(v)
+if 'lib' in extra:
+    assert extra['lib']['proc-macro'] is True # literally True
+    del extra['lib']['proc-macro']
+    assert len(extra['lib']) == 0
+    del extra['lib']
 
-if 'features' in extra['rest']:
-    del extra['rest']['features']
+dep_tables = [
+    'dependencies',
+    'dev-dependencies',
+    'build-dependencies',
+    ]
 
-if 'lib' in extra['rest']:
-    if len(extra['rest']['lib']) != 1 or extra['rest']['lib'].get('proc-macro') != True:
-        print(extra['rest'], file=sys.stderr)
-        assert 0
-    del extra['rest']['lib']
+def do_table(t_in):
+    items = []
+    for k, v in t_in.items():
+        if not isinstance(v, str):
+            d = TomlOrderedDecoder().get_empty_inline_table()
+            if 'version' in v:
+                d['version'] = v['version']
+                del v['version']
+            if 'path' in v:
+                d['path'] = v['path']
+                del v['path']
+            d.update(v)
+            v = d
+        items.append((k, v))
 
-manifest = deep_update(manifest, extra['rest'])
+    def is_local(v):
+        return not isinstance(v, str) and 'path' in v
 
-# if 'dependencies' in extra['rest']:
-#     for k, v in extra['rest']['dependencies'].items():
-#         if not isinstance(v, str):
-#             del v['version']
-#             manifest['dependencies'][k].update(v)
+    def key(pair):
+        return (is_local(pair[1]), pair[0])
 
-#     del extra['rest']['dependencies']
+    items.sort(key=key)
+    table = TomlOrderedDecoder().get_empty_table()
+    table.update(items)
+    return table
 
-# if len(extra['rest']) != 0:
-#     print(extra['rest'], file=sys.stderr)
-#     assert 0
+for table in dep_tables:
+    if table in extra:
+        manifest[table] = do_table(extra[table])
+        del extra[table]
+
+if 'target' in extra:
+    manifest['target'] = TomlOrderedDecoder().get_empty_table()
+    for targetSpec, attrs in extra['target'].items():
+        manifest['target'][targetSpec] = TomlOrderedDecoder().get_empty_table()
+        for table in dep_tables:
+            if table in attrs:
+                manifest['target'][targetSpec][table] = do_table(attrs[table])
+                del attrs[table]
+        assert len(attrs) == 0
+    del extra['target']
+
+if len(extra) != 0:
+    print(extra, file=sys.stderr)
+    raise Exception()
 
 toml.dump(manifest, sys.stdout, encoder=TomlNixEncoder())

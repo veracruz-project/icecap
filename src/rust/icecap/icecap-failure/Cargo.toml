@@ -7,8 +7,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-failure-derive = { path = "./derive" }
-icecap-backtrace = { path = "../icecap-backtrace" }
-icecap-sel4 = { path = "../icecap-sel4" }
 cfg-if = "*"
 log = "*"
+icecap-backtrace = { path = "../icecap-backtrace" }
+icecap-failure-derive = { path = "./derive" }
+icecap-sel4 = { path = "../icecap-sel4" }

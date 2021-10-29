@@ -7,13 +7,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-failure = { path = "../icecap-failure" }
-icecap-sel4 = { path = "../icecap-sel4" }
-icecap-runtime = { path = "../icecap-runtime" }
 log = "*"
 pinecone = "*"
-
-[dependencies.serde]
-default-features = false
-features = [ "alloc", "derive",]
-version = "*"
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+icecap-failure = { path = "../icecap-failure" }
+icecap-runtime = { path = "../icecap-runtime" }
+icecap-sel4 = { path = "../icecap-sel4" }

@@ -7,8 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-core = { path = "../icecap-core" }
+dlmalloc = "=0.1.3"
 log = "*"
-
-[dependencies.dlmalloc]
-version = "=0.1.3"
+icecap-core = { path = "../icecap-core" }

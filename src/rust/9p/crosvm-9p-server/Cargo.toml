@@ -10,5 +10,5 @@ edition = "2018"
 trace = []
 
 [dependencies]
-crosvm-9p = { path = "../crosvm-9p" }
 libc = "*"
+crosvm-9p = { path = "../crosvm-9p" }

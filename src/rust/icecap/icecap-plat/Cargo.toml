@@ -7,5 +7,5 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-sel4 = { path = "../icecap-sel4" }
 cfg-if = "*"
+icecap-sel4 = { path = "../icecap-sel4" }

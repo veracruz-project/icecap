@@ -16,12 +16,11 @@ let
   appendToManifest = base: extra: runCommand "Cargo.toml" {
     nativeBuildInputs = [
       pkgs.dev.python3Packages.toml
-      pkgs.dev.python3Packages.pydantic
     ];
   } ''
     cat ${frontmatter} > $out
     echo >> $out
-    python3 ${./append-to-manifest.py} ${builtins.toFile "x.json" extra} < ${base} >> $out
+    python3 ${./append-to-manifest.py} ${builtins.toFile "x.json" (builtins.toJSON extra)} < ${base} >> $out
   '';
 
   frontmatter = builtins.toFile "frontmatter.toml" ''
@@ -35,8 +34,15 @@ let
     in
       lib.fix (self: lib.flip lib.mapAttrs crates (_: crate:
         let
-          inherit (crate.hack) elaboratedNix;
-          rest = removeAttrs crate.hack.args [ "nix" ];
+          inherit (crate.hack) elaboratedNix rest;
+
+          paths = lib.flip lib.mapAttrsRecursive elaboratedNix.local (_: v:
+            if !lib.isList v then v else lib.listToAttrs (map (otherCrate: lib.nameValuePair otherCrate.name {
+              path = ensureDot (pathBetween
+                (toString elaboratedNix.hack.path)
+                (toString otherCrate.hack.elaboratedNix.hack.path));
+            }) v)
+          );
 
           relativePath = pathBetween
             (toString (icecapSrc.relativeRaw "rust"))
@@ -56,39 +62,9 @@ let
             ${lib.optionalString (lib.hasAttr "features" rest) ''
               [features]
             ''}
-
-            ${lib.concatStrings (lib.flip lib.mapAttrsToList elaboratedNix.local (k: v:
-              if k == "target"
-              then lib.concatStrings (lib.flip lib.mapAttrsToList v (targetName: attrs: ''
-                  [target."${lib.replaceStrings ["\""] ["\\\""] targetName}".dependencies]
-                  ${lib.concatStrings (lib.forEach attrs.dependencies (otherCrate:
-                    let
-                      path = ensureDot (pathBetween
-                        (toString elaboratedNix.hack.path)
-                        (toString otherCrate.hack.elaboratedNix.hack.path));
-                    in ''
-                      ${otherCrate.name} = { path = "${path}" }
-                    ''
-                  ))}
-                ''))
-              else ''
-                  [${k}]
-                  ${lib.concatStrings (lib.forEach v (otherCrate:
-                    let
-                      path = ensureDot (pathBetween
-                        (toString elaboratedNix.hack.path)
-                        (toString otherCrate.hack.elaboratedNix.hack.path));
-                    in ''
-                      ${otherCrate.name} = { path = "${path}" }
-                    ''
-                  ))}
-                ''
-            ))}
           '';
 
-          manifest = appendToManifest base (builtins.toJSON {
-            inherit rest;
-          });
+          manifest = appendToManifest base (lib.recursiveUpdate rest paths);
         in {
           inherit relativePath manifest;
         }

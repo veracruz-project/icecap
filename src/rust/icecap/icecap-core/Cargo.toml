@@ -7,16 +7,16 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-sel4 = { path = "../icecap-sel4" }
-icecap-runtime = { path = "../icecap-runtime" }
-icecap-sync = { path = "../icecap-sync" }
+biterate = { path = "../../helpers/biterate" }
+finite-set = { path = "../../helpers/finite-set" }
+icecap-backtrace = { path = "../icecap-backtrace" }
+icecap-config = { path = "../icecap-config" }
+icecap-failure = { path = "../icecap-failure" }
+icecap-logger = { path = "../icecap-logger" }
 icecap-ring-buffer = { path = "../icecap-ring-buffer" }
 icecap-rpc = { path = "../icecap-rpc" }
 icecap-rpc-sel4 = { path = "../icecap-rpc/sel4" }
-icecap-config = { path = "../icecap-config" }
-icecap-backtrace = { path = "../icecap-backtrace" }
-icecap-failure = { path = "../icecap-failure" }
-icecap-logger = { path = "../icecap-logger" }
+icecap-runtime = { path = "../icecap-runtime", features = [ "use-serde",] }
+icecap-sel4 = { path = "../icecap-sel4", features = [ "use-serde",] }
 icecap-start = { path = "../icecap-start" }
-finite-set = { path = "../../helpers/finite-set" }
-biterate = { path = "../../helpers/biterate" }
+icecap-sync = { path = "../icecap-sync" }

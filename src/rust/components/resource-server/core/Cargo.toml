@@ -7,16 +7,12 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-dyndl-types = { path = "../../../dyndl/types" }
-icecap-core = { path = "../../../icecap/icecap-core" }
-icecap-plat = { path = "../../../icecap/icecap-plat" }
-icecap-resource-server-types = { path = "../types" }
-icecap-event-server-types = { path = "../../event-server/types" }
-icecap-timer-server-client = { path = "../../timer-server/client" }
 log = "*"
 pinecone = "*"
-
-[dependencies.serde]
-default-features = false
-features = [ "alloc", "derive",]
-version = "*"
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+dyndl-types = { path = "../../../dyndl/types" }
+icecap-core = { path = "../../../icecap/icecap-core" }
+icecap-event-server-types = { path = "../../event-server/types" }
+icecap-plat = { path = "../../../icecap/icecap-plat" }
+icecap-resource-server-types = { path = "../types" }
+icecap-timer-server-client = { path = "../../timer-server/client" }

@@ -7,7 +7,7 @@ mk {
   ];
   dependencies = {
     log = "*";
-    dlmalloc = { version = "=0.1.3"; };
+    dlmalloc = "=0.1.3";
   };
   nix.propagate = {
     extraManifest = {

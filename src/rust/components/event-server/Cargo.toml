@@ -9,8 +9,8 @@ edition = "2018"
 [dependencies]
 biterate = { path = "../../helpers/biterate" }
 finite-set = { path = "../../helpers/finite-set" }
-icecap-std = { path = "../../icecap/icecap-std" }
+icecap-event-server-config = { path = "./config" }
+icecap-event-server-types = { path = "./types" }
 icecap-plat = { path = "../../icecap/icecap-plat" }
 icecap-rpc-sel4 = { path = "../../icecap/icecap-rpc/sel4" }
-icecap-event-server-types = { path = "./types" }
-icecap-event-server-config = { path = "./config" }
+icecap-std = { path = "../../icecap/icecap-std" }

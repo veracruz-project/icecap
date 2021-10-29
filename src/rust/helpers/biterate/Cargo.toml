@@ -6,6 +6,5 @@ name = "biterate"
 version = "0.1.0"
 edition = "2018"
 
-[dependencies.num]
-default-features = false
-version = "*"
+[dependencies]
+num = { version = "*", default-features = false }

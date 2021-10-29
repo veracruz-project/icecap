@@ -7,9 +7,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-sel4 = { path = "../../icecap/icecap-sel4" }
-icecap-std = { path = "../../icecap/icecap-std" }
+icecap-benchmark-server-config = { path = "./config" }
+icecap-benchmark-server-types = { path = "./types" }
 icecap-plat = { path = "../../icecap/icecap-plat" }
 icecap-rpc-sel4 = { path = "../../icecap/icecap-rpc/sel4" }
-icecap-benchmark-server-types = { path = "./types" }
-icecap-benchmark-server-config = { path = "./config" }
+icecap-sel4 = { path = "../../icecap/icecap-sel4" }
+icecap-std = { path = "../../icecap/icecap-std" }

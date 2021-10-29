@@ -7,8 +7,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+log = "*"
 biterate = { path = "../../../helpers/biterate" }
-icecap-sel4 = { path = "../../icecap-sel4" }
 icecap-failure = { path = "../../icecap-failure" }
 icecap-failure-derive = { path = "../../icecap-failure/derive" }
-log = "*"
+icecap-sel4 = { path = "../../icecap-sel4" }

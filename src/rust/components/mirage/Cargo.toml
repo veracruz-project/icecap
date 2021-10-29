@@ -7,16 +7,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+serde_json = { version = "*", default-features = false, features = [ "alloc",] }
 icecap-linux-syscall = { path = "./icecap-linux-syscall" }
-icecap-std = { path = "../../icecap/icecap-std" }
 icecap-start-generic = { path = "../../icecap/icecap-start/generic" }
-
-[dependencies.serde]
-default-features = false
-features = [ "alloc", "derive",]
-version = "*"
-
-[dependencies.serde_json]
-default-features = false
-features = [ "alloc",]
-version = "*"
+icecap-std = { path = "../../icecap/icecap-std" }
