@@ -16,7 +16,7 @@ rec {
         { name, src
         , buildScriptHack ? null
         , keepFilesHack ? []
-        , isBin ? false, isStaticlib ? false
+        , isBin ? false
         , local ? {}
         , localAttrs ? {}
         , propagate ? {}
@@ -24,7 +24,7 @@ rec {
         }:
         {
           inherit
-            name src buildScriptHack keepFilesHack isBin isStaticlib
+            name src buildScriptHack keepFilesHack isBin
             local localAttrs
             propagate
             hack; # HACK
@@ -69,9 +69,6 @@ rec {
             } else {
               lib = {
                 path = "${src}/lib.rs";
-              } // optionalAttrs elaboratedNix.isStaticlib {
-                crate-type = [ "staticlib" ];
-                name = "${kebabToSnake elaboratedNix.name}_rs";
               };
             })
 
