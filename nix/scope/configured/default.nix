@@ -45,7 +45,7 @@ self: with self;
 
   inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
 
-  buildIceCapCrate = callPackage ./sel4-user/rust/build-icecap-crate.nix {};
+  buildIceCapComponent = callPackage ./sel4-user/rust/build-icecap-component.nix {};
 
   bins = callPackage ./sel4-user/rust/bins.nix {};
 

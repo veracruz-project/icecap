@@ -13,7 +13,7 @@ mkInstance { debug = true; } (self: with self.configured; with self; {
     };
   };
 
-  test = bins.mk null {
+  test = buildIceCapComponent {
     rootCrate = callPackage ./test/cargo.nix {};
     debug = true;
   };

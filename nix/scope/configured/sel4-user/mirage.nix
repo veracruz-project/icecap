@@ -1,27 +1,15 @@
 { lib, stdenv
 , musl, libs, libsel4
-, buildIceCapCrate, globalCrates
+, buildIceCapComponent, globalCrates
 }:
 
 {
+  mkMirageBinary = mirageLibrary: buildIceCapComponent {
 
-  mkMirageBinary = mirageLibrary:
-    buildIceCapCrate {
       rootCrate = globalCrates.mirage;
-      extraLayers = [ [ globalCrates.icecap-std ] ];
-      extraManifest = {
-        profile.release = {
-          codegen-units = 1;
-          opt-level = 3;
-          lto = true;
-        };
-      };
+
       extraLastLayer = attrs: {
         buildInputs = (attrs.buildInputs or []) ++ [
-          libsel4
-          libs.icecap-autoconf
-          libs.icecap-runtime
-          libs.icecap-utils
           libs.icecap-pure # TODO
           libs.icecap-mirage-glue
           musl
@@ -41,5 +29,4 @@
         ];
       };
     };
-
 }

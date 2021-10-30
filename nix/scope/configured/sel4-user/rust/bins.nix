@@ -1,35 +1,23 @@
 { lib
-, buildIceCapCrate, globalCrates, libs, libsel4
+, buildIceCapComponent, globalCrates
 }:
 
 let
-  # TODO move most of this into buildIceCapCrate, with better approach to composing overrides
-  mk = crateName: args: buildIceCapCrate ({
+  mk = crateName: _: buildIceCapComponent {
     rootCrate = globalCrates.${crateName};
-    extraLayers = [ [ globalCrates.icecap-std ] ];
-    extraManifest = {
-      profile.release = {
-        codegen-units = 1;
-        opt-level = 3;
-        lto = true;
-      };
-    };
-  } // args);
+  };
 
 in
+lib.mapAttrs mk {
 
-(lib.mapAttrs (crateName: args: mk crateName args) {
+  fault-handler = null;
+  serial-server = null;
+  timer-server = null;
+  event-server = null;
+  resource-server = null;
+  benchmark-server = null;
+  host-vmm = null;
+  realm-vmm = null;
+  idle = null;
 
-  fault-handler = {};
-  serial-server = {};
-  timer-server = {};
-  event-server = {};
-  resource-server = {};
-  benchmark-server = {};
-  host-vmm = {};
-  realm-vmm = {};
-  idle = {};
-
-} // {
-  inherit mk;
-})
+}
