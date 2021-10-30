@@ -1,12 +1,13 @@
-let
-  icecap = import ../../..;
+{ lib, runCommand, writeText
+, python3, python3Packages
+, globalCrates, crateUtils, icecapSrc
+, writeScript, linkFarm, runtimeShell
+}:
 
-  inherit (icecap) lib pkgs meta;
-  inherit (pkgs.dev) runCommand writeText writeScript;
-  inherit (pkgs.dev.icecap) nixToToml crateUtils icecapSrc;
+let
 
   pathBetween = here: there: import (runCommand "x.nix" {
-    nativeBuildInputs = [ pkgs.dev.python3 ];
+    nativeBuildInputs = [ python3 ];
   } ''
     python3 -c 'from os.path import relpath; print("\"{}\"".format(relpath("${there}", "${here}")))' > $out
   '');
@@ -15,7 +16,7 @@ let
 
   appendToManifest = base: extra: runCommand "Cargo.toml" {
     nativeBuildInputs = [
-      pkgs.dev.python3Packages.toml
+      python3Packages.toml
     ];
   } ''
     cat ${frontmatter} > $out
@@ -71,13 +72,9 @@ let
       ))
     ;
 
-  configured = pkgs.none.icecap.configured.virt.override' { debug = true; };
+  realized = realize globalCrates._localCrates;
 
-  globalCrates = pkgs.dev.icecap.globalCrates._localCrates;
-
-  realized = realize globalCrates;
-
-  links = pkgs.dev.linkFarm "crates" (
+  links = linkFarm "crates" (
     lib.flip lib.mapAttrsToList realized (_: { relativePath, manifest }: {
       name = "${relativePath}/Cargo.toml";
       path = manifest;
@@ -85,7 +82,7 @@ let
   );
 
   script = writeScript "clobber.sh" ''
-    #!${pkgs.dev.runtimeShell}
+    #!${runtimeShell}
     set -e
     cd ${toString (icecapSrc.relativeRaw "rust")}
     ${lib.concatStrings (lib.flip lib.mapAttrsToList realized (_: { relativePath, manifest }: ''
