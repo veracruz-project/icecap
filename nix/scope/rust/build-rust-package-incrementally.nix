@@ -137,7 +137,6 @@ let
             -p ${rootCrate.name} \
             --target ${rustTargetName} \
             ${lib.optionalString (!debug) "--release"} \
-            -Z avoid-dev-deps \
             --target-dir $out
           )
         '';
@@ -196,7 +195,6 @@ in let
         -p ${rootCrate.name} \
         --target ${rustTargetName} \
         ${lib.optionalString (!debug) "--release"} \
-        -Z avoid-dev-deps \
         --target-dir=$target_dir
       )
     '';
@@ -222,7 +220,6 @@ in let
           -p ${rootCrate.name} \
           --target ${rustTargetName} \
           ${lib.optionalString (!debug) "--release"} \
-          -Z avoid-dev-deps \
           --target-dir=$target_dir \
           "$@"
         )
@@ -255,7 +252,6 @@ in
       -p ${rootCrate.name} \
       --target ${rustTargetName} \
       ${lib.optionalString (!debug) "--release"} \
-      -Z avoid-dev-deps \
       --target-dir=$target_dir
     )
   '';
