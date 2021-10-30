@@ -32,6 +32,7 @@
   crosvm-9p-server = ./9p/crosvm-9p-server;
   crosvm-9p-server-cli = ./9p/crosvm-9p-server/cli;
 
+  absurdity = ./helpers/absurdity;
   biterate = ./helpers/biterate;
   finite-set = ./helpers/finite-set;
   finite-set-derive = ./helpers/finite-set/derive;

@@ -40,7 +40,7 @@ let
   ];
 
   extraManifestEnv = crateUtils.clobber [
-    (allPropagate.extrManifestEnv or {})
+    (allPropagate.extraManifestEnv or {})
     extraManifestEnv_
   ];
 

@@ -42,6 +42,7 @@ members = [
     "dyndl/cli/dyndl-serialize-spec",
     "dyndl/types",
     "dyndl/types/derive",
+    "helpers/absurdity",
     "helpers/biterate",
     "helpers/finite-set",
     "helpers/finite-set/derive",
