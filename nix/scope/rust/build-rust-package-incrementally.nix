@@ -69,7 +69,8 @@ let
   lastLayer = f allAccumulatedLayers;
 
   lock = generateLockfileInternal {
-    inherit rootCrate extraManifest;
+    inherit extraManifest;
+    rootCrates = [ rootCrate ];
   };
 
   baseCargoConfig = crateUtils.clobber [

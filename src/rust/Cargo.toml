@@ -84,6 +84,10 @@ members = [
     "std-support/icecap-std-impl",
 ]
 
+[profiles.release]
+lto = true
+codegen-units = 1
+
 [patches.crates-io.dlmalloc]
 git = "https://gitlab.com/arm-research/security/icecap/rust-dlmalloc"
 rev = "f6759cfed44dc4135eaa43c8c26599357749af39"

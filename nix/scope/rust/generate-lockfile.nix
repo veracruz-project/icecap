@@ -4,15 +4,15 @@
 , crateUtils
 }:
 
-{ rootCrate, extraManifest ? {} }:
+{ rootCrates, extraManifest ? {} }:
 
 let
-  crates = lib.attrValues (crateUtils.closure rootCrate);
+  crates = lib.attrValues (crateUtils.closure' rootCrates);
 
   workspace = nixToToml (crateUtils.clobber [
     {
       workspace.resolver = "2";
-      workspace.members = [ "src/${rootCrate.name}" ];
+      workspace.members = map (crate: "src/${crate.name}") rootCrates;
       workspace.exclude = [ "src/*" ];
     }
     extraManifest

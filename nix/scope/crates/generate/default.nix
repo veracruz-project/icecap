@@ -1,6 +1,7 @@
 { lib, runCommand, writeText, linkFarm
 , python3, python3Packages
-, globalCrates, crateUtils, icecapSrc
+, icecapSrc
+, globalCrates, crateUtils, generateLockfile
 }:
 
 let
@@ -86,6 +87,10 @@ let
       "    \"${relativePath}\","
     )))}
     ]
+
+    [profiles.release]
+    lto = true
+    codegen-units = 1
     ${lib.concatStringsSep "\n" (lib.flip lib.mapAttrsToList globalCrates._patches (crateName: fetched: ''
 
       [patches.crates-io.${crateName}]
@@ -106,6 +111,8 @@ let
     ln -s ${workspaceUnchecked} $out
   '';
 
+  lock = generateLockfile (lib.attrValues globalCrates._localCrates);
+
 in {
-  inherit realized links workspace;
+  inherit realized links workspace lock;
 }

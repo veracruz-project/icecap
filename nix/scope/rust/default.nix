@@ -103,7 +103,7 @@ in {
   fetchCratesIOCrate = args: unpackCrateTarball (fetchCratesIOTarball args);
 
   cratesIOIndexCache = callPackage ./crates-io-index-cache.nix {};
-  generateLockfile = rootCrate: generateLockfileInternal { inherit rootCrate; };
+  generateLockfile = rootCrates: generateLockfileInternal { inherit rootCrates; };
   generateLockfileInternal = callPackage ./generate-lockfile.nix {};
 
   buildRustPackage = callPackage ./build-rust-package.nix {};
