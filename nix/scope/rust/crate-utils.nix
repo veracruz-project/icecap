@@ -179,8 +179,6 @@ rec {
 
   linkerCargoConfig = {
     target = {
-      ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
-    } // {
       ${rustTargetName}.linker =
         if hostPlatform.isNone || hostPlatform.isMusl /* HACK for proper static linking on musl */
         then "${stdenv.cc.targetPrefix}ld"
