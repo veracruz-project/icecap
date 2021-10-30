@@ -12,7 +12,6 @@
     profile.release = {
       panic = "abort";
       codegen-units = 1;
-      opt-level = 3;
       lto = true;
     };
   }
