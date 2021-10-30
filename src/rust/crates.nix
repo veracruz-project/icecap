@@ -25,6 +25,7 @@
   icecap-config = ./icecap/icecap-config;
   icecap-config-sys = ./icecap/icecap-config/sys;
   icecap-config-cli-core = ./icecap/icecap-config/cli/core;
+  icecap-serialize-builtin-config = ./icecap/icecap-config/cli/builtins;
 
   crosvm-9p = ./9p/crosvm-9p;
   crosvm-9p-wire-format-derive = ./9p/crosvm-9p/wire-format-derive;

@@ -404,9 +404,10 @@ class VMM(ElfComponent):
 
     def serialize_arg(self):
         if self.is_host:
-            return 'serialize-host-vmm-config'
+            ty = 'host-vmm'
         else:
-            return 'serialize-realm-vmm-config'
+            ty = 'realm-vmm'
+        return self.serialize_builtin_arg(ty)
 
     def arg_json(self):
         return self._arg

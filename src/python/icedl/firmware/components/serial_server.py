@@ -79,7 +79,7 @@ class SerialServer(ElfComponent):
         return client_config
 
     def serialize_arg(self):
-        return 'serialize-serial-server-config'
+        return self.serialize_builtin_arg('serial-server')
 
     def arg_json(self):
         self._arg.update({

@@ -138,7 +138,7 @@ class ElfComponent(BaseComponent):
         with path_json.open('r') as f_json:
             with path_bin.open('wb') as f_bin:
                 try:
-                    subprocess.check_call([self.serialize_arg()], stdin=f_json, stdout=f_bin)
+                    subprocess.check_call(self.serialize_arg(), stdin=f_json, stdout=f_bin)
                 except Exception as e:
                     print(path_json)
                     raise e
@@ -158,6 +158,9 @@ class ElfComponent(BaseComponent):
 
     def serialize_arg(self):
         raise NotImplementedError()
+
+    def serialize_builtin_arg(self, ty):
+        return ['icecap-serialize-builtin-config', ty]
 
     # default
     def heap(self):

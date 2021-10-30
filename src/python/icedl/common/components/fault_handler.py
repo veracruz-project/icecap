@@ -21,7 +21,7 @@ class FaultHandler(ElfComponent):
             }
 
     def serialize_arg(self):
-        return 'serialize-fault-handler-config'
+        return self.serialize_builtin_arg('fault-handler')
 
     def arg_json(self):
         return {

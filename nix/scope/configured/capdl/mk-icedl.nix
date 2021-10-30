@@ -8,6 +8,7 @@
 
 , icecap-append-devices
 , icecap-serialize-runtime-config
+, icecap-serialize-builtin-config
 , icecap-serialize-event-server-out-index
 , dyndl-serialize-spec
 }:
@@ -35,9 +36,10 @@ let
       buildPackages.stdenv.cc
       icecap-append-devices
       icecap-serialize-runtime-config
+      icecap-serialize-builtin-config
       icecap-serialize-event-server-out-index
       dyndl-serialize-spec
-    ] ++ buildPackages.icecap.serializeConfig.list ++ (with python3Packages; [
+    ] ++ (with python3Packages; [
       future six
       aenum orderedset sortedcontainers
       pyyaml pyelftools pyfdt

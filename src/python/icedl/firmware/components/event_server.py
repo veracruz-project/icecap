@@ -56,7 +56,7 @@ class EventServer(ElfComponent):
             }
 
     def serialize_arg(self):
-        return 'serialize-event-server-config'
+        return self.serialize_builtin_arg('event-server')
 
     def arg_json(self):
         return self._arg

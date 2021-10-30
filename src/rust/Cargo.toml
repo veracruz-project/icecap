@@ -52,6 +52,7 @@ members = [
     "icecap/icecap-backtrace/collect",
     "icecap/icecap-backtrace/types",
     "icecap/icecap-config",
+    "icecap/icecap-config/cli/builtins",
     "icecap/icecap-config/cli/core",
     "icecap/icecap-config/sys",
     "icecap/icecap-core",

@@ -76,9 +76,8 @@ superCallPackage ./ocaml {} self //
   icecap-show-backtrace = mkTool globalCrates.icecap-show-backtrace;
   icecap-append-devices = mkTool globalCrates.icecap-append-devices;
   icecap-serialize-runtime-config = mkTool globalCrates.icecap-serialize-runtime-config;
+  icecap-serialize-builtin-config = mkTool globalCrates.icecap-serialize-builtin-config;
   icecap-serialize-event-server-out-index = mkTool globalCrates.icecap-serialize-event-server-out-index;
-
-  serializeConfig = callPackage ./dev/serialize-config.nix {};
 
   inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 

@@ -148,7 +148,7 @@ class ResourceServer(ElfComponent):
             yield (host.cspace().alloc(ep, badge=0, write=True, grantreply=True), host.vm.cspace().alloc(ep, badge=1, write=True, grantreply=True))
 
     def serialize_arg(self):
-        return 'serialize-resource-server-config'
+        return self.serialize_builtin_arg('resource-server')
 
     def arg_json(self):
         return self._arg
