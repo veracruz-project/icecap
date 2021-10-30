@@ -1,7 +1,6 @@
-{ lib, runCommand, writeText
+{ lib, runCommand, writeText, linkFarm
 , python3, python3Packages
 , globalCrates, crateUtils, icecapSrc
-, writeScript, linkFarm, runtimeShell
 }:
 
 let
@@ -29,51 +28,46 @@ let
     # It is checked-in to version control for convenience and to serve as a reference.
   '';
 
-  realize = crates:
-    with crateUtils;
+  realize = crate:
     let
-    in
-      lib.fix (self: lib.flip lib.mapAttrs crates (_: crate:
-        let
-          inherit (crate.hack) elaboratedNix rest;
+      inherit (crate.hack) elaboratedNix rest;
 
-          paths = lib.flip lib.mapAttrsRecursive elaboratedNix.local (_: v:
-            if !lib.isList v then v else lib.listToAttrs (map (otherCrate: lib.nameValuePair otherCrate.name {
-              path = ensureDot (pathBetween
-                (toString elaboratedNix.hack.path)
-                (toString otherCrate.hack.elaboratedNix.hack.path));
-            }) v)
-          );
+      paths = lib.flip lib.mapAttrsRecursive elaboratedNix.local (_: v:
+        if !lib.isList v then v else lib.listToAttrs (map (otherCrate: lib.nameValuePair otherCrate.name {
+          path = ensureDot (pathBetween
+            (toString elaboratedNix.hack.path)
+            (toString otherCrate.hack.elaboratedNix.hack.path));
+        }) v)
+      );
 
-          relativePath = pathBetween
-            (toString (icecapSrc.relativeRaw "rust"))
-            (toString elaboratedNix.hack.path);
+      relativePath = pathBetween
+        (toString (icecapSrc.relativeRaw "rust"))
+        (toString elaboratedNix.hack.path);
 
-          base = writeText "Cargo.toml" ''
-            [package]
-            name = "${elaboratedNix.name}"
-            version = "0.1.0"
-            edition = "2018"
-            ${lib.optionalString (elaboratedNix.buildScriptHack != null) ''
-              build = "build.rs"
-            ''}
-            ${lib.optionalString (lib.hasAttr "lib" rest) ''
-              [lib]
-            ''}
-            ${lib.optionalString (lib.hasAttr "features" rest) ''
-              [features]
-            ''}
-          '';
+      base = writeText "Cargo.toml" ''
+        [package]
+        name = "${elaboratedNix.name}"
+        version = "0.1.0"
+        edition = "2018"
+        ${lib.optionalString (elaboratedNix.buildScriptHack != null) ''
+          build = "build.rs"
+        ''}
+        ${lib.optionalString (lib.hasAttr "lib" rest) ''
+          [lib]
+        ''}
+        ${lib.optionalString (lib.hasAttr "features" rest) ''
+          [features]
+        ''}
+      '';
 
-          manifest = appendToManifest base (lib.recursiveUpdate rest paths);
-        in {
-          inherit relativePath manifest;
-        }
-      ))
-    ;
+      manifest = appendToManifest base (lib.recursiveUpdate rest paths);
+    in {
+      inherit relativePath manifest;
+    };
 
-  realized = realize globalCrates._localCrates;
+  realized = lib.mapAttrs (lib.const realize) globalCrates._localCrates;
 
+  # for manual inspection, useful for hacking on this script
   links = linkFarm "crates" (
     lib.flip lib.mapAttrsToList realized (_: { relativePath, manifest }: {
       name = "${relativePath}/Cargo.toml";
@@ -81,16 +75,6 @@ let
     })
   );
 
-  script = writeScript "clobber.sh" ''
-    #!${runtimeShell}
-    set -e
-    cd ${toString (icecapSrc.relativeRaw "rust")}
-    ${lib.concatStrings (lib.flip lib.mapAttrsToList realized (_: { relativePath, manifest }: ''
-      test -f ${relativePath}/crate.nix
-      cp -vL --no-preserve=all ${manifest} ${relativePath}/Cargo.toml
-    ''))}
-  '';
-
 in {
-  inherit realized links script;
+  inherit realized links;
 }

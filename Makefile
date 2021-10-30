@@ -27,3 +27,7 @@ demo: | $(out)
 .PHONY: everything
 everything: | $(out)
 	./build.py --plat=$(PLAT) target $@ -o $(out)/roots
+
+.PHONY: update-generated-sources
+update-generated-sources:
+	script=$$(nix-build -A meta.generate.all --no-out-link) && $$script

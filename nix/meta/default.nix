@@ -18,4 +18,7 @@ rec {
     inherit lib pkgs;
   };
 
+  generate = import ./generate.nix {
+    inherit lib pkgs;
+  };
 }
