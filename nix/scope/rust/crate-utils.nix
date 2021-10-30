@@ -18,14 +18,12 @@ rec {
         , keepFilesHack ? []
         , isBin ? false
         , local ? {}
-        , propagate ? {}
         , hack ? {}, # HACK
         }:
         {
           inherit
             name src buildScriptHack keepFilesHack isBin
             local
-            propagate
             hack; # HACK
         };
 
@@ -74,7 +72,7 @@ rec {
           ]);
 
       in {
-        inherit (elaboratedNix) name propagate;
+        inherit (elaboratedNix) name;
         store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
         env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
         dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");

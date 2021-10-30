@@ -32,15 +32,12 @@ in
 let
   allCratesAttrs = crateUtils.closure rootCrate;
   allCrates = lib.attrValues allCratesAttrs;
-  allPropagate = crateUtils.clobber (map (x: x.propagate or {}) allCrates);
 
   extraManifest = crateUtils.clobber [
-    (allPropagate.extraManifest or {})
     extraManifest_
   ];
 
   extraManifestEnv = crateUtils.clobber [
-    (allPropagate.extraManifestEnv or {})
     extraManifestEnv_
   ];
 
@@ -78,7 +75,6 @@ let
   baseCargoConfig = crateUtils.clobber [
     (fetchCrates lock).config
     crateUtils.baseCargoConfig
-    (allPropagate.extraCargoConfig or {})
     extraCargoConfig
   ];
 
@@ -270,7 +266,6 @@ in
     inherit env doc;
     inherit lastLayer;
     inherit src workspace lock;
-    inherit allPropagate;
   };
 })).overrideAttrs extra).overrideAttrs extraLastLayer
 

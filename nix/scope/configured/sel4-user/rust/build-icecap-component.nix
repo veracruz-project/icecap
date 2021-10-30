@@ -4,6 +4,10 @@
 , libsel4, libs
 }:
 
+let
+  patches = globalCrates._patches;
+in
+
 { ... /* TODO */ } @ args:
 
 lib.fix (self: buildRustPackageIncrementally ({
@@ -17,6 +21,15 @@ lib.fix (self: buildRustPackageIncrementally ({
       codegen-units = 1;
       opt-level = 3;
       lto = true;
+    };
+    patch.crates-io = {
+      dlmalloc.path = patches.dlmalloc.store;
+    };
+  };
+
+  extraManifestEnv = {
+    patch.crates-io = {
+      dlmalloc.path = patches.dlmalloc.env;
     };
   };
 

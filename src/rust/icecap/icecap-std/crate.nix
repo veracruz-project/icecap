@@ -1,4 +1,4 @@
-{ mk, localCrates, patches }:
+{ mk, localCrates }:
 
 mk {
   nix.name = "icecap-std";
@@ -8,17 +8,5 @@ mk {
   dependencies = {
     log = "*";
     dlmalloc = "=0.1.3";
-  };
-  nix.propagate = {
-    extraManifest = {
-      patch.crates-io = {
-        dlmalloc.path = patches.dlmalloc.store;
-      };
-    };
-    extraManifestEnv = {
-      patch.crates-io = {
-        dlmalloc.path = patches.dlmalloc.env;
-      };
-    };
   };
 }

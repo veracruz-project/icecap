@@ -29,8 +29,7 @@ let
 
     in newScope {
 
-      inherit lib;
-      inherit localCrates patches;
+      inherit localCrates;
 
       mk = mkBase false;
       mkBin = mkBase true;
