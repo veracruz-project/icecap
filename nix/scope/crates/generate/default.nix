@@ -75,6 +75,36 @@ let
     })
   );
 
+  workspaceUnchecked = writeText "workspace-unchecked.toml" ''
+    [workspace]
+
+    resolver = "2"
+
+    members = [
+      ${lib.concatStringsSep "\n" (lib.naturalSort (lib.flip lib.mapAttrsToList realized (_: { relativePath, ... }:
+        "    \"${relativePath}\","
+      )))}
+    ]
+    ${lib.concatStringsSep "\n" (lib.flip lib.mapAttrsToList globalCrates._patches (crateName: fetched: ''
+
+      [patches.crates-io.${crateName}]
+      git = "${fetched.hack.url}"
+      rev = "${fetched.hack.rev}"
+      branch = "${fetched.hack.ref /* HACK */}"''))}
+  '';
+
+  workspace = runCommand "Cargo.toml" {
+    nativeBuildInputs = [
+      python3Packages.toml
+    ];
+  } ''
+    if ! python3 -c 'import sys; import toml; toml.load(sys.stdin)' < ${workspaceUnchecked}; then
+      cat ${workspaceUnchecked}
+      false
+    fi
+    ln -s ${workspaceUnchecked} $out
+  '';
+
 in {
-  inherit realized links;
+  inherit realized links workspace;
 }

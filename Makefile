@@ -30,4 +30,8 @@ everything: | $(out)
 
 .PHONY: update-generated-sources
 update-generated-sources:
-	script=$$(nix-build -A meta.generate.all --no-out-link) && $$script
+	script=$$(nix-build -A meta.generate.update --no-out-link) && $$script
+
+.PHONY: check-generated-sources
+check-generated-sources:
+	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script

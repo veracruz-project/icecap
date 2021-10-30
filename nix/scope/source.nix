@@ -46,11 +46,12 @@ rec {
       { repo, ref ? null, rev, submodules ? false, local ? false, localGit ? false, innerSuffix ? "", outerSuffix ? "" } @ args:
 
         let
+          url = if localGit then localPathOf repo else gitUrlOf repo;
+          ref_ = if ref != null then ref else keepRefOf rev;
 
           remoteBase = builtins.fetchGit {
-            inherit rev submodules;
-            url = if localGit then localPathOf repo else gitUrlOf repo;
-            ref = if ref != null then ref else keepRefOf rev;
+            inherit url rev submodules;
+            ref = ref_;
           };
 
           remoteIntermediate = "${remoteBase}/${innerSuffix}";
@@ -70,6 +71,12 @@ rec {
           extendOuterSuffix = suffix: (self args).override' (attrs: { outerSuffix = (attrs.outerSuffix or "") + suffix; });
           forceLocal = (self args).override' { local = true; };
           forceRemote = (self args).override' { local = false; };
+
+          # HACK
+          hack = {
+            inherit url rev;
+            ref = ref_;
+          };
         }
     ));
 
