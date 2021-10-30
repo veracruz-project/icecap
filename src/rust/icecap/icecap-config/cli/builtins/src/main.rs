@@ -21,7 +21,6 @@ pub fn main() -> Result<(), io::Error> {
     assert!(args.next().is_none());
 
     let module = format!("icecap_{}_config", arg.replace("-", "_"));
-    eprintln!("{}", module);
 
     gen!(
         module.as_str(), [
