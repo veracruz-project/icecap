@@ -88,7 +88,7 @@ let
     )))}
     ]
 
-    [profiles.release]
+    [profile.release]
     lto = true
     codegen-units = 1
     ${lib.concatStringsSep "\n" (lib.flip lib.mapAttrsToList globalCrates._patches (crateName: fetched: ''
