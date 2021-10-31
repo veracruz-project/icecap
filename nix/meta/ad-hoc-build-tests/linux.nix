@@ -13,7 +13,7 @@ let
     (fetchCrates lock).config
   ]);
 
-  flags = lib.concatStringsSep " " (lib.mapAttrsToList (k: _: "-p ${k}") globalCrates._icecapBinsInv);
+  flags = lib.concatStringsSep " " (lib.mapAttrsToList (k: _: "-p ${k}") globalCrates._cratesForLinux);
 
   src = (icecapSrc.relativeSplit "rust").store;
 

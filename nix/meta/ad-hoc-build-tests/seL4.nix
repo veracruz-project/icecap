@@ -19,7 +19,7 @@ let
     }
   ]);
 
-  flags = lib.concatStringsSep " " (lib.mapAttrsToList (k: _: "-p ${k}") globalCrates._icecapBins);
+  flags = lib.concatStringsSep " " (lib.mapAttrsToList (k: _: "-p ${k}") globalCrates._cratesForSeL4);
 
   src = (icecapSrc.relativeSplit "rust").store;
 

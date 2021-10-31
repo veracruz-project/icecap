@@ -51,12 +51,12 @@ let
     inherit icecapSrc;
   };
 
-  icecapBins = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
-  icecapBinsInv = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude)localCrates;
+  cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
+  cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude)localCrates;
 
 in localCrates // rec {
   _localCrates = localCrates;
   _patches = patches;
-  _icecapBins = icecapBins;
-  _icecapBinsInv = icecapBinsInv;
+  _cratesForSeL4 = cratesForSeL4;
+  _cratesForLinux = cratesForLinux;
 }
