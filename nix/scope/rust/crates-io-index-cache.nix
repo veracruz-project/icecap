@@ -32,8 +32,7 @@ let
       };
     in ''
       d=$CARGO_HOME/git/db/${patch.cacheTag}
-      mkdir -p $d
-      ln -s ${dotGit}/* $d
+      ln -s ${dotGit} $d
       d=$CARGO_HOME/git/checkouts/${patch.cacheTag}/${builtins.substring 0 7 patch.src.hack.rev}
       mkdir -p $d
       ln -s ${patch.src}/* $d
