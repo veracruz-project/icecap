@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkComponent, localCrates }:
 
-mkBin {
+mkComponent {
   nix.name = "timer-server";
   nix.local.dependencies = with localCrates; [
     icecap-std

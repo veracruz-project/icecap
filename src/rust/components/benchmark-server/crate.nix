@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkComponent, localCrates }:
 
-mkBin {
+mkComponent {
   nix.name = "benchmark-server";
   nix.local.dependencies = with localCrates; [
     icecap-sel4

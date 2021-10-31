@@ -1,6 +1,6 @@
-{ mkBin, localCrates, serdeMin }:
+{ mkComponent, localCrates, serdeMin }:
 
-mkBin {
+mkComponent {
   nix.name = "resource-server";
   nix.local.dependencies = with localCrates; [
     icecap-std

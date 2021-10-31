@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkComponent, localCrates }:
 
-mkBin {
+mkComponent {
   nix.name = "realm-vmm";
   nix.local.dependencies = with localCrates; [
     biterate

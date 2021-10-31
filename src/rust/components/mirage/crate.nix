@@ -1,6 +1,6 @@
-{ mkBin, localCrates, serdeMin, stdenv }:
+{ mkComponent, localCrates, serdeMin, stdenv }:
 
-mkBin {
+mkComponent {
   nix.name = "mirage";
   nix.local.dependencies = with localCrates; [
     icecap-linux-syscall

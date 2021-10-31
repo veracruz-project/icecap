@@ -13,7 +13,7 @@ let
   callCrate = path:
 
     let
-      mkBase = isBin: args: crateUtils.mkCrate (lib.recursiveUpdate args {
+      mkBase = isBin: isSeL4: args: crateUtils.mkCrate (lib.recursiveUpdate args {
         nix.src = icecapSrc.absoluteSplit (path + "/src");
         nix.isBin = isBin;
         nix.buildScriptHack =
@@ -25,14 +25,16 @@ let
           path = icecapSrc.absolute (path + "/${name}");
         });
         nix.hack.path = path; # HACK
+        nix.hack.isSeL4 = isSeL4;
       });
 
     in newScope {
 
       inherit localCrates;
 
-      mk = mkBase false;
-      mkBin = mkBase true;
+      mk = mkBase false false;
+      mkBin = mkBase true false;
+      mkComponent = mkBase true true;
 
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
@@ -43,7 +45,14 @@ let
     inherit icecapSrc;
   };
 
-in localCrates // {
+  isBinThatDependsOnSys = crate: crate.hack.elaboratedNix.hack.isSeL4;
+
+  icecapBins = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4) localCrates;
+  icecapBinsInv = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.isBin && !crate.hack.elaboratedNix.hack.isSeL4)localCrates;
+
+in localCrates // rec {
   _localCrates = localCrates;
   _patches = patches;
+  _icecapBins = icecapBins;
+  _icecapBinsInv = icecapBinsInv;
 }
