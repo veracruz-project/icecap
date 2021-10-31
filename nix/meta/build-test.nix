@@ -21,7 +21,6 @@ let
     musl.icecap.firecracker
     musl.icecap.firecracker-prebuilt
     musl.icecap.firectl
-    # adHocBuildTests.all
   ];
 
 in

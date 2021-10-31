@@ -20,7 +20,6 @@ rec {
 
   buildTest = import ./build-test.nix {
     inherit lib pkgs meta;
-    inherit adHocBuildTests;
   };
 
   adHocBuildTests = import ./ad-hoc-build-tests {
