@@ -17,11 +17,11 @@ let
 
   images = cpioUtils.mkObj {
     symbolName = "_archive_start";
-    archive-cpio = cpioUtils.mk (linkFarm "links" [
+    archive-cpio = cpioUtils.mk [
       { name = "kernel.elf"; path = kernel.elf.min; }
       { name = "kernel.dtb"; path = kernel.dtb; }
       { name = "app.elf"; path = app-elf; }
-    ]);
+    ];
   };
 
   py = runCommand "x.py" {
