@@ -13,7 +13,6 @@ let
   images = cpioUtils.mkObj {
     archive-cpio = elfs-cpio;
     symbolName = "_capdl_archive";
-    libName = "images";
   };
 
   spec = runCommand "capdl_spec.c" {
@@ -37,7 +36,7 @@ libs.mkRoot rec {
         mk = writeText "icecap.mk" ''
           exes += capdl-loader
           src-capdl-loader = ${src}
-          ldlibs-capdl-loader := -Wl,--start-group -licecap_runtime -licecap_utils -licecap_pure -lcpio -lcapdl_support_hack -lcapdl-loader -limages -Wl,--end-group
+          ldlibs-capdl-loader := -Wl,--start-group -licecap_runtime -licecap_utils -licecap_pure -lcpio -lcapdl_support_hack -lcapdl-loader ${images} -Wl,--end-group
         '';
         src = linkFarm "root" [
           { name = "spec.c";
@@ -57,6 +56,5 @@ libs.mkRoot rec {
     icecap-utils
 
     capdl-loader-lib
-    images
   ];
 }

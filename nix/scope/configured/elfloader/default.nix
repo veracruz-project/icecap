@@ -17,12 +17,11 @@ let
 
   images = cpioUtils.mkObj {
     symbolName = "_archive_start";
-    libName = "images";
-    archive-cpio = cpioUtils.mk [
-      { path = "kernel.elf"; contents = kernel.elf.min; }
-      { path = "kernel.dtb"; contents = kernel.dtb; }
-      { path = "app.elf"; contents = app-elf; }
-    ];
+    archive-cpio = cpioUtils.mk (linkFarm "links" [
+      { name = "kernel.elf"; path = kernel.elf.min; }
+      { name = "kernel.dtb"; path = kernel.dtb; }
+      { name = "app.elf"; path = app-elf; }
+    ]);
   };
 
   py = runCommand "x.py" {
@@ -67,7 +66,6 @@ stdenvBoot.mkDerivation rec {
   buildInputs = [
     libcpio libsel4
     autoconf
-    images
   ];
 
   nativeBuildInputs = [
@@ -87,7 +85,7 @@ stdenvBoot.mkDerivation rec {
   ];
 
   NIX_CFLAGS_LINK = [
-    "-limages"
+    images
   ];
 
   cmakeDir = linkFarm "x" [
@@ -107,7 +105,7 @@ stdenvBoot.mkDerivation rec {
           set(source ${source})
         endif()
 
-        set(FOO_ARCHIVE_O ${images.archive-obj} CACHE STRING "")
+        set(FOO_ARCHIVE_O ${images} CACHE STRING "")
         set(FOO_ELF_SIFT ${py}/elf_sift.py CACHE STRING "")
         set(FOO_SHOEHORN ${py}/shoehorn.py CACHE STRING "")
         set(FOO_PLATFORM_SIFT ${py}/platform_sift.py CACHE STRING "")

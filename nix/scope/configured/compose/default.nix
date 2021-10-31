@@ -30,7 +30,7 @@ let
 
     app = mkCapDLLoader {
       cdl = "${self.cdl}/icecap.cdl";
-      elfs-cpio = cpioUtils.mkFrom "${self.cdl}/links";
+      elfs-cpio = cpioUtils.mk "${self.cdl}/links";
     };
 
     cdl = mkIceDL {
