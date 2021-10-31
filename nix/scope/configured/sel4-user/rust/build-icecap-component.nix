@@ -48,10 +48,9 @@ lib.fix (self: buildRustPackageIncrementally ({
     LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
     BINDGEN_EXTRA_CLANG_ARGS = [
       "-I${libsel4}/include"
-      "-I${libs.icecap-autoconf}/include"
     ];
     buildInputs = [
-      libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
+      libsel4 libs.icecap-runtime libs.icecap-utils
     ];
     dontStrip = true;
     dontPatchELF = true;

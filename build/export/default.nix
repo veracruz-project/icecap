@@ -51,7 +51,7 @@ in icecap // {
       "/lib" "/include"
     ];
     paths = let inherit (configured) libsel4 libs; in [
-      libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
+      libsel4 libs.icecap-runtime libs.icecap-utils
     ];
   };
 

@@ -32,13 +32,12 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ cargo rustc ];
   buildInputs = [
-    libsel4 libs.icecap-autoconf libs.icecap-runtime libs.icecap-utils
+    libsel4 libs.icecap-runtime libs.icecap-utils
   ];
 
   LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
   BINDGEN_EXTRA_CLANG_ARGS = [
     "-I${libsel4}/include"
-    "-I${libs.icecap-autoconf}/include"
   ];
 
   configurePhase = ''

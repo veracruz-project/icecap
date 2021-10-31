@@ -81,15 +81,8 @@ rec {
 
   inherit mk mkRoot;
 
-  icecap-autoconf = mkBasic {
-    name = "icecap-autoconf";
-  };
-
   icecap-runtime = mkBasic {
     name = "icecap-runtime";
-    inputs = [
-      icecap-autoconf
-    ];
     extra = {
       CONFIG = linkFarm "config" [
         { name = "icecap_runtime/config.h";
@@ -103,9 +96,6 @@ rec {
 
   icecap-runtime-root = mkBasic {
     name = "icecap-runtime";
-    inputs = [
-      icecap-autoconf
-    ];
     extra = {
       CONFIG = linkFarm "config" [
         { name = "icecap_runtime/config.h";
@@ -123,7 +113,6 @@ rec {
   icecap-utils = mkBasic {
     name = "icecap-utils";
     inputs = [
-      icecap-autoconf
       icecap-runtime # TODO invert
     ];
   };
@@ -131,7 +120,7 @@ rec {
   icecap-pure = mkBasic {
     name = "icecap-pure";
     inputs = [
-      icecap-autoconf
+      icecap-utils
     ];
   };
 
@@ -142,7 +131,6 @@ rec {
     propagatedBuildInputs = [
       stdenvMirage.cc.libc # HACK
       libsel4
-      icecap-autoconf
       icecap-runtime
       icecap-ocaml-runtime
       icecap-utils # HACK
@@ -158,7 +146,6 @@ rec {
     name = "capdl-support-hack";
     path = "support/${name}";
     inputs = [
-      icecap-autoconf
       icecap-utils
       icecap-pure
     ];

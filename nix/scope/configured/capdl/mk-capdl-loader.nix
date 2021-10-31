@@ -50,7 +50,6 @@ libs.mkRoot rec {
   };
   propagatedBuildInputs = with libs; [
     libsel4
-    icecap-autoconf
     icecap-runtime-root
     icecap-pure
     icecap-utils

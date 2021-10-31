@@ -115,7 +115,6 @@ lib.fix (self: stdenv.mkDerivation ({
   nativeBuildInputs = [ cargo rustc ];
   buildInputs = [
     libsel4
-    libs.icecap-autoconf
     libs.icecap-runtime
     libs.icecap-utils
   ];

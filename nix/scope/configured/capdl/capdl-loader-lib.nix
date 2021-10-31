@@ -36,7 +36,6 @@ libs.mk {
   ];
   propagatedBuildInputs = [
     libsel4
-    libs.icecap-autoconf
     libs.icecap-runtime-root
     libs.icecap-pure
     libs.icecap-utils

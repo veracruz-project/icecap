@@ -88,7 +88,6 @@ rec {
     seL4 = icecapSrc.repo {
       repo = "seL4";
       rev = "c939ec9c963032031203d71754670f3540190bd8";
-      localGit = true;
     };
 
     capdl = icecapSrc.repo {
