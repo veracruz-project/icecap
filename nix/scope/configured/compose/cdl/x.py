@@ -1,3 +1,3 @@
 from icedl.firmware import Composition
 
-Composition.run()
+Composition.from_env().run()

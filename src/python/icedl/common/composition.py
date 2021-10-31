@@ -19,34 +19,34 @@ RingBufferSideObjects = namedtuple('RingBufferSideObjects', 'size ctrl data')
 class BaseComposition:
 
     @classmethod
-    def run(cls):
-        composition = cls.from_env()
-        composition.compose()
-        composition.complete()
-
-    @classmethod
     def from_env(cls):
         with open(os.environ['CONFIG']) as f:
             config = json.load(f)
-        with open(config['object_sizes']) as f:
-            object_sizes = yaml.load(f, Loader=yaml.FullLoader)
-        register_object_sizes(object_sizes)
         return cls(out_dir=os.environ['OUT_DIR'], config=config)
 
     def __init__(self, out_dir, config):
+        self.out_dir = Path(out_dir)
+        self.config = config
+
+        with open(config['object_sizes']) as f:
+            object_sizes = yaml.load(f, Loader=yaml.FullLoader)
+        register_object_sizes(object_sizes)
+
         self.arch = lookup_architecture(ARCH)
         obj_space = ObjectAllocator()
         obj_space.spec.arch = self.arch.capdl_name()
         self.render_state = RenderState(obj_space=obj_space)
 
-        self.out_dir = Path(out_dir)
-        self.config = config
         self.plat = config['plat']
 
         self.components = set()
         self.files = {}
 
         self._gic_vcpu_frame = None # allocate lazily
+
+    def run(self):
+        self.compose()
+        self.complete()
 
     def compose(self):
         raise NotImplementedError

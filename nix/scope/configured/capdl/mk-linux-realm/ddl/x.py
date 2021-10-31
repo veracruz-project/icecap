@@ -1,3 +1,3 @@
 from icedl.realm import LinuxComposition
 
-LinuxComposition.run()
+LinuxComposition.from_env().run()

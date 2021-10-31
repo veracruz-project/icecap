@@ -21,4 +21,4 @@ class Composition(BaseComposition):
         self.test = self.component(Test, 'test', prio=100)
 
 
-Composition.run()
+Composition.from_env().run()

@@ -12,4 +12,4 @@ class Composition(BaseComposition):
     def compose(self):
         self.test = self.component(Test, 'test')
 
-Composition.run()
+Composition.from_env().run()
