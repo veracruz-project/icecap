@@ -1,7 +1,7 @@
 { lib, runCommand, writeText, linkFarm
 , python3, python3Packages
 , icecapSrc
-, globalCrates, crateUtils, generateLockfile
+, globalCrates, crateUtils
 }:
 
 let
@@ -93,10 +93,9 @@ let
     codegen-units = 1
     ${lib.concatStringsSep "\n" (lib.flip lib.mapAttrsToList globalCrates._patches (crateName: fetched: ''
 
-      [patches.crates-io.${crateName}]
+      [patch.crates-io.${crateName}]
       git = "${fetched.hack.url}"
-      rev = "${fetched.hack.rev}"
-      branch = "${fetched.hack.ref /* HACK */}"''))}
+      rev = "${fetched.hack.rev}"''))}
   '';
 
   workspace = runCommand "Cargo.toml" {
@@ -111,8 +110,6 @@ let
     ln -s ${workspaceUnchecked} $out
   '';
 
-  lock = generateLockfile (lib.attrValues globalCrates._localCrates);
-
 in {
-  inherit realized links workspace lock;
+  inherit realized links workspace;
 }

@@ -35,7 +35,6 @@ let
     set -e
     cd ${toString (icecapSrc.relativeRaw "rust")}
     pwd
-    ${mkAction actuallyDoIt "crates.nix" "Cargo.lock" generatedCrateManifests.lock}
     ${mkAction actuallyDoIt "crates.nix" "Cargo.toml" generatedCrateManifests.workspace}
     ${lib.concatStrings (lib.flip lib.mapAttrsToList generatedCrateManifests.realized (_: { relativePath, manifest }: ''
       ${mkAction actuallyDoIt "${relativePath}/crate.nix" "${relativePath}/Cargo.toml" manifest}
