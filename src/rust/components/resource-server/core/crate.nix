@@ -1,6 +1,6 @@
-{ mk, localCrates, serdeMin }:
+{ mkSeL4, localCrates, serdeMin }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-resource-server-core";
   nix.local.dependencies = with localCrates; [
     dyndl-types

@@ -1,6 +1,6 @@
-{ mk, localCrates }:
+{ mkSeL4, localCrates }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-sel4-sys";
   nix.buildScriptHack = true;
   nix.keepFilesHack = [

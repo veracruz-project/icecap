@@ -1,6 +1,6 @@
-{ mk, localCrates, serdeMin }:
+{ mkSeL4, localCrates, serdeMin }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-runtime";
   nix.buildScriptHack = true;
   nix.local.dependencies = with localCrates; [

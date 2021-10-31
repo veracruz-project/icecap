@@ -1,6 +1,6 @@
-{ mk, localCrates, serdeMin }:
+{ mkSeL4, localCrates, serdeMin }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-start";
   nix.local.dependencies = with localCrates; [
     icecap-failure

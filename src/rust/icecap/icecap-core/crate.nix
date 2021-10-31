@@ -1,6 +1,6 @@
-{ mk, localCrates }:
+{ mkSeL4, localCrates }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-core";
   nix.local.dependencies = with localCrates; [
     icecap-sel4

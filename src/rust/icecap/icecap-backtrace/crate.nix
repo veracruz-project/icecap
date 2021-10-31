@@ -1,6 +1,6 @@
-{ mk, localCrates }:
+{ mkSeL4, localCrates }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-backtrace";
   nix.local.dependencies = with localCrates; [
     icecap-runtime

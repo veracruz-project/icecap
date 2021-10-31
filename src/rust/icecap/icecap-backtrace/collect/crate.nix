@@ -1,6 +1,6 @@
-{ mk, localCrates }:
+{ mkSeL4, localCrates }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-backtrace-collect";
   nix.local.dependencies = with localCrates; [
     icecap-backtrace-types

@@ -1,6 +1,6 @@
-{ lib, mk, localCrates }:
+{ mkSeL4, localCrates }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-unwind";
   nix.local.target."cfg(target_os = \"icecap\")".dependencies = with localCrates; [
     icecap-runtime

@@ -1,6 +1,6 @@
-{ mk }:
+{ mkSeL4 }:
 
-mk {
+mkSeL4 {
   nix.name = "icecap-logger";
   dependencies = {
     log = "*";

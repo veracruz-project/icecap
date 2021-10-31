@@ -35,6 +35,7 @@ let
       mk = mkBase false false;
       mkBin = mkBase true false;
       mkComponent = mkBase true true;
+      mkSeL4 = mkBase false true;
 
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
@@ -45,10 +46,8 @@ let
     inherit icecapSrc;
   };
 
-  isBinThatDependsOnSys = crate: crate.hack.elaboratedNix.hack.isSeL4;
-
-  icecapBins = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4) localCrates;
-  icecapBinsInv = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.isBin && !crate.hack.elaboratedNix.hack.isSeL4)localCrates;
+  icecapBins = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && crate.name != "absurdity") localCrates;
+  icecapBinsInv = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && crate.name != "absurdity")localCrates;
 
 in localCrates // rec {
   _localCrates = localCrates;
