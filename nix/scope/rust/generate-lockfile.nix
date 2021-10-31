@@ -2,6 +2,7 @@
 , cargo
 , nixToToml, cratesIOIndexCache
 , crateUtils
+, strace
 }:
 
 { rootCrates, extraManifest ? {} }:
@@ -24,6 +25,7 @@ in
 runCommand "Cargo.lock" {
   nativeBuildInputs = [
     cargo
+    # strace
   ];
   CARGO_HOME = cratesIOIndexCache;
 } ''
@@ -32,3 +34,4 @@ runCommand "Cargo.lock" {
   cargo generate-lockfile --offline
   mv Cargo.lock $out
 ''
+  # strace -f -e trace=file cargo generate-lockfile --offline

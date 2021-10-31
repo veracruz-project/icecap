@@ -91,11 +91,6 @@ let
     [profile.release]
     lto = true
     codegen-units = 1
-    ${lib.concatStringsSep "\n" (lib.flip lib.mapAttrsToList globalCrates._patches (crateName: fetched: ''
-
-      [patch.crates-io.${crateName}]
-      git = "${fetched.hack.url}"
-      rev = "${fetched.hack.rev}"''))}
   '';
 
   workspace = runCommand "Cargo.toml" {

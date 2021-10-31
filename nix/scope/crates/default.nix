@@ -39,6 +39,8 @@ let
       mkSeL4 = mkBase false true false;
       mkExclude = mkBase false false true;
 
+      inherit patches;
+
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
 

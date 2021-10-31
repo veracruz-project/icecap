@@ -1,4 +1,6 @@
-{ runCommand, fetchgit }:
+{ lib, runCommand, fetchgit
+, globalCrates
+}:
 
 let
   git = fetchgit {
@@ -14,6 +16,33 @@ let
     '';
   };
 
+  gitDep = patch:
+    let
+      dotGit = fetchgit {
+        url = patch.src.hack.url;
+        rev = patch.src.hack.rev;
+        sha256 = patch.dotGitSha256;
+        leaveDotGit = true;
+        deepClone = false;
+        postFetch = ''
+          mv $out/.git tmp
+          rm -r $out
+          mv tmp $out
+        '';
+      };
+    in ''
+      d=$CARGO_HOME/git/db/${patch.cacheTag}
+      mkdir -p $d
+      ln -s ${dotGit}/* $d
+      d=$CARGO_HOME/git/checkouts/${patch.cacheTag}/${builtins.substring 0 7 patch.src.hack.rev}
+      mkdir -p $d
+      ln -s ${patch.src}/* $d
+      ln -s ${dotGit} $d/.git
+      touch $d/.cargo-ok
+    '';
+
+  patches = globalCrates._patches;
+
 in
   runCommand "cargo-home" {} ''
     export CARGO_HOME=$out
@@ -23,4 +52,8 @@ in
     rm -r $d/.git/refs
     mkdir -p $d/.git/refs/remotes/origin
     echo ${git.rev} > $d/.git/refs/remotes/origin/HEAD
+
+    mkdir -p $CARGO_HOME/git/db $CARGO_HOME/git/checkouts
+
+    ${lib.concatMapStrings gitDep (lib.attrValues patches)}
   ''

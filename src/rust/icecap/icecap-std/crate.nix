@@ -1,4 +1,4 @@
-{ mkSeL4, localCrates }:
+{ mkSeL4, localCrates, patches }:
 
 mkSeL4 {
   nix.name = "icecap-std";
@@ -7,6 +7,6 @@ mkSeL4 {
   ];
   dependencies = {
     log = "*";
-    dlmalloc = "=0.1.3";
+    dlmalloc = patches.dlmalloc.dep;
   };
 }

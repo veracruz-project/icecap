@@ -21,16 +21,16 @@ lib.fix (self: buildRustPackageIncrementally ({
       codegen-units = 1;
       lto = true;
     };
-    patch.crates-io = {
-      dlmalloc.path = patches.dlmalloc.store;
-    };
+    # patch.crates-io = {
+    #   dlmalloc.path = patches.dlmalloc.store;
+    # };
   };
 
-  extraManifestEnv = {
-    patch.crates-io = {
-      dlmalloc.path = patches.dlmalloc.env;
-    };
-  };
+  # extraManifestEnv = {
+  #   patch.crates-io = {
+  #     dlmalloc.path = patches.dlmalloc.env;
+  #   };
+  # };
 
   extraCargoConfig = crateUtils.clobber [
     {
