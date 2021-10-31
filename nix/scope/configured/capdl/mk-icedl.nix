@@ -33,7 +33,6 @@ let
   f = attr: runCommand "manifest" {
 
     nativeBuildInputs = [
-      buildPackages.stdenv.cc
       icecap-append-devices
       icecap-serialize-runtime-config
       icecap-serialize-builtin-config
