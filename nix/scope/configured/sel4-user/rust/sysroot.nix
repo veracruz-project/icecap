@@ -37,7 +37,8 @@ let
       env = crateUtils.collectEnv allImplCrates;
     };
 
-    inherit (globalCrates._patches) dlmalloc libc;
+    inherit (lib.mapAttrs (_: patch: patch.src) globalCrates._patches)
+      dlmalloc libc;
   };
 
   mkSrc = attr: linkFarm "src" (mapAttrsToList (k: v: { name = k; path = v.${attr}; }) srcs);
