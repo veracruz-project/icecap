@@ -6,7 +6,7 @@ let
   inherit (pkgs.none.icecap) platUtils elfUtils icecapSrc;
   inherit (configured)
     icecapFirmware icecapPlat selectIceCapPlatOr
-    mkMirageBinary mkDynDLSpec mkIceDL;
+    mkMirageBinary mkDynDLSpec mkRealm;
 
 in rec {
 
@@ -31,16 +31,8 @@ in rec {
     };
   };
 
-  spec = mkDynDLSpec {
-    cdl = "${ddl}/icecap.cdl";
-    root = "${ddl}/links";
-    extraPassthru = {
-      inherit ddl;
-    };
-  };
-
-  ddl = mkIceDL {
-    action.script = icecapSrc.absoluteSplit ./ddl.py;
+  spec = mkRealm {
+    script = ./ddl.py;
     config = {
       realm_id = 0;
       num_cores = 1;

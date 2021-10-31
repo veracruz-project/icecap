@@ -35,6 +35,7 @@ self: with self;
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
+  mkRealm = callPackage ./capdl/mk-realm.nix {};
   mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
 
   # TODO use or drop
