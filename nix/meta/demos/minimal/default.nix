@@ -8,7 +8,7 @@ let
 in rec {
 
   composition = configured.compose {
-    src = ./cdl;
+    action.script = icecapSrc.absoluteSplit ./cdl.py;
     config = {
       components = {
         minimal.image = elfUtils.split "${minimal}/bin/minimal.elf";

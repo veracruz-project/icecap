@@ -9,7 +9,7 @@ from icedl.firmware.components.event_server import EventServer
 from icedl.firmware.components.benchmark_server import BenchmarkServer
 from icedl.firmware.components.vm import VMM, VM, HostVM
 
-class Composition(BaseComposition):
+class FirmwareComposition(BaseComposition):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

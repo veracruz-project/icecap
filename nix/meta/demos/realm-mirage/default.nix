@@ -3,7 +3,7 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
-  inherit (pkgs.none.icecap) platUtils elfUtils;
+  inherit (pkgs.none.icecap) platUtils elfUtils icecapSrc;
   inherit (configured)
     icecapFirmware icecapPlat selectIceCapPlatOr
     mkMirageBinary mkDynDLSpec mkIceDL;
@@ -40,7 +40,7 @@ in rec {
   };
 
   ddl = mkIceDL {
-    src = ./ddl;
+    action.script = icecapSrc.absoluteSplit ./ddl.py;
     config = {
       realm_id = 0;
       num_cores = 1;

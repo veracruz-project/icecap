@@ -7,7 +7,7 @@
 
 let
   ddl = mkIceDL {
-    src = ./ddl;
+    action = "linux-realm";
     config = {
       realm_id = 0;
       num_cores = 1;

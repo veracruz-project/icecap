@@ -12,8 +12,9 @@ class Mirage(GenericElfComponent):
             },
         }
 
-composition = BaseComposition.from_env()
+class Composition(BaseComposition):
 
-mirage = composition.component(Mirage, 'mirage')
+    def compose(self):
+        self.component(Mirage, 'mirage')
 
-composition.complete()
+Composition.from_env().run()

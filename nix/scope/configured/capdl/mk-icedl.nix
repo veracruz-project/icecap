@@ -14,7 +14,7 @@
 }:
 
 { config
-, src
+, action
 }:
 
 let
@@ -26,51 +26,59 @@ let
     hack_realm_affinity = 1;
   };
 
+  augmentedConfigJSON = writeText "config.json" (builtins.toJSON augmentedConfig);
+
   capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";
   icedlSrc = icecapSrc.relativeSplit "python";
-  srcSplit = icecapSrc.absoluteSplit src;
 
-  f = attr: runCommand "manifest" {
+  f = attr:
 
-    nativeBuildInputs = [
-      icecap-append-devices
-      icecap-serialize-runtime-config
-      icecap-serialize-builtin-config
-      icecap-serialize-event-server-out-index
-      dyndl-serialize-spec
-    ] ++ (with python3Packages; [
-      future six
-      aenum orderedset sortedcontainers
-      pyyaml pyelftools pyfdt
-    ]);
+    let
+      cmd =
+        if lib.isString action
+        then {
+          firmware = "python3 -m icedl.cli firmware ${augmentedConfigJSON} -o $out";
+          linux-realm = "python3 -m icedl.cli linux-realm ${augmentedConfigJSON} -o $out";
+        }.${action}
+        else "CONFIG=${augmentedConfigJSON} OUT_DIR=${{ env = "."; store = "$out"; }.${attr}} python3 ${action.script.${attr}}";
 
-    CONFIG = writeText "config.json" (builtins.toJSON augmentedConfig);
+    in
+    runCommand "manifest" {
 
-    PYTHONPATH_ = lib.concatMapStringsSep ":" (x: x.${attr}) [ srcSplit icedlSrc capdlSrc ];
+      nativeBuildInputs = [
+        icecap-append-devices
+        icecap-serialize-runtime-config
+        icecap-serialize-builtin-config
+        icecap-serialize-event-server-out-index
+        dyndl-serialize-spec
+      ] ++ (with python3Packages; [
+        future six
+        aenum orderedset sortedcontainers
+        pyyaml pyelftools pyfdt
+      ]);
 
-    setup = ''
-      export PYTHONPATH=$PYTHONPATH_:$PYTHONPATH
-    '';
+      PYTHONPATH_ = lib.concatMapStringsSep ":" (x: x.${attr}) [ icedlSrc capdlSrc ];
 
-    passthru = {
-      env = f "env";
-      config = augmentedConfig;
-    };
+      setup = ''
+        export PYTHONPATH=$PYTHONPATH_:$PYTHONPATH
+      '';
 
-    shellHook = ''
+      passthru = {
+        env = f "env";
+        config = augmentedConfig;
+      };
+
+      shellHook = ''
+        eval "$setup"
+        b() {
+          ${cmd}
+        }
+      '';
+
+    } ''
       eval "$setup"
-      export OUT_DIR=.
-      b() {
-        python3 -m x
-      }
+      ${cmd}
     '';
-
-  } ''
-    eval "$setup"
-    export OUT_DIR=$out
-    mkdir $OUT_DIR
-    python3 -m x
-  '';
 
 in
   f "store"

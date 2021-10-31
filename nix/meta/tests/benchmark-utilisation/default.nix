@@ -2,14 +2,14 @@
 , emptyFile
 , linuxPkgs
 , seL4EcosystemRepos
-, elfUtils
+, elfUtils, icecapSrc
 }:
 
 mkInstance { benchmark = true; } (self: with self.configured; with self; {
 
   composition = compose {
     # inherit (self) kernel;
-    src = ./cdl;
+    action.script = icecapSrc.absoluteSplit ./cdl.py;
     config = {
       components = {
         test.image = elfUtils.split "${test}/bin/test.elf";

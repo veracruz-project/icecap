@@ -35,8 +35,7 @@ self: with self;
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
-
-  mkLinuxRealm = callPackage ./capdl/mk-linux-realm {};
+  mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
 
   # TODO use or drop
   stdenvIceCap = mkStdenv (callPackage ./sel4-user/c/libc-wrapper.nix {});

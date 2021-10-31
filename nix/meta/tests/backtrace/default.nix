@@ -1,11 +1,11 @@
 { mkInstance
-, elfUtils
+, elfUtils, icecapSrc
 }:
 
 mkInstance { debug = true; } (self: with self.configured; with self; {
 
   composition = compose {
-    src = ./cdl;
+    action.script = icecapSrc.absoluteSplit ./cdl.py;
     config = {
       components = {
         test.image = elfUtils.split "${test}/bin/test.elf";

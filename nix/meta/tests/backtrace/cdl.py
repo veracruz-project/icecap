@@ -10,6 +10,6 @@ class Test(GenericElfComponent):
 class Composition(BaseComposition):
 
     def compose(self):
-        self.test = self.component(Test, 'test')
+        self.component(Test, 'test')
 
 Composition.from_env().run()

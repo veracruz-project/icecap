@@ -1,1 +1,1 @@
-from icedl.firmware.composition import Composition
+from icedl.firmware.composition import FirmwareComposition

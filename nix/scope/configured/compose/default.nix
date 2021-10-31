@@ -34,10 +34,10 @@ let
     };
 
     cdl = mkIceDL {
-      inherit (self) src config;
+      inherit (self) action config;
     };
 
-    src = ./cdl;
+    action = "firmware";
 
     config = {
 

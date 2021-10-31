@@ -10,8 +10,9 @@ class Minimal(ElfComponent):
         self.composition.register_file(path_bin.name, path_bin)
         return path_bin.name
 
-composition = BaseComposition.from_env()
+class Composition(BaseComposition):
 
-minimal = composition.component(Minimal, 'minimal')
+    def compose(self):
+        self.component(Minimal, 'minimal')
 
-composition.complete()
+Composition.from_env().run()

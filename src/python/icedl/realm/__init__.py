@@ -1,1 +1,1 @@
-from icedl.realm.composition import BaseRealmComposition, LinuxComposition
+from icedl.realm.composition import BaseRealmComposition, LinuxRealmComposition

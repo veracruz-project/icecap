@@ -62,7 +62,7 @@ class BaseRealmComposition(BaseComposition):
         })[virt_node]
 
 
-class LinuxComposition(BaseRealmComposition):
+class LinuxRealmComposition(BaseRealmComposition):
 
     def compose(self):
 

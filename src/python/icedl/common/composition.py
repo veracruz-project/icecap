@@ -45,6 +45,7 @@ class BaseComposition:
         self._gic_vcpu_frame = None # allocate lazily
 
     def run(self):
+        self.out_dir.mkdir(parents=True, exist_ok=True)
         self.compose()
         self.complete()
 
