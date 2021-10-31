@@ -1,9 +1,9 @@
-{ lib, pkgs, meta }:
+{ lib, pkgs, meta, adHocBuildTests }:
 
 let
   inherit (pkgs) dev none linux musl;
 
-  roots = lib.concatLists (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
+  roots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
     meta.demos.minimal.${k}.run
     meta.demos.minimal-root.${k}.run
     meta.demos.realm-vm.${k}.run
@@ -12,7 +12,7 @@ let
     meta.tests.benchmark-utilisation.${k}.run
   ] ++ lib.optionals dev.hostPlatform.isx86_64 [
     meta.demos.realm-mirage.${k}.run
-  ])) ++ lib.flip lib.concatMap [ dev linux ] (host: [
+  ]) ++ lib.flip lib.concatMap [ dev linux ] (host: [
     host.icecap.crosvm-9p-server
   ]) ++ [
     dev.icecap.sel4-manual
@@ -21,7 +21,8 @@ let
     musl.icecap.firecracker
     musl.icecap.firecracker-prebuilt
     musl.icecap.firectl
+    # adHocBuildTests.all
   ];
 
 in
-pkgs.dev.writeText "build-test-roots" (toString roots)
+pkgs.dev.writeText "build-test-roots" (toString (lib.flatten roots))

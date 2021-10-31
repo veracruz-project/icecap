@@ -2,6 +2,14 @@
 
 rec {
 
+  tcbSize = import ./tcb-size.nix {
+    inherit lib pkgs;
+  };
+
+  generate = import ./generate.nix {
+    inherit lib pkgs;
+  };
+
   demos = lib.flip lib.mapAttrs (import ./demos) (_: path:
     import path { inherit lib pkgs; }
   );
@@ -12,13 +20,11 @@ rec {
 
   buildTest = import ./build-test.nix {
     inherit lib pkgs meta;
+    inherit adHocBuildTests;
   };
 
-  tcbSize = import ./tcb-size.nix {
+  adHocBuildTests = import ./ad-hoc-build-tests {
     inherit lib pkgs;
   };
 
-  generate = import ./generate.nix {
-    inherit lib pkgs;
-  };
 }
