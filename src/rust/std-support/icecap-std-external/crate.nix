@@ -1,6 +1,6 @@
-{ mkSeL4, localCrates }:
+{ mkExclude, localCrates }:
 
-mkSeL4 {
+mkExclude {
   nix.name = "icecap-std-external";
   nix.local.dependencies = with localCrates; [
     icecap-core

@@ -13,7 +13,7 @@ let
   callCrate = path:
 
     let
-      mkBase = isBin: isSeL4: args: crateUtils.mkCrate (lib.recursiveUpdate args {
+      mkBase = isBin: isSeL4: exclude: args: crateUtils.mkCrate (lib.recursiveUpdate args {
         nix.src = icecapSrc.absoluteSplit (path + "/src");
         nix.isBin = isBin;
         nix.buildScriptHack =
@@ -26,16 +26,18 @@ let
         });
         nix.hack.path = path; # HACK
         nix.hack.isSeL4 = isSeL4;
+        nix.hack.exclude = exclude;
       });
 
     in newScope {
 
       inherit localCrates;
 
-      mk = mkBase false false;
-      mkBin = mkBase true false;
-      mkComponent = mkBase true true;
-      mkSeL4 = mkBase false true;
+      mk = mkBase false false false;
+      mkBin = mkBase true false false;
+      mkComponent = mkBase true true false;
+      mkSeL4 = mkBase false true false;
+      mkExclude = mkBase false false true;
 
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };

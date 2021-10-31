@@ -1,6 +1,6 @@
-{ mkComponent, localCrates, serdeMin, stdenv }:
+{ mkExclude, localCrates, serdeMin, stdenv }:
 
-mkComponent {
+mkExclude {
   nix.name = "mirage";
   nix.local.dependencies = with localCrates; [
     icecap-linux-syscall

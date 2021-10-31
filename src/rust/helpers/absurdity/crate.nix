@@ -1,6 +1,6 @@
-{ mk }:
+{ mkExclude }:
 
-mk {
+mkExclude {
   nix.name = "absurdity";
   nix.buildScriptHack = true;
 }
