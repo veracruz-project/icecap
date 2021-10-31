@@ -56,8 +56,8 @@ let
 
     in f "store";
 
-  root-task-tls-lds = icecapSrc.relative "c/root-task-tls.lds";
-  root-task-eh-lds = icecapSrc.relative "c/root-task-eh.lds";
+  root-task-tls-lds = icecapSrc.relative "c/lds/root-task-tls.lds";
+  root-task-eh-lds = icecapSrc.relative "c/lds/root-task-eh.lds";
 
   mkRoot = attrs: mk (attrs // {
     extraCFlagsLink = (attrs.extraCFlagsLink or []) ++ [
