@@ -1,7 +1,7 @@
 { lib, runCommand, writeText, linkFarm
 , python3, python3Packages
 , icecapSrc
-, globalCrates, crateUtils
+, globalCrates, crateUtils, generateLockfile
 }:
 
 let
@@ -105,6 +105,8 @@ let
     ln -s ${workspaceUnchecked} $out
   '';
 
+  lock = generateLockfile (lib.attrValues globalCrates._localCrates);
+
 in {
-  inherit realized links workspace;
+  inherit realized links workspace lock;
 }
