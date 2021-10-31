@@ -35,9 +35,10 @@ let
 
       mk = mkBase false false false;
       mkBin = mkBase true false false;
-      mkComponent = mkBase true true false;
       mkSeL4 = mkBase false true false;
+      mkComponent = mkBase true true false;
       mkExclude = mkBase false false true;
+      mkExcludeBin = mkBase true false true;
 
       inherit patches;
 
