@@ -28,7 +28,6 @@ let
         dontStrip = true;
         dontPatchELF = true;
 
-        hardeningDisable = [ "all" ];
         NIX_CFLAGS_COMPILE = extraCFlagsCompile;
         NIX_CFLAGS_LINK = extraCFlagsLink;
 

@@ -21,6 +21,7 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   name = "test";
 
   phases = [ "configurePhase" "buildPhase" ];
+  hardeningDisable = [ "all" ];
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ cargo rustc ];

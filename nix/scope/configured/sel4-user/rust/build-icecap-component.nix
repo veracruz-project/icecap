@@ -55,7 +55,6 @@ lib.fix (self: buildRustPackageIncrementally ({
     ];
     dontStrip = true;
     dontPatchELF = true;
-    hardeningDisable = [ "all" ];
   };
 
   extraLastLayer = attrs: {
