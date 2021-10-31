@@ -50,8 +50,8 @@ let
     inherit icecapSrc;
   };
 
-  icecapBins = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && crate.name != "absurdity") localCrates;
-  icecapBinsInv = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && crate.name != "absurdity")localCrates;
+  icecapBins = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
+  icecapBinsInv = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude)localCrates;
 
 in localCrates // rec {
   _localCrates = localCrates;
