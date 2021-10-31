@@ -37,6 +37,7 @@ let
           "-f" makefile.${attr}
           "ROOTS=${lib.concatMapStringsSep " " (x: "${x.${attr}}/icecap.mk") roots}"
           "OUT=$(out)"
+          "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
         ];
 
         passthru = {

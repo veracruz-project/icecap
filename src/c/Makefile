@@ -1,3 +1,7 @@
+CC := $(CROSS_COMPILE)gcc
+AR := $(CROSS_COMPILE)ar
+RANLIB := $(CROSS_COMPILE)ranlib
+
 here = $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 trg = $(1)
