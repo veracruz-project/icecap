@@ -1,7 +1,9 @@
 { lib, pkgs }:
 
 rec {
-  all = map lib.attrValues [ seL4 linux ];
+  all = pkgs.dev.writeText "ad-host-build-test-roots" (toString (map lib.attrValues [
+    seL4 linux
+  ]));
 
   seL4 = lib.flip lib.mapAttrs pkgs.none.icecap.configured
     (_: configured: configured.callPackage ./seL4.nix {});
