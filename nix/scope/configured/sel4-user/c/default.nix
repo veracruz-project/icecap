@@ -65,16 +65,15 @@ let
     ];
   });
 
-  mkBasicWith = name: inputs: extra: mk {
-    inherit name;
-    root = icecapSrc.relativeSplit "c/${name}";
-    propagatedBuildInputs = [
-      libsel4
-    ] ++ inputs;
-    inherit extra;
-  };
-
-  mkBasic = name: inputs: mkBasicWith name inputs {};
+  mkBasic = { name, path ? name, inputs ? [], extra ? {} }:
+    mk {
+      inherit name;
+      root = icecapSrc.relativeSplit "c/${path}";
+      propagatedBuildInputs = [
+        libsel4
+      ] ++ inputs;
+      inherit extra;
+    };
 
 in
 
@@ -82,44 +81,59 @@ rec {
 
   inherit mk mkRoot;
 
-  icecap-autoconf = mkBasic "icecap-autoconf" [
-  ];
+  icecap-autoconf = mkBasic {
+    name = "icecap-autoconf";
+  };
 
-  icecap-runtime = mkBasicWith "icecap-runtime" [
-    icecap-autoconf
-  ] {
-    CONFIG = linkFarm "config" [
-      { name = "icecap_runtime/config.h";
-        path = writeText "config.h" ''
-          #pragma once
-        '';
-      }
+  icecap-runtime = mkBasic {
+    name = "icecap-runtime";
+    inputs = [
+      icecap-autoconf
+    ];
+    extra = {
+      CONFIG = linkFarm "config" [
+        { name = "icecap_runtime/config.h";
+          path = writeText "config.h" ''
+            #pragma once
+          '';
+        }
+      ];
+    };
+  };
+
+  icecap-runtime-root = mkBasic {
+    name = "icecap-runtime";
+    inputs = [
+      icecap-autoconf
+    ];
+    extra = {
+      CONFIG = linkFarm "config" [
+        { name = "icecap_runtime/config.h";
+          path = writeText "config.h" ''
+            #pragma once
+            #define ICECAP_RUNTIME_ROOT
+            #define ICECAP_RUNTIME_ROOT_STACK_SIZE 0x200000
+            #define ICECAP_RUNTIME_ROOT_HEAP_SIZE 0x200000
+          '';
+        }
+      ];
+    };
+  };
+
+  icecap-utils = mkBasic {
+    name = "icecap-utils";
+    inputs = [
+      icecap-autoconf
+      icecap-runtime # TODO invert
     ];
   };
 
-  icecap-runtime-root = mkBasicWith "icecap-runtime" [
-    icecap-autoconf
-  ] {
-    CONFIG = linkFarm "config" [
-      { name = "icecap_runtime/config.h";
-        path = writeText "config.h" ''
-          #pragma once
-          #define ICECAP_RUNTIME_ROOT
-          #define ICECAP_RUNTIME_ROOT_STACK_SIZE 0x200000
-          #define ICECAP_RUNTIME_ROOT_HEAP_SIZE 0x200000
-        '';
-      }
+  icecap-pure = mkBasic {
+    name = "icecap-pure";
+    inputs = [
+      icecap-autoconf
     ];
   };
-
-  icecap-utils = mkBasic "icecap-utils" [
-    icecap-autoconf
-    icecap-runtime
-  ];
-
-  icecap-pure = mkBasic "icecap-pure" [
-    icecap-autoconf
-  ];
 
   icecap-mirage-glue = mk {
     stdenv = stdenvMirage;
@@ -135,13 +149,19 @@ rec {
     ];
   };
 
-  cpio = mkBasic "cpio" [
-  ];
+  cpio = mkBasic rec {
+    name = "cpio";
+    path = "support/${name}";
+  };
 
-  capdl-support-hack = mkBasic "capdl-support-hack" [
-    icecap-autoconf
-    icecap-utils
-    icecap-pure
-  ];
+  capdl-support-hack = mkBasic rec {
+    name = "capdl-support-hack";
+    path = "support/${name}";
+    inputs = [
+      icecap-autoconf
+      icecap-utils
+      icecap-pure
+    ];
+  };
 
 }
