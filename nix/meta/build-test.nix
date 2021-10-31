@@ -1,4 +1,4 @@
-{ lib, pkgs, meta, adHocBuildTests }:
+{ lib, pkgs, meta }:
 
 let
   inherit (pkgs) dev none linux musl;
