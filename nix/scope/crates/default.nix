@@ -54,9 +54,14 @@ let
   cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
   cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude)localCrates;
 
+  mkCratesForTxt = attrs: builtins.toFile "crates.txt" (lib.concatStrings (lib.naturalSort (lib.mapAttrsToList (k: _: "${k}\n") attrs)));
+
 in localCrates // rec {
   _localCrates = localCrates;
   _patches = patches;
-  _cratesForSeL4 = cratesForSeL4;
-  _cratesForLinux = cratesForLinux;
+  _cratesFor = {
+    seL4 = cratesForSeL4;
+    linux = cratesForLinux;
+  };
+  _cratesForTxt = lib.mapAttrs (lib.const mkCratesForTxt) _cratesFor;
 }
