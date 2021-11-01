@@ -14,19 +14,23 @@ $(out):
 
 .PHONY: firmware
 firmware: | $(out)
-	./build.py --plat=$(PLAT) target $@ -o $(out)/icecap.img
+	nix-build -A pkgs.none.icecap.configured.$(PLAT).icecapFirmware.image -o $(out)/icecap.img
 
 .PHONY: shadow-vmm
 shadow-vmm: | $(out)
-	./build.py --plat=$(PLAT) target $@ -o $(out)/icecap.img
+	nix-build -A pkgs.musl.icecap.icecap-host -o $(out)/shadow-vmm
 
 .PHONY: demo
 demo: | $(out)
-	./build.py --plat=$(PLAT) target $@ -o $(out)/demo
+	nix-build -A meta.demos.realm-vm.$(PLAT).run -o $(out)/demo
 
 .PHONY: everything
-everything: | $(out)
-	./build.py --plat=$(PLAT) target $@ -o $(out)/roots
+everything:
+	nix-build -A meta.buildTest --no-out-link
+
+.PHONY: ad-hoc-build-tests
+ad-hoc-build-tests:
+	nix-build -A meta.adHocBuildTests.all --no-out-link
 
 ###
 
@@ -37,11 +41,3 @@ update-generated-sources:
 .PHONY: check-generated-sources
 check-generated-sources:
 	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script
-
-.PHONY: build-test
-build-test:
-	nix-build -A meta.buildTest --no-out-link
-
-.PHONY: ad-hoc-build-tests
-ad-hoc-build-tests:
-	nix-build -A meta.adHocBuildTests.all --no-out-link
