@@ -26,7 +26,7 @@ libs.mkRoot rec {
   passthru = {
     inherit spec elfs-cpio;
   };
-  name = "capdl-loader-app";
+  name = "capdl-loader";
   root = icecapSrc.relativeSplit "c/boot/${name}";
   extra.CAPDL_LOADER_SPEC_SRC = spec;
   extra.CAPDL_LOADER_CPIO_O = cpioUtils.mkObj {
