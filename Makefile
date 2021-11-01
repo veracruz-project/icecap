@@ -24,15 +24,15 @@ shadow-vmm: | $(out)
 demo: | $(out)
 	nix-build -A meta.demos.realm-vm.$(PLAT).run -o $(out)/demo
 
-.PHONY: everything
-everything:
-	nix-build -A meta.buildTest --no-out-link
+###
+
+.PHONY: build-tests
+build-tests:
+	nix-build -A meta.buildTests.all --no-out-link
 
 .PHONY: ad-hoc-build-tests
 ad-hoc-build-tests:
 	nix-build -A meta.adHocBuildTests.all --no-out-link
-
-###
 
 .PHONY: update-generated-sources
 update-generated-sources:
@@ -41,7 +41,3 @@ update-generated-sources:
 .PHONY: check-generated-sources
 check-generated-sources:
 	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script
-
-.PHONY: source-test
-source-test:
-	sh hack/cache-maintenance/source-test.sh

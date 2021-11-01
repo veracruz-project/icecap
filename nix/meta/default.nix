@@ -18,7 +18,7 @@ rec {
     inherit lib pkgs;
   };
 
-  buildTest = import ./build-test.nix {
+  buildTests = import ./build-tests.nix {
     inherit lib pkgs meta;
   };
 

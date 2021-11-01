@@ -3,7 +3,7 @@
 let
   inherit (pkgs) dev none linux musl;
 
-  roots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
+  allRoots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
     meta.demos.minimal.${k}.run
     meta.demos.minimal-root.${k}.run
     meta.demos.realm-vm.${k}.run
@@ -23,5 +23,8 @@ let
     musl.icecap.firectl
   ];
 
-in
-pkgs.dev.writeText "build-test-roots" (toString (lib.flatten roots))
+in {
+
+  all = pkgs.dev.writeText "build-test-roots" (toString (lib.flatten allRoots));
+
+}

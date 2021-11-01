@@ -13,7 +13,7 @@ in rec {
 
   test =
     let
-      drv = topLevel.meta.buildTest;
+      drv = topLevel.meta.buildTests;
     in
       assert drv.outPath == (import ../..).meta.buildTest.outPath;
       drv;
