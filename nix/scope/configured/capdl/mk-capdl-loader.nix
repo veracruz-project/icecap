@@ -38,11 +38,7 @@ libs.mkRoot rec {
           src-capdl-loader = ${src}
           ldlibs-capdl-loader := -Wl,--start-group -licecap_runtime -licecap_utils -licecap_pure -lcpio -lcapdl_support_hack -lcapdl-loader ${images} -Wl,--end-group
         '';
-        src = linkFarm "root" [
-          { name = "spec.c";
-            path = spec;
-          }
-        ];
+        src = spec;
       in runCommand "root" {} ''
         mkdir $out
         cp ${mk} $out/icecap.mk

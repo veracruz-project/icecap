@@ -27,9 +27,9 @@ src = $(src-$(trg))
 inc = $(inc-$(trg))
 build = $(BUILD)/$(trg)
 
-dirs = $(if $(src),$(patsubst $(src)/%, $(build)/%, $(shell find $(src)/ -type d)))
+dirs = $(if $(src),$(patsubst $(src)%, $(build)%, $(shell find $(src) -type d)))
 
-srcs = $(if $(src),$(shell find $(src) -name '*.c' -o -name '*.S' -o -name '*.s'))
+srcs = $(if $(src),$(shell find $(src) -not -type d -name '*.c' -o -name '*.S' -o -name '*.s'))
 
 objs = \
 	$(patsubst $(src)/%.c, $(build)/%.o, \
@@ -37,7 +37,7 @@ objs = \
 	$(patsubst $(src)/%.s, $(build)/%.o, \
 		$(srcs))))
 
-incs = $(if $(inc),$(shell find $(inc) -name '*.h'))
+incs = $(if $(inc),$(shell find $(inc) -not -type d -name '*.h'))
 
 BUILD ?= build
 INSTALL = install
