@@ -2,7 +2,7 @@ with import ../..;
 
 let
   roots = [
-    meta.buildTest
+    meta.buildTests.all
   ];
 
 in
