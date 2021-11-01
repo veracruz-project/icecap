@@ -1,4 +1,6 @@
-{ lib, writeText, runCommand, runCommandCC, linkFarm, cpio }:
+{ lib, writeText, runCommand, runCommandCC, linkFarm, cpio
+, icecapSrc
+}:
 
 {
 
@@ -21,17 +23,9 @@
     (cd links && find . -not -type d | cpio -o -L --reproducible -H newc > $out)
   '';
 
-  mkObj = { archive-cpio, symbolName }:
-    let
-      asm = writeText "archive.s" ''
-        .section ._archive_cpio,"aw"
-        .globl ${symbolName}, ${symbolName}_end
-        ${symbolName}:
-        .incbin "${archive-cpio}"
-        ${symbolName}_end:
-      '';
-    in runCommandCC "archive.o" {} ''
-      $CC -c ${asm} -o $out
-    '';
+  mkObj = { archive-cpio, symbolName }: runCommandCC "embedded-file.o" {} ''
+    $CC -c -x assembler-with-cpp ${icecapSrc.relative "c/support/embedded-file.S"} -o $out \
+      -DSYMBOL=${symbolName} -DFILE=${archive-cpio} -DSECTION=_archive_cpio
+  '';
 
 }
