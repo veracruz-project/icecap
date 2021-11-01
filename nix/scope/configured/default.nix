@@ -40,7 +40,7 @@ self: with self;
 
   libs = callPackage ./sel4-user/c {};
 
-  inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
+  inherit (callPackage ./sel4-user/ocaml {}) mkMirageBinary;
 
   buildIceCapComponent = callPackage ./sel4-user/rust/build-icecap-component.nix {};
 
