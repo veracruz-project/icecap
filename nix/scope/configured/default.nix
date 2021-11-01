@@ -38,9 +38,6 @@ self: with self;
   mkRealm = callPackage ./capdl/mk-realm.nix {};
   mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
 
-  # TODO use or drop
-  stdenvIceCap = mkStdenv (callPackage ./sel4-user/c/libc-wrapper.nix {});
-
   libs = callPackage ./sel4-user/c {};
 
   inherit (callPackage ./sel4-user/mirage.nix {}) mkMirageBinary;
