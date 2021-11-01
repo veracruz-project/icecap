@@ -93,8 +93,6 @@ rec {
     extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" ''
       #pragma once
       #define ICECAP_RUNTIME_ROOT
-      #define ICECAP_RUNTIME_ROOT_STACK_SIZE 0x200000
-      #define ICECAP_RUNTIME_ROOT_HEAP_SIZE 0x200000
     '';
   };
 

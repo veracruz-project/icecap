@@ -1,6 +1,6 @@
 #pragma once
 
-// #include <icecap_runtime/config_in.h>
+#include <icecap_runtime/config_in.h>
 
 #ifdef ICECAP_RUNTIME_ROOT
   #ifndef ICECAP_RUNTIME_ROOT_STACK_SIZE

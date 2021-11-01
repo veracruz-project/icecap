@@ -2,7 +2,7 @@
 , python3, python3Packages
 , seL4EcosystemRepos
 , kernel, libsel4
-, libs
+, libs, icecapSrc
 }:
 
 let
@@ -28,9 +28,7 @@ let
 in
 libs.mk {
   name = "capdl-loader-lib";
-  root = {
-    store = seL4EcosystemRepos.capdl.extendInnerSuffix "capdl-loader-app";
-  };
+  root = icecapSrc.relativeSplit "c/boot/capdl-loader-core";
   buildInputs = [
     platformInfo
   ];
@@ -51,19 +49,11 @@ libs.mk {
     # "-Wno-error=unused-function"
     # "-Wno-error=unused-but-set-variable"
   ];
-  extra.CONFIG = linkFarm "config" [
-    { name = "capdl_loader_app/gen_config.h";
-      path = writeText "gen_config.h" ''
-        #pragma once
-
-        #define CONFIG_CAPDL_LOADER_CALLING_CONVENTION standard
-        #define CONFIG_CAPDL_LOADER_CC_STANDARD 1
-        #define CONFIG_CAPDL_LOADER_MAX_OBJECTS 10000 // is this enough?
-        #define CONFIG_CAPDL_LOADER_FILLS_PER_FRAME 1 // is this enough?
-        // #define CONFIG_CAPDL_LOADER_PRINT_UNTYPEDS 1
-      '';
-    }
-  ];
+  extra.CAPDL_LOADER_EXTERNAL_SOURCE = seL4EcosystemRepos.capdl.extendInnerSuffix "capdl-loader-app";
+  extra.CAPDL_LOADER_CONFIG_IN_H = writeText "config_in.h" ''
+    #pragma once
+    #define CONFIG_CAPDL_LOADER_MAX_OBJECTS 10000
+  '';
   passthru = {
     x = platformInfo;
   };
