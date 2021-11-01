@@ -56,7 +56,6 @@ let
     ${mkCrateManifests actuallyDoIt}
   '';
 
-
 in rec {
 
   update = mkAll true;
