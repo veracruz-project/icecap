@@ -56,8 +56,8 @@ let
 
     in f "store";
 
-  root-task-tls-lds = icecapSrc.relative "c/lds/root-task-tls.lds";
-  root-task-eh-lds = icecapSrc.relative "c/lds/root-task-eh.lds";
+  root-task-tls-lds = icecapSrc.relative "c/support/root-task-tls.lds";
+  root-task-eh-lds = icecapSrc.relative "c/support/root-task-eh.lds";
 
   mkRoot = attrs: mk (attrs // {
     extraCFlagsLink = (attrs.extraCFlagsLink or []) ++ [
@@ -139,12 +139,12 @@ rec {
 
   cpio = mkBasic rec {
     name = "cpio";
-    path = "support/${name}";
+    path = "boot/${name}";
   };
 
   capdl-support-hack = mkBasic rec {
     name = "capdl-support-hack";
-    path = "support/${name}";
+    path = "boot/${name}";
     inputs = [
       icecap-utils
       icecap-pure
