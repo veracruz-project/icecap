@@ -38,14 +38,6 @@ update-generated-sources:
 check-generated-sources:
 	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script
 
-.PHONY: update-generated-seL4-device-trees
-update-generated-seL4-device-trees:
-	script=$$(nix-build -A meta.generate.seL4.update --no-out-link) && $$script
-
-.PHONY: check-generated-seL4-device-trees
-check-generated-seL4-device-trees:
-	script=$$(nix-build -A meta.generate.seL4.check --no-out-link) && $$script
-
 .PHONY: build-test
 build-test:
 	nix-build -A meta.buildTest --no-out-link

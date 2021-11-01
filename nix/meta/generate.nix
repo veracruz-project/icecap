@@ -56,44 +56,10 @@ let
     ${mkCrateManifests actuallyDoIt}
   '';
 
-  seL4Dts = actuallyDoIt:
-    let
-      inherit (pkgs.dev.icecap) seL4EcosystemRepos;
-      assocs = lib.mapAttrsToList (k: configured: {
-        new = configured.deviceTreeConfigured.seL4;
-        old = "${toString seL4EcosystemRepos.seL4.forceLocal.env}/tools/dts/${configured.selectIceCapPlat {
-          # The alignment of these names is a coincidence
-          rpi4 = "rpi4";
-          virt = "virt";
-        }}.dts";
-      }) pkgs.none.icecap.configured;
-    in
-      writeScript "x.sh" ''
-        #!${runtimeShell}
-        set -e
-        ${lib.concatMapStrings ({ new, old }: ''
-          if ! cmp -s -- ${old} ${new}; then
-            ${if actuallyDoIt
-              then ''
-                cp -vL --no-preserve=all ${new} ${old}
-              ''
-              else ''
-                echo "${old} differs from ${new}"
-                false
-              ''
-            }
-          fi
-        '') assocs}
-      '';
 
 in rec {
 
   update = mkAll true;
   check = mkAll false;
-
-  seL4 = {
-    update = seL4Dts true;
-    check = seL4Dts false;
-  };
 
 }
