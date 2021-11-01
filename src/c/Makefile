@@ -1,5 +1,5 @@
-CC := $(CROSS_COMPILE)gcc
-AR := $(CROSS_COMPILE)ar
+CC     := $(CROSS_COMPILE)gcc
+AR     := $(CROSS_COMPILE)ar
 RANLIB := $(CROSS_COMPILE)ranlib
 
 here = $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
@@ -14,9 +14,9 @@ define lame-leaf
 	inc-$(lib) := $(here)/include
 endef
 
-# define lame-branch
-# 	include $(foreach lib,$(1),$(here)/$(lib)/icecap.mk)
-# endef
+define lame-branch
+	include $(foreach sub,$(1),$(here)/$(sub)/icecap.mk)
+endef
 
 libs :=
 exes :=
@@ -48,22 +48,15 @@ CFLAGS += -nostdinc -ffreestanding
 CFLAGS += -Wa,--noexecstack
 CFLAGS += -Wall -Werror
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -g -funwind-tables -fno-asynchronous-unwind-tables
+CFLAGS += -g -funwind-tables -fno-asynchronous-unwind-tables # -fexceptions?
 CFLAGS += -pipe
 CFLAGS += -O3
 
-# TODO
-# -frounding-math -fexcess-precision=standard ?
-# -fexceptions -funwind-tables -fasynchronous-unwind-tables ?
-
-LDFLAGS += -g -ffreestanding -nostdlib -L$(BUILD)
-# TODO
-# -Wl,--eh-frame-hdr
+LDFLAGS += -g -ffreestanding -nostdlib -L$(BUILD) #  -Wl,--eh-frame-hdr?
 
 LDLIBS += -lgcc
 
 cc_cmd = $(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
-# ld_cmd = $(CC) $(LDFLAGS) $(ldflags-$(exe)) $(ldlibs-$(exe)) $(LDLIBS) -o $@
 install_cmd = $(INSTALL) -D -m 644 $< $@
 
 define ar_cmd
@@ -132,9 +125,6 @@ $(BUILD)/$(exe).elf: $(objs) $(foreach trg,$(deps-$(trg)),$(BUILD)/lib$(lib).a)
 	$$(CC) $$(LDFLAGS) $$(ldflags-$(exe)) $(objs) $$(ldlibs-$(exe)) $$(LDLIBS) -o $$@
 
 endef
-
-# $(info $(call rules_for_exe,hello))
-# $(error 0)
 
 $(eval $(foreach trg,$(libs),$(rules_for_lib)))
 $(eval $(foreach trg,$(exes),$(rules_for_exe)))
