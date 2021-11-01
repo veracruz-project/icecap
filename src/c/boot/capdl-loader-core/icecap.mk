@@ -1,7 +1,7 @@
-libs += capdl_loader_core
-src-capdl_loader_core := $(CAPDL_LOADER_EXTERNAL_SOURCE)/src
-inc-capdl_loader_core := $(here)/include $(CAPDL_LOADER_EXTERNAL_SOURCE)/include
-gen-hdrs-capdl_loader_core += \
+libs += capdl-loader-core
+src-capdl-loader-core := $(CAPDL_LOADER_EXTERNAL_SOURCE)/src
+inc-capdl-loader-core := $(here)/include $(CAPDL_LOADER_EXTERNAL_SOURCE)/include
+gen-hdrs-capdl-loader-core += \
 	capdl_loader_app/platform_info.h \
 	capdl_loader_app/config_in.h
 
