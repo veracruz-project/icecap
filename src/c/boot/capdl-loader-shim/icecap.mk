@@ -1,1 +1,1 @@
-$(eval $(call lame-leaf,capdl_support_hack))
+$(eval $(call lame-leaf,capdl-loader-shim))
