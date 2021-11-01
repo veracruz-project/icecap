@@ -47,16 +47,6 @@ let
   filterInitConfig = with lib;
     all: prefixes: filterAttrs (k: v: any (prefix: hasPrefix prefix k) prefixes) all;
 
-  autoconf = linkFarm "autoconf" [
-    { name = "include/autoconf.h";
-      path = writeText "autoconf.h" ''
-        #pragma once
-        #include <kernel/gen_config.h>
-        #include <elfloader/gen_config.h>
-      '';
-    }
-  ];
-
 in
 stdenvBoot.mkDerivation rec {
   name = "elfloader";
@@ -65,7 +55,6 @@ stdenvBoot.mkDerivation rec {
 
   buildInputs = [
     libcpio libsel4
-    autoconf
   ];
 
   nativeBuildInputs = [
@@ -98,13 +87,6 @@ stdenvBoot.mkDerivation rec {
         include(${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/helpers.cmake"})
         include(${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/internal.cmake"})
 
-        # HACK
-        if(DEFINED ENV{NIX_SHELL_SRC})
-          set(source $ENV{NIX_SHELL_SRC})
-        else()
-          set(source ${source})
-        endif()
-
         set(FOO_ARCHIVE_O ${images} CACHE STRING "")
         set(FOO_ELF_SIFT ${py}/elf_sift.py CACHE STRING "")
         set(FOO_SHOEHORN ${py}/shoehorn.py CACHE STRING "")
@@ -114,9 +96,7 @@ stdenvBoot.mkDerivation rec {
         set(FOO_HARDWARE_GEN ${py}/hardware_gen.py CACHE STRING "")
         set(platform_yaml ${kernel}/sel4-aux/platform_gen.yaml CACHE STRING "")
 
-        add_subdirectory(''${source} elfloader)
-
-        install(TARGETS elfloader)
+        add_subdirectory(${source} elfloader)
       '';
     }
   ];
@@ -129,13 +109,14 @@ stdenvBoot.mkDerivation rec {
     "-C" cacheScript
     # TODO
     "-DCROSS_COMPILER_PREFIX=${stdenvBoot.cc.targetPrefix}"
+    "-DCMAKE_TOOLCHAIN_FILE=${kernel.patchedSource}/gcc.cmake"
   ];
 
   buildPhase = ''
     ninja elfloader
   '';
 
-  postInstall = ''
+  installPhase = ''
     install -D -t $out/boot elfloader/elfloader
   '';
 
