@@ -24,14 +24,6 @@ let
     ];
   };
 
-  py = runCommand "x.py" {
-    nativeBuildInputs = [ python3 ];
-  } ''
-    install -D -t $out ${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}/*.py ${kernel.patchedSource}/tools/hardware_gen.py
-    patchShebangs --build $out
-    cp -r ${kernel.patchedSource}/tools/hardware $out
-  '';
-
   configPrefixes = [
     "Elfloader"
   ];
@@ -51,8 +43,6 @@ in
 stdenvBoot.mkDerivation rec {
   name = "elfloader";
 
-  source = seL4EcosystemRepos.seL4_tools.extendInnerSuffix "elfloader-tool";
-
   buildInputs = [
     libcpio libsel4
   ];
@@ -68,48 +58,26 @@ stdenvBoot.mkDerivation rec {
   dontStrip = true;
   dontPatchELF = true;
 
-  NIX_CFLAGS_COMPILE = [
-    "-D__KERNEL_64__"
-    "-Ielfloader/gen_config"
-  ];
-
-  NIX_CFLAGS_LINK = [
-    images
-  ];
-
-  cmakeDir = linkFarm "x" [
-    { name = "CMakeLists.txt";
-      path = writeText "CMakeLists.txt" ''
-        cmake_minimum_required(VERSION 3.13)
-
-        project(elfloader ASM C)
-
-        include(${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/helpers.cmake"})
-        include(${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/internal.cmake"})
-
-        set(FOO_ARCHIVE_O ${images} CACHE STRING "")
-        set(FOO_ELF_SIFT ${py}/elf_sift.py CACHE STRING "")
-        set(FOO_SHOEHORN ${py}/shoehorn.py CACHE STRING "")
-        set(FOO_PLATFORM_SIFT ${py}/platform_sift.py CACHE STRING "")
-        set(FOO_KERNEL_DTB ${kernel}/boot/kernel.dtb CACHE STRING "")
-        set(FOO_KERNEL_TOOLS ${kernel.patchedSource}/tools CACHE STRING "")
-        set(FOO_HARDWARE_GEN ${py}/hardware_gen.py CACHE STRING "")
-        set(platform_yaml ${kernel}/sel4-aux/platform_gen.yaml CACHE STRING "")
-
-        add_subdirectory(${source} elfloader)
-      '';
-    }
-  ];
+  cmakeDir = seL4EcosystemRepos.seL4_tools.extendInnerSuffix "elfloader-tool";
 
   # TODO
-  cmakeBuildType = "Debug";
+  # cmakeBuildType = "Debug";
 
   cmakeFlags = [
     "-G" "Ninja"
     "-C" cacheScript
-    # TODO
+
     "-DCROSS_COMPILER_PREFIX=${stdenvBoot.cc.targetPrefix}"
     "-DCMAKE_TOOLCHAIN_FILE=${kernel.patchedSource}/gcc.cmake"
+
+    "-DPYTHON3=python3"
+    "-DICECAP_HACK_CMAKE_HELPERS=${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/helpers.cmake"}"
+    "-DICECAP_HACK_CMAKE_INTERNAL=${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/internal.cmake"}"
+    "-DICECAP_HACK_CMAKE_TOOL_HELPERS_DIR=${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}"
+    "-DICECAP_HACK_KERNEL_TOOLS=${seL4EcosystemRepos.seL4.extendInnerSuffix "tools"}"
+    "-DICECAP_HACK_KERNEL_DTB=${kernel}/boot/kernel.dtb"
+    "-DICECAP_HACK_ARCHIVE_O=${images}"
+    "-Dplatform_yaml=${kernel}/sel4-aux/platform_gen.yaml"
   ];
 
   buildPhase = ''
@@ -117,7 +85,7 @@ stdenvBoot.mkDerivation rec {
   '';
 
   installPhase = ''
-    install -D -t $out/boot elfloader/elfloader
+    install -D -t $out/boot elfloader
   '';
 
   passthru = {

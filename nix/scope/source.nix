@@ -98,7 +98,7 @@ rec {
     # for elfloader and some python scripts
     seL4_tools = icecapSrc.repo {
       repo = "seL4_tools";
-      rev = "80b6eb08966aa243373c26cb51fbb390aeb4ed8c";
+      rev = "dce0461e3092fe2bbcd38261e34a8ed8f8bdf580";
     };
 
   };
