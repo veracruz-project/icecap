@@ -50,7 +50,7 @@ CFLAGS += -Wall -Werror
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -g -funwind-tables -fno-asynchronous-unwind-tables # -fexceptions?
 CFLAGS += -pipe
-CFLAGS += -O3
+CFLAGS += -O2 # TODO experiment with -O3
 
 LDFLAGS += -g -ffreestanding -nostdlib -L$(BUILD) #  -Wl,--eh-frame-hdr?
 

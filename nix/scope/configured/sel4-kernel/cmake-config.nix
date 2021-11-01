@@ -18,7 +18,7 @@ let
     KernelArmHypervisorSupport = ON;
     KernelVerificationBuild = OFF;
     KernelDebugBuild = ON;
-    KernelOptimisation = STRING "-O3"; # TODO beware (default is -O2)
+    KernelOptimisation = STRING "-O2"; # TODO experiment with -O3
     KernelMaxNumNodes = STRING (toString platUtils.${icecapPlat}.numCores);
     KernelArmVtimerUpdateVOffset = OFF;
     KernelArmDisableWFIWFETraps = ON; # TODO
