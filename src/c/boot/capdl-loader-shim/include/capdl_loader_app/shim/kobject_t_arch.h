@@ -30,7 +30,7 @@
 #include <sel4/types.h>
 #include <assert.h>
 #include <autoconf.h>
-#include <icecap_utils.h>
+#include <icecap-utils.h>
 #include <capdl_loader_app/shim/kobject_t_sel4_arch.h>
 
 enum _arm_kobject_type {

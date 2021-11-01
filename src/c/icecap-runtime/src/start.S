@@ -1,4 +1,4 @@
-#include <icecap_runtime/config.h>
+#include <icecap-runtime/config.h>
 
 .section .text
 

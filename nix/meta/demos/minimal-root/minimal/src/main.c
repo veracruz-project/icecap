@@ -1,5 +1,5 @@
 #include <sel4/sel4.h>
-#include <icecap_utils.h>
+#include <icecap-utils.h>
 
 void icecap_main(void *arg, seL4_Word arg_size)
 {

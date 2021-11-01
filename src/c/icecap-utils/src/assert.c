@@ -1,6 +1,6 @@
-#include <icecap_runtime.h>
-#include <icecap_utils/printf.h>
-#include <icecap_utils/assert.h>
+#include <icecap-runtime.h>
+#include <icecap-utils/printf.h>
+#include <icecap-utils/assert.h>
 
 void __icecap_utils_assert_fail(const char *expr, const char *file, int line, const char *func)
 {

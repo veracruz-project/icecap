@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <icecap_utils.h>
+#include <icecap-utils.h>
 
 #define ZF_show(...) do { \
     icecap_utils_debug_printf("%s:%d ", __func__, __LINE__); \

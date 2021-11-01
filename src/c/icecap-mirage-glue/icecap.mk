@@ -1,1 +1,1 @@
-$(eval $(call lame-leaf,icecap_mirage_glue))
+$(eval $(call lame-leaf,icecap-mirage-glue))

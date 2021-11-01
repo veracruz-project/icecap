@@ -5,7 +5,7 @@
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
 
-#include <icecap_mirage_glue.h>
+#include <icecap-mirage-glue.h>
 
 void costub_startup(void)
 {

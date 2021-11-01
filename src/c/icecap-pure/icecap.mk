@@ -1,1 +1,1 @@
-$(eval $(call lame-leaf,icecap_pure))
+$(eval $(call lame-leaf,icecap-pure))

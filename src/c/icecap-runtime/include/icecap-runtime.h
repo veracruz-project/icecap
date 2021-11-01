@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sel4/sel4.h>
-#include <icecap_runtime/config.h>
+#include <icecap-runtime/config.h>
 
 #define ICECAP_NORETURN __attribute__((__noreturn__))
 

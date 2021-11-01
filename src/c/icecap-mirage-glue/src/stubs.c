@@ -7,7 +7,7 @@
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
 
-#include <icecap_mirage_glue.h>
+#include <icecap-mirage-glue.h>
 
 CAMLprim value
 stub_wfe(value unit) {

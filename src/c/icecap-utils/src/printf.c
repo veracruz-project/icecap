@@ -35,7 +35,7 @@
  *	@(#)subr_prf.c	8.3 (Berkeley) 1/21/94
  */
 
-#include <icecap_utils/printf.h>
+#include <icecap-utils/printf.h>
 
 #define __64BIT__
 

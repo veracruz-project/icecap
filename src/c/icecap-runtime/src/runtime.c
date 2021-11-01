@@ -1,5 +1,5 @@
 #include <sel4/sel4.h>
-#include <icecap_runtime.h>
+#include <icecap-runtime.h>
 
 #define ICECAP_UNUSED __attribute__((unused))
 #define ICECAP_UNREACHABLE __builtin_unreachable
