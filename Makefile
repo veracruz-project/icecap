@@ -41,3 +41,7 @@ update-generated-sources:
 .PHONY: check-generated-sources
 check-generated-sources:
 	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script
+
+.PHONY: source-test
+source-test:
+	sh hack/cache-maintenance/source-test.sh
