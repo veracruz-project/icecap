@@ -1,4 +1,4 @@
-{ runCommandCC, seL4EcosystemRepos, libsel4, libs }:
+{ runCommandCC, seL4EcosystemRepos, libsel4 }:
 
 runCommandCC "object_sizes.yaml" {
   buildInputs = [ libsel4 ];

@@ -26,12 +26,12 @@ self: with self;
   libsel4 = kernel;
 
   object-sizes = callPackage ./sel4-kernel/object-sizes.nix {};
+  platformInfo = callPackage ./sel4-kernel/platform-info.nix {};
 
   elfloader = callPackage ./elfloader {
     libcpio = libs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare-metal?
   };
 
-  capdl-loader-core = callPackage ./capdl/capdl-loader-core.nix {};
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};

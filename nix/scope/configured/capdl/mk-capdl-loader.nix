@@ -2,7 +2,7 @@
 , cpioUtils
 , capdl-tool
 , object-sizes, libsel4
-, capdl-loader-core, libs
+, libs
 , icecapSrc
 }:
 
@@ -38,7 +38,6 @@ libs.mkRoot rec {
     icecap-runtime-root
     icecap-pure
     icecap-utils
-
     capdl-loader-core
   ];
 }

@@ -3,6 +3,7 @@
 , icecapSrc
 , icecap-ocaml-runtime
 , libsel4, musl
+, platformInfo, seL4EcosystemRepos
 }:
 
 let
@@ -135,6 +136,24 @@ rec {
       icecap-utils
       icecap-pure
     ];
+  };
+
+  capdl-loader-core = mkBasic rec {
+    name = "capdl-loader-core";
+    path = "boot/${name}";
+    inputs = [
+      icecap-runtime-root
+      icecap-pure
+      icecap-utils
+      cpio
+      capdl-loader-shim
+    ];
+    extra.CAPDL_LOADER_EXTERNAL_SOURCE = seL4EcosystemRepos.capdl.extendInnerSuffix "capdl-loader-app";
+    extra.CAPDL_LOADER_PLATFORM_INFO_H = platformInfo;
+    extra.CAPDL_LOADER_CONFIG_IN_H = writeText "config_in.h" ''
+      #pragma once
+      #define CONFIG_CAPDL_LOADER_MAX_OBJECTS 10000
+    '';
   };
 
 }
