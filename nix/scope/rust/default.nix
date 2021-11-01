@@ -59,7 +59,7 @@ in {
   rustTargetName = if hostPlatform.isNone then icecapRustTargetName hostPlatform.parsed.cpu.name else hostPlatform.config;
 
   # TODO tune
-  rustTargets = icecapSrc.relative "rust/targets";
+  rustTargets = icecapSrc.relative "rust/support/targets";
 
   rustc0 = callPackage ./rustc.nix {
     rustc = pkgsBuildHostScope.rustcPrebuilt;
