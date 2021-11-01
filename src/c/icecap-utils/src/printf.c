@@ -438,7 +438,7 @@ number:
 }
 
 static void
-putchar(int c, void *arg)
+_putchar(int c, void *arg)
 {
 	seL4_DebugPutChar(c);
 }
@@ -449,6 +449,6 @@ icecap_utils_debug_printf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	kvprintf(fmt, putchar, NULL, 10, ap);
+	kvprintf(fmt, _putchar, NULL, 10, ap);
 	va_end(ap);
 }
