@@ -14,7 +14,7 @@ mkExcludeBin {
   # nix.buildScript = {
   #   NOTE this doesn't work because of circular dependencies. rustc deduplicates these.
   #   rustc-link-lib = [
-  #     "icecap_mirage_glue" "mirage" "sel4asmrun" "c" "gcc"
+  #     "icecap-mirage-glue" "mirage" "sel4asmrun" "c" "gcc"
   #   ];
   # };
 }
