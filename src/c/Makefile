@@ -21,10 +21,14 @@ endef
 libs :=
 exes :=
 
+BUILD ?= build
+INSTALL = install
+
 include $(ROOTS)
 
 src = $(src-$(trg))
 inc = $(inc-$(trg))
+gen-hdrs = $(gen-hdrs-$(trg))
 build = $(BUILD)/$(trg)
 
 dirs = $(if $(src),$(patsubst $(src)/%, $(build)/%, $(shell find $(src)/ -type d)))
@@ -37,12 +41,11 @@ objs = \
 	$(patsubst $(src)/%.s, $(build)/%.o, \
 		$(srcs))))
 
-incs = $(if $(inc),$(shell find $(inc)/ -not -type d -name '*.h'))
+hdrs = $(if $(inc),$(shell find $(inc)/ -not -type d -name '*.h'))
 
-BUILD ?= build
-INSTALL = install
-
-CPPFLAGS += $(foreach x,$(inc),-I $(x)) $(foreach trg,$(libs),$(foreach x,$(inc),-I $(x)))
+CPPFLAGS += \
+	$(foreach x,$(inc),-I $(x)) $(foreach trg,$(libs),$(foreach x,$(inc),-I $(x))) \
+	-I$(BUILD)/include
 
 CFLAGS += -nostdinc -ffreestanding
 CFLAGS += -Wa,--noexecstack
@@ -65,9 +68,11 @@ define ar_cmd
 	$(RANLIB) $@
 endef
 
-out_libs = $(foreach trg,$(libs),$(if $(src),$(OUT)/lib/lib$(lib).a))
-out_hdrs = $(foreach trg,$(libs),$(foreach x,$(inc),$(patsubst $(x)/%.h,$(OUT)/include/%.h,$(incs))))
 out_exes = $(foreach exe,$(exes),$(OUT)/bin/$(exe).elf)
+out_libs = $(foreach trg,$(libs),$(if $(src),$(OUT)/lib/lib$(lib).a))
+out_hdrs = $(out_gen_hdrs) $(foreach trg,$(libs),$(foreach x,$(inc),$(patsubst $(x)/%.h,$(OUT)/include/%.h,$(hdrs))))
+out_gen_hdrs = $(foreach trg,$(libs),$(foreach x,$(gen-hdrs),$(OUT)/include/$(x)))
+build_gen_hdrs = $(foreach trg,$(libs),$(foreach x,$(gen-hdrs),$(BUILD)/include/$(x)))
 
 .PHONY: all clean install
 
@@ -84,12 +89,19 @@ $(OUT)/lib/lib%.a: $(BUILD)/lib%.a
 $(OUT)/bin/%.elf: $(BUILD)/%.elf
 	$(install_cmd)
 
+$(OUT)/include/%.h: $(BUILD)/include/%.h
+	$(install_cmd)
+
 define rules_for_trg
+
+$(extra-rules-$(trg))
 
 $(dirs):
 	mkdir -p $$@
 
 $(objs): | $(dirs)
+
+$(objs): $(build_gen_hdrs)
 
 $(build)/%.o: $(src)/%.c
 	$$(cc_cmd)

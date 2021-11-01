@@ -83,31 +83,19 @@ rec {
 
   icecap-runtime = mkBasic {
     name = "icecap-runtime";
-    extra = {
-      CONFIG = linkFarm "config" [
-        { name = "icecap_runtime/config.h";
-          path = writeText "config.h" ''
-            #pragma once
-          '';
-        }
-      ];
-    };
+    extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" ''
+      #pragma once
+    '';
   };
 
   icecap-runtime-root = mkBasic {
     name = "icecap-runtime";
-    extra = {
-      CONFIG = linkFarm "config" [
-        { name = "icecap_runtime/config.h";
-          path = writeText "config.h" ''
-            #pragma once
-            #define ICECAP_RUNTIME_ROOT
-            #define ICECAP_RUNTIME_ROOT_STACK_SIZE 0x200000
-            #define ICECAP_RUNTIME_ROOT_HEAP_SIZE 0x200000
-          '';
-        }
-      ];
-    };
+    extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" ''
+      #pragma once
+      #define ICECAP_RUNTIME_ROOT
+      #define ICECAP_RUNTIME_ROOT_STACK_SIZE 0x200000
+      #define ICECAP_RUNTIME_ROOT_HEAP_SIZE 0x200000
+    '';
   };
 
   icecap-utils = mkBasic {
