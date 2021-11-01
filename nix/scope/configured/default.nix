@@ -31,7 +31,7 @@ self: with self;
     libcpio = libs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare-metal?
   };
 
-  capdl-loader-lib = callPackage ./capdl/capdl-loader-lib.nix {};
+  capdl-loader-core = callPackage ./capdl/capdl-loader-core.nix {};
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};

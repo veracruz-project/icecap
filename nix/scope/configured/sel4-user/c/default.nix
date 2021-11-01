@@ -128,8 +128,8 @@ rec {
     path = "boot/${name}";
   };
 
-  capdl-support-hack = mkBasic rec {
-    name = "capdl-support-hack";
+  capdl-loader-shim = mkBasic rec {
+    name = "capdl-loader-shim";
     path = "boot/${name}";
     inputs = [
       icecap-utils

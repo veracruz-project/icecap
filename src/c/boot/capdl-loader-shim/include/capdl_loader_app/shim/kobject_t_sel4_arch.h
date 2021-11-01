@@ -1,5 +1,5 @@
 /* This file is derived from
- * https://github.com/seL4/seL4_libs/blob/master/libsel4vka/arch_include/arm/vka/arch/kobject_t.h
+ * https://github.com/seL4/seL4_libs/blob/master/libsel4vka/sel4_arch_include/aarch64/vka/sel4_arch/kobject_t.h
  *
  * Copyright (c) 2017 Data61, CSIRO (ABN 41 687 119 230). All rights reserved.
  *
@@ -31,53 +31,59 @@
 #include <assert.h>
 #include <autoconf.h>
 #include <icecap_utils.h>
-#include <capdl-support-hack/kobject_t_sel4_arch.h>
+#include <capdl_loader_app/shim/zf_log.h>
 
-enum _arm_kobject_type {
-    KOBJECT_PAGE_DIRECTORY = KOBJECT_MODE_NUM_TYPES,
-    KOBJECT_PAGE_TABLE,
-    KOBJECT_ARCH_NUM_TYPES,
+
+enum _arm_mode_kobject_type {
+    KOBJECT_FRAME = 0,
+    KOBJECT_PAGE_GLOBAL_DIRECTORY,
+    KOBJECT_PAGE_UPPER_DIRECTORY,
+    KOBJECT_MODE_NUM_TYPES,
 };
+
+typedef int kobject_t;
 
 /*
  * Get the size (in bits) of the untyped memory required to
  * create an object of the given size
  */
-static inline seL4_Word arch_kobject_get_size(kobject_t type, seL4_Word objectSize)
+static inline seL4_Word arm_mode_kobject_get_size(kobject_t type, seL4_Word objectSize)
 {
     switch (type) {
     /* ARM-specific frames. */
     case KOBJECT_FRAME:
         switch (objectSize) {
-        case seL4_PageBits:
-        case seL4_LargePageBits:
+        case seL4_HugePageBits:
             return objectSize;
+        default:
+            return 0;
         }
-    /* If frame size was unknown fall through to default case as it
-     * might be a mode specific frame size */
+    case KOBJECT_PAGE_UPPER_DIRECTORY:
+        return seL4_PUDBits;
     default:
-        return arm_mode_kobject_get_size(type, objectSize);
+        /* Unknown object type. */
+        ZF_LOGE("Unknown object type");
+        return 0;
     }
 }
 
-static inline seL4_Word arch_kobject_get_type(kobject_t type, seL4_Word objectSize)
+static inline seL4_Word arm_mode_kobject_get_type(kobject_t type, seL4_Word objectSize)
 {
     switch (type) {
-    case KOBJECT_PAGE_DIRECTORY:
-        return seL4_ARM_PageDirectoryObject;
-    case KOBJECT_PAGE_TABLE:
-        return seL4_ARM_PageTableObject;
-    /* ARM-specific frames. */
     case KOBJECT_FRAME:
         switch (objectSize) {
-        case seL4_PageBits:
-            return seL4_ARM_SmallPageObject;
-        case seL4_LargePageBits:
-            return seL4_ARM_LargePageObject;
+        case seL4_HugePageBits:
+            return seL4_ARM_HugePageObject;
         default:
-            return arm_mode_kobject_get_type(type, objectSize);
+            return -1;
         }
+    case KOBJECT_PAGE_GLOBAL_DIRECTORY:
+        return seL4_ARM_PageGlobalDirectoryObject;
+    case KOBJECT_PAGE_UPPER_DIRECTORY:
+        return seL4_ARM_PageUpperDirectoryObject;
     default:
-        return arm_mode_kobject_get_type(type, objectSize);
+        /* Unknown object type. */
+        ZF_LOGE("Unknown object type %d", type);
+        return -1;
     }
 }

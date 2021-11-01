@@ -30,7 +30,7 @@
 #include <sel4/types.h>
 #include <assert.h>
 #include <autoconf.h>
-#include <capdl-support-hack/kobject_t_arch.h>
+#include <capdl_loader_app/shim/kobject_t_arch.h>
 
 /* Generic Kernel Object Type used by generic allocator */
 

@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <capdl-support-hack/zf_log.h>
+#include <capdl_loader_app/shim/zf_log.h>
 
 /*  zf_logif.h:
  * This file contains some convenience macros built on top of the ZF_LOG

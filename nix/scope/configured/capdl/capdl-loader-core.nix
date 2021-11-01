@@ -22,16 +22,16 @@ let
   '';
 
 in
-libs.mk {
-  name = "capdl-loader-lib";
-  root = icecapSrc.relativeSplit "c/boot/capdl-loader-core";
+libs.mk rec {
+  name = "capdl-loader-core";
+  root = icecapSrc.relativeSplit "c/boot/${name}";
   propagatedBuildInputs = [
     libsel4
     libs.icecap-runtime-root
     libs.icecap-pure
     libs.icecap-utils
     libs.cpio
-    libs.capdl-support-hack
+    libs.capdl-loader-shim
   ];
   extra.CAPDL_LOADER_EXTERNAL_SOURCE = seL4EcosystemRepos.capdl.extendInnerSuffix "capdl-loader-app";
   extra.CAPDL_LOADER_PLATFORM_INFO_H = platformInfo;

@@ -25,11 +25,11 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <capdl-support-hack/zf_log.h>
+#include <capdl_loader_app/shim/zf_log.h>
 #include <assert.h>
 #include <stddef.h>
 #include <sel4/sel4.h>
-#include <capdl-support-hack/strerror.h>
+#include <capdl_loader_app/shim/strerror.h>
 
 #define _PRIV_SEL4_FAULTLIST_UNKNOWN_IDX (seL4_Fault_UserException + 1)
 #ifdef CONFIG_ARM_HYPERVISOR_SUPPORT

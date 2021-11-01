@@ -2,7 +2,7 @@
 , cpioUtils
 , capdl-tool
 , object-sizes, libsel4
-, capdl-loader-lib, libs
+, capdl-loader-core, libs
 , icecapSrc
 }:
 
@@ -26,10 +26,10 @@ libs.mkRoot rec {
   passthru = {
     inherit spec elfs-cpio;
   };
-  name = "capdl-loader";
-  root = icecapSrc.relativeSplit "c/boot/capdl-loader";
-  extra.CAPDL_SPEC_SRC = spec;
-  extra.CAPDL_CPIO_O = cpioUtils.mkObj {
+  name = "capdl-loader-app";
+  root = icecapSrc.relativeSplit "c/boot/${name}";
+  extra.CAPDL_LOADER_SPEC_SRC = spec;
+  extra.CAPDL_LOADER_CPIO_O = cpioUtils.mkObj {
     archive-cpio = elfs-cpio;
     symbolName = "_capdl_archive";
   };
@@ -39,6 +39,6 @@ libs.mkRoot rec {
     icecap-pure
     icecap-utils
 
-    capdl-loader-lib
+    capdl-loader-core
   ];
 }
