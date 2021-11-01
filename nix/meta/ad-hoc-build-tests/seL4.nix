@@ -19,21 +19,16 @@ let
     }
   ]);
 
-  flags = lib.concatStringsSep " " (lib.mapAttrsToList (k: _: "-p ${k}") globalCrates._cratesForSeL4);
-
   src = (icecapSrc.relativeSplit "rust").store;
 
 in stdenv.mkDerivation (crateUtils.baseEnv // {
   name = "test";
 
   phases = [ "configurePhase" "buildPhase" ];
-  hardeningDisable = [ "all" ];
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ cargo rustc ];
-  buildInputs = [
-    libsel4 libs.icecap-runtime libs.icecap-utils
-  ];
+  buildInputs = [ libsel4 libs.icecap-runtime ];
 
   LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
   BINDGEN_EXTRA_CLANG_ARGS = [
@@ -47,12 +42,14 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   buildPhase = ''
     cargo build \
+      -Z unstable-options \
       --frozen \
       --target-dir target \
-      --release \
-      --target ${rustTargetName} \
       --manifest-path ${src}/Cargo.toml \
-      ${flags} --out-dir $out -Z unstable-options
+      --out-dir $out \
+      --target ${rustTargetName} \
+      --release \
+      $(awk '{print "-p" $$0}' < ${src}/support/crates-for-seL4.txt)
   '';
 
 })

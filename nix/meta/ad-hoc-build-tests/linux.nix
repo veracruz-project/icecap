@@ -13,15 +13,12 @@ let
     (fetchCrates lock).config
   ]);
 
-  flags = lib.concatStringsSep " " (lib.mapAttrsToList (k: _: "-p ${k}") globalCrates._cratesForLinux);
-
   src = (icecapSrc.relativeSplit "rust").store;
 
 in stdenv.mkDerivation (crateUtils.baseEnv // {
   name = "test";
 
   phases = [ "configurePhase" "buildPhase" ];
-  hardeningDisable = [ "all" ];
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ cargo rustc ];
@@ -33,12 +30,14 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   buildPhase = ''
     cargo build \
+      -Z unstable-options \
       --frozen \
       --target-dir target \
-      --release \
-      --target ${rustTargetName} \
       --manifest-path ${src}/Cargo.toml \
-      ${flags} --out-dir $out -Z unstable-options
+      --out-dir $out \
+      --target ${rustTargetName} \
+      --release \
+      $(awk '{print "-p" $$0}' < ${src}/support/crates-for-linux.txt)
   '';
 
 })
