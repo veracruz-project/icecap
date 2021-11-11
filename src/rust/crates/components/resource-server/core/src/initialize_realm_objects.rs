@@ -168,6 +168,10 @@ impl<'a> Initialize<'a> {
                     Cap::PGD(cap) => {
                         cap.obj
                     }
+                    Cap::LargePage(cap) => {
+                        rights = rights_of(&cap.rights);
+                        cap.obj
+                    }
                     _ => {
                         bail!("unsupported cap {:?}", cap)
                     }
