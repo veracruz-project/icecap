@@ -1,6 +1,7 @@
 { runCommandCC }:
 
 runCommandCC "libc" {} ''
+  mkdir -p $out/include
   mkdir -p $out/lib
 
   touch empty.s
