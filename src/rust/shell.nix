@@ -11,6 +11,9 @@ dev.mkShell {
     "-I${virt.libsel4}/include"
   ];
 
+  LIBSEL4 = virt.libsel4;
+  ICECAP_RUNTIME = virt.libs.icecap-runtime;
+
   nativeBuildInputs = with dev; [
     rustup
     git
