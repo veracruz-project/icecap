@@ -13,6 +13,7 @@ fn main() {
         .derive_default(true)
         .rust_target(bindgen::RustTarget::Nightly)
         .rustfmt_bindings(true)
+        .generate_comments(false)
         .generate()
         .unwrap();
 
