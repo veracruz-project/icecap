@@ -23,3 +23,7 @@ doc-linux:
 		--locked \
 		-Z avoid-dev-deps \
 		-p $(shell awk '{print "-p" $$$$0}' < support/crates-for-linux.txt)
+
+.PHONY: clean
+clean:
+	rm -rf target
