@@ -23,17 +23,23 @@ rec {
       </head>
       <body>
         <div>
-          <ul>
-            ${lib.concatMapStrings (adHoc: ''
-              ${lib.concatMapStrings (kind: ''
-                <li>
-                  <a href="./rustdoc/${adHoc.adHocPath}/${kind}/cfg_if/index.html">
-                    ${adHoc.adHocPath}/${kind}
-                  </a>
-                </li>
-              '') [ "target" "build" ]}
-            '') meta.adHocBuildTests.allList}
-          </ul>
+          <h1>IceCap</h1>
+            <h3>source</h3>
+              <a href="https://gitlab.com/arm-research/security/icecap/icecap/">https://gitlab.com/arm-research/security/icecap/icecap/</a>
+            <!--
+            <h3>high-level documentation</h3>
+              <a href="https://gitlab.com/arm-research/security/icecap/icecap/-/tree/main/docs">https://gitlab.com/arm-research/security/icecap/icecap/-/tree/main/docs</a>
+            -->
+            <h3>rustdoc</h3>
+              <ul>
+                ${lib.concatMapStrings (adHoc: ''
+                  <li>
+                    ${adHoc.adHocPath}:
+                    <a href="./rustdoc/${adHoc.adHocPath}/target/cfg_if/index.html">target</a>
+                    <a href="./rustdoc/${adHoc.adHocPath}/build/syn/index.html">build</a>
+                  </li>
+                '') meta.adHocBuildTests.allList}
+              </ul>
         </div>
       </body>
     </html>
