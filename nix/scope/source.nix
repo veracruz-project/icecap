@@ -14,6 +14,7 @@ rec {
         false
           # NOTE minimize this, just like .gitignore
           || baseName == "__pycache__" # for {c,d}dl.env
+          || baseName == "target" # for src/rust (HACK)
       );
 
     absolute = clean;

@@ -22,8 +22,12 @@ rec {
     inherit lib pkgs meta;
   };
 
-  adHocBuildTests = import ./ad-hoc-build-tests {
+  rust = import ./rust {
     inherit lib pkgs;
+  };
+
+  adHocBuildTests = import ./ad-hoc-build-tests {
+    inherit lib pkgs meta;
   };
 
   docs = import ./docs {

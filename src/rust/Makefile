@@ -20,7 +20,7 @@ icecap_rust_flags := \
 icecap_env := \
 	RUST_TARGET_PATH=$(abspath support/targets) \
 	CARGO_TARGET_AARCH64_ICECAP_RUSTFLAGS="$(icecap_rust_flags)" \
-	CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="$(icecap_rust_flags)" \
+	CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="$(icecap_rust_flags) --enable-index-page" \
 	BINDGEN_EXTRA_CLANG_ARGS="-I$(LIBSEL4)/include"
 
 icecap_build_std_args := \
@@ -53,5 +53,6 @@ doc-seL4:
 
 .PHONY: doc-linux
 doc-linux:
-	cargo doc --locked \
-		$(linux_package_args)
+	RUSTDOCFLAGS="-Z unstable-options --enable-index-page" \
+		cargo doc --locked \
+			$(linux_package_args)

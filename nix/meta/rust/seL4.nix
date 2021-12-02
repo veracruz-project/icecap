@@ -5,6 +5,8 @@
 , stdenv, icecapSrc, fetchCrates
 }:
 
+{ build ? false, release ? false, doc ? false, docDeps ? false }:
+
 let
 
   lock = src + "/Cargo.lock";
@@ -41,6 +43,9 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   '';
 
   buildPhase = ''
+    package_args=$(awk '{print "-p" $$0}' < ${src}/support/crates-for-seL4.txt)
+
+  '' + lib.optionalString build ''
     cargo build \
       -Z unstable-options \
       --frozen \
@@ -48,21 +53,26 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
       --manifest-path ${src}/Cargo.toml \
       --out-dir $out/bin \
       --target ${rustTargetName} \
-      --release \
-      $(awk '{print "-p" $$0}' < ${src}/support/crates-for-seL4.txt)
+      ${lib.optionalString release "--release"} \
+      $package_args
 
-    CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="--cfg=icecap_plat=\"${icecapPlat}\"" \
+  '' + lib.optionalString doc ''
+    CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="--cfg=icecap_plat=\"${icecapPlat}\" -Z unstable-options --enable-index-page" \
       cargo doc \
         --frozen \
         --target-dir target \
         --manifest-path ${src}/Cargo.toml \
         --target ${rustTargetName} \
-        $(awk '{print "-p" $$0}' < ${src}/support/crates-for-seL4.txt)
-    
+        ${lib.optionalString (!docDeps) "--no-deps"} \
+        $package_args
+
+    # HACK
+    mkdir -p target/doc
+
     mkdir -p $out/doc
     cp -r target/doc $out/doc/build
-    cp -r target/${rustTargetName}/doc $out/doc/target
+    cp -r target/${rustTargetName}/doc $out/doc/host
   '';
 
-  passthru.adHocPath = "${rustTargetName}/${icecapPlat}";
+  passthru.worldPath = "${rustTargetName}/${icecapPlat}";
 })

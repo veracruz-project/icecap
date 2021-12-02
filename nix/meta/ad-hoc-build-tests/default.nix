@@ -1,14 +1,15 @@
-{ lib, pkgs }:
+{ lib, pkgs, meta }:
 
+let
+  allAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
+    build = true;
+  })) meta.rust.allAttrs;
+
+in
 rec {
+
   all = pkgs.dev.writeText "ad-host-build-test-roots" (toString allList);
 
-  allList = lib.concatMap lib.attrValues [
-    seL4 linux
-  ];
+  allList = lib.concatMap lib.attrValues (lib.attrValues allAttrs);
 
-  seL4 = lib.flip lib.mapAttrs pkgs.none.icecap.configured
-    (_: configured: configured.callPackage ./seL4.nix {});
-  linux = lib.flip lib.mapAttrs { inherit (pkgs) dev linux musl; }
-    (_: scope: scope.icecap.callPackage ./linux.nix {});
-}
+} // allAttrs
