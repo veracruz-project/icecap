@@ -41,15 +41,15 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   '';
 
   buildPhase = ''
-    # cargo build \
-    #   -Z unstable-options \
-    #   --frozen \
-    #   --target-dir target \
-    #   --manifest-path ${src}/Cargo.toml \
-    #   --out-dir $out/build \
-    #   --target ${rustTargetName} \
-    #   --release \
-    #   $(awk '{print "-p" $$0}' < ${src}/support/crates-for-seL4.txt)
+    cargo build \
+      -Z unstable-options \
+      --frozen \
+      --target-dir target \
+      --manifest-path ${src}/Cargo.toml \
+      --out-dir $out/bin \
+      --target ${rustTargetName} \
+      --release \
+      $(awk '{print "-p" $$0}' < ${src}/support/crates-for-seL4.txt)
 
     CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="--cfg=icecap_plat=\"${icecapPlat}\"" \
       cargo doc \
