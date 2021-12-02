@@ -26,4 +26,8 @@ rec {
     inherit lib pkgs;
   };
 
+  docs = import ./docs {
+    inherit lib pkgs meta;
+  };
+
 }

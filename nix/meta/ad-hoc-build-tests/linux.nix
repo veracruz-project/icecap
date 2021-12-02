@@ -29,15 +29,27 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
   '';
 
   buildPhase = ''
-    cargo build \
-      -Z unstable-options \
+    cargo doc \
       --frozen \
       --target-dir target \
       --manifest-path ${src}/Cargo.toml \
-      --out-dir $out \
       --target ${rustTargetName} \
-      --release \
       $(awk '{print "-p" $$0}' < ${src}/support/crates-for-linux.txt)
+
+    mkdir -p $out/doc
+    cp -r target/doc $out/doc/build
+    cp -r target/${rustTargetName}/doc $out/doc/target
+
+    # cargo build \
+    #   -Z unstable-options \
+    #   --frozen \
+    #   --target-dir target \
+    #   --manifest-path ${src}/Cargo.toml \
+    #   --out-dir $out \
+    #   --target ${rustTargetName} \
+    #   --release \
+    #   $(awk '{print "-p" $$0}' < ${src}/support/crates-for-linux.txt)
   '';
 
+  passthru.adHocPath = rustTargetName;
 })
