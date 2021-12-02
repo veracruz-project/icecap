@@ -11,65 +11,40 @@ doc: doc-seL4 doc-linux
 .PHONY: build
 build: build-seL4 build-linux
 
+package_args_for = $(shell awk '{print "-p " $$$$0}' < support/crates-for-$(1).txt)
+seL4_package_args = $(call package_args_for,seL4)
+linux_package_args = $(call package_args_for,linux)
+
+icecap_cfg_flags := --cfg=icecap_plat=\"virt\"
+icecap_lib_path_flags := -L$(LIBSEL4)/lib -L$(ICECAP_RUNTIME)/lib
+
+icecap_build_std_args := \
+	-Z build-std=core,alloc,compiler_builtins -Z build-std-features=compiler-builtins-mem
+
 .PHONY: doc-seL4
 doc-seL4:
 	RUST_TARGET_PATH=$(abspath support/targets) \
-	CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="--cfg=icecap_plat=\"virt\"" \
-		cargo doc \
-			-Z unstable-options \
-			--locked \
+	CARGO_TARGET_AARCH64_ICECAP_RUSTDOCFLAGS="$(icecap_cfg_flags)" \
+		cargo doc --locked \
 			--target aarch64-icecap \
-			-Z avoid-dev-deps \
-			-Z build-std=core,alloc,compiler_builtins -Z build-std-features=compiler-builtins-mem \
-			-p $(shell awk '{print "-p" $$$$0}' < support/crates-for-seL4.txt)
+			$(icecap_build_std_args) \
+			$(seL4_package_args)
 
 .PHONY: doc-linux
 doc-linux:
-	cargo doc \
-		-Z unstable-options \
-		--locked \
-		-Z avoid-dev-deps \
-		-p $(shell awk '{print "-p" $$$$0}' < support/crates-for-linux.txt)
+	cargo doc --locked \
+		$(linux_package_args)
 
 .PHONY: build-seL4
 build-seL4:
 	RUST_TARGET_PATH=$(abspath support/targets) \
-	CARGO_TARGET_AARCH64_ICECAP_RUSTFLAGS="--cfg=icecap_plat=\"virt\" -L$(LIBSEL4)/lib -L$(ICECAP_RUNTIME)/lib" \
-		cargo build \
-			-Z unstable-options \
-			--locked \
+	CARGO_TARGET_AARCH64_ICECAP_RUSTFLAGS="$(icecap_cfg_flags) $(icecap_lib_path_flags)" \
+		cargo build --locked \
 			--target aarch64-icecap \
-			-Z avoid-dev-deps \
-			-Z build-std=core,alloc,compiler_builtins -Z build-std-features=compiler-builtins-mem \
-			-p $(shell awk '{print "-p" $$$$0}' < support/crates-for-seL4.txt)
+			$(icecap_build_std_args) \
+			$(seL4_package_args)
 
 .PHONY: build-linux
 build-linux:
-	cargo build \
-		-Z unstable-options \
-		--locked \
-		-Z avoid-dev-deps \
-		-p $(shell awk '{print "-p" $$$$0}' < support/crates-for-linux.txt)
-
-# HACK
-.PHONY: sysroot
-sysroot:
-	RUST_TARGET_PATH=$(abspath support/targets) \
-	CARGO_PROFILE_RELEASE_DEBUG=0 \
-	CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true \
-	RUSTC_BOOTSTRAP=1 \
-	CARGO_TARGET_AARCH64_ICECAP_RUSTFLAGS=" \
-		-Cforce-unwind-tables=yes -Cembed-bitcode=yes \
-		-Z force-unstable-if-unmarked --sysroot /dev/null \
-		--cfg=icecap_plat=\"virt\" -L$(LIBSEL4)/lib -L$(ICECAP_RUNTIME)/lib" \
-	__CARGO_DEFAULT_LIB_METADATA="icecap-sysroot" \
-	cargo build \
-		-Z unstable-options \
-		--locked \
-		-Z avoid-dev-deps \
-		--target aarch64-icecap \
-		-Zbinary-dep-depinfo \
-		--release \
-		--target-dir target/sysroot \
-		--features compiler-builtins-mem \
-		--manifest-path ../../../local/rust/library/test/Cargo.toml
+	cargo build --locked \
+		$(linux_package_args)
