@@ -12,6 +12,6 @@ $(BUILD)/include/capdl_loader_app/config_in.h: $(CAPDL_LOADER_CONFIG_IN_H)
 	install -D -T $< $@
 
 # HACK
-CFLAGS += -Wno-unused-variable
-CFLAGS += -Wno-unused-function
-CFLAGS += -Wno-unused-but-set-variable
+cflags-capdl-loader-core += -Wno-unused-variable
+cflags-capdl-loader-core += -Wno-unused-function
+cflags-capdl-loader-core += -Wno-unused-but-set-variable

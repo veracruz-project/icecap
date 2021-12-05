@@ -1,6 +1,9 @@
-CC     := $(CROSS_COMPILE)gcc
-AR     := $(CROSS_COMPILE)ar
-RANLIB := $(CROSS_COMPILE)ranlib
+BUILD ?= build
+
+CC      := $(CROSS_COMPILE)gcc
+AR      := $(CROSS_COMPILE)ar
+RANLIB  := $(CROSS_COMPILE)ranlib
+INSTALL := install
 
 here = $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -21,9 +24,6 @@ endef
 libs :=
 exes :=
 
-BUILD ?= build
-INSTALL = install
-
 include $(ROOTS)
 
 src = $(src-$(trg))
@@ -43,23 +43,28 @@ objs = \
 
 hdrs = $(if $(inc),$(shell find $(inc)/ -not -type d -name '*.h'))
 
-CPPFLAGS += \
+cppflags = $(CPPFLAGS)
+cppflags += \
 	$(foreach x,$(inc),-I $(x)) $(foreach trg,$(libs),$(foreach x,$(inc),-I $(x))) \
 	-I$(BUILD)/include
 
-CFLAGS += -nostdinc -ffreestanding
-CFLAGS += -Wa,--noexecstack
-CFLAGS += -Wall -Werror
-CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -g -funwind-tables -fno-asynchronous-unwind-tables # -fexceptions?
-CFLAGS += -pipe
-CFLAGS += -O3
+cflags = $(CFLAGS)
+cflags += -nostdinc -ffreestanding
+cflags += -Wa,--noexecstack
+cflags += -Wall -Werror
+cflags += -ffunction-sections -fdata-sections
+cflags += -g -funwind-tables -fno-asynchronous-unwind-tables # -fexceptions?
+cflags += -pipe
+cflags += -O3
 
-LDFLAGS += -g -ffreestanding -nostdlib -L$(BUILD) #  -Wl,--eh-frame-hdr?
+ldflags = $(LDFLAGS)
+ldflags += -g -ffreestanding -nostdlib -L$(BUILD) #  -Wl,--eh-frame-hdr?
 
-LDLIBS += -lgcc
+ldlibs = $(LDLIBS)
+ldlibs += -lgcc
 
-cc_cmd = $(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+cc_cmd = $(CC) $(cflags) $(cflags-$(trg)) $(cppflags) $(cppflags-$(trg)) -c -o $@ $<
+ld_cmd = $(CC) $(ldflags) $(ldflags-$(exe)) $(objs) $(ldlibs-$(exe)) $(ldlibs) -o $@
 install_cmd = $(INSTALL) -D -m 644 $< $@
 
 define ar_cmd
@@ -104,10 +109,10 @@ $(objs): | $(dirs)
 $(objs): $(build_gen_hdrs)
 
 $(build)/%.o: $(src)/%.c
-	$$(cc_cmd)
+	$$(call cc_cmd,$(trg))
 
 $(build)/%.o: $(src)/%.S
-	$$(cc_cmd)
+	$$(call cc_cmd,$(trg))
 
 endef
 
@@ -134,7 +139,7 @@ define rules_for_exe
 $(rules_for_trg)
 
 $(BUILD)/$(exe).elf: $(objs) $(foreach trg,$(deps-$(trg)),$(BUILD)/lib$(lib).a)
-	$$(CC) $$(LDFLAGS) $$(ldflags-$(exe)) $(objs) $$(ldlibs-$(exe)) $$(LDLIBS) -o $$@
+	$$(call ld_cmd,$(trg))
 
 endef
 
