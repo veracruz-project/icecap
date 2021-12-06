@@ -1,3 +1,4 @@
+import sys
 import json
 from pathlib import Path
 from argparse import ArgumentParser, FileType
@@ -18,7 +19,7 @@ def parse_args():
     subparsers = parser.add_subparsers(dest='cmd', required=True)
 
     def add_common_arguments(subparser):
-        subparser.add_argument('config', metavar='CONFIG', type=FileType('r'))
+        subparser.add_argument('config', metavar='CONFIG', nargs='?', type=FileType('r'), default=sys.stdin)
         subparser.add_argument('-o', '--out-dir', metavar='OUT_DIR', type=Path)
 
     subparser = subparsers.add_parser('firmware')
