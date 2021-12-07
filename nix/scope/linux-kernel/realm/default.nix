@@ -1,4 +1,5 @@
-{ linux-ng
+{ icecapSrc
+, linux-ng
 , linuxKernelUnifiedSource
 }:
 
@@ -13,7 +14,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = ./defconfig;
+    allconfig = icecapSrc.relative "boot/realm/linux.defconfig";
   };
 
 in

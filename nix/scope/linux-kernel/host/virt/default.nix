@@ -1,6 +1,8 @@
-{ linux-ng
+{ runCommand
+, icecapSrc
+, linux-ng
 , linuxKernelUnifiedSource
-, runCommand, diffutils
+, diffutils
 }:
 
 with linux-ng;
@@ -37,7 +39,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = ./defconfig;
+    allconfig = icecapSrc.relative "boot/host/virt/linux.defconfig";
   };
 
   configDiff = runCommand "diff" {

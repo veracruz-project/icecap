@@ -1,6 +1,8 @@
-{ linux-ng
+{ runCommand
+, icecapSrc
+, linux-ng
 , linuxKernelRpi4Source
-, runCommand, diffutils
+, diffutils
 }:
 
 with linux-ng;
@@ -23,7 +25,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = ./defconfig;
+    allconfig = icecapSrc.relative "boot/host/rpi4/linux.defconfig";
   };
 
   configDiff = runCommand "diff" {

@@ -1,4 +1,5 @@
 { lib, writeText, runCommand
+, icecapSrc
 , uboot-ng, uboot-ng-mkimage
 , uBootUnifiedSource
 }:
@@ -12,7 +13,7 @@ let
   preConfig = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = ./defconfig;
+    allconfig = icecapSrc.relative "boot/host/virt/u-boot.defconfig";
   };
 
   # config = preConfig;
