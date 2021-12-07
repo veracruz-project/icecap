@@ -14,7 +14,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = icecapSrc.relative "boot/realm/linux.defconfig";
+    allconfig = icecapSrc.relative "support/realm/linux.defconfig";
   };
 
 in

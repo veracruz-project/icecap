@@ -7,14 +7,14 @@ let
 in
 {
   host = rec {
-    virt = dtb-helpers.compile (icecapSrc.relative "boot/host/virt/host.dts");
-    rpi4 = with dtb-helpers; compile (catFiles [ rpi4OrigDecompiled (icecapSrc.relative "boot/host/rpi4/host.dtsa") ]);
+    virt = dtb-helpers.compile (icecapSrc.relative "support/host/virt/host.dts");
+    rpi4 = with dtb-helpers; compile (catFiles [ rpi4OrigDecompiled (icecapSrc.relative "support/host/rpi4/host.dtsa") ]);
     passthru = {
       inherit rpi4Orig rpi4OrigDecompiled;
     };
   };
   realm = {
-    virt = dtb-helpers.compile (icecapSrc.relative "boot/realm/device-tree/virt.dts");
-    rpi4 = dtb-helpers.compile (icecapSrc.relative "boot/realm/device-tree/rpi4.dts");
+    virt = dtb-helpers.compile (icecapSrc.relative "support/realm/device-tree/virt.dts");
+    rpi4 = dtb-helpers.compile (icecapSrc.relative "support/realm/device-tree/rpi4.dts");
   };
 }

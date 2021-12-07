@@ -39,7 +39,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = icecapSrc.relative "boot/host/virt/linux.defconfig";
+    allconfig = icecapSrc.relative "support/host/virt/linux.defconfig";
   };
 
   configDiff = runCommand "diff" {

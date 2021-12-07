@@ -25,7 +25,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = icecapSrc.relative "boot/host/rpi4/linux.defconfig";
+    allconfig = icecapSrc.relative "support/host/rpi4/linux.defconfig";
   };
 
   configDiff = runCommand "diff" {
