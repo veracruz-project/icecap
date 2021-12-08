@@ -1,0 +1,33 @@
+/ {
+    /delete-node/ cpus;
+    /delete-node/ psci;
+    /delete-node/ chosen;
+};
+
+/ {
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        cpu@0 {
+            /* NOTE platform-specific .dtsa must add "compatible" property */
+            device_type = "cpu";
+            enable-method = "psci";
+            reg = <0x0>;
+        };
+    };
+
+    psci {
+        compatible = "arm,psci-0.2";
+        method = "hvc";
+    };
+
+    icecap_vmm {
+        compatible = "icecap,vmm";
+    };
+
+    chosen {
+        stdout-path = "/icecap_vmm";
+    };
+
+};

@@ -1,0 +1,42 @@
+/dts-v1/;
+
+/ {
+    compatible = "linux,icecap-realm";
+    #address-cells = <2>;
+    #size-cells = <2>;
+    interrupt-parent = <&intc>;
+
+    /* TODO unify */
+    /*
+    memory@10000000 {
+        device_type = "memory";
+        reg = <0x00 0x10000000 0x00 0x10000000>;
+    };
+    */
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        cpu@0 {
+            /* NOTE platform-specific .dtsa must add "compatible" property */
+            device_type = "cpu";
+            reg = <0x0>;
+        };
+    };
+
+    psci {
+        compatible = "arm,psci-0.2";
+        method = "hvc";
+    };
+
+    timer {
+        compatible = "arm,armv8-timer", "arm,armv7-timer";
+        always-on;
+        interrupts = <0x1 0xd 0x104 0x1 0xe 0x104 0x1 0xb 0x104 0x1 0xa 0x104>;
+    };
+
+    icecap_vmm {
+        compatible = "icecap,vmm";
+    };
+
+};

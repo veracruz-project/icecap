@@ -1,10 +1,4 @@
-/dts-v1/;
-
 / {
-    compatible = "linux,dummy-virt";
-    #address-cells = <2>;
-    #size-cells = <2>;
-    interrupt-parent = <&intc>;
 
     memory@10000000 {
         device_type = "memory";
@@ -12,22 +6,9 @@
     };
 
     cpus {
-        #address-cells = <1>;
-        #size-cells = <0>;
         cpu@0 {
             compatible = "arm,cortex-a72";
-            device_type = "cpu";
-            reg = <0x0>;
         };
-    };
-
-    psci {
-        compatible = "arm,psci-0.2";
-        method = "hvc";
-    };
-
-    icecap_vmm {
-        compatible = "icecap,vmm";
     };
 
     intc: gic400@40041000 {
@@ -39,12 +20,6 @@
         #size-cells = <2>;
 		reg = < 0x0 0xff841000 0x0 0x1000 0x0 0xff842000 0x0 0x2000
                 0x0 0xff844000 0x0 0x2000 0x0 0xff846000 0x0 0x2000 >;
-    };
-
-    timer {
-        compatible = "arm,armv8-timer", "arm,armv7-timer";
-        always-on;
-        interrupts = <0x1 0xd 0x104 0x1 0xe 0x104 0x1 0xb 0x104 0x1 0xa 0x104>;
     };
 
 };

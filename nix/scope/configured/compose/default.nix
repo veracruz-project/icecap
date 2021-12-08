@@ -58,7 +58,7 @@ let
 
         host_vmm.image = bins.host-vmm.split;
         host_vm.kernel = self.u-boot;
-        host_vm.dtb = deviceTree.host.${icecapPlat};
+        host_vm.dtb = deviceTree.host.${icecapPlat}.dtb;
       };
     };
 

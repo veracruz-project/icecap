@@ -1,20 +1,26 @@
-{ icecapSrc, dtb-helpers, raspios, linuxPkgs }:
+{ lib, icecapSrc, byIceCapPlat, platUtils, dtb-helpers, raspios, linuxPkgs }:
 
 let
-  rpi4Orig = "${linuxPkgs.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
-  rpi4OrigDecompiled = dtb-helpers.decompile rpi4Orig;
+  outerOrig = {
+    rpi4 = "${linuxPkgs.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
+    virt = platUtils.virt.extra.dtb;
+  };
 
 in
 {
-  host = rec {
-    virt = dtb-helpers.compile (icecapSrc.relative "support/host/virt/host.dts");
-    rpi4 = with dtb-helpers; compile (catFiles [ rpi4OrigDecompiled (icecapSrc.relative "support/host/rpi4/host.dtsa") ]);
-    passthru = {
-      inherit rpi4Orig rpi4OrigDecompiled;
+  host = byIceCapPlat (plat: rec {
+    dtb = with dtb-helpers; compile (catFiles [
+      orig.dts
+      (icecapSrc.relative "support/host/common/host.dtsa")
+      (icecapSrc.relative "support/host/${plat}/host.dtsa")
+    ]);
+    orig = {
+      dtb = outerOrig.${plat};
+      dts = dtb-helpers.decompile orig.dtb;
     };
-  };
-  realm = {
-    virt = dtb-helpers.compile (icecapSrc.relative "support/realm/device-tree/virt.dts");
-    rpi4 = dtb-helpers.compile (icecapSrc.relative "support/realm/device-tree/rpi4.dts");
-  };
+  });
+  realm = byIceCapPlat (plat: with dtb-helpers; compile (catFiles [
+    (icecapSrc.relative "support/realm/device-tree/base.dts")
+    (icecapSrc.relative "support/realm/device-tree/${plat}.dtsa")
+  ]));
 }

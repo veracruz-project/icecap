@@ -1,0 +1,75 @@
+/ {
+	/delete-node/ memory@40000000;
+
+	/delete-node/ platform@c000000;
+	/delete-node/ fw-cfg@9020000;
+
+	/delete-node/ virtio_mmio@a000000;
+	/delete-node/ virtio_mmio@a000200;
+	/delete-node/ virtio_mmio@a000400;
+	/delete-node/ virtio_mmio@a000600;
+	/delete-node/ virtio_mmio@a000800;
+	/delete-node/ virtio_mmio@a000a00;
+	/delete-node/ virtio_mmio@a000c00;
+	/delete-node/ virtio_mmio@a000e00;
+	/delete-node/ virtio_mmio@a001000;
+	/delete-node/ virtio_mmio@a001200;
+	/delete-node/ virtio_mmio@a001400;
+	/delete-node/ virtio_mmio@a001600;
+	/delete-node/ virtio_mmio@a001800;
+	/delete-node/ virtio_mmio@a001a00;
+	/delete-node/ virtio_mmio@a001c00;
+	/delete-node/ virtio_mmio@a001e00;
+	/delete-node/ virtio_mmio@a002000;
+	/delete-node/ virtio_mmio@a002200;
+	/delete-node/ virtio_mmio@a002400;
+	/delete-node/ virtio_mmio@a002600;
+	/delete-node/ virtio_mmio@a002800;
+	/delete-node/ virtio_mmio@a002a00;
+	/delete-node/ virtio_mmio@a002c00;
+	/delete-node/ virtio_mmio@a002e00;
+	/delete-node/ virtio_mmio@a003000;
+	/delete-node/ virtio_mmio@a003200;
+	/delete-node/ virtio_mmio@a003400;
+	/delete-node/ virtio_mmio@a003600;
+	/delete-node/ virtio_mmio@a003800;
+	/delete-node/ virtio_mmio@a003a00;
+
+    /*
+        keep the following:
+            virtio_mmio@a003c00: 9p, irq 78
+            virtio_mmio@a003e00: net, irq 79
+	*/
+
+	/delete-node/ gpio-keys;
+	/delete-node/ pl061@9030000;
+	/delete-node/ pcie@10000000;
+	/delete-node/ icecap-ring-buffer@9092000;
+	/delete-node/ icecap-ring-buffer@9091000;
+	/delete-node/ icecap-timer@9090000;
+	/delete-node/ pl031@9010000;
+	/delete-node/ pl011@9000000;
+	/delete-node/ pmu;
+
+	intc@8000000 {
+		/delete-node/ v2m@8020000;
+	};
+
+	/delete-node/ flash@0;
+	/delete-node/ apb-pclk;
+};
+
+/ {
+
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x00 0x80000000 0x00 0x10000000>;
+    };
+
+    cpus {
+        cpu@0 {
+            compatible = "arm,cortex-a57";
+        };
+    };
+
+};
