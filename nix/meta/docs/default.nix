@@ -6,9 +6,15 @@ rec {
     { name = "rustdoc"; path = rustdocHtml; }
   ];
 
-  rustdocAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
-    doc = true;
-    docDeps = true;
+  rustdocAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: {
+    without-deps = v {
+      doc = true;
+      docDeps = false;
+    };
+    with-deps = v {
+      doc = true;
+      docDeps = true;
+    };
   })) meta.rust.allAttrs;
 
   rustdocList = lib.concatMap lib.attrValues (lib.attrValues rustdocAttrs);
@@ -19,11 +25,11 @@ rec {
 
     worlds=$out/worlds
     mkdir -p $worlds
-    ${lib.concatMapStrings (world: ''
-      x=$worlds/${world.worldPath}
+    ${lib.concatMapStrings (world: lib.concatStrings (lib.mapAttrsToList (flavor: drv: ''
+      x=$worlds/${drv.worldPath}/${flavor}
       mkdir -p $(dirname $x)
-      ln -s ${world}/doc $x
-    '') rustdocList}
+      ln -s ${drv}/doc $x
+    '') world)) rustdocList}
   '';
 
   rustdocIndex = pkgs.dev.writeText "index.html" ''
@@ -53,12 +59,18 @@ rec {
         <div class="markdown-body">
           <h1>IceCap rustdoc</h1>
           <ul>
-            ${lib.concatMapStrings (world: ''
-              <li>
-                <a href="./worlds/${world.worldPath}/host/index.html">${world.worldPath}</a>
-                (<a href="./worlds/${world.worldPath}/build/quote/index.html">build-dependencies</a>)
-              </li>
-            '') rustdocList}
+            ${lib.concatMapStrings (world:
+              let
+                inherit (world.without-deps) worldPath;
+                prefix = "./worlds/${worldPath}";
+              in ''
+                <li>
+                  <a href="${prefix}/without-deps/host/index.html">${worldPath}</a>
+                  (<a href="${prefix}/with-deps/host/index.html">including dependencies</a>)
+                  (<a href="${prefix}/with-deps/build/quote/index.html">build-dependencies</a>)
+                </li>
+              ''
+            ) rustdocList}
           </ul>
         </div>
       </body>

@@ -26,6 +26,10 @@ demo: | $(out)
 
 ###
 
+.PHONY: html-docs
+html-docs:
+	nix-build -A meta.docs.html --no-out-link
+
 .PHONY: build-tests
 build-tests:
 	nix-build -A meta.buildTests.all --no-out-link
