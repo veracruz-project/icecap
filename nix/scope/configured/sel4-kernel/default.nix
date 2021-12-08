@@ -2,14 +2,14 @@
 , cmake, ninja, rsync
 , dtc, libxml2, python3, python3Packages
 
-, stdenvBoot, seL4EcosystemRepos, elfUtils
+, stdenvBoot, icecapExternalSrc, elfUtils
 
 , selectIceCapPlat
 , deviceTreeConfigured
 , cmakeConfig
 }:
 
-{ source ? seL4EcosystemRepos.seL4 }:
+{ source ? icecapExternalSrc.seL4 }:
 
 let
 
@@ -47,7 +47,7 @@ let
   ];
 
   extraConfig = ''
-    include(${seL4EcosystemRepos.seL4}/configs/seL4Config.cmake)
+    include(${icecapExternalSrc.seL4}/configs/seL4Config.cmake)
   '';
 
   cacheScript = writeText "config.cmake" ''

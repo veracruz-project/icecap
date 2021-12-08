@@ -3,7 +3,7 @@
 , icecapSrc
 , icecap-ocaml-runtime
 , libsel4, musl
-, platformInfo, seL4EcosystemRepos
+, platformInfo, icecapExternalSrc
 }:
 
 let
@@ -148,7 +148,7 @@ rec {
       cpio
       capdl-loader-shim
     ];
-    extra.CAPDL_LOADER_EXTERNAL_SOURCE = seL4EcosystemRepos.capdl.extendInnerSuffix "capdl-loader-app";
+    extra.CAPDL_LOADER_EXTERNAL_SOURCE = icecapExternalSrc.capdl.extendInnerSuffix "capdl-loader-app";
     extra.CAPDL_LOADER_PLATFORM_INFO_H = platformInfo;
     extra.CAPDL_LOADER_CONFIG_IN_H = writeText "config_in.h" ''
       #pragma once

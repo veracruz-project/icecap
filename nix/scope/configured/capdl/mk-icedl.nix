@@ -1,7 +1,7 @@
 { lib, buildPackages, runCommand, writeText
 , python3Packages
 
-, icecapSrc, seL4EcosystemRepos
+, icecapSrc, icecapExternalSrc
 
 , icecapPlat
 , object-sizes
@@ -28,7 +28,7 @@ let
 
   augmentedConfigJSON = writeText "config.json" (builtins.toJSON augmentedConfig);
 
-  capdlSrc = seL4EcosystemRepos.capdl.extendInnerSuffix "python-capdl-tool";
+  capdlSrc = icecapExternalSrc.capdl.extendInnerSuffix "python-capdl-tool";
   icedlSrc = icecapSrc.relativeSplit "python";
 
   f = attr:

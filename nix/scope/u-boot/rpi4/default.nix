@@ -1,14 +1,13 @@
 { lib, writeText, runCommand
-, icecapSrc
+, icecapSrc, icecapExternalSrc
 , uboot-ng, uboot-ng-mkimage
-, uBootUnifiedSource
 }:
 
 with uboot-ng;
 
 let
 
-  source = uBootUnifiedSource;
+  source = icecapExternalSrc.u-boot.host.unified;
 
   preConfig = makeConfig {
     inherit source;

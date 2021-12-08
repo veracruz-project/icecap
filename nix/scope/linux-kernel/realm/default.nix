@@ -1,13 +1,12 @@
-{ icecapSrc
+{ icecapSrc, icecapExternalSrc
 , linux-ng
-, linuxKernelUnifiedSource
 }:
 
 with linux-ng;
 
 let
 
-  source = linuxKernelUnifiedSource;
+  source = icecapExternalSrc.linux.unified;
 
   # TODO crypto acceleration <- y for net stack
 

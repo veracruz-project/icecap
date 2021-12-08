@@ -1,7 +1,6 @@
 { runCommand
-, icecapSrc
+, icecapSrc, icecapExternalSrc
 , linux-ng
-, linuxKernelUnifiedSource
 , diffutils
 }:
 
@@ -9,7 +8,7 @@ with linux-ng;
 
 let
 
-  source = linuxKernelUnifiedSource;
+  source = icecapExternalSrc.linux.unified;
 
   configBase = makeConfig {
     inherit source;

@@ -1,18 +1,12 @@
 { lib, writeText, writeScript, runCommand
 , raspios
-, icecapSrc
+, icecapSrc, icecapExternalSrc
 , linuxPkgs
 }:
 
 let
 
-  uBootSource = linuxPkgs.uboot-ng.doSource {
-    version = "2019.07";
-    src = (icecapSrc.repo {
-      repo = "u-boot";
-      rev = "62b6e39a53c56a9085aeab1b47b5cc6020fcdb6f"; # branch icecap
-    }).store;
-  };
+  uBootSource = icecapExternalSrc.u-boot.firmware.rpi4;
 
   preConfig = linuxPkgs.uboot-ng.makeConfig {
     source = uBootSource;

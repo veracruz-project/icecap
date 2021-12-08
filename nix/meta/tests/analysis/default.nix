@@ -1,7 +1,7 @@
 { mkInstance
 , emptyFile
 , linuxPkgs
-, seL4EcosystemRepos
+, icecapExternalSrc
 }:
 
 mkInstance { benchmark = true; } (self: with self.configured; with self; {
@@ -49,7 +49,7 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
   };
 
   # kernel = configured.kernel.override' {
-  #   source = seL4EcosystemRepos.seL4.forceLocal;
+  #   source = icecapExternalSrc.seL4.forceLocal;
   # };
 
   # composition = configured.icecapFirmware.override' {

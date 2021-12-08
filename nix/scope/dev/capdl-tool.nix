@@ -1,13 +1,13 @@
 { lib, stdenv
 , haskellPackages
-, seL4EcosystemRepos
+, icecapExternalSrc
 }:
 
 haskellPackages.mkDerivation {
   pname = "capdl-tool";
   version = "1.0.0.1";
 
-  src = seL4EcosystemRepos.capdl.extendInnerSuffix "capDL-tool";
+  src = icecapExternalSrc.capdl.extendInnerSuffix "capDL-tool";
 
   isLibrary = false;
   isExecutable = true;

@@ -4,7 +4,7 @@
 , cmake, ninja, rsync
 , dtc, libxml2, python3, python3Packages
 
-, seL4EcosystemRepos, cpioUtils
+, icecapExternalSrc, cpioUtils
 , stdenvBoot
 
 , kernel, libsel4, libcpio
@@ -58,7 +58,7 @@ stdenvBoot.mkDerivation rec {
   dontStrip = true;
   dontPatchELF = true;
 
-  cmakeDir = seL4EcosystemRepos.seL4_tools.extendInnerSuffix "elfloader-tool";
+  cmakeDir = icecapExternalSrc.seL4_tools.extendInnerSuffix "elfloader-tool";
 
   # TODO
   # cmakeBuildType = "Debug";
@@ -71,10 +71,10 @@ stdenvBoot.mkDerivation rec {
     "-DCMAKE_TOOLCHAIN_FILE=${kernel.patchedSource}/gcc.cmake"
 
     "-DPYTHON3=python3"
-    "-DICECAP_HACK_CMAKE_HELPERS=${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/helpers.cmake"}"
-    "-DICECAP_HACK_CMAKE_INTERNAL=${seL4EcosystemRepos.seL4.extendInnerSuffix "tools/internal.cmake"}"
-    "-DICECAP_HACK_CMAKE_TOOL_HELPERS_DIR=${seL4EcosystemRepos.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}"
-    "-DICECAP_HACK_KERNEL_TOOLS=${seL4EcosystemRepos.seL4.extendInnerSuffix "tools"}"
+    "-DICECAP_HACK_CMAKE_HELPERS=${icecapExternalSrc.seL4.extendInnerSuffix "tools/helpers.cmake"}"
+    "-DICECAP_HACK_CMAKE_INTERNAL=${icecapExternalSrc.seL4.extendInnerSuffix "tools/internal.cmake"}"
+    "-DICECAP_HACK_CMAKE_TOOL_HELPERS_DIR=${icecapExternalSrc.seL4_tools.extendInnerSuffix "cmake-tool/helpers"}"
+    "-DICECAP_HACK_KERNEL_TOOLS=${icecapExternalSrc.seL4.extendInnerSuffix "tools"}"
     "-DICECAP_HACK_KERNEL_DTB=${kernel}/boot/kernel.dtb"
     "-DICECAP_HACK_ARCHIVE_O=${images}"
     "-Dplatform_yaml=${kernel}/sel4-aux/platform_gen.yaml"

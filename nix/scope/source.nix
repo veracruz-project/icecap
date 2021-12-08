@@ -84,7 +84,7 @@ rec {
 
   };
 
-  seL4EcosystemRepos = {
+  icecapExternalSrc = {
 
     seL4 = icecapSrc.repo {
       repo = "seL4";
@@ -102,32 +102,39 @@ rec {
       rev = "dce0461e3092fe2bbcd38261e34a8ed8f8bdf580";
     };
 
-  };
+    linux.unified = linux-ng.doSource {
+      version = "5.15.0";
+      extraVersion = "-rc2";
+      src = (icecapSrc.repo {
+        repo = "linux";
+        rev = "1cb24ed03f2480f0f490cf84b81d83eebd9097c4"; # branch icecap
+      }).store;
+    };
 
-  linuxKernelUnifiedSource = with linux-ng; doSource {
-    version = "5.15.0";
-    extraVersion = "-rc2";
-    src = (icecapSrc.repo {
-      repo = "linux";
-      rev = "1cb24ed03f2480f0f490cf84b81d83eebd9097c4"; # branch icecap
-    }).store;
-  };
+    linux.rpi4 = linux-ng.doSource {
+      version = "5.15.0";
+      extraVersion = "-rc2";
+      src = (icecapSrc.repo {
+        repo = "linux";
+        rev = "901292d22770fb16638d1f4ef8d5efff27a2db01"; # branch: icecap-rpi4
+      }).store;
+    };
 
-  linuxKernelRpi4Source = with linux-ng; doSource {
-    version = "5.15.0";
-    extraVersion = "-rc2";
-    src = (icecapSrc.repo {
-      repo = "linux";
-      rev = "901292d22770fb16638d1f4ef8d5efff27a2db01"; # branch: icecap-rpi4
-    }).store;
-  };
+    u-boot.host.unified = uboot-ng.doSource {
+      version = "2019.07";
+      src = (icecapSrc.repo {
+        repo = "u-boot";
+        rev = "ad3de5e2cffe741371b50b2f58c82eba0b8edb96"; # branch icecap-host
+      }).store;
+    };
 
-  uBootUnifiedSource = with uboot-ng; doSource {
-    version = "2019.07";
-    src = (icecapSrc.repo {
-      repo = "u-boot";
-      rev = "ad3de5e2cffe741371b50b2f58c82eba0b8edb96"; # branch icecap-host
-    }).store;
+    u-boot.firmware.rpi4 = with uboot-ng; doSource {
+      version = "2019.07";
+      src = (icecapSrc.repo {
+        repo = "u-boot";
+        rev = "62b6e39a53c56a9085aeab1b47b5cc6020fcdb6f"; # branch icecap
+      }).store;
+    };
   };
 
 }

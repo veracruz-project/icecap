@@ -1,6 +1,6 @@
 { stdenv
 , python3Packages, texlive, doxygen
-, seL4EcosystemRepos
+, icecapExternalSrc
 }:
 
 let
@@ -18,7 +18,7 @@ in
 stdenv.mkDerivation {
   name = "sel4-manual";
 
-  src = seL4EcosystemRepos.seL4;
+  src = icecapExternalSrc.seL4;
 
   nativeBuildInputs = [
     python3Packages.sel4-deps

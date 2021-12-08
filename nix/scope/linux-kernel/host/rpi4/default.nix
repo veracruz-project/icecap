@@ -1,7 +1,6 @@
 { runCommand
-, icecapSrc
+, icecapSrc, icecapExternalSrc
 , linux-ng
-, linuxKernelRpi4Source
 , diffutils
 }:
 
@@ -9,7 +8,7 @@ with linux-ng;
 
 let
 
-  source = linuxKernelRpi4Source;
+  source = icecapExternalSrc.linux.rpi4;
 
   configBase = makeConfig {
     inherit source;

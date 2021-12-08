@@ -32,11 +32,7 @@ superCallPackage ./ocaml {} self //
     inherit icecapPlat;
   }));
 
-  inherit (callPackage ./source.nix {})
-    icecapSrc
-    seL4EcosystemRepos
-    linuxKernelUnifiedSource linuxKernelRpi4Source
-    uBootUnifiedSource;
+  inherit (callPackage ./source.nix {}) icecapSrc icecapExternalSrc;
 
   platUtils = byIceCapPlat (plat: callPackage (./plat-utils + "/${plat}") {});
 
