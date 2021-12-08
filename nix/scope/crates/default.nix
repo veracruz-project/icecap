@@ -1,5 +1,5 @@
 { lib, newScope
-, icecapSrc
+, icecapSrc, icecapExternalSrc
 , crateUtils
 }:
 
@@ -47,9 +47,8 @@ let
 
     } (path + "/crate.nix");
 
-  patches = import ./patches.nix {
-    inherit icecapSrc;
-  };
+  # HACK
+  patches = icecapExternalSrc.crates.git;
 
   cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
   cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude)localCrates;
