@@ -35,7 +35,7 @@
 	/delete-node/ virtio_mmio@a003800;
 	/delete-node/ virtio_mmio@a003a00;
 
-    /*
+	/*
         keep the following:
             virtio_mmio@a003c00: 9p, irq 78
             virtio_mmio@a003e00: net, irq 79
