@@ -1,4 +1,4 @@
-{ mk, serdeMin, localCrates }:
+{ mk, localCrates, serdeMin, postcardCommon }:
 
 mk {
   nix.name = "icecap-resource-server-types";
@@ -7,6 +7,6 @@ mk {
   ];
   dependencies = {
     serde = serdeMin;
-    pinecone = "*";
+    postcard = postcardCommon;
   };
 }

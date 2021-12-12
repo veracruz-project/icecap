@@ -17,7 +17,7 @@ hex = "*"
 log = "*"
 memmap = "*"
 object = "0.17.*"
-pinecone = "*"
+postcard = { version = "*", default-features = false, features = [ "alloc",] }
 rustc-demangle = "*"
 serde = "*"
 icecap-backtrace-types = { path = "../../types" }

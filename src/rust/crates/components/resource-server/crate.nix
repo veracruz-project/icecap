@@ -1,4 +1,4 @@
-{ mkComponent, localCrates, serdeMin }:
+{ mkComponent, localCrates, serdeMin, postcardCommon }:
 
 mkComponent {
   nix.name = "resource-server";
@@ -13,7 +13,7 @@ mkComponent {
     dyndl-types
   ];
   dependencies = {
-    pinecone = "*";
+    postcard = postcardCommon;
     serde = serdeMin;
   };
 }

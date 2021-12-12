@@ -1,4 +1,4 @@
-{ mkSeL4, localCrates, serdeMin }:
+{ mkSeL4, localCrates, serdeMin, postcardCommon }:
 
 mkSeL4 {
   nix.name = "icecap-start";
@@ -9,7 +9,7 @@ mkSeL4 {
   ];
   dependencies = {
     log = "*"; # TODO
-    pinecone = "*";
     serde = serdeMin;
+    postcard = postcardCommon;
   };
 }

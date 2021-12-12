@@ -1,10 +1,10 @@
-{ mk, serdeMin }:
+{ mk, serdeMin, postcardCommon }:
 
 mk {
   nix.name = "icecap-backtrace-types";
   dependencies = {
     hex = { version = "*"; default-features = false; features = [ "alloc" ]; };
-    pinecone = "*";
     serde = serdeMin;
+    postcard = postcardCommon;
   };
 }

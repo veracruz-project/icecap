@@ -1,4 +1,4 @@
-{ mkBin, localCrates }:
+{ mkBin, localCrates, postcardCommon }:
 
 mkBin {
   nix.name = "icecap-show-backtrace";
@@ -16,7 +16,7 @@ mkBin {
     log = "*";
     memmap = "*";
     object = "0.17.*";
-    pinecone = "*";
+    postcard = postcardCommon;
     rustc-demangle = "*";
     serde = "*";
   };

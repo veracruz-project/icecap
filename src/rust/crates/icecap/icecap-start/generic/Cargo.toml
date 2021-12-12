@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 log = "*"
-pinecone = "*"
+postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 serde_json = { version = "*", default-features = false, features = [ "alloc",] }
 icecap-failure = { path = "../../icecap-failure" }

@@ -18,7 +18,7 @@ fn main() -> Result<(), io::Error> {
         objects,
     };
     add_fill(&mut model, &dir)?;
-    io::stdout().write_all(&pinecone::to_vec(&model).unwrap())?;
+    io::stdout().write_all(&postcard::to_allocvec(&model).unwrap())?;
     Ok(())
 }
 

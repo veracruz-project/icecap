@@ -5,8 +5,6 @@ extern crate alloc;
 use alloc::vec::Vec;
 use alloc::string::String;
 use serde::{Serialize, Deserialize};
-use hex;
-use pinecone;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawBacktrace {
@@ -25,11 +23,11 @@ pub struct RawStackFrame {
 impl RawBacktrace {
 
     pub fn serialize(&self) -> String {
-        hex::encode(pinecone::to_vec(self).unwrap())
+        hex::encode(postcard::to_allocvec(self).unwrap())
     }
 
     pub fn deserialize(s: &str) -> Self {
-        pinecone::from_bytes(&hex::decode(s).unwrap()).unwrap()
+        postcard::from_bytes(&hex::decode(s).unwrap()).unwrap()
     }
 
 }

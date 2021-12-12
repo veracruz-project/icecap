@@ -147,7 +147,7 @@ impl ResourceServer {
 
     pub fn realize(&mut self, node_index: usize, realm_id: RealmId) -> Fallible<()> {
         let raw = self.partial_specs.remove(&realm_id).unwrap();
-        let model = pinecone::from_bytes(&raw).unwrap();
+        let model = postcard::from_bytes(&raw).unwrap();
         let realm = self.realize_inner(&model)?;
 
         self.realms.insert(realm_id, realm);

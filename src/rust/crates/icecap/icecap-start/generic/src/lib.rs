@@ -7,7 +7,7 @@ use icecap_failure::Fallible;
 use icecap_sel4::debug_println;
 pub use icecap_start::config;
 
-// TODO pinecone can't deserialize serde_json::Value
+// TODO postcard can't deserialize serde_json::Value
 //     // As a binary format, Pinecone does not encode identifiers
 //     fn deserialize_identifier<V>(self, _visitor: V) -> Result<V::Value>
 //     ...

@@ -26,7 +26,7 @@ pub trait RPC: Sized {
 impl<T: Serialize + for<'a> Deserialize<'a>> RPC for T {
 
     fn send(&self, call: &mut impl WriteCall) {
-        let mut bytes = pinecone::to_vec(self).unwrap();
+        let mut bytes = postcard::to_allocvec(self).unwrap();
         let num_parameters = (bytes.len() + size_of::<ParameterValue>() - 1) / size_of::<ParameterValue>();
         bytes.resize_with(num_parameters * size_of::<ParameterValue>(), || 0);
         let chunks = bytes.chunks_exact(size_of::<ParameterValue>());
@@ -41,6 +41,6 @@ impl<T: Serialize + for<'a> Deserialize<'a>> RPC for T {
         for _ in 0..call.remaining() {
             bytes.extend_from_slice(&call.read_value().to_le_bytes());
         }
-        pinecone::from_bytes(&bytes).unwrap()
+        postcard::from_bytes(&bytes).unwrap()
     }
 }

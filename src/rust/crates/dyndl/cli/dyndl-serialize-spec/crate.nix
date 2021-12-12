@@ -1,4 +1,4 @@
-{ mkBin, localCrates }:
+{ mkBin, localCrates, postcardCommon }:
 
 mkBin {
   nix.name = "dyndl-serialize-spec";
@@ -8,6 +8,6 @@ mkBin {
   dependencies = {
     serde = "*";
     serde_json = "*";
-    pinecone = "*";
+    postcard = postcardCommon;
   };
 }

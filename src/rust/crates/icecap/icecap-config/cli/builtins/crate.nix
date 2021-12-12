@@ -1,4 +1,4 @@
-{ mkBin, localCrates }:
+{ mkBin, localCrates, postcardCommon }:
 
 mkBin {
   nix.name = "icecap-serialize-builtin-config";
@@ -18,6 +18,6 @@ mkBin {
   dependencies = {
     serde = "*";
     serde_json = "*";
-    pinecone = "*";
+    postcard = postcardCommon;
   };
 }

@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-pinecone = "*"
+postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 dyndl-types = { path = "../../dyndl/types" }
 icecap-event-server-types = { path = "../event-server/types" }

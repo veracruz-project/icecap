@@ -44,6 +44,7 @@ let
 
       # convenient abbreviation
       serdeMin = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
+      postcardCommon = { version = "*"; default-features = false; features = [ "alloc" ]; };
 
     } (path + "/crate.nix");
 

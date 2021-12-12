@@ -1,9 +1,9 @@
-{ mk, serdeMin }:
+{ mk, serdeMin, postcardCommon }:
 
 mk {
   nix.name = "icecap-rpc";
   dependencies = {
     serde = serdeMin;
-    pinecone = "*";
+    postcard = postcardCommon;
   };
 }

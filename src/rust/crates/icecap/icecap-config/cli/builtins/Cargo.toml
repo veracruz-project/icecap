@@ -7,7 +7,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-pinecone = "*"
+postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = "*"
 serde_json = "*"
 icecap-benchmark-server-config = { path = "../../../../components/benchmark-server/config" }
