@@ -124,7 +124,7 @@ rec {
       version = "2019.07";
       src = (icecapSrc.repo {
         repo = "u-boot";
-        rev = "ad3de5e2cffe741371b50b2f58c82eba0b8edb96"; # branch icecap-host
+        rev = "5c7134a7fe98bf0ebdcc7a0a7dc762fa2d49e4b1"; # branch icecap-host
       }).store;
     };
 
@@ -132,7 +132,7 @@ rec {
       version = "2019.07";
       src = (icecapSrc.repo {
         repo = "u-boot";
-        rev = "62b6e39a53c56a9085aeab1b47b5cc6020fcdb6f"; # branch icecap
+        rev = "50b0ad02f81a8d9c7a2accd565743409dcfcb7ed"; # branch icecap
       }).store;
     };
 
