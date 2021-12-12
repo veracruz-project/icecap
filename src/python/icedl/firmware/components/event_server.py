@@ -109,9 +109,9 @@ class EventServer(ElfComponent):
 
     def owned_irqs(self):
         if self.composition.plat == 'virt':
-            edge_triggered = frozenset([78, 79])
+            edge_triggered = frozenset(range(48, 80))
             no = frozenset()
-            whole = [78, 79]
+            whole = edge_triggered
         elif self.composition.plat == 'rpi4':
             edge_triggered = frozenset()
             no = [96, 97, 98, 99, 125]

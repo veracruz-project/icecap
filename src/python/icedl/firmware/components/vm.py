@@ -432,7 +432,7 @@ class HostVM(VM):
             # TODO extract from device tree? map larger ranges? 1GiB?
 
             if self.composition.plat == 'virt':
-                yield 0xa003000, 0xa004000
+                yield 0xa000000, 0xa004000
 
             elif self.composition.plat == 'rpi4':
                 start, end = 0xfd000000, 0xff000000
