@@ -93,7 +93,7 @@ rec {
 
     capdl = icecapSrc.repo {
       repo = "capdl";
-      rev = "e8501a4cd61ee9b4e2b0e51668c739d3720840cf";
+      rev = "fed32a2f78697ff2304453f20e181d0765ae109c";
     };
 
     # for elfloader and some python scripts
