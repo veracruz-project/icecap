@@ -19,38 +19,38 @@ BADGE_VM = 0
 class Addrs:
 
     def __init__(self, plat, is_host=False):
-        if plat == 'virt':
+        if is_host:
+            if plat == 'virt':
+                self.ram_base    = 0x80000000
+                self.ram_size    = 0x10000000
+                self.kernel_addr = 0x80080000
+                self.dtb_addr    = 0x82000000
+                self.initrd_addr = 0x88000000
+            elif plat == 'rpi4':
+                self.ram_base    = 0x10000000
+                self.ram_size    = 0x10000000
+                self.kernel_addr = 0x10080000
+                self.dtb_addr    = 0x18f00000 # TODO find out why u-boot was clobbering fdt in lower memory
+                self.initrd_addr = 0x19000000
+        else:
             self.ram_base    = 0x80000000
             self.ram_size    = 0x10000000
             self.kernel_addr = 0x80080000
             self.dtb_addr    = 0x82000000
             self.initrd_addr = 0x88000000
 
+        if plat == 'virt':
+            self.virq_0 = 90
             self.gic_paddr = 0x8000000
             self.gic_dist_paddr = self.gic_paddr + 0x00000
             self.gic_cpu_paddr = self.gic_paddr + 0x10000
             self.gic_vcpu_paddr = self.gic_paddr + 0x40000
-
-            self.virq_0 = 90
-
         elif plat == 'rpi4':
-            self.ram_base    = 0x10000000
-            self.ram_size    = 0x10000000
-            self.kernel_addr = 0x10080000
-            if is_host:
-                # TODO find out why u-boot was clobbering fdt in lower memory
-                self.dtb_addr    = 0x18f00000
-                self.initrd_addr = 0x19000000
-            else:
-                self.dtb_addr    = 0x12000000
-                self.initrd_addr = 0x19000000
-
+            self.virq_0 = 130
             self.gic_paddr = 0xff841000
             self.gic_dist_paddr = self.gic_paddr + 0x0000
             self.gic_cpu_paddr = self.gic_paddr + 0x1000
             self.gic_vcpu_paddr = self.gic_paddr + 0x5000
-
-            self.virq_0 = 130
 
 VMNode = namedtuple('VMNode', 'tcb vcpu affinity')
 

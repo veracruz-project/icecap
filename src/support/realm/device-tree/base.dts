@@ -6,13 +6,10 @@
     #size-cells = <2>;
     interrupt-parent = <&intc>;
 
-    /* TODO unify */
-    /*
-    memory@10000000 {
+    memory@80000000 {
         device_type = "memory";
-        reg = <0x00 0x10000000 0x00 0x10000000>;
+        reg = <0x00 0x80000000 0x00 0x10000000>;
     };
-    */
 
     cpus {
         #address-cells = <1>;
