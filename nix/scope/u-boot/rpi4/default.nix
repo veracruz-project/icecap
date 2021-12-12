@@ -31,15 +31,18 @@ let
 
   mkDefaultPayload = { linuxImage, initramfs, dtb, bootargs }:
     let
+      kernelAddr = "0x10080000";
+      initramfsAddr = "0x18000000";
+      dtbAddr = "0x12000000";
       script = uboot-ng-mkimage {
         type = "script";
         data = writeText "script.txt" ''
-          load mmc 0:1 0x10080000 payload/Image
-          load mmc 0:1 0x18000000 payload/initramfs
+          load mmc 0:1 ${kernelAddr} payload/Image
+          load mmc 0:1 ${initramfsAddr} payload/initramfs
           setenv initramfs_size ''${filesize}
-          load mmc 0:1 0x12000000 payload/host.dtb
+          load mmc 0:1 ${dtbAddr} payload/host.dtb
           setenv bootargs ${lib.concatStringsSep " " bootargs}
-          booti 0x10080000 0x18000000:''${initramfs_size} 0x12000000
+          booti ${kernelAddr} ${initramfsAddr}:''${initramfs_size} ${dtbAddr}
         '';
       };
     in {

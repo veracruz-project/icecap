@@ -23,22 +23,25 @@ let
   '';
 
   scriptAddr = "0x80000000";
-  scriptName = "script.uimg";
+  scriptName = "load-host.script.uimg";
   scriptPath = "./payload/${scriptName}"; # HACK
 
   bootcmd = "smhload ${scriptPath} ${scriptAddr}; source ${scriptAddr}";
 
   mkDefaultPayload = { linuxImage, initramfs, dtb, bootargs }:
     let
+      kernelAddr = "0x80080000";
+      initramfsAddr = "0x88000000";
+      dtbAddr = "0x83000000";
       script = uboot-ng-mkimage {
         type = "script";
         data = writeText "script.txt" ''
-          smhload ${linuxImage} 0x80080000
-          smhload ${initramfs} 0x88000000 initramfs_end
-          setexpr initramfs_size ''${initramfs_end} - 0x88000000
-          smhload ${dtb} 0x83000000
+          smhload ${linuxImage} ${kernelAddr}
+          smhload ${initramfs} ${initramfsAddr} initramfs_end
+          setexpr initramfs_size ''${initramfs_end} - ${initramfsAddr}
+          smhload ${dtb} ${dtbAddr}
           setenv bootargs ${lib.concatStringsSep " " bootargs}
-          booti 0x80080000 0x88000000:''${initramfs_size} 0x83000000
+          booti ${kernelAddr} ${initramfsAddr}:''${initramfs_size} ${dtbAddr}
         '';
       };
     in {
