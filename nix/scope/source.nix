@@ -99,7 +99,7 @@ rec {
     # for elfloader and some python scripts
     seL4_tools = icecapSrc.repo {
       repo = "seL4_tools";
-      rev = "dce0461e3092fe2bbcd38261e34a8ed8f8bdf580";
+      rev = "81032a274e4bdf55aa1e065106f25e61e5758a1d";
     };
 
     linux.unified = linux-ng.doSource {
