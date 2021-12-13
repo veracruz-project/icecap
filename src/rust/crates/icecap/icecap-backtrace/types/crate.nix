@@ -3,7 +3,7 @@
 mk {
   nix.name = "icecap-backtrace-types";
   dependencies = {
-    hex = { version = "*"; default-features = false; features = [ "alloc" ]; };
+    hex = { version = "0.4.3"; default-features = false; features = [ "alloc" ]; };
     serde = serdeMin;
     postcard = postcardCommon;
   };

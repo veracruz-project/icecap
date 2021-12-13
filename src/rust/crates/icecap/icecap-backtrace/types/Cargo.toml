@@ -7,6 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-hex = { version = "*", default-features = false, features = [ "alloc",] }
+hex = { version = "0.4.3", default-features = false, features = [ "alloc",] }
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
