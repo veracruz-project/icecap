@@ -9,7 +9,7 @@ from pathlib import Path
 from capdl import ObjectType, ObjectAllocator, CSpaceAllocator, AddressSpaceAllocator, lookup_architecture, register_object_sizes
 from capdl.Allocator import RenderState, Cap, ASIDTableAllocator, BestFitAllocator, RenderState
 
-from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
+from icecap_framework.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
 
 ARCH = 'aarch64'
 

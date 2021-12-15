@@ -5,9 +5,9 @@ from collections import namedtuple
 
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.common import BaseComponent
-from icedl.common import ElfComponent
-from icedl.utils import *
+from icecap_framework import BaseComponent
+from icecap_framework import ElfComponent
+from icecap_framework.utils import *
 
 REAL_VIRTUAL_TIMER_IRQ = 27
 VIRTUAL_TIMER_IRQ = 27

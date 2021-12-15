@@ -37,8 +37,8 @@ let
       cmd =
         if lib.isString action
         then {
-          firmware = "python3 -m icedl.cli firmware ${augmentedConfigJSON} -o $out";
-          linux-realm = "python3 -m icedl.cli linux-realm ${augmentedConfigJSON} -o $out";
+          firmware = "python3 -m icecap_hypervisor.cli firmware ${augmentedConfigJSON} -o $out";
+          linux-realm = "python3 -m icecap_hypervisor.cli linux-realm ${augmentedConfigJSON} -o $out";
         }.${action}
         else "CONFIG=${augmentedConfigJSON} OUT_DIR=${{ env = "."; store = "$out"; }.${attr}} python3 ${action.script.${attr}}";
 

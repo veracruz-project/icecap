@@ -1,5 +1,5 @@
 from capdl import ObjectType
-from icedl.common.components.elf import ElfComponent
+from icecap_framework.components.elf import ElfComponent
 
 class FaultHandler(ElfComponent):
 

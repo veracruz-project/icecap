@@ -1,6 +1,6 @@
 from capdl import ObjectType, Cap, ARMIRQMode
-from icedl.common import ElfComponent
-from icedl.utils import *
+from icecap_framework import ElfComponent
+from icecap_framework.utils import *
 
 INTERRUPT_BADGE = 1
 

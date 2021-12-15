@@ -1,7 +1,7 @@
 from pathlib import Path
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
-from icedl.common import ElfComponent
-from icedl.utils import BLOCK_SIZE, PAGE_SIZE, groups_of
+from icecap_framework import ElfComponent
+from icecap_framework.utils import BLOCK_SIZE, PAGE_SIZE, groups_of
 
 BADGE_TYPE_SHIFT = 11
 BADGE_TYPE_CLIENT = 3 << BADGE_TYPE_SHIFT

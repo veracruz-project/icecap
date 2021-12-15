@@ -1,7 +1,7 @@
 import operator
 from capdl import ObjectType, Cap, ARMIRQMode
-from icedl.common import ElfComponent
-from icedl.utils import as_list, PAGE_SIZE
+from icecap_framework import ElfComponent
+from icecap_framework.utils import as_list, PAGE_SIZE
 
 class SerialServer(ElfComponent):
 

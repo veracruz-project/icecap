@@ -5,8 +5,8 @@ from argparse import ArgumentParser, FileType
 import logging
 logger = logging.getLogger(__name__)
 
-from icedl.firmware import FirmwareComposition
-from icedl.realm import LinuxRealmComposition
+from icecap_hypervisor.firmware import FirmwareComposition
+from icecap_hypervisor.realm import LinuxRealmComposition
 
 ICECAP_PLAT_ENV = 'ICECAP_PLAT'
 

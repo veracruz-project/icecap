@@ -1,8 +1,9 @@
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.common import BaseComposition, FaultHandler, RingBufferObjects, RingBufferSideObjects
-from icedl.realm.components.vm import RealmVM
-from icedl.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
+from icecap_framework import BaseComposition, RingBufferObjects, RingBufferSideObjects
+from icecap_hypervisor.common import FaultHandler
+from icecap_hypervisor.realm.components.vm import RealmVM
+from icecap_framework.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
 
 class BaseRealmComposition(BaseComposition):
 

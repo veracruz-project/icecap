@@ -1,13 +1,14 @@
 from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 
-from icedl.common import BaseComposition, FaultHandler
-from icedl.firmware.components.idle import Idle
-from icedl.firmware.components.timer_server import TimerServer
-from icedl.firmware.components.serial_server import SerialServer
-from icedl.firmware.components.resource_server import ResourceServer
-from icedl.firmware.components.event_server import EventServer
-from icedl.firmware.components.benchmark_server import BenchmarkServer
-from icedl.firmware.components.vm import VMM, VM, HostVM
+from icecap_framework import BaseComposition
+from icecap_hypervisor.common import FaultHandler
+from icecap_hypervisor.firmware.components.idle import Idle
+from icecap_hypervisor.firmware.components.timer_server import TimerServer
+from icecap_hypervisor.firmware.components.serial_server import SerialServer
+from icecap_hypervisor.firmware.components.resource_server import ResourceServer
+from icecap_hypervisor.firmware.components.event_server import EventServer
+from icecap_hypervisor.firmware.components.benchmark_server import BenchmarkServer
+from icecap_hypervisor.firmware.components.vm import VMM, VM, HostVM
 
 class FirmwareComposition(BaseComposition):
 

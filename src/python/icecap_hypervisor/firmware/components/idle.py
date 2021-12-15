@@ -1,4 +1,4 @@
-from icedl.common import ElfComponent
+from icecap_framework import ElfComponent
 
 class Idle(ElfComponent):
 

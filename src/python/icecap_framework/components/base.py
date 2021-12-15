@@ -1,6 +1,6 @@
 from capdl import ObjectType, CSpaceAllocator, AddressSpaceAllocator, Cap
 
-from icedl.utils import PAGE_SIZE, BLOCK_SIZE, align_up, mk_fill
+from icecap_framework.utils import PAGE_SIZE, BLOCK_SIZE, align_up, mk_fill
 
 class BaseComponent:
 

@@ -1,5 +1,5 @@
 from capdl import ObjectType
-from icedl.common import ElfComponent
+from icecap_framework import ElfComponent
 
 class BenchmarkServer(ElfComponent):
 

@@ -1,8 +1,8 @@
 import operator
 from pathlib import Path
 from capdl import ObjectType, Cap
-from icedl.common import ElfComponent
-from icedl.utils import BLOCK_SIZE, PAGE_SIZE
+from icecap_framework import ElfComponent
+from icecap_framework.utils import BLOCK_SIZE, PAGE_SIZE
 
 HACK_TIMER_BADGE = 0x100 # HACK
 HACK_SUBSCRIPTION_BADGE = 0x101 # HACK
