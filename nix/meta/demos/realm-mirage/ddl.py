@@ -1,4 +1,4 @@
-from icedl.common import *
+from icecap_framework import *
 
 class Mirage(GenericElfComponent):
 

@@ -1,5 +1,5 @@
-from icedl.common import *
-from icedl.firmware.components.benchmark_server import BenchmarkServer
+from icecap_framework import *
+from icecap_hypervisor.firmware.components.benchmark_server import BenchmarkServer
 
 class Test(GenericElfComponent):
 
