@@ -9,10 +9,10 @@ edition = "2018"
 [dependencies]
 log = "*"
 biterate = { path = "../../helpers/biterate" }
-icecap-core = { path = "../icecap-core" }
-icecap-event-server-types = { path = "../../components/event-server/types" }
-icecap-failure = { path = "../icecap-failure" }
-icecap-ring-buffer = { path = "../icecap-ring-buffer" }
-icecap-rpc-sel4 = { path = "../icecap-rpc/sel4" }
-icecap-sel4 = { path = "../icecap-sel4" }
+icecap-core = { path = "../../framework/icecap-core" }
+icecap-event-server-types = { path = "../components/event-server/types" }
+icecap-failure = { path = "../../framework/icecap-failure" }
+icecap-ring-buffer = { path = "../../framework/icecap-ring-buffer" }
+icecap-rpc-sel4 = { path = "../../framework/icecap-rpc/sel4" }
+icecap-sel4 = { path = "../../framework/icecap-sel4" }
 icecap-vmm-gic = { path = "./gic" }

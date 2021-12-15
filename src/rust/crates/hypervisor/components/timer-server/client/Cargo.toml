@@ -7,6 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-rpc-sel4 = { path = "../../../icecap/icecap-rpc/sel4" }
-icecap-sel4 = { path = "../../../icecap/icecap-sel4" }
+icecap-rpc-sel4 = { path = "../../../../framework/icecap-rpc/sel4" }
+icecap-sel4 = { path = "../../../../framework/icecap-sel4" }
 icecap-timer-server-types = { path = "../types" }

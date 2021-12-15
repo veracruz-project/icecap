@@ -8,6 +8,6 @@ edition = "2018"
 
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-biterate = { path = "../../../helpers/biterate" }
-finite-set = { path = "../../../helpers/finite-set" }
-icecap-rpc = { path = "../../../icecap/icecap-rpc" }
+biterate = { path = "../../../../helpers/biterate" }
+finite-set = { path = "../../../../helpers/finite-set" }
+icecap-rpc = { path = "../../../../framework/icecap-rpc" }

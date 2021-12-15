@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 cortex-a = "*"
-icecap-std = { path = "../../icecap/icecap-std" }
+icecap-std = { path = "../../../framework/icecap-std" }

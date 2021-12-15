@@ -7,9 +7,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-biterate = { path = "../../../helpers/biterate" }
+biterate = { path = "../../../../helpers/biterate" }
 icecap-event-server-types = { path = "../../event-server/types" }
 icecap-realm-vmm-config = { path = "./config" }
-icecap-rpc-sel4 = { path = "../../../icecap/icecap-rpc/sel4" }
-icecap-std = { path = "../../../icecap/icecap-std" }
-icecap-vmm = { path = "../../../icecap/icecap-vmm" }
+icecap-rpc-sel4 = { path = "../../../../framework/icecap-rpc/sel4" }
+icecap-std = { path = "../../../../framework/icecap-std" }
+icecap-vmm = { path = "../../../icecap-vmm" }

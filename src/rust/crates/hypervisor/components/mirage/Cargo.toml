@@ -10,5 +10,5 @@ edition = "2018"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 serde_json = { version = "*", default-features = false, features = [ "alloc",] }
 icecap-linux-syscall = { path = "./icecap-linux-syscall" }
-icecap-start-generic = { path = "../../icecap/icecap-start/generic" }
-icecap-std = { path = "../../icecap/icecap-std" }
+icecap-start-generic = { path = "../../../framework/icecap-start/generic" }
+icecap-std = { path = "../../../framework/icecap-std" }

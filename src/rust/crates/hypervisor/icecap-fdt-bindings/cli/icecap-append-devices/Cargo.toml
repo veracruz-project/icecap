@@ -9,5 +9,5 @@ edition = "2018"
 [dependencies]
 serde = "*"
 serde_json = "*"
-icecap-fdt = { path = "../../.." }
+icecap-fdt = { path = "../../../../framework/icecap-fdt" }
 icecap-fdt-bindings = { path = "../.." }

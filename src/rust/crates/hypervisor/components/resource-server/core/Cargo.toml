@@ -10,9 +10,9 @@ edition = "2018"
 log = "*"
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-dyndl-types = { path = "../../../dyndl/types" }
-icecap-core = { path = "../../../icecap/icecap-core" }
+dyndl-types = { path = "../../../../dyndl/types" }
+icecap-core = { path = "../../../../framework/icecap-core" }
 icecap-event-server-types = { path = "../../event-server/types" }
-icecap-plat = { path = "../../../icecap/icecap-plat" }
+icecap-plat = { path = "../../../../framework/icecap-plat" }
 icecap-resource-server-types = { path = "../types" }
 icecap-timer-server-client = { path = "../../timer-server/client" }
