@@ -11,8 +11,8 @@ in
   host = byIceCapPlat (plat: rec {
     dtb = with dtb-helpers; compile (catFiles [
       orig.dts
-      (icecapSrc.relative "support/host/common/host.dtsa")
-      (icecapSrc.relative "support/host/${plat}/host.dtsa")
+      (icecapSrc.relative "support/hypervisor/host/common/host.dtsa")
+      (icecapSrc.relative "support/hypervisor/host/${plat}/host.dtsa")
     ]);
     orig = {
       dtb = outerOrig.${plat};
@@ -20,7 +20,7 @@ in
     };
   });
   realm = byIceCapPlat (plat: with dtb-helpers; compile (catFiles [
-    (icecapSrc.relative "support/realm/device-tree/base.dts")
-    (icecapSrc.relative "support/realm/device-tree/${plat}.dtsa")
+    (icecapSrc.relative "support/hypervisor/realm/device-tree/base.dts")
+    (icecapSrc.relative "support/hypervisor/realm/device-tree/${plat}.dtsa")
   ]));
 }
