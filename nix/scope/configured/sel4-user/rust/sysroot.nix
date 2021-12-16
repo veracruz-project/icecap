@@ -5,19 +5,19 @@
 , icecapSrc
 , libsel4, libs
 
-# NOTE wasmtime violates some assertions in core, so debug profile doesn't work
 , release ? true
 
 , extraManifest ? {
     profile.release = {
-      panic = "abort";
       codegen-units = 1;
       lto = true;
+      opt-level = 3;
+      debug = 0;
+      # NOTE at least at one point, wasmtime was violating some debug assertions in core
+      debug-assertions = true;
     };
   }
 }:
-
-# NOTE broken until we bump the icecap-sysroot branch of rust
 
 with lib;
 
@@ -28,7 +28,7 @@ let
 
     rust = icecapSrc.repo {
       repo = "rust";
-      rev = "d23fbea08fc8e0cedd885187910077c97a87262e"; # branch: icecap-sysroot
+      rev = "564dac541463c35b1e2028e759f49f21e1374ddf"; # branch: icecap-sysroot
       submodules = true;
     };
 
@@ -41,12 +41,12 @@ let
       dlmalloc libc;
   };
 
-  mkSrc = attr: linkFarm "src" (mapAttrsToList (k: v: { name = k; path = v.${attr}; }) srcs);
-
-  src = mapAttrs (k: _: mkSrc k) {
+  mkSplit = f: mapAttrs (k: _: f k) {
     store = null;
     env = null;
   };
+
+  srcSplit = mkSplit (attr: linkFarm "src" (mapAttrsToList (k: v: { name = k; path = v.${attr}; }) srcs));
 
   lock = runCommand "Cargo.lock" {
     nativeBuildInputs = [
@@ -54,8 +54,7 @@ let
     ];
     CARGO_HOME = cratesIOIndexCache;
   } ''
-    ln -s ${workspace} Cargo.toml
-    ln -s ${src.store} src
+    ln -s ${workspace.store} Cargo.toml
     cargo generate-lockfile --offline
     mv Cargo.lock $out
   '';
@@ -69,43 +68,58 @@ let
   cargoConfig = nixToToml (crateUtils.clobber [
     (fetchCrates lock).config
     {
-      build.rustflags = [ "-Z" "force-unstable-if-unmarked" "--sysroot" "/dev/null" ];
       target = {
         ${buildPlatform.config}.linker = "${buildPackages.stdenv.cc.targetPrefix}cc";
       } // {
-        ${rustTargetName}.linker = "${stdenv.cc.targetPrefix}cc";
+        ${rustTargetName} = {
+          linker = "${stdenv.cc.targetPrefix}cc";
+          rustflags = [
+            "-C" "force-unwind-tables=yes" "-C" "embed-bitcode=yes"
+            "-Z" "force-unstable-if-unmarked"
+            "--sysroot" "/dev/null"
+          ];
+        };
       };
     }
   ]);
 
-  workspace = nixToToml (recursiveUpdate {
-    package = {
-      name = "sysroot";
-      version = "0.0.0";
-    };
+  workspace = mkSplit (attr:
+    let
+      src = srcSplit.${attr};
+    in
+      nixToToml (recursiveUpdate {
+        workspace.resolver = "2";
 
-    lib.path = "${linkFarm "dummy-src" [
-      (rec {
-        name = "lib.rs";
-        path = writeText name ''
-        '';
-      })
-    ]}/lib.rs";
+        package = {
+          name = "sysroot";
+          version = "0.0.0";
+          edition = "2018";
+        };
 
-    dependencies.std = {
-      features = [ "panic-unwind" ];
-      path = "src/rust/src/libstd";
-    };
+        lib.path = "${linkFarm "dummy-src" [
+          (rec {
+            name = "lib.rs";
+            path = writeText name ''
+            '';
+          })
+        ]}/lib.rs";
 
-    patch.crates-io = {
-      rustc-std-workspace-core = { path = "src/rust/src/tools/rustc-std-workspace-core"; };
-      rustc-std-workspace-alloc = { path = "src/rust/src/tools/rustc-std-workspace-alloc"; };
-      rustc-std-workspace-std = { path = "src/rust/src/tools/rustc-std-workspace-std"; };
-      libc = { path = "src/libc"; };
-      dlmalloc = { path = "src/dlmalloc"; };
-      icecap-std-impl = { path = "src/icecap/icecap-std-impl"; };
-    };
-  } extraManifest);
+        dependencies = {
+          std.path = "${src}/rust/library/std";
+          # Hacks to get std to depend on our patches.
+          libc = "=0.2.108";
+          dlmalloc = "=0.1.3";
+        };
+
+        patch.crates-io = {
+          rustc-std-workspace-core = { path = "${src}/rust/library/rustc-std-workspace-core"; };
+          rustc-std-workspace-alloc = { path = "${src}/rust/library/rustc-std-workspace-alloc"; };
+          rustc-std-workspace-std = { path = "${src}/rust/library/rustc-std-workspace-std"; };
+          libc = { path = "${src}/libc"; };
+          dlmalloc = { path = "${src}/dlmalloc"; };
+          icecap-std-impl = { path = "${src}/icecap/icecap-std-impl"; };
+        };
+      } extraManifest));
 
 in
 lib.fix (self: stdenv.mkDerivation ({
@@ -120,7 +134,6 @@ lib.fix (self: stdenv.mkDerivation ({
   ];
 
   RUST_TARGET_PATH = rustTargets;
-  __CARGO_DEFAULT_LIB_METADATA = "nix-sysroot";
 
   LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
 
@@ -130,16 +143,19 @@ lib.fix (self: stdenv.mkDerivation ({
     mkdir -p .cargo
     ln -s ${cargoConfig} .cargo/config
     ln -s ${lock} Cargo.lock
-    ln -s ${workspace} Cargo.toml
-    ln -s ${src.store} src
-
-    # HACK
-    export BINDGEN_EXTRA_CLANG_ARGS="$NIX_CFLAGS_COMPILE"
+    ln -s ${workspace.store} Cargo.toml
   '';
 
   buildPhase = ''
-    cargo build --offline --frozen --target ${rustTargetName} \
-      ${optionalString release "--release"}
+    RUSTC_BOOTSTRAP=1 \
+    __CARGO_DEFAULT_LIB_METADATA=nix-sysroot \
+    BINDGEN_EXTRA_CLANG_ARGS="$NIX_CFLAGS_COMPILE" \
+      cargo build \
+        -Z unstable-options \
+        -Z binary-dep-depinfo \
+        --offline --frozen \
+        --target ${rustTargetName} \
+        ${optionalString release "--release"}
   '';
 
   installPhase = ''
@@ -164,8 +180,7 @@ lib.fix (self: stdenv.mkDerivation ({
           mkdir -p .cargo
           ln -s ${cargoConfig} .cargo/config
           ln -s ${lock} Cargo.lock
-          ln -s ${workspace} Cargo.toml
-          ln -s ${src.env} src
+          ln -s ${workspace.env} Cargo.toml
         }
         clean() {
           rm -rf nix-shell.tmp

@@ -3,13 +3,14 @@
 let
   inherit (pkgs) dev none linux musl;
 
-  allRoots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: _: [
+  allRoots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: v: [
     meta.demos.minimal.${k}.run
     meta.demos.minimal-root.${k}.run
     meta.demos.realm-vm.${k}.run
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
     meta.tests.benchmark-utilisation.${k}.run
+    v.sysroot-rs
   ] ++ lib.optionals dev.hostPlatform.isx86_64 [
     meta.demos.realm-mirage.${k}.run
   ]) ++ lib.flip lib.concatMap [ dev linux ] (host: [
