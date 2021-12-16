@@ -37,4 +37,7 @@
 #define ZF_LOGI(...) ZF_show(__VA_ARGS__)
 #define ZF_LOGW(...) ZF_show(__VA_ARGS__)
 #define ZF_LOGE(...) ZF_show(__VA_ARGS__)
-#define ZF_LOGF(...) ZF_show(__VA_ARGS__)
+#define ZF_LOGF(...) do { \
+    ZF_show(__VA_ARGS__); \
+    icecap_runtime_exit(); \
+} while (0)
