@@ -16,7 +16,7 @@ icecap-logger = { path = "../icecap-logger" }
 icecap-ring-buffer = { path = "../icecap-ring-buffer" }
 icecap-rpc = { path = "../icecap-rpc" }
 icecap-rpc-sel4 = { path = "../icecap-rpc/sel4" }
-icecap-runtime = { path = "../icecap-runtime", features = [ "use-serde",] }
-icecap-sel4 = { path = "../icecap-sel4", features = [ "use-serde",] }
+icecap-runtime = { path = "../icecap-runtime", features = [ "serde1",] }
+icecap-sel4 = { path = "../icecap-sel4", features = [ "serde1",] }
 icecap-start = { path = "../icecap-start" }
 icecap-sync = { path = "../icecap-sync" }

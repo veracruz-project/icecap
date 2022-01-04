@@ -26,9 +26,9 @@ mkSeL4 {
     };
   };
   features = {
-    use-serde = [
+    serde1 = [
       "serde"
-      "icecap-sel4/use-serde"
+      "icecap-sel4/serde1"
     ];
     rustc-dep-of-std = [
       "core"

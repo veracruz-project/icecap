@@ -26,7 +26,7 @@ mkSeL4 {
     };
   };
   features = {
-    use-serde = [
+    serde1 = [
       "serde"
     ];
     rustc-dep-of-std = [

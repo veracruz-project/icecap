@@ -9,7 +9,7 @@ mk {
   target."cfg(target_os = \"icecap\")".dependencies = {
     icecap-sel4 = {
       features = [
-        "use-serde"
+        "serde1"
       ];
     };
   };

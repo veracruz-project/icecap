@@ -8,7 +8,7 @@ edition = "2018"
 
 [features]
 rustc-dep-of-std = [ "core", "alloc", "compiler_builtins/rustc-dep-of-std", "icecap-sel4-sys/rustc-dep-of-std",]
-use-serde = [ "serde",]
+serde1 = [ "serde",]
 
 [dependencies]
 alloc = { version = "1.0.0", optional = true, package = "rustc-std-workspace-alloc" }

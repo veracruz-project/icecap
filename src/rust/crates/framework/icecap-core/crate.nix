@@ -21,10 +21,10 @@ mkSeL4 {
   ];
   dependencies = {
     icecap-sel4.features = [
-      "use-serde"
+      "serde1"
     ];
     icecap-runtime.features = [
-      "use-serde"
+      "serde1"
     ];
   };
 }

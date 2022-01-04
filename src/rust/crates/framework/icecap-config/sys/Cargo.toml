@@ -11,4 +11,4 @@ serde = { version = "*", default-features = false, features = [ "alloc", "derive
 
 [target."cfg(target_os = \"icecap\")".dependencies]
 icecap-runtime = { path = "../../icecap-runtime" }
-icecap-sel4 = { path = "../../icecap-sel4", features = [ "use-serde",] }
+icecap-sel4 = { path = "../../icecap-sel4", features = [ "serde1",] }

@@ -2,11 +2,11 @@ use icecap_sel4::prelude::*;
 use crate::exit;
 
 use alloc::boxed::Box;
-#[cfg(feature = "use-serde")]
+#[cfg(feature = "serde1")]
 use serde::{Serialize, Deserialize};
 
 #[derive(Copy, Clone, Debug)]
-#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde1", derive(Serialize, Deserialize))]
 pub struct Thread(Endpoint);
 
 impl From<Endpoint> for Thread {
