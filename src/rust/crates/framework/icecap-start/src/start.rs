@@ -1,5 +1,5 @@
 use icecap_failure::Fallible;
-use icecap_sel4::debug_println;
+use icecap_sel4::{sys, BootInfo, debug_println};
 
 use crate::config;
 
@@ -25,6 +25,26 @@ macro_rules! declare_main {
         #[no_mangle]
         pub extern "C" fn icecap_main(config: *const u8, config_size: usize) {
             $crate::start::run_main($main, config, config_size);
+        }
+    }
+}
+
+pub fn run_root_main(f: impl Fn(BootInfo) -> Fallible<()>, config: *const u8, config_size: usize) {
+    assert_eq!(config_size, 0); // HACK
+    let bootinfo = unsafe {
+        BootInfo::from_ptr(config as *const sys::seL4_BootInfo)
+    };
+    if let Err(err) = f(bootinfo) {
+        debug_println!("err: {}", err)
+    }
+}
+
+#[macro_export]
+macro_rules! declare_root_main {
+    ($main:path) => {
+        #[no_mangle]
+        pub extern "C" fn icecap_main(config: *const u8, config_size: usize) {
+            $crate::start::run_root_main($main, config, config_size);
         }
     }
 }

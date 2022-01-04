@@ -2,13 +2,17 @@
 , buildRustPackageIncrementally, rustTargetName, crateUtils, elfUtils
 , icecapPlat, icecapConfig, globalCrates
 , libsel4, libs
+, root-task-tls-lds
+, root-task-eh-lds
 }:
 
 let
   patches = globalCrates._patches;
 in
 
-{ ... /* TODO */ } @ args:
+{ isRoot ? false
+, ... /* TODO */
+} @ args:
 
 lib.fix (self: buildRustPackageIncrementally ({
 
@@ -42,6 +46,10 @@ lib.fix (self: buildRustPackageIncrementally ({
         "--cfg=icecap_benchmark"
       ];
     }
+    (lib.optionalAttrs isRoot {
+      # target.${rustTargetName}.rustc-link-arg-bin = [ "-T" root-task-tls-lds ];
+      target.${rustTargetName}.rustflags = [ "-C" "link-arg=-T${root-task-tls-lds}" ];
+    })
   ];
 
   extra = {
@@ -50,7 +58,8 @@ lib.fix (self: buildRustPackageIncrementally ({
       "-I${libsel4}/include"
     ];
     buildInputs = [
-      libsel4 libs.icecap-runtime libs.icecap-utils
+      libsel4
+      (if isRoot then libs.icecap-runtime-root else libs.icecap-runtime)
     ];
     dontStrip = true;
     dontPatchELF = true;
@@ -63,5 +72,5 @@ lib.fix (self: buildRustPackageIncrementally ({
   };
 
 } // builtins.removeAttrs args [
-  # TODO
+  "isRoot"
 ]))

@@ -1,4 +1,5 @@
 { lib, makeOverridable'
+, icecapSrc
 , platUtils
 }:
 
@@ -48,5 +49,8 @@ self: with self;
 
   # TODO fix and generalize or leave up to downstream projects
   sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
+
+  root-task-tls-lds = icecapSrc.relative "c/support/root-task-tls.lds";
+  root-task-eh-lds = icecapSrc.relative "c/support/root-task-eh.lds";
 
 }

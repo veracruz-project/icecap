@@ -15,6 +15,6 @@ pub use crate::{
         Fail, Error, Fallible, bail, ensure, format_err,
     },
     start::{
-        declare_main, declare_raw_main,
+        declare_main, declare_root_main, declare_raw_main,
     },
 };

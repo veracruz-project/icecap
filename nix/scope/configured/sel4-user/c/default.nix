@@ -4,6 +4,8 @@
 , icecap-ocaml-runtime
 , libsel4, musl
 , platformInfo, icecapExternalSrc
+, root-task-tls-lds
+, root-task-eh-lds
 }:
 
 let
@@ -56,9 +58,6 @@ let
       } // extra);
 
     in f "store";
-
-  root-task-tls-lds = icecapSrc.relative "c/support/root-task-tls.lds";
-  root-task-eh-lds = icecapSrc.relative "c/support/root-task-eh.lds";
 
   mkRoot = attrs: mk (attrs // {
     extraCFlagsLink = (attrs.extraCFlagsLink or []) ++ [

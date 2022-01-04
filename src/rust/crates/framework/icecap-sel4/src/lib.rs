@@ -17,6 +17,7 @@ mod vspace;
 mod invoke;
 mod endpoint;
 pub mod fault; // TODO
+mod bootinfo;
 mod debug;
 
 #[cfg(icecap_benchmark)]
@@ -62,6 +63,10 @@ pub use vspace::{
     Frame, FrameSize, VSpaceBranch,
 };
 
+pub use invoke::{
+    yield_,
+};
+
 pub use endpoint::{
     reply, MessageRegister,
     MR_0, MR_1, MR_2, MR_3,
@@ -77,12 +82,10 @@ pub use fault::{
     VMFaultWidth, VMFaultData,
 };
 
+pub use bootinfo::{
+    BootInfo, BootInfoExtraStructure, BootInfoExtraStructureId,
+};
+
 pub use debug::{
     debug_put_char, debug_snapshot,
 };
-
-pub fn yield_() {
-    unsafe {
-        sys::seL4_Yield()
-    }
-}

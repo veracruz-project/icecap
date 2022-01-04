@@ -369,3 +369,9 @@ impl RelativeCPtr {
         })
     }
 }
+
+pub fn yield_() {
+    unsafe {
+        sys::seL4_Yield()
+    }
+}
