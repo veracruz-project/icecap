@@ -2,4 +2,5 @@
   minimal-root = ./minimal-root;
   minimal-root-with-rust = ./minimal-root-with-rust;
   minimal = ./minimal;
+  minimal-with-rust = ./minimal-with-rust;
 }
