@@ -4,9 +4,9 @@ let
   inherit (pkgs) dev none linux musl;
 
   allRoots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: v: [
-    meta.demos.minimal.${k}.run
-    meta.demos.minimal-root.${k}.run
     meta.demos.realm-vm.${k}.run
+    meta.examples.minimal.${k}.run
+    meta.examples.minimal-root.${k}.run
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
     meta.tests.benchmark-utilisation.${k}.run

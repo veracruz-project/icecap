@@ -14,6 +14,10 @@ rec {
     import path { inherit lib pkgs; }
   );
 
+  examples = lib.flip lib.mapAttrs (import ./examples) (_: path:
+    import path { inherit lib pkgs; }
+  );
+
   tests = import ./tests {
     inherit lib pkgs;
   };
