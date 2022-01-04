@@ -1115,6 +1115,7 @@ dependencies = [
 name = "mirage"
 version = "0.1.0"
 dependencies = [
+ "icecap-event-server-types",
  "icecap-linux-syscall",
  "icecap-start-generic",
  "icecap-std",

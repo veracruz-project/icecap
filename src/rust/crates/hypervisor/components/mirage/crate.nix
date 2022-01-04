@@ -6,6 +6,7 @@ mkExcludeBin {
     icecap-linux-syscall
     icecap-std
     icecap-start-generic
+    icecap-event-server-types
   ];
   dependencies = {
     serde = serdeMin;

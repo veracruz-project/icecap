@@ -4,6 +4,7 @@
 #![feature(format_args_nl)]
 #![feature(c_variadic)]
 #![feature(new_uninit)]
+#![feature(llvm_asm)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
 #![allow(unreachable_code)]
@@ -12,43 +13,78 @@ extern crate alloc;
 
 use serde::{Serialize, Deserialize};
 
-use icecap_std::prelude::*;
-use icecap_std::config::*;
-use icecap_std::sel4::sys::c_types::*;
+use icecap_std::{
+    config::RingBufferConfig,
+    config::RingBufferKicksConfig,
+    finite_set::Finite,
+    logger::{DisplayMode, Level, Logger},
+    prelude::*,
+    ring_buffer::{BufferedPacketRingBuffer, PacketRingBuffer},
+    rpc_sel4::RPCClient,
+    runtime as icecap_runtime,
+    sel4::sys::c_types::*,
+};
+use icecap_event_server_types::{
+    calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
+};
 use icecap_start_generic::declare_generic_main;
 
 mod c;
 mod syscall;
 mod ocaml;
+mod time_hack;
 
 declare_generic_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
-    nfn: Notification,
+    event: Notification,
+    event_server_endpoint: Endpoint,
+    event_server_bitfield: usize,
 
-    con: RingBufferConfig,
-    net: RingBufferConfig,
+    net_rb: RingBufferConfig,
 
     passthru: serde_json::Value,
 }
 
 fn main(config: Config) -> Fallible<()> {
 
-    // NOTE
-    // Commented out so that remainder is reachable, allowing for build test.
+    let net_rb = {
+        let event_server = RPCClient::<EventServerRequest>::new(config.event_server_endpoint);
+        let index = {
+            use events::*;
+            RealmOut::RingBuffer(RealmRingBufferOut::Host(RealmRingBufferId::Net))
+        };
+        let kick = Box::new(move || {
+            event_server.call::<()>(&EventServerRequest::Signal {
+                index: index.to_nat(),
+            })
+        });
+        RingBuffer::realize_resume(
+            &config.net_rb,
+            RingBufferKicksConfig {
+                read: kick.clone(),
+                write: kick,
+            },
+        )
+    };
 
-    // let net: BufferedPacketRingBuffer = panic!();
-    // net.packet_ring_buffer().enable_notify_read();
-    // net.packet_ring_buffer().enable_notify_write();
+    let event_server_bitfield = unsafe { EventServerBitfield::new(config.event_server_bitfield) };
 
-    // let state = State {
-    //     nfn: config.nfn,
-    //     net_ifaces: vec![net],
-    // };
-    // unsafe  {
-    //     GLOBAL_STATE = Some(state);
-    // };
+    event_server_bitfield.clear_ignore_all();
+
+    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new(net_rb));
+    net.packet_ring_buffer().enable_notify_read();
+    net.packet_ring_buffer().enable_notify_write();
+
+    let state = State {
+        event: config.event,
+        event_server_bitfield,
+        net_ifaces: vec![net],
+    };
+    unsafe  {
+        GLOBAL_STATE = Some(state);
+    };
 
     syscall::init();
 
@@ -77,13 +113,15 @@ fn with<T, F: FnOnce(&mut State) -> T>(f: F) -> T {
 type NetIfaceId = usize;
 
 pub struct State {
-    nfn: Notification,
+    event: Notification,
+    event_server_bitfield: EventServerBitfield,
     net_ifaces: Vec<BufferedPacketRingBuffer>,
 }
 
 impl State {
     fn wfe(&mut self) {
-        self.nfn.wait();
+        // let badge = self.event.wait();
+        // self.event_server_bitfield.clear_ignore(badge);
     }
 
     fn callback(&mut self) {
@@ -114,14 +152,13 @@ extern "C" fn impl_wfe() {
 #[no_mangle]
 extern "C" fn impl_get_time_ns() -> u64 {
     with(|s| {
-        panic!()
+        time_hack::time_ns()
     })
 }
 
 #[no_mangle]
 extern "C" fn impl_set_timeout_ns(ns: u64) {
     with(|s| {
-        panic!()
     })
 }
 

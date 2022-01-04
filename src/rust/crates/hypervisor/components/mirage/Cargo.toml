@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 serde_json = { version = "*", default-features = false, features = [ "alloc",] }
+icecap-event-server-types = { path = "../event-server/types" }
 icecap-linux-syscall = { path = "./icecap-linux-syscall" }
 icecap-start-generic = { path = "../../../framework/icecap-start/generic" }
 icecap-std = { path = "../../../framework/icecap-std" }

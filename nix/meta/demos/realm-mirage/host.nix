@@ -66,6 +66,9 @@ in
       '';
 
       initramfs.profile = ''
+        x() {
+          icecap-host create 0 /spec.bin && taskset 0x2 icecap-host run 0 0
+        }
         n() {
           echo 'Hello, World!' | nc 192.168.1.2 8080
         }
