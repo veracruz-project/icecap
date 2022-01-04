@@ -7,6 +7,8 @@ let
     meta.demos.realm-vm.${k}.run
     meta.examples.minimal.${k}.run
     meta.examples.minimal-root.${k}.run
+    meta.examples.minimal-with-rust.${k}.run
+    meta.examples.minimal-root-with-rust.${k}.run
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
     meta.tests.benchmark-utilisation.${k}.run
