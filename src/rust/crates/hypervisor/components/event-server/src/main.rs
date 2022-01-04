@@ -13,8 +13,8 @@ use alloc::{
 use icecap_std::{
     prelude::*,
     sync::*,
+    rpc_sel4::*,
 };
-use icecap_rpc_sel4::*;
 use icecap_event_server_types::*;
 use icecap_event_server_config::*;
 

@@ -2,12 +2,12 @@ use core::fmt::Write;
 use alloc::collections::VecDeque;
 use icecap_std::prelude::*;
 use icecap_std::rpc_sel4::{rpc_server, RPCClient};
+use icecap_drivers::serial::SerialDevice;
 use icecap_timer_server_client::*;
 
 use crate::{
     event::{Event},
     color::{Color, COLORS},
-    device::SerialDevice,
     out,
 };
 

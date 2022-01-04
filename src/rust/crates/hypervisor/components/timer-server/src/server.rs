@@ -3,7 +3,7 @@ use core::result;
 use core::cmp::Ordering;
 use alloc::collections::{BTreeMap, BTreeSet};
 
-use crate::device::TimerDevice;
+use icecap_drivers::timer::TimerDevice;
 
 pub type Error = ();
 pub type ClientId = usize;

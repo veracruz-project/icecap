@@ -4,7 +4,7 @@ mkComponent {
   nix.name = "timer-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
-    icecap-rpc-sel4
+    icecap-drivers
     icecap-timer-server-types
     icecap-timer-server-config
   ];

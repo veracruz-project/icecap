@@ -4,7 +4,6 @@ mkComponent {
   nix.name = "resource-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
-    icecap-rpc-sel4
     icecap-event-server-types
     icecap-resource-server-types
     icecap-resource-server-config

@@ -1,7 +1,7 @@
-use icecap_std::prelude::*;
+use icecap_core::prelude::*;
 use core::ops::Deref;
 use tock_registers::{registers::ReadWrite, interfaces::{Readable, Writeable}, register_structs};
-use crate::device::SerialDevice;
+use crate::serial::SerialDevice;
 
 // TODO use structured bitfields
 

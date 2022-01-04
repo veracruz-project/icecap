@@ -9,22 +9,21 @@ extern crate alloc;
 use icecap_std::{
     prelude::*,
     sync::*,
+    rpc_sel4::*,
 };
+use icecap_drivers::timer::TimerDevice;
 use icecap_timer_server_config::Config;
 use icecap_timer_server_types::Request;
-use icecap_rpc_sel4::*;
 use alloc::{
     sync::Arc,
 };
 
 use crate::{
     plat::timer_device,
-    device::TimerDevice,
     server::Server,
 };
 
 mod server;
-mod device;
 mod plat;
 
 const TIMERS_PER_CLIENT: i64 = 1;

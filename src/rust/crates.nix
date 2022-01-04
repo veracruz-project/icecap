@@ -33,6 +33,8 @@
 
   icecap-plat = ./crates/framework/icecap-plat;
 
+  icecap-drivers = ./crates/drivers/icecap-drivers-lame;
+
 
   absurdity = ./crates/helpers/absurdity;
   biterate = ./crates/helpers/biterate;

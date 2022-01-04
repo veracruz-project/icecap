@@ -5,7 +5,7 @@
 #![feature(never_type)]
 
 use icecap_std::prelude::*;
-use icecap_rpc_sel4::*;
+use icecap_std::rpc_sel4::*;
 use icecap_benchmark_server_types::*;
 use icecap_benchmark_server_config::*;
 

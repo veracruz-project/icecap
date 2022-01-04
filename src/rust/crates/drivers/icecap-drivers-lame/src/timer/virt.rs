@@ -1,6 +1,6 @@
 use core::ops::Deref;
 use tock_registers::{registers::{ReadOnly, ReadWrite}, interfaces::{Readable, Writeable}, register_structs};
-use crate::device::TimerDevice;
+use crate::timer::TimerDevice;
 
 register_structs! {
     pub QemuTimerRegisterBlock {

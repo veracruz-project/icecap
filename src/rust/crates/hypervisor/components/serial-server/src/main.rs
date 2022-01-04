@@ -8,7 +8,7 @@ mod run;
 mod event;
 mod color;
 mod plat;
-mod device;
+mod writer;
 
 declare_main!(main);
 

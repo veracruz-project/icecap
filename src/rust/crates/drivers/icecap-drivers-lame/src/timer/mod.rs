@@ -1,3 +1,10 @@
+mod virt;
+mod rpi4;
+
+// TODO Fix names
+pub use virt::QemuTimerDevice;
+pub use rpi4::BcmSystemTimerDevice;
+
 pub const KHZ: u64 = 1000;
 pub const MHZ: u64 = 1000 * KHZ;
 pub const GHZ: u64 = 1000 * MHZ;
@@ -9,11 +16,3 @@ pub trait TimerDevice {
     fn set_compare(&self, compare: u64) -> bool;
     fn clear_interrupt(&self);
 }
-
-#[allow(dead_code)]
-mod rpi4;
-pub use rpi4::BcmSystemTimerDevice;
-
-#[allow(dead_code)]
-mod virt;
-pub use virt::QemuTimerDevice;

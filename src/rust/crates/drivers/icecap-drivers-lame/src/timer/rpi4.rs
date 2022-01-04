@@ -1,7 +1,7 @@
-use icecap_std::prelude::*;
+use icecap_core::prelude::*;
 use core::ops::Deref;
 use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, interfaces::{Readable, Writeable}, register_structs};
-use crate::device::*;
+use crate::timer::*;
 
 const MATCH_COUNT: usize = 4;
 const FREQ: u64 = 1 * MHZ;
@@ -82,7 +82,7 @@ impl TimerDevice for BcmSystemTimerDevice {
             let lo = if hi_0 == hi { lo_0 } else { 0 };
             if !((compare_hi == hi && compare_lo > lo) ||
                  (compare_hi == hi + 1 && compare_lo < lo)) {
-                print!("set_compare: 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}\n",
+                debug_println!("set_compare: 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
                        compare, hi_0, lo_0, hi, lo);
             }
         }
