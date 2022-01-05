@@ -9,7 +9,7 @@ rec {
   rustdocAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
     doc = true;
     docDeps = true;
-  })) meta.rust.allAttrs;
+  })) meta.rustAggregate.allAttrs;
 
   rustdocList = lib.concatMap lib.attrValues (lib.attrValues rustdocAttrs);
 

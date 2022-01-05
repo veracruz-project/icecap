@@ -3,7 +3,7 @@
 let
   allAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
     build = true;
-  })) meta.rust.allAttrs;
+  })) meta.rustAggregate.allAttrs;
 
 in
 rec {

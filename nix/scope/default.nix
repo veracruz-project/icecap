@@ -87,6 +87,6 @@ superCallPackage ./ocaml {} self //
   cpioUtils = callPackage ./nix-utils/cpio-utils.nix {};
   cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
 
-  inherit (nixUtils) makeOverridable';
+  inherit (nixUtils) callWith makeOverridable';
 
 }
