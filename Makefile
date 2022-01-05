@@ -42,8 +42,12 @@ $(out):
 clean:
 	rm -rf $(out)
 
+ifneq ($(F),1)
+deep_clean_dry_run := -n
+endif
+
 .PHONY: deep-clean
-deep-clean: clean
-	git clean -Xdff \
+deep-clean:
+	git clean -Xdff $(deep_clean_dry_run) \
 		--exclude='!tmp/' \
 		--exclude='!tmp/**'
