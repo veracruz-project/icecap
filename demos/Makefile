@@ -14,4 +14,4 @@ $(out):
 
 .PHONY: hypervisor-demo
 hypervisor-demo: | $(out)
-	nix-build -A hypervisor.$(PLAT).run -o $(out)/hypervisor-demo
+	nix-build -A hypervisor-demo.$(PLAT).run -o $(out)/hypervisor-demo

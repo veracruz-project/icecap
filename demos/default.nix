@@ -4,7 +4,7 @@ let
   inherit (icecap) lib pkgs;
 
   demos = {
-    hypervisor = ./hypervisor;
+    hypervisor-demo = ./hypervisor-demo;
   };
 
 in lib.flip lib.mapAttrs demos (_: path:
