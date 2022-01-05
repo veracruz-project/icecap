@@ -1,4 +1,8 @@
-__icecap_default_expression=./tmp/shortcuts.nix
+for f in ~/.bash_completion.d/*; do
+  . $f
+done
+
+__icecap_default_expression=.
 
 alias n="nix-build ${__icecap_default_expression} -A"
 alias nn="nix-build --no-out-link ${__icecap_default_expression} -A"
@@ -6,13 +10,8 @@ alias ne="nix-instantiate --eval ${__icecap_default_expression} -A"
 alias nes="nix-instantiate --eval --strict ${__icecap_default_expression} -A"
 
 alias r="./result/run"
-alias rd="./result/run -d"
 
-k() {
-    remote="${1:-origin}"
-    ref="${2:-HEAD}"
-    short_rev=$(git rev-parse --short=32 "$ref")
-    tag=icecap/keep/$short_rev
-    git tag $tag $short_rev
-    git push "$remote" $tag
-}
+complete -F _complete_alias n
+complete -F _complete_alias nn
+complete -F _complete_alias ne
+complete -F _complete_alias nes

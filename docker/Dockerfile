@@ -4,11 +4,17 @@ ARG UID
 ARG GID
 
 RUN apt-get update && apt-get install -y \
-    curl git make \
-    man rsync procps \
+    # dependencies of the creation of this Docker image itself
+    curl \
+    # the only non-Nix dependencies for building IceCap
+    git make \
+    # everything else is just for convenience
+    sudo man vim rsync procps \
+    bash-completion \
     && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -f -g $GID x && useradd -u $UID -g $GID -m -p x x
+RUN groupadd -f -g $GID x && useradd -u $UID -g $GID -G sudo -m -p x x
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN mkdir -m 0755 /nix && chown x:x /nix
 VOLUME /nix
@@ -19,11 +25,22 @@ ENV PATH="/nix/env/bin:${PATH}"
 ENV MANPATH="/nix/env/share/man:${MANPATH}"
 ENV NIX_SSL_CERT_FILE=/nix/env/etc/ssl/certs/ca-bundle.crt
 
-# HACK for persistent git cache
+# for persistent Nix git cache
 ENV XDG_CACHE_HOME=/nix/cache
 
 COPY nix.conf /etc/nix/
 COPY install-nix.sh /
 COPY setup.sh /
+
+# convenient shell completion and aliases
+
+RUN mkdir -p ~/.bash_completion.d && \
+    curl -SL -o ~/.bash_completion.d/nix \
+        https://raw.githubusercontent.com/hedning/nix-bash-completions/e6db3081fe1f221470a26e345a96855e5f09ddec/_nix && \
+    curl -SL -o ~/.bash_completion.d/complete_alias \
+        https://raw.githubusercontent.com/cykerway/complete-alias/4fcd018faa9413e60ee4ec9f48ebeac933c8c372/complete_alias
+
+COPY bashrc /home/x/.bashrc_icecap
+RUN echo ". ~/.bashrc_icecap" >> ~/.bashrc
 
 WORKDIR /icecap
