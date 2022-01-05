@@ -5,6 +5,7 @@ host-vmm
 icecap-backtrace
 icecap-backtrace-collect
 icecap-core
+icecap-drivers
 icecap-failure
 icecap-logger
 icecap-plat

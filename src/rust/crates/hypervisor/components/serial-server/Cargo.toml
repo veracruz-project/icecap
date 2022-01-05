@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 tock-registers = "*"
+icecap-drivers = { path = "../../../drivers/icecap-drivers-lame" }
 icecap-event-server-types = { path = "../event-server/types" }
 icecap-serial-server-config = { path = "./config" }
 icecap-std = { path = "../../../framework/icecap-std" }

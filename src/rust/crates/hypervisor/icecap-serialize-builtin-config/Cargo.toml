@@ -15,6 +15,7 @@ icecap-config-cli-core = { path = "../../framework/icecap-config/cli/core" }
 icecap-event-server-config = { path = "../components/event-server/config" }
 icecap-fault-handler-config = { path = "../components/fault-handler/config" }
 icecap-host-vmm-config = { path = "../components/host/vmm/config" }
+icecap-mirage-config = { path = "../components/mirage/config" }
 icecap-realm-vmm-config = { path = "../components/realm/vmm/config" }
 icecap-resource-server-config = { path = "../components/resource-server/config" }
 icecap-serial-server-config = { path = "../components/serial-server/config" }

@@ -10,6 +10,4 @@ edition = "2018"
 icecap-benchmark-server-config = { path = "./config" }
 icecap-benchmark-server-types = { path = "./types" }
 icecap-plat = { path = "../../../framework/icecap-plat" }
-icecap-rpc-sel4 = { path = "../../../framework/icecap-rpc/sel4" }
-icecap-sel4 = { path = "../../../framework/icecap-sel4" }
 icecap-std = { path = "../../../framework/icecap-std" }

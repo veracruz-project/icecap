@@ -99,8 +99,6 @@ dependencies = [
  "icecap-benchmark-server-config",
  "icecap-benchmark-server-types",
  "icecap-plat",
- "icecap-rpc-sel4",
- "icecap-sel4",
  "icecap-std",
 ]
 
@@ -345,7 +343,6 @@ dependencies = [
  "icecap-event-server-config",
  "icecap-event-server-types",
  "icecap-plat",
- "icecap-rpc-sel4",
  "icecap-std",
 ]
 
@@ -477,8 +474,6 @@ dependencies = [
  "icecap-host-vmm-config",
  "icecap-host-vmm-types",
  "icecap-resource-server-types",
- "icecap-rpc-sel4",
- "icecap-sel4",
  "icecap-std",
  "icecap-vmm",
 ]
@@ -591,6 +586,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "icecap-drivers"
+version = "0.1.0"
+dependencies = [
+ "icecap-core",
+ "tock-registers",
+]
+
+[[package]]
 name = "icecap-event-server-config"
 version = "0.1.0"
 dependencies = [
@@ -700,6 +703,14 @@ name = "icecap-logger"
 version = "0.1.0"
 dependencies = [
  "log",
+]
+
+[[package]]
+name = "icecap-mirage-config"
+version = "0.1.0"
+dependencies = [
+ "icecap-config",
+ "serde",
 ]
 
 [[package]]
@@ -844,6 +855,7 @@ dependencies = [
  "icecap-event-server-config",
  "icecap-fault-handler-config",
  "icecap-host-vmm-config",
+ "icecap-mirage-config",
  "icecap-realm-vmm-config",
  "icecap-resource-server-config",
  "icecap-serial-server-config",
@@ -999,10 +1011,6 @@ dependencies = [
  "biterate",
  "icecap-core",
  "icecap-event-server-types",
- "icecap-failure",
- "icecap-ring-buffer",
- "icecap-rpc-sel4",
- "icecap-sel4",
  "icecap-vmm-gic",
  "log",
 ]
@@ -1117,10 +1125,9 @@ version = "0.1.0"
 dependencies = [
  "icecap-event-server-types",
  "icecap-linux-syscall",
- "icecap-start-generic",
+ "icecap-mirage-config",
  "icecap-std",
  "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -1305,7 +1312,6 @@ dependencies = [
  "biterate",
  "icecap-event-server-types",
  "icecap-realm-vmm-config",
- "icecap-rpc-sel4",
  "icecap-std",
  "icecap-vmm",
 ]
@@ -1336,7 +1342,6 @@ dependencies = [
  "icecap-resource-server-config",
  "icecap-resource-server-core",
  "icecap-resource-server-types",
- "icecap-rpc-sel4",
  "icecap-std",
  "icecap-timer-server-client",
  "postcard",
@@ -1428,6 +1433,7 @@ dependencies = [
 name = "serial-server"
 version = "0.1.0"
 dependencies = [
+ "icecap-drivers",
  "icecap-event-server-types",
  "icecap-serial-server-config",
  "icecap-std",
@@ -1522,7 +1528,7 @@ dependencies = [
 name = "timer-server"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc-sel4",
+ "icecap-drivers",
  "icecap-std",
  "icecap-timer-server-config",
  "icecap-timer-server-types",

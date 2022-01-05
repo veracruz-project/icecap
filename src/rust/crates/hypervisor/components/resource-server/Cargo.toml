@@ -14,6 +14,5 @@ icecap-event-server-types = { path = "../event-server/types" }
 icecap-resource-server-config = { path = "./config" }
 icecap-resource-server-core = { path = "./core" }
 icecap-resource-server-types = { path = "./types" }
-icecap-rpc-sel4 = { path = "../../../framework/icecap-rpc/sel4" }
 icecap-std = { path = "../../../framework/icecap-std" }
 icecap-timer-server-client = { path = "../timer-server/client" }

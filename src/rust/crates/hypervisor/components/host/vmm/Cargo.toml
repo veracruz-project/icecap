@@ -13,7 +13,5 @@ icecap-event-server-types = { path = "../../event-server/types" }
 icecap-host-vmm-config = { path = "./config" }
 icecap-host-vmm-types = { path = "./types" }
 icecap-resource-server-types = { path = "../../resource-server/types" }
-icecap-rpc-sel4 = { path = "../../../../framework/icecap-rpc/sel4" }
-icecap-sel4 = { path = "../../../../framework/icecap-sel4" }
 icecap-std = { path = "../../../../framework/icecap-std" }
 icecap-vmm = { path = "../../../icecap-vmm" }

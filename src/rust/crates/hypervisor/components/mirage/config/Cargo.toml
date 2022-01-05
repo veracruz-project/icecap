@@ -2,13 +2,10 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "mirage"
+name = "icecap-mirage-config"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-icecap-event-server-types = { path = "../event-server/types" }
-icecap-linux-syscall = { path = "./icecap-linux-syscall" }
-icecap-mirage-config = { path = "./config" }
-icecap-std = { path = "../../../framework/icecap-std" }
+icecap-config = { path = "../../../../framework/icecap-config" }
