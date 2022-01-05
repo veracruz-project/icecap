@@ -1,0 +1,11 @@
+(library
+  (name main)
+  (public_name main)
+  (preprocess (pps lwt_ppx))
+  (libraries
+    mirage-icecap
+    lwt lwt-dllist
+    logs logs.fmt
+    base yojson hex
+  )
+)

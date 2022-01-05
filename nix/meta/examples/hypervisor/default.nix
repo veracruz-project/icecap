@@ -10,6 +10,7 @@ in rec {
 
   realms = {
     vm = import ./realms/vm { inherit lib pkgs; };
+    mirage = import ./realms/mirage { inherit lib pkgs; };
   };
 
   run = platUtils.${icecapPlat}.bundle {
@@ -21,7 +22,8 @@ in rec {
         "earlycon=icecap_vmm"
         "console=hvc0"
         "loglevel=7"
-        "vm_spec=${realms.vm.spec}"
+        "vm-realm-spec=${realms.vm.spec}"
+        "mirage-realm-spec=${realms.mirage.spec}"
       ];
     };
   };
@@ -40,17 +42,19 @@ in rec {
           mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
 
           copy_spec() {
-            name=$1
+            name=$1-realm-spec
             spec="$(sed -rn 's,.*'"$name"'=([^ ]*).*,\1,p' /proc/cmdline)"
             (set -x && cp -L "/mnt/$spec" /$name.bin)
           }
 
-          copy_spec vm_spec
+          copy_spec vm
+          copy_spec mirage-
         '';
 
         initramfs.profile = ''
           create() {
-            icecap-host create 0 /$1.bin && taskset 0x2 icecap-host run 0 0
+            name=$1-realm-spec
+            icecap-host create 0 /$1-realm-spec.bin && taskset 0x2 icecap-host run 0 0
           }
           destroy() {
             icecap-host destroy 0
