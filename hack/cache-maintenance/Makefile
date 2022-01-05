@@ -11,7 +11,7 @@ source-test:
 # NOTE
 # Must provide `REMOTE=<remote, e.g. ssh host>`.
 .PHONY: populate-cache
-populate-cache: source-test
+populate-cache:
 	test -n "$(REMOTE)"
 	drv=$$(nix-instantiate populate.nix) && \
 		nix-store --realise $$drv && \
