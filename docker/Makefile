@@ -1,104 +1,53 @@
 icecap_root := ../
-nix_root := ./nix-root
 
 label := icecap
-
 image_repository := icecap
-image_tag_stateless := $(image_repository):stateless
-image_tag_stateful := $(image_repository):stateful
-
-container_name_base := icecap
-container_name_stateless := $(container_name_base)-stateless
-container_name_stateful := $(container_name_base)-stateful
-
-dockerfile_base := Dockerfile
-dockerfile_stateless := $(dockerfile_base).stateless
-dockerfile_stateful := $(dockerfile_base).stateful
-
-default_statefulness := stateful
+image_tag := $(image_repository):stateless
+container_name := icecap-stateless
+nix_root_volume_name := icecap-nix-root
+dockerfile := Dockerfile
 
 uid := $(shell id -u)
 gid := $(shell id -g)
 
 
-.PHONY: all build run exec
+.PHONY: none
+none:
 
-all:
-
-build: build-$(default_statefulness)
-
-run: run-$(default_statefulness)
-
-exec: exec-$(default_statefulness)
-
-
-### stateful ###
-
-.PHONY: build-stateful
-build-stateful:
+.PHONY: build
+build:
 	docker build \
 		--build-arg UID=$(uid) --build-arg GID=$(gid) \
-		--label $(label) -t $(image_tag_stateful) -f $(dockerfile_stateful) .
+		--label $(label) -t $(image_tag) -f $(dockerfile) .
 
-.PHONY: run-stateful
-run-stateful: build-stateful
-	docker run --privileged -d --name $(container_name_stateful) --label $(label) \
-		--mount type=bind,src=$(abspath $(icecap_root)),dst=/icecap \
-		$(image_tag_stateful) sleep inf
-
-.PHONY: exec-stateful
-exec-stateful:
-	docker exec -it $(container_name_stateful) bash
-
-
-### stateless ###
-
-.PHONY: build-stateless
-build-stateless:
-	docker build \
-		--build-arg UID=$(uid) --build-arg GID=$(gid) \
-		--label $(label) -t $(image_tag_stateless) -f $(dockerfile_stateless) .
-
-$(nix_root):
-	mkdir -p -m 0755 $@
-
-$(nix_root)/.installed: build $(nix_root)
-	docker run --privileged --rm --label $(label) -w /home/x \
-		--mount type=bind,src=$(abspath $(nix_root)),dst=/nix \
-		$(image_tag_stateless) flock /nix/.installed.lock bash /setup.sh
-
-.PHONY: run-stateless
-run-stateless: build-stateless $(nix_root)/.installed
-	docker run --privileged -d --name $(container_name_stateless) --label $(label) \
-		--mount type=bind,src=$(abspath $(nix_root)),dst=/nix \
-		--mount type=bind,src=$(abspath $(icecap_root)),dst=/icecap \
-		$(image_tag_stateless) sleep inf
-
-.PHONY: exec-stateless
-exec-stateless:
-	docker exec -it $(container_name_stateless) bash
-
-
-### common ###
-
-.PHONY: logs
-logs:
-	for id in $$(docker ps -aq -f "label=$(label)"); do \
-		docker logs $$id; \
-	done
-
-.PHONY: clean
-clean:
-	for id in $$(docker ps -aq -f "name=$(container_name_stateless)"); do \
-		docker rm -f $$id; \
-	done
-
-.PHONY: deep-clean
-deep-clean:
-	for id in $$(docker ps -aq -f "label=$(label)"); do \
-		docker rm -f $$id; \
-	done
-	if [ -d $(nix_root) ]; then \
-		chmod -R u+w $(nix_root); \
-		rm -rf $(nix_root); \
+.PHONY: initialize-volume
+initialize-volume: build
+	if [ -z "$$(docker volume ls -q -f "name=^$(nix_root_volume_name)$$")" ]; then \
+		docker volume create --label $(label) $(nix_root_volume_name) && \
+		docker run --privileged --rm --label $(label) -w /home/x \
+			--mount type=volume,src=$(nix_root_volume_name),dst=/nix \
+			$(image_tag) flock /nix/.installed.lock bash /setup.sh; \
 	fi
+
+.PHONY: run
+run: build initialize-volume
+	docker run --privileged -d --name $(container_name) --label $(label) \
+		--mount type=volume,src=$(nix_root_volume_name),dst=/nix \
+		--mount type=bind,src=$(abspath $(icecap_root)),dst=/icecap \
+		$(image_tag) sleep inf
+
+.PHONY: exec
+exec:
+	docker exec -it $(container_name) bash
+
+.PHONY: rm-container
+rm-container:
+	for id in $$(docker ps -aq -f "name=^$(container_name)$$"); do \
+		docker rm -f $$id; \
+	done
+
+.PHONY: rm-volume
+rm-volume:
+	for volume in $$(docker volume ls -q -f "name=^$(nix_root_volume_name)$$"); do \
+		docker volume rm $$volume; \
+	done

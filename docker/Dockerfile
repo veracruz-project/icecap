@@ -4,11 +4,15 @@ ARG UID
 ARG GID
 
 RUN apt-get update && apt-get install -y \
-    curl git man make rsync \
-    python3 \
+    curl git make \
+    man rsync procps \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -f -g $GID x && useradd -u $UID -g $GID -m -p x x
+
+RUN mkdir -m 0755 /nix && chown x:x /nix
+VOLUME /nix
+
 USER x
 
 ENV PATH="/nix/env/bin:${PATH}"

@@ -41,7 +41,5 @@ clean:
 .PHONY: deep-clean
 deep-clean: clean
 	git clean -Xdff \
-		--exclude='!docker/nix-root/' \
-		--exclude='!docker/nix-root/**' \
 		--exclude='!tmp/' \
 		--exclude='!tmp/**'
