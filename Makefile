@@ -23,6 +23,10 @@ tcb-size:
 everything: check-generated-sources
 	nix-build -A meta.everything.all --no-out-link
 
+.PHONY: everything-cached
+everything-cached:
+	nix-build -A meta.everything.cached --no-out-link
+
 .PHONY: everything-pure
 everything-pure:
 	nix-build -A meta.everything.pure --no-out-link
