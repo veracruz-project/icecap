@@ -14,8 +14,8 @@ in rec {
   minimal = configured.libs.mkRoot {
     name = "minimal";
     root = icecapSrc.absoluteSplit ./minimal;
-    propagatedBuildInputs = with configured.libs; [
-      icecap-runtime-root
+    propagatedBuildInputs = with configured.libs.root; [
+      icecap-runtime
       icecap-utils
     ];
   };

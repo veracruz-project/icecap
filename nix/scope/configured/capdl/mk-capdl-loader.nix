@@ -33,9 +33,9 @@ libs.mkRoot rec {
     archive-cpio = elfs-cpio;
     symbolName = "_capdl_archive";
   };
-  propagatedBuildInputs = with libs; [
+  propagatedBuildInputs = with libs.root; [
     libsel4
-    icecap-runtime-root
+    icecap-runtime
     icecap-pure
     icecap-utils
     capdl-loader-core

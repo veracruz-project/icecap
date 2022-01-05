@@ -59,7 +59,7 @@ lib.fix (self: buildRustPackageIncrementally ({
     ];
     buildInputs = [
       libsel4
-      (if isRoot then libs.icecap-runtime-root else libs.icecap-runtime)
+      libs.${if isRoot then "root" else "nonRoot"}.icecap-runtime
     ];
     dontStrip = true;
     dontPatchELF = true;

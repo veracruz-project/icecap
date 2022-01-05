@@ -75,84 +75,84 @@ let
       inherit extra;
     };
 
-in
+  mkLibs = isRoot: lib.fix (self: with self; {
 
-rec {
+    icecap-runtime = mkBasic {
+      name = "icecap-runtime";
+      extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" (''
+        #pragma once
+      '' + lib.optionalString isRoot ''
+        #define ICECAP_RUNTIME_ROOT
+      '');
+    };
 
-  inherit mk mkRoot;
+    icecap-utils = mkBasic {
+      name = "icecap-utils";
+      inputs = [
+        icecap-runtime
+      ];
+    };
 
-  icecap-runtime = mkBasic {
-    name = "icecap-runtime";
-    extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" ''
-      #pragma once
-    '';
-  };
+    icecap-pure = mkBasic {
+      name = "icecap-pure";
+      inputs = [
+        icecap-utils
+      ];
+    };
 
-  icecap-runtime-root = mkBasic {
-    name = "icecap-runtime";
-    extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" ''
-      #pragma once
-      #define ICECAP_RUNTIME_ROOT
-    '';
-  };
+    cpio = mkBasic rec {
+      name = "cpio";
+      path = "boot/${name}";
+    };
 
-  icecap-utils = mkBasic {
-    name = "icecap-utils";
-    inputs = [
-      icecap-runtime # TODO invert
-    ];
-  };
+  } // lib.optionalAttrs (!isRoot) {
 
-  icecap-pure = mkBasic {
-    name = "icecap-pure";
-    inputs = [
-      icecap-utils
-    ];
-  };
+    icecap-mirage-glue = mk {
+      stdenv = stdenvMirage;
+      name = "icecap-mirage-glue";
+      root = icecapSrc.relativeSplit "c/icecap-mirage-glue";
+      propagatedBuildInputs = [
+        stdenvMirage.cc.libc # HACK
+        libsel4
+        icecap-runtime
+        icecap-ocaml-runtime
+        icecap-utils # HACK
+      ];
+    };
 
-  icecap-mirage-glue = mk {
-    stdenv = stdenvMirage;
-    name = "icecap-mirage-glue";
-    root = icecapSrc.relativeSplit "c/icecap-mirage-glue";
-    propagatedBuildInputs = [
-      stdenvMirage.cc.libc # HACK
-      libsel4
-      icecap-runtime
-      icecap-ocaml-runtime
-      icecap-utils # HACK
-    ];
-  };
+  } // lib.optionalAttrs isRoot {
 
-  cpio = mkBasic rec {
-    name = "cpio";
-    path = "boot/${name}";
-  };
+    capdl-loader-shim = mkBasic rec {
+      name = "capdl-loader-shim";
+      path = "boot/${name}";
+      inputs = [
+        icecap-utils
+        icecap-pure
+      ];
+    };
 
-  capdl-loader-shim = mkBasic rec {
-    name = "capdl-loader-shim";
-    path = "boot/${name}";
-    inputs = [
-      icecap-utils
-      icecap-pure
-    ];
-  };
+    capdl-loader-core = mkBasic rec {
+      name = "capdl-loader-core";
+      path = "boot/${name}";
+      inputs = [
+        icecap-runtime
+        icecap-pure
+        icecap-utils
+        cpio
+        capdl-loader-shim
+      ];
+      extra.CAPDL_LOADER_EXTERNAL_SOURCE = icecapExternalSrc.capdl.extendInnerSuffix "capdl-loader-app";
+      extra.CAPDL_LOADER_PLATFORM_INFO_H = platformInfo;
+      extra.CAPDL_LOADER_CONFIG_IN_H = writeText "config_in.h" ''
+        #pragma once
+        #define CONFIG_CAPDL_LOADER_MAX_OBJECTS 10000
+      '';
+    };
+  });
 
-  capdl-loader-core = mkBasic rec {
-    name = "capdl-loader-core";
-    path = "boot/${name}";
-    inputs = [
-      icecap-runtime-root
-      icecap-pure
-      icecap-utils
-      cpio
-      capdl-loader-shim
-    ];
-    extra.CAPDL_LOADER_EXTERNAL_SOURCE = icecapExternalSrc.capdl.extendInnerSuffix "capdl-loader-app";
-    extra.CAPDL_LOADER_PLATFORM_INFO_H = platformInfo;
-    extra.CAPDL_LOADER_CONFIG_IN_H = writeText "config_in.h" ''
-      #pragma once
-      #define CONFIG_CAPDL_LOADER_MAX_OBJECTS 10000
-    '';
-  };
+  root = mkLibs true;
+  nonRoot = mkLibs false;
 
-}
+in {
+  inherit mk mkRoot root nonRoot;
+} // nonRoot
