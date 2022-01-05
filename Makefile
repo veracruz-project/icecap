@@ -1,5 +1,14 @@
+out := out
+
 .PHONY: none
 none:
+
+.PHONY: clean
+clean:
+	rm -rf $(out)
+
+$(out):
+	mkdir -p $@
 
 .PHONY: update-generated-sources
 update-generated-sources:
@@ -9,18 +18,22 @@ update-generated-sources:
 check-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.check --no-out-link) && $$script
 
-.PHONY: build-tests
-build-tests:
-	nix-build -A meta.buildTests.all --no-out-link
-
-.PHONY: ad-hoc-build-tests
-ad-hoc-build-tests:
-	nix-build -A meta.adHocBuildTests.all --no-out-link
-
 .PHONY: html-docs
-html-docs:
-	nix-build -A meta.generatedDocs.html --no-out-link
+html-docs: check-generated-sources | $(out)
+	nix-build -A meta.generatedDocs.html -o $(out)/html-docs
 
 .PHONY: tcb-size
 tcb-size:
-	result=$$(nix-build -A meta.tcbSize --no-out-link) && cat $$result
+	report=$$(nix-build -A meta.tcbSize --no-out-link) && cat $$report
+
+.PHONY: everything
+everything: check-generated-sources
+	nix-build -A meta.everything.all --no-out-link
+
+.PHONY: everything-pure
+everything-pure:
+	nix-build -A meta.everything.pure --no-out-link
+
+.PHONY: ad-hoc-build-tests
+ad-hoc-build-tests: check-generated-sources
+	nix-build -A meta.adHocBuildTests.all --no-out-link

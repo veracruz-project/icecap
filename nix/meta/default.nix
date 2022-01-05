@@ -6,9 +6,7 @@ let
 in
 rec {
 
-  tcbSize = call ./tcb-size {};
-
-  generatedSources = call ./generated-sources.nix {};
+  everything = call ./everything.nix {};
 
   # At top-level for discoverability
   examples = import ../../examples;
@@ -16,12 +14,11 @@ rec {
 
   tests = call ./tests {};
 
-  buildTests = call ./build-tests.nix {};
-
+  generatedSources = call ./generated-sources.nix {};
+  generatedDocs = call ./generated-docs {};
+  adHocBuildTests = call ./ad-hoc-build-tests {};
   rustAggregate = call ./rust-aggregate {};
 
-  adHocBuildTests = call ./ad-hoc-build-tests {};
-
-  generatedDocs = call ./generated-docs {};
+  tcbSize = call ./tcb-size {};
 
 }

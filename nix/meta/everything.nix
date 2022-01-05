@@ -3,7 +3,7 @@
 let
   inherit (pkgs) dev none linux musl;
 
-  allRoots = [
+  pure = [
 
     (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) meta.demos)
     (lib.mapAttrsToList (_: example: example.run) meta.examples)
@@ -31,10 +31,26 @@ let
 
     meta.tests.firecracker.rpi4.boot
 
+    meta.tcbSize
+
   ];
+
+  impure = [
+    meta.adHocBuildTests.allList
+    meta.generatedDocs.html
+  ];
+
+  all = [
+    pure
+    impure
+  ];
+
+  mk = name: drvs: pkgs.dev.writeText name (toString (lib.flatten drvs));
 
 in {
 
-  all = pkgs.dev.writeText "build-test-roots" (toString (lib.flatten allRoots));
+  pure = mk "everything-pure" pure;
+  impure = mk "everything-impure" impure;
+  all = mk "everything" all;
 
 }
