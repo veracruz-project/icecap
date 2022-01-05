@@ -20,10 +20,6 @@ firmware: | $(out)
 shadow-vmm: | $(out)
 	nix-build -A pkgs.musl.icecap.icecap-host -o $(out)/shadow-vmm
 
-.PHONY: demo
-demo: | $(out)
-	nix-build -A meta.demos.realm-vm.$(PLAT).run -o $(out)/demo
-
 ###
 
 .PHONY: html-docs

@@ -1,6 +1,7 @@
 # Documentation
 
 - [Top-level README](../README.md)
+- [Getting started](./getting-started.md)
 - [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
 - [Building without Docker](./building-without-docker.md)
 
