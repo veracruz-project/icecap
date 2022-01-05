@@ -3,13 +3,6 @@ out := out
 .PHONY: none
 none:
 
-.PHONY: clean
-clean:
-	rm -rf $(out)
-
-$(out):
-	mkdir -p $@
-
 .PHONY: update-generated-sources
 update-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.update --no-out-link) && $$script
@@ -37,3 +30,18 @@ everything-pure:
 .PHONY: ad-hoc-build-tests
 ad-hoc-build-tests: check-generated-sources
 	nix-build -A meta.adHocBuildTests.all --no-out-link
+
+$(out):
+	mkdir -p $@
+
+.PHONY: clean
+clean:
+	rm -rf $(out)
+
+.PHONY: deep-clean
+deep-clean: clean
+	git clean -Xdff \
+		--exclude='!docker/nix-root/' \
+		--exclude='!docker/nix-root/**' \
+		--exclude='!tmp/' \
+		--exclude='!tmp/**'
