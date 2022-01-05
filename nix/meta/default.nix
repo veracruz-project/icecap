@@ -14,9 +14,8 @@ rec {
     import path { inherit lib pkgs; }
   );
 
-  examples = lib.flip lib.mapAttrs (import ./examples) (_: path:
-    import path { inherit lib pkgs; }
-  );
+  # At top-level for discoverability
+  examples = import ../../examples;
 
   tests = import ./tests {
     inherit lib pkgs;
