@@ -19,11 +19,15 @@ repository.  In the meantime, we are eager to share and discuss any aspect of
 IceCap's design and implementation with you directly. Please feel free to reach
 out to project lead [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
-## Quick Start
+## Quick start
 
 See [./demos/README.md](./demos/README.md) for instructions on how to get a demo up and running.
 
-## Supported Platforms
+## Guided introduction
+
+See [./examples/README.md](./examples/README.md) for a guided introduction to the IceCap framework.
+
+## Supported platforms
 
 IceCap supports Armv8.
 
