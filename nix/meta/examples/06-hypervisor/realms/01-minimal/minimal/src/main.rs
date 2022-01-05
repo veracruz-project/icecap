@@ -12,9 +12,11 @@ declare_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    con: UnmanagedRingBufferConfig,
 }
 
 fn main(config: Config) -> Fallible<()> {
-    debug_println!("{:#?}", config);
+    let mut con = RingBuffer::realize_resume_unmanaged(&config.con);
+    con.write(b"Hello, World!");
     Ok(())
 }

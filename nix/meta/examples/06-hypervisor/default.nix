@@ -9,9 +9,9 @@ let
 in rec {
 
   realms = {
-    minimal = import ./realms/minimal { inherit lib pkgs; };
-    vm = import ./realms/vm { inherit lib pkgs; };
-    mirage = import ./realms/mirage { inherit lib pkgs; };
+    minimal = import ./realms/01-minimal { inherit lib pkgs; };
+    vm = import ./realms/02-vm { inherit lib pkgs; };
+    mirage = import ./realms/03-mirage { inherit lib pkgs; };
   };
 
   run = platUtils.${icecapPlat}.bundle {
