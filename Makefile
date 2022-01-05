@@ -1,30 +1,13 @@
-PLAT ?= virt
+.PHONY: none
+none:
 
-out := out
+.PHONY: update-generated-sources
+update-generated-sources:
+	script=$$(nix-build -A meta.generate.update --no-out-link) && $$script
 
-.PHONY: all
-all:
-
-.PHONY: clean
-clean:
-	rm -rf $(out)
-
-$(out):
-	mkdir -p $@
-
-.PHONY: firmware
-firmware: | $(out)
-	nix-build -A pkgs.none.icecap.configured.$(PLAT).icecapFirmware.image -o $(out)/icecap.img
-
-.PHONY: shadow-vmm
-shadow-vmm: | $(out)
-	nix-build -A pkgs.musl.icecap.icecap-host -o $(out)/shadow-vmm
-
-###
-
-.PHONY: html-docs
-html-docs:
-	nix-build -A meta.docs.html --no-out-link
+.PHONY: check-generated-sources
+check-generated-sources:
+	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script
 
 .PHONY: build-tests
 build-tests:
@@ -34,10 +17,6 @@ build-tests:
 ad-hoc-build-tests:
 	nix-build -A meta.adHocBuildTests.all --no-out-link
 
-.PHONY: update-generated-sources
-update-generated-sources:
-	script=$$(nix-build -A meta.generate.update --no-out-link) && $$script
-
-.PHONY: check-generated-sources
-check-generated-sources:
-	script=$$(nix-build -A meta.generate.check --no-out-link) && $$script
+.PHONY: html-docs
+html-docs:
+	nix-build -A meta.docs.html --no-out-link

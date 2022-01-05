@@ -2,8 +2,8 @@ PLAT ?= virt
 
 out := out
 
-.PHONY: all
-all:
+.PHONY: none
+none:
 
 .PHONY: clean
 clean:
