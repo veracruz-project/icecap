@@ -1,15 +1,31 @@
-# Demos
+# IceCap Hypervisor demo
 
-First, follow the setup instructions in [../docs/getting-started.md](../docs/getting-started.md).
+This is a self-contained guide for quickly building and running the IceCap
+Hypervisor demo, targeting either a QEMU emulation or the Raspberry Pi 4. The
+only develoment environment requirement is Docker. If you encounter problems,
+please raise an issue or reach out to [Nick Spinale
+&lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
-Now, build and run a demo emulated by QEMU (`-M virt`) where a host virtual
+First, clone this respository and its submodules:
+
+```
+git clone --recursive https://gitlab.com/arm-research/security/icecap/icecap
+cd icecap
+```
+
+Next, build, run, and enter a Docker container for development:
+
+```
+make -C docker/ run && make -C docker/ exec
+```
+
+Finally, build and run a demo emulated by QEMU (`-M virt`) where a host virtual
 machine spawns a confidential virtual machine called a realm, and then
 communicates with it via the virtual network:
 
 ```
-   [container] cd demos/ # this directory
-   [container] make hypervisor-demo
-   [container] ./out/hypervisor-demo/run
+   [container] cd demos/hypervisor-demo # this directory
+   [container] make run
 
                # ... wait for the host VM to boot to a shell ...
 
@@ -30,6 +46,18 @@ communicates with it via the virtual network:
                # Interrupt the realm's execution with '<ctrl>-c' and then destroy it:
 
  [icecap host] icecap-host destroy 0
+
+               # Spawn and background a MirageOS unikernel running a TCP echo server in a realm:
+
+ [icecap host] icecap-host create 0 /mirage-realm-spec.bin && taskset 0x2 icecap-host run 0 0 &
+
+               # Communicate with the echo server:
+
+ [icecap host] echo "Hello, World!" | nc 192.168.1.2 8080
+
+               # Cease the realm's exectution and destroy it:
+
+ [icecap host] kill %% && icecap-host destroy 0
  
                # '<ctrl>-a x' quits QEMU
 ```
@@ -67,13 +95,13 @@ screen /dev/ttyUSB0 115200
 Build the demo and copy it to the boot partition of your SD card:
 
 ```
-make hyervisor-demo PLAT=rpi4
+make build PLAT=rpi4
 
-# ./out/hyervisor-demo/boot and its subdirectories contain symlinks which are to be resolved
+# ./out/demo/boot and its subdirectories contain symlinks which are to be resolved
 # and copied to the boot partition of your SD card. For example:
 
 mount /dev/disk/by-label/ICECAP_BOOT mnt/
-cp -rLv out/hyervisor-demo/boot/* mnt/ # even better: rsync -rLv --checksum --delete out/hyervisor-demo/boot/ mnt/
+cp -rLv out/demo/boot/* mnt/ # even better: rsync -rLv --checksum --delete out/demo/boot/ mnt/
 umount mnt/
 ```
 
@@ -87,6 +115,6 @@ and the rest of the system, as a buffer. Alternatively, you could run something
 like this from outside of the container:
 
 ```
-container_name=icecap_stateful
-rsync -rLv --checksum --delete -e 'docker exec -i' $container_name:/icecap/out/hyervisor-demo/boot/ mnt/
+container_name=icecap-stateless
+rsync -rLv --checksum --delete -e 'docker exec -i' $container_name:/icecap/out/demo/boot/ mnt/
 ```

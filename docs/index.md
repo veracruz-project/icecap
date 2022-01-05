@@ -1,11 +1,12 @@
 # Documentation
 
 - [Top-level README](../README.md)
-- [Quick start](../demos)
+- [seL4 Summit 2020 presentation](https://nickspinale.com/talks/sel4-summit-2020.html)
+- [Quick start](../demos/hypervisor-demo)
 - [Guided introduction](../examples)
 - [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
-- [Development environment](./getting-started.md)
 - [Building without Docker](./building-without-docker.md)
+- [Building without Nix](./building-without-nix.md)
 
 `TODO`
 

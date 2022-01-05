@@ -25,7 +25,7 @@ out to project lead [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spin
 
 ## Quick start
 
-See [./demos/README.md](./demos) for instructions on how to get a demo up and running.
+See [./demos/hypervisor-demo/README.md](./demos/hypervisor-demo) for instructions on how to get a demo up and running.
 
 ## Guided introduction
 
