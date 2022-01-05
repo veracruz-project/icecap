@@ -38,9 +38,6 @@ in
     plat = mkOption {
       type = types.unspecified;
     };
-    spec = mkOption {
-      type = types.unspecified;
-    };
   };
 
   config = lib.mkMerge [
@@ -50,7 +47,7 @@ in
       net.interfaces.lo.static = "127.0.0.1";
 
       initramfs.extraInitCommands = ''
-        mkdir -p /etc /bin /mnt/nix/store
+        mkdir -p /etc /bin
         ln -s $(which sh) /bin/sh
 
         mount -t debugfs none /sys/kernel/debug/
@@ -64,6 +61,25 @@ in
         copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
         cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
       '';
+
+      initramfs.profile = ''
+        create() {
+          name=$1-realm-spec
+          icecap-host create 0 /$1-realm-spec.bin && taskset 0x2 icecap-host run 0 0
+        }
+
+        destroy() {
+          icecap-host destroy 0
+        }
+
+        test_mirage_echo() {
+          echo "$@" | nc 192.168.1.2 8080
+        }
+
+        alias c=create
+        alias d=destroy
+        alias m=test_mirage_echo
+      '';
     }
 
     (mkIf (cfg.plat == "virt") {
@@ -75,11 +91,17 @@ in
         physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
         nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
 
+        mkdir -p /mnt/nix/store
         mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
-        spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
-        echo "cp -L /mnt/$spec /spec.bin..."
-        cp -L "/mnt/$spec" /spec.bin
-        echo "...done"
+
+        copy_spec() {
+          name=$1-realm-spec
+          spec="$(sed -rn 's,.*'"$name"'=([^ ]*).*,\1,p' /proc/cmdline)"
+          (set -x && cp -L "/mnt/$spec" /$name.bin)
+        }
+
+        copy_spec vm
+        copy_spec mirage
       '';
     })
 
@@ -87,7 +109,7 @@ in
       initramfs.extraInitCommands = ''
         sleep 2 # HACK
         mount -o ro /dev/mmcblk0p1 mnt/
-        ln -s /mnt/spec.bin /spec.bin
+        ln -s /mnt/*-realm-spec.bin /
       '';
     })
 
