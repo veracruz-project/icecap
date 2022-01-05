@@ -1,6 +1,6 @@
 # Documentation
 
-- [Top-level README](../README.md)
+- [Overview](../README.md)
 - [seL4 Summit 2020 presentation](https://nickspinale.com/talks/sel4-summit-2020.html)
 - [Quick start](../demos/hypervisor-demo)
 - [Guided introduction](../examples)
@@ -8,8 +8,6 @@
 - [Building without Docker](./building-without-docker.md)
 - [Building without Nix](./building-without-nix.md)
 
-`TODO`
-
-In the meantime, we are eager to share and discuss any aspect of IceCap's design
-and implementation with you directly. Please feel free to reach out to project
-lead [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
+We are eager to share and discuss any aspect of IceCap's design and
+implementation with you directly. Please feel free to reach out to project lead
+[Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
