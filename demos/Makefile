@@ -2,8 +2,8 @@ PLAT ?= virt
 
 out := out
 
-.PHONY: none
-none:
+.PHONY: all
+all: hypervisor-demo
 
 .PHONY: clean
 clean:
