@@ -10,10 +10,8 @@ rec {
 
   # At top-level for discoverability
   examples = import ../../examples;
-
-  # At top-level for discoverability
   demos = {
-    hypervisor-demo = import ../demos/hypervisor-demo;
+    hypervisor-demo = import ../../demos/hypervisor-demo;
   };
 
   tests = call ./tests {};
