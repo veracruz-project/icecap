@@ -1,13 +1,14 @@
-{ lib, pkgs }:
+let
+  icecap = import ../../.;
+  inherit (icecap) lib pkgs;
+in
 
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
   inherit (pkgs) dev;
   inherit (pkgs.none.icecap) platUtils;
-  inherit (configured)
-    icecapFirmware icecapPlat selectIceCapPlatOr
-    mkLinuxRealm;
+  inherit (configured) icecapFirmware icecapPlat selectIceCapPlatOr mkLinuxRealm;
 
 in rec {
 
