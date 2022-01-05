@@ -5,10 +5,6 @@ let
 
   allRoots = lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (k: v: [
     meta.demos.realm-vm.${k}.run
-    meta.examples.minimal.${k}.run
-    meta.examples.minimal-root.${k}.run
-    meta.examples.minimal-with-rust.${k}.run
-    meta.examples.minimal-root-with-rust.${k}.run
     meta.tests.realm-vm.${k}.run
     meta.tests.analysis.${k}.run
     meta.tests.benchmark-utilisation.${k}.run
@@ -18,6 +14,11 @@ let
   ]) ++ lib.flip lib.concatMap [ dev linux ] (host: [
     host.icecap.crosvm-9p-server
   ]) ++ [
+    meta.examples.minimal.run
+    meta.examples.minimal-root.run
+    meta.examples.minimal-with-rust.run
+    meta.examples.minimal-root-with-rust.run
+
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot
     musl.icecap.icecap-host

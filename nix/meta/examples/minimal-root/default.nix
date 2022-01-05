@@ -1,8 +1,8 @@
 { lib, pkgs }:
 
-lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
-
 let
+  configured = pkgs.none.icecap.configured.virt;
+
   inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
 
 in rec {
@@ -24,4 +24,4 @@ in rec {
     firmware = composition.image;
   };
 
-})
+}
