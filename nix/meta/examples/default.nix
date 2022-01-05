@@ -3,4 +3,5 @@
   minimal-root-with-rust = ./minimal-root-with-rust;
   minimal = ./minimal;
   minimal-with-rust = ./minimal-with-rust;
+  basic-system = ./basic-system;
 }
