@@ -24,28 +24,17 @@ use icecap_std::{
     runtime as icecap_runtime,
     sel4::sys::c_types::*,
 };
+use icecap_mirage_config::Config;
 use icecap_event_server_types::{
     calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
 };
-use icecap_start_generic::declare_generic_main;
 
 mod c;
 mod syscall;
 mod ocaml;
 mod time_hack;
 
-declare_generic_main!(main);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Config {
-    event: Notification,
-    event_server_endpoint: Endpoint,
-    event_server_bitfield: usize,
-
-    net_rb: RingBufferConfig,
-
-    passthru: serde_json::Value,
-}
+declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
 
@@ -88,9 +77,7 @@ fn main(config: Config) -> Fallible<()> {
 
     syscall::init();
 
-    let arg = serde_json::to_vec(&serde_json::json!({
-        "network_config": config.passthru,
-    })).unwrap();
+    let arg = config.passthru;
 
     println!("mirage enter");
     let ret = ocaml::run(&arg);

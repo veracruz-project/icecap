@@ -38,6 +38,7 @@ self: with self;
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
   mkRealm = callPackage ./capdl/mk-realm.nix {};
   mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
+  mkMirageRealm = callPackage ./capdl/mk-mirage-realm.nix {};
 
   libs = callPackage ./sel4-user/c {};
 

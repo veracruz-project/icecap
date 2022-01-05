@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from icecap_hypervisor.firmware import FirmwareComposition
-from icecap_hypervisor.realm import LinuxRealmComposition
+from icecap_hypervisor.realm import LinuxRealmComposition, MirageRealmComposition
 
 ICECAP_PLAT_ENV = 'ICECAP_PLAT'
 
@@ -26,6 +26,9 @@ def parse_args():
     add_common_arguments(subparser)
 
     subparser = subparsers.add_parser('linux-realm')
+    add_common_arguments(subparser)
+
+    subparser = subparsers.add_parser('mirage-realm')
     add_common_arguments(subparser)
 
     return parser.parse_args()
@@ -59,6 +62,11 @@ def run(args):
         config = json.load(args.config)
         args.config.close()
         LinuxRealmComposition(args.out_dir, config).run()
+
+    elif args.cmd == 'mirage-realm':
+        config = json.load(args.config)
+        args.config.close()
+        MirageRealmComposition(args.out_dir, config).run()
 
     else:
         assert False

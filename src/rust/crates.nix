@@ -97,6 +97,7 @@
   icecap-benchmark-server-config = ./crates/hypervisor/components/benchmark-server/config;
 
   mirage = ./crates/hypervisor/components/mirage;
+  icecap-mirage-config = ./crates/hypervisor/components/mirage/config;
   icecap-linux-syscall = ./crates/hypervisor/components/mirage/icecap-linux-syscall;
 
 

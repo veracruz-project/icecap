@@ -13,6 +13,7 @@ mkBin {
     icecap-resource-server-config
     icecap-event-server-config
     icecap-benchmark-server-config
+    icecap-mirage-config
   ];
 
   dependencies = {

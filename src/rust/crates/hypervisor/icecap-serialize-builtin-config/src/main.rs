@@ -32,6 +32,7 @@ pub fn main() -> Result<(), io::Error> {
             icecap_resource_server_config,
             icecap_event_server_config,
             icecap_benchmark_server_config,
+            icecap_mirage_config,
         ]
     )?;
 

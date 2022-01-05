@@ -1,12 +1,15 @@
 from capdl import ObjectType
-from icecap_framework import GenericElfComponent
+from icecap_framework import ElfComponent
 from icecap_framework.utils import PAGE_SIZE_BITS
-from icecap_hypervisor.realm import BaseRealmComposition
 
-class Mirage(GenericElfComponent):
+class Mirage(ElfComponent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        passthru_path = self.config()['passthru']
+        with open(passthru_path, 'rb') as f:
+            passthru = f.read()
 
         node_index = 0
 
@@ -40,20 +43,11 @@ class Mirage(GenericElfComponent):
             # 'con_rb': self.map_ring_buffer(con_rb),
             # 'con_kick': self.cspace().alloc(con_kick, write=True),
 
-            'passthru': {
-                'mac': '00:0a:95:9d:68:16',
-                'ip': '192.168.1.2',
-                'network': '192.168.1.0/24',
-                'gateway': '192.168.1.1',
-                },
+            'passthru': list(passthru),
             }
 
     def arg_json(self):
         return self._arg
 
-class Composition(BaseRealmComposition):
-
-    def compose(self):
-        self.component(Mirage, 'mirage')
-
-Composition.from_env().run()
+    def serialize_arg(self):
+        return self.serialize_builtin_arg('mirage')

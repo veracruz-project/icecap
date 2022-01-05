@@ -1,1 +1,1 @@
-from icecap_hypervisor.realm.composition import BaseRealmComposition, LinuxRealmComposition
+from icecap_hypervisor.realm.composition import BaseRealmComposition, LinuxRealmComposition, MirageRealmComposition

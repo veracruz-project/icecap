@@ -3,6 +3,7 @@ from capdl import ObjectType, Cap, PageCollection, ARMIRQMode
 from icecap_framework import BaseComposition, RingBufferObjects, RingBufferSideObjects
 from icecap_hypervisor.common import FaultHandler
 from icecap_hypervisor.realm.components.vm import RealmVM
+from icecap_hypervisor.realm.components.mirage import Mirage
 from icecap_framework.utils import as_, as_list, BLOCK_SIZE, BLOCK_SIZE_BITS, PAGE_SIZE, PAGE_SIZE_BITS
 
 class BaseRealmComposition(BaseComposition):
@@ -101,3 +102,9 @@ class LinuxRealmComposition(BaseRealmComposition):
             },
             { 'Host': { 'Channel': None } }
             )
+
+
+class MirageRealmComposition(BaseRealmComposition):
+
+    def compose(self):
+        self.component(Mirage, 'mirage')

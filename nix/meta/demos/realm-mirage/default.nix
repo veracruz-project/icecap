@@ -3,10 +3,11 @@
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
 
 let
+  inherit (pkgs.dev) writeText;
   inherit (pkgs.none.icecap) platUtils elfUtils icecapSrc;
   inherit (configured)
     icecapFirmware icecapPlat selectIceCapPlatOr
-    mkMirageBinary mkDynDLSpec mkRealm;
+    mkMirageRealm;
 
 in rec {
 
@@ -31,19 +32,19 @@ in rec {
     };
   };
 
-  spec = mkRealm {
-    script = ./ddl.py;
-    config = {
-      realm_id = 0;
-      num_cores = 1;
-      components = {
-        mirage.image = elfUtils.split "${mirageBinary}/bin/mirage.elf";
+  spec = mkMirageRealm {
+    inherit mirageLibrary;
+    passthru = writeText "passthru.json" (builtins.toJSON {
+      network_config = {
+        mac = "00:0a:95:9d:68:16";
+        ip = "192.168.1.2";
+        network = "192.168.1.0/24";
+        gateway = "192.168.1.1";
       };
-    };
+    });
   };
 
   mirageLibrary = configured.callPackage ./mirage.nix {};
-  mirageBinary = mkMirageBinary mirageLibrary;
 
   hostUser = pkgs.linux.icecap.nixosLite.eval {
     modules = [

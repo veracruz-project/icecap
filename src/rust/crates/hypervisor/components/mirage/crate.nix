@@ -5,12 +5,11 @@ mkExcludeBin {
   nix.local.dependencies = with localCrates; [
     icecap-linux-syscall
     icecap-std
-    icecap-start-generic
+    icecap-mirage-config
     icecap-event-server-types
   ];
   dependencies = {
     serde = serdeMin;
-    serde_json = { version = "*"; default-features = false; features = [ "alloc" ]; };
   };
   # nix.buildScript = {
   #   NOTE this doesn't work because of circular dependencies. rustc deduplicates these.
