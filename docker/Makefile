@@ -40,6 +40,10 @@ run: build initialize-volume
 exec:
 	docker exec -it $(container_name) bash
 
+.PHONY: show-nix-root
+show-nix-root:
+	docker inspect icecap-nix-root --format='{{.Mountpoint}}'
+
 .PHONY: rm-container
 rm-container:
 	for id in $$(docker ps -aq -f "name=^$(container_name)$$"); do \

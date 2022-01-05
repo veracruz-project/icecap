@@ -1,17 +1,13 @@
 let
   topLevel = import ../.;
 
-in topLevel.lib.fix (self: topLevel // topLevel.pkgs // topLevel.meta // (with self; {
+in topLevel.lib.fix (self: topLevel // (with self; {
 
-  bt = buildTest;
-  b = none.buildPackages;
-  c = configured;
+  vt = meta.tests.realm-vm.virt;
+  vc = vt.configured;
+  v = vt.run;
 
-  v = tests.realm-vm.virt;
-  vc = v.configured;
-  vr = v.run;
-
-  r = tests.realm-vm.rpi4;
-  rb = v.run.boot;
+  rt = meta.tests.realm-vm.rpi4;
+  r = rt.run.boot;
 
 }))
