@@ -20,3 +20,7 @@ ad-hoc-build-tests:
 .PHONY: html-docs
 html-docs:
 	nix-build -A meta.generatedDocs.html --no-out-link
+
+.PHONY: tcb-size
+tcb-size:
+	result=$$(nix-build -A meta.tcbSize --no-out-link) && cat $$result
