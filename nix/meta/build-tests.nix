@@ -14,18 +14,13 @@ let
   ]) ++ lib.flip lib.concatMap [ dev linux ] (host: [
     host.icecap.crosvm-9p-server
   ]) ++ [
-    meta.examples.minimal.run
-    meta.examples.minimal-root.run
-    meta.examples.minimal-with-rust.run
-    meta.examples.minimal-root-with-rust.run
-
     dev.icecap.sel4-manual
     meta.tests.firecracker.rpi4.boot
     musl.icecap.icecap-host
     musl.icecap.firecracker
     musl.icecap.firecracker-prebuilt
     musl.icecap.firectl
-  ];
+  ] ++ lib.mapAttrsToList (_: example: example.run) meta.examples;
 
 in {
 

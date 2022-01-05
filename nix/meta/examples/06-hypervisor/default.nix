@@ -49,9 +49,9 @@ in rec {
             (set -x && cp -L "/mnt/$spec" /$name.bin)
           }
 
+          copy_spec minimal
           copy_spec vm
           copy_spec mirage
-          copy_spec minimal
         '';
 
         initramfs.profile = ''

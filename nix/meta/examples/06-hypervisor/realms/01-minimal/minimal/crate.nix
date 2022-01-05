@@ -6,6 +6,7 @@ crateUtils.mkCrate {
   nix.src = icecapSrc.absoluteSplit ./src;
   nix.local.dependencies = with globalCrates; [
     icecap-std
+    icecap-start-generic
   ];
   dependencies = {
     serde = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
