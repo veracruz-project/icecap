@@ -1,8 +1,10 @@
 # Documentation
 
 - [Top-level README](../README.md)
-- [Getting started](./getting-started.md)
+- [Quick start](../demos)
+- [Guided introduction](../examples)
 - [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
+- [Development environment](./getting-started.md)
 - [Building without Docker](./building-without-docker.md)
 
 `TODO`
