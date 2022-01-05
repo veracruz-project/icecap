@@ -9,6 +9,7 @@ let
 in rec {
 
   realms = {
+    minimal = import ./realms/minimal { inherit lib pkgs; };
     vm = import ./realms/vm { inherit lib pkgs; };
     mirage = import ./realms/mirage { inherit lib pkgs; };
   };
@@ -22,6 +23,7 @@ in rec {
         "earlycon=icecap_vmm"
         "console=hvc0"
         "loglevel=7"
+        "minimal-realm-spec=${realms.minimal.spec}"
         "vm-realm-spec=${realms.vm.spec}"
         "mirage-realm-spec=${realms.mirage.spec}"
       ];
@@ -48,7 +50,8 @@ in rec {
           }
 
           copy_spec vm
-          copy_spec mirage-
+          copy_spec mirage
+          copy_spec minimal
         '';
 
         initramfs.profile = ''
