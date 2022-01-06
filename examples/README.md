@@ -45,14 +45,14 @@ nix-build examples/ -A minimal-root.run
 ./result/run
 ``` -->
 
-#### Using Rust
+##### Using Rust
 
 ### Leveraging CapDL
 
-#### The IceCap Python libraries
+##### The IceCap Python libraries
 
-#### Typed component configuration
+##### Typed component configuration
 
-### A basic componentized system
+##### A basic componentized system
 
 ### Case study: the IceCap Hypervisor
