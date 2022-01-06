@@ -1,4 +1,4 @@
-from icecap_framework import *
+from icecap_framework import BaseComposition
 
 from serial_server import SerialServer
 from timer_server import TimerServer

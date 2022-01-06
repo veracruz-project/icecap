@@ -30,7 +30,6 @@ in rec {
 
   example-component = configured.buildIceCapComponent {
     rootCrate = crates.example-component;
-    debug = true;
   };
 
   serialize-example-component-config = buildRustPackageIncrementally {

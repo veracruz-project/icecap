@@ -4,25 +4,25 @@ let
   configured = pkgs.none.icecap.configured.virt;
 
   inherit (pkgs.dev.icecap) buildRustPackageIncrementally;
-  inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
+  inherit (pkgs.none.icecap) icecapSrc platUtils;
 
-  crates = rec {
-    application = configured.callPackage ./components/application/crate.nix {
-      inherit timer-server-types;
-    };
-    serial-server = configured.callPackage ./components/serial-server/crate.nix {};
-    timer-server = configured.callPackage ./components/timer-server/crate.nix {
-      inherit timer-server-types;
-    };
-    timer-server-types = configured.callPackage ./components/timer-server/types/crate.nix {};
-  };
+  crates = lib.makeScope configured.newScope (self: with self; {
+    application = callPackage ./components/application/crate.nix {};
+    serial-server = callPackage ./components/serial-server/crate.nix {};
+    timer-server = callPackage ./components/timer-server/crate.nix {};
+    timer-server-types = callPackage ./components/timer-server/types/crate.nix {};
+  });
 
 in rec {
+
+  run = platUtils.${configured.icecapPlat}.bundle {
+    firmware = composition.image;
+  };
 
   composition = configured.compose {
     action.script = icecapSrc.extend "/composition.py" (icecapSrc.absoluteSplit ./cdl);
     config = {
-      components = {
+      components = with components; {
         application.image = application.split;
         serial_server.image = serial-server.split;
         timer_server.image = timer-server.split;
@@ -30,20 +30,8 @@ in rec {
     };
   };
 
-  application = configured.buildIceCapComponent {
-    rootCrate = crates.application;
-  };
-
-  serial-server = configured.buildIceCapComponent {
-    rootCrate = crates.serial-server;
-  };
-
-  timer-server = configured.buildIceCapComponent {
-    rootCrate = crates.timer-server;
-  };
-
-  run = platUtils.${configured.icecapPlat}.bundle {
-    firmware = composition.image;
-  };
+  components = lib.flip lib.mapAttrs crates (_: rootCrate: configured.buildIceCapComponent {
+    inherit rootCrate;
+  });
 
 }

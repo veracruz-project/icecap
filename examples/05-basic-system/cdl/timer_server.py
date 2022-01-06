@@ -18,6 +18,7 @@ class TimerServer(GenericElfComponent):
         self.skip(PAGE_SIZE)
         vaddr = self.cur_vaddr
         self.skip(PAGE_SIZE)
+        self.skip(PAGE_SIZE)
 
         self.map_page(vaddr, paddr=paddr, label='timer_mmio', read=True, write=True, cached=False)
 

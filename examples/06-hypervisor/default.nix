@@ -8,12 +8,6 @@ let
 
 in rec {
 
-  realms = {
-    minimal = import ./realms/01-minimal { inherit lib pkgs; };
-    vm = import ./realms/02-vm { inherit lib pkgs; };
-    mirage = import ./realms/03-mirage { inherit lib pkgs; };
-  };
-
   run = platUtils.${icecapPlat}.bundle {
     firmware = icecapFirmware.image;
     payload = icecapFirmware.mkDefaultPayload {
@@ -28,6 +22,12 @@ in rec {
         "mirage-realm-spec=${realms.mirage.spec}"
       ];
     };
+  };
+
+  realms = {
+    minimal = import ./realms/01-minimal { inherit lib pkgs; };
+    vm = import ./realms/02-vm { inherit lib pkgs; };
+    mirage = import ./realms/03-mirage { inherit lib pkgs; };
   };
 
   hostUser = pkgs.linux.icecap.nixosLite.eval {
