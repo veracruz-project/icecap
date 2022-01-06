@@ -1,12 +1,33 @@
 self: super: with self;
 
-let
+{
 
-  inherit (callPackage ./lib.nix {}) makeSplicedScope;
-
-in {
-
-  icecap = makeSplicedScope ../scope {};
+  icecap =
+    let
+      otherSplices = callPackage ({
+        pkgsBuildBuild, pkgsBuildHost, pkgsBuildTarget, pkgsHostHost, pkgsTargetTarget
+      }: {
+        selfBuildBuild = pkgsBuildBuild.icecap;
+        selfBuildHost = pkgsBuildHost.icecap;
+        selfBuildTarget = pkgsBuildTarget.icecap;
+        selfHostHost = pkgsHostHost.icecap;
+        selfTargetTarget = pkgsTargetTarget.icecap or {}; # might be missing
+      }) {};
+    in
+      lib.makeScopeWithSplicing
+        splicePackages
+        newScope
+        otherSplices
+        (_: {}) # keep
+        (_: {}) # extra
+        (self: callPackage ../scope {} self // {
+          __dontRecurseWhenSplicing = true;
+          inherit otherSplices;
+          pkgsBuildHostScope = otherSplices.selfBuildHost;
+          pkgsBuildBuildScope = otherSplices.selfBuildBuild;
+          pkgsTargetTargetScope = otherSplices.selfTargetTarget;
+        })
+      ;
 
   stdenv = rec {
     # Use toolchain without newlib. This is equivalent to crossLibcStdenv
