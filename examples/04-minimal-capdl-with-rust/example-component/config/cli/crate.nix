@@ -1,12 +1,12 @@
-{ crateUtils, icecapSrc, globalCrates, minimal-config }:
+{ crateUtils, icecapSrc, globalCrates, example-component-config }:
 
 crateUtils.mkCrate {
-  nix.name = "serialize-minimal-config";
+  nix.name = "serialize-example-component-config";
   nix.isBin = true;
   nix.src = icecapSrc.absoluteSplit ./src;
   nix.local.dependencies = (with globalCrates; [
     icecap-config-cli-core
   ]) ++ [
-    minimal-config
+    example-component-config
   ];
 }

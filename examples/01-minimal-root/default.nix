@@ -8,12 +8,12 @@ let
 in rec {
 
   composition = configured.compose {
-    app-elf = elfUtils.split "${minimal}/bin/minimal.elf";
+    app-elf = elfUtils.split "${root-task}/bin/root-task.elf";
   };
 
-  minimal = configured.libs.mkRoot {
-    name = "minimal";
-    root = icecapSrc.absoluteSplit ./minimal;
+  root-task = configured.libs.mkRoot {
+    name = "root-task";
+    root = icecapSrc.absoluteSplit ./root-task;
     propagatedBuildInputs = with configured.libs.root; [
       icecap-runtime
       icecap-utils

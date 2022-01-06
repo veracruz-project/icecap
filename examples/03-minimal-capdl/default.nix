@@ -11,14 +11,14 @@ in rec {
     action.script = icecapSrc.absoluteSplit ./cdl.py;
     config = {
       components = {
-        minimal.image = elfUtils.split "${minimal}/bin/minimal.elf";
+        example_component.image = elfUtils.split "${example-component}/bin/example-component.elf";
       };
     };
   };
 
-  minimal = configured.libs.mk {
-    name = "minimal";
-    root = icecapSrc.absoluteSplit ./minimal;
+  example-component = configured.libs.mk {
+    name = "example-component";
+    root = icecapSrc.absoluteSplit ./example-component;
     propagatedBuildInputs = with configured.libs; [
       icecap-runtime
     ];

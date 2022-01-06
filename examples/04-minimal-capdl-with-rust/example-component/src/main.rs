@@ -8,7 +8,7 @@ use icecap_std::prelude::*;
 
 declare_main!(main);
 
-fn main(config: minimal_config::Config) -> Fallible<()> {
+fn main(config: example_component_config::Config) -> Fallible<()> {
     debug_println!("{:#?}", config);
     Ok(())
 }

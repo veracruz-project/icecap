@@ -8,13 +8,12 @@ let
 in rec {
 
   composition = configured.compose {
-    app-elf = minimal.split;
+    app-elf = root-task.split;
   };
 
-  minimal = configured.buildIceCapComponent {
-    rootCrate = configured.callPackage ./minimal/crate.nix {};
+  root-task = configured.buildIceCapComponent {
+    rootCrate = configured.callPackage ./root-task/crate.nix {};
     isRoot = true;
-    debug = true;
   };
 
   run = platUtils.${configured.icecapPlat}.bundle {

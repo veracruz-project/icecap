@@ -7,12 +7,12 @@ let
   inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
 
   crates = rec {
-    minimal-config = configured.callPackage ./minimal/config/crate.nix {};
-    minimal = configured.callPackage ./minimal/crate.nix {
-      inherit minimal-config;
+    example-component-config = configured.callPackage ./example-component/config/crate.nix {};
+    example-component = configured.callPackage ./example-component/crate.nix {
+      inherit example-component-config;
     };
-    serialize-minimal-config = configured.callPackage ./minimal/config/cli/crate.nix {
-      inherit minimal-config;
+    serialize-example-component-config = configured.callPackage ./example-component/config/cli/crate.nix {
+      inherit example-component-config;
     };
   };
 
@@ -22,21 +22,20 @@ in rec {
     action.script = icecapSrc.absoluteSplit ./cdl.py;
     config = {
       components = {
-        minimal.image = minimal.split;
+        example_component.image = example-component.split;
       };
-      tools.serialize-minimal-config = "${serialize-minimal-config}/bin/serialize-minimal-config";
+      tools.serialize-example-component-config = "${serialize-example-component-config}/bin/serialize-example-component-config";
     };
   };
 
-  minimal = configured.buildIceCapComponent {
-    rootCrate = crates.minimal;
+  example-component = configured.buildIceCapComponent {
+    rootCrate = crates.example-component;
     debug = true;
   };
 
-  serialize-minimal-config = buildRustPackageIncrementally {
-    rootCrate = crates.serialize-minimal-config;
+  serialize-example-component-config = buildRustPackageIncrementally {
+    rootCrate = crates.serialize-example-component-config;
     layers =  [ [] ];
-    debug = true;
   };
 
   run = platUtils.${configured.icecapPlat}.bundle {

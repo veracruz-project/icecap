@@ -1,7 +1,7 @@
 { crateUtils, icecapSrc, globalCrates }:
 
 crateUtils.mkCrate {
-  nix.name = "minimal-config";
+  nix.name = "example-component-config";
   nix.src = icecapSrc.absoluteSplit ./src;
   nix.local.dependencies = with globalCrates; [
     icecap-config

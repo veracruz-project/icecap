@@ -1,6 +1,6 @@
 from icecap_framework import *
 
-class Minimal(ElfComponent):
+class ExampleComponent(ElfComponent):
 
     def arg_json(self):
         return {
@@ -8,11 +8,11 @@ class Minimal(ElfComponent):
         }
 
     def serialize_arg(self):
-        return [self.composition.config['tools']['serialize-minimal-config']]
+        return [self.composition.config['tools']['serialize-example-component-config']]
 
 class Composition(BaseComposition):
 
     def compose(self):
-        self.component(Minimal, 'minimal')
+        self.component(ExampleComponent, 'example_component')
 
 Composition.from_env().run()
