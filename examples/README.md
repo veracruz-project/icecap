@@ -38,13 +38,21 @@ make -C docker/ run && make -C docker/ exec
 
 This docker container is effectively stateless. All of the build system's state lives in a Docker volume. Consequentially, you can destroy the container, modify the Dockerfile, and rebuild and re-run it without losing cached IceCap build artifacts.
 
-## Our first system
+### Our first system
 
 <!-- ```
 nix-build examples/ -A minimal-root.run
 ./result/run
 ``` -->
 
-## Leveraging CapDL
+#### Using Rust
 
-## Case study: the IceCap Hypervisor
+### Leveraging CapDL
+
+#### The IceCap Python libraries
+
+#### Typed component configuration
+
+### A basic componentized system
+
+### Case study: the IceCap Hypervisor
