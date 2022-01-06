@@ -43,7 +43,7 @@ class TimerServer(GenericElfComponent):
 
     def register_client(self, client, timeout_nfn, timeout_nfn_badge):
         self._arg['client_timeout'] = self.cspace().alloc(timeout_nfn, badge=timeout_nfn_badge, write=True)
-        return client.cspace().alloc(self.loop_ep, badge=BADGE_CLIENT, write=True)
+        return client.cspace().alloc(self.loop_ep, badge=BADGE_CLIENT, write=True, grantreply=True)
 
     def arg_json(self):
         return self._arg
