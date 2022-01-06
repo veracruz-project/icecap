@@ -41,4 +41,4 @@ seL4 has the notion of a `KernelPlatform` (e.g. `bcm2711` for the Raspberry Pi
 
 - `virt`: A minimal, made-up platform emulated by QEMU with `qemu-system-aarch64 -M virt`
 
-- `rpi4`: Raspberry Pi 4 Model B (with =4GiB RAM, see note above)
+- `rpi4`: Raspberry Pi 4 Model B (with at least 4GiB of RAM)
