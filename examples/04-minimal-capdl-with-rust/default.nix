@@ -35,7 +35,6 @@ in rec {
 
   serialize-example-component-config = buildRustPackageIncrementally {
     rootCrate = crates.serialize-example-component-config;
-    layers =  [ [] ];
   };
 
 }

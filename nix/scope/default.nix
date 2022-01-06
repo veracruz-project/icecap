@@ -64,8 +64,7 @@ superCallPackage ./ocaml {} self //
 
   mkTool = rootCrate: buildRustPackageIncrementally {
     inherit rootCrate;
-    layers =  [ [] ];
-    debug = true;
+    debug = true; # speed up build
   };
 
   dyndl-serialize-spec = mkTool globalCrates.dyndl-serialize-spec;

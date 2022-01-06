@@ -4,7 +4,6 @@
 
 buildRustPackageIncrementally rec {
   rootCrate = globalCrates.crosvm-9p-server-cli;
-  layers = [ [] ];
 
   extra = attrs: {
     nativeBuildInputs = (attrs.nativeBuildInputs or []) ++ [ pkgconfig ];

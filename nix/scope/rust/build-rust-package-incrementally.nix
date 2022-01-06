@@ -5,7 +5,7 @@
 }:
 
 { rootCrate
-, layers ? []
+, layers ? [ [] ] # default to two building in two steps (external then local)
 , debug ? false
 , extraCargoConfig ? {}
 , extraManifest ? {}
