@@ -8,5 +8,9 @@ use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub x: Vec<i32>,
+    pub lock_nfn: Notification,
+    pub primary_thread_ep_cap: Endpoint,
+    pub secondary_thread_ep_cap: Endpoint,
+    pub secondary_thread: Thread,
+    pub foo: Vec<i32>,
 }
