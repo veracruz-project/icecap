@@ -49,7 +49,7 @@ To build the first system, run the following from the repository root:
 nix-build examples/ -A minimal-root.run
 ```
 
-The Docker image is configured to support tab-completion for Nix attribute paths. For example, try `nix-build examples/ -A minimal-root.<tab>`. `minimal-root.run`, for example, corresponds to the attribute found at [./01-minimal-root/default.nix#L23](./01-minimal-root/default.nix#L23).
+The Docker image is configured to support tab-completion for Nix attribute paths. For example, try `nix-build examples/ -A minimal-root.<tab>`. `minimal-root.run`, for example, corresponds to the attribute found at [./01-minimal-root/default.nix#L10](./01-minimal-root/default.nix#L10).
 
 Now, run the example:
 

@@ -1,3 +1,3 @@
 exes += example-component
 src-example-component = $(here)/src
-ldlibs-example-component := -licecap-runtime
+ldlibs-example-component := -licecap-runtime -licecap-utils

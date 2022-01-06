@@ -3,9 +3,13 @@
 let
   configured = pkgs.none.icecap.configured.virt;
 
-  inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
+  inherit (pkgs.none.icecap) icecapSrc platUtils elfUtils;
 
 in rec {
+
+  run = platUtils.${configured.icecapPlat}.bundle {
+    firmware = composition.image;
+  };
 
   composition = configured.compose {
     app-elf = elfUtils.split "${root-task}/bin/root-task.elf";
@@ -18,10 +22,6 @@ in rec {
       icecap-runtime
       icecap-utils
     ];
-  };
-
-  run = platUtils.${configured.icecapPlat}.bundle {
-    firmware = composition.image;
   };
 
 }

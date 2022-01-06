@@ -3,9 +3,13 @@
 let
   configured = pkgs.none.icecap.configured.virt;
 
-  inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
+  inherit (pkgs.none.icecap) icecapSrc platUtils elfUtils;
 
 in rec {
+
+  run = platUtils.${configured.icecapPlat}.bundle {
+    firmware = composition.image;
+  };
 
   composition = configured.compose {
     action.script = icecapSrc.absoluteSplit ./cdl.py;
@@ -21,11 +25,8 @@ in rec {
     root = icecapSrc.absoluteSplit ./example-component;
     propagatedBuildInputs = with configured.libs; [
       icecap-runtime
+      icecap-utils
     ];
-  };
-
-  run = platUtils.${configured.icecapPlat}.bundle {
-    firmware = composition.image;
   };
 
 }

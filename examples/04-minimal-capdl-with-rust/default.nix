@@ -4,19 +4,19 @@ let
   configured = pkgs.none.icecap.configured.virt;
 
   inherit (pkgs.dev.icecap) buildRustPackageIncrementally;
-  inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
+  inherit (pkgs.none.icecap) icecapSrc platUtils;
 
-  crates = rec {
-    example-component-config = configured.callPackage ./example-component/config/crate.nix {};
-    example-component = configured.callPackage ./example-component/crate.nix {
-      inherit example-component-config;
-    };
-    serialize-example-component-config = configured.callPackage ./example-component/config/cli/crate.nix {
-      inherit example-component-config;
-    };
-  };
+  crates = lib.makeScope configured.newScope (self: with self; {
+    example-component = callPackage ./example-component/crate.nix {};
+    example-component-config = callPackage ./example-component/config/crate.nix {};
+    serialize-example-component-config = callPackage ./example-component/config/cli/crate.nix {};
+  });
 
 in rec {
+
+  run = platUtils.${configured.icecapPlat}.bundle {
+    firmware = composition.image;
+  };
 
   composition = configured.compose {
     action.script = icecapSrc.absoluteSplit ./cdl.py;
@@ -36,10 +36,6 @@ in rec {
   serialize-example-component-config = buildRustPackageIncrementally {
     rootCrate = crates.serialize-example-component-config;
     layers =  [ [] ];
-  };
-
-  run = platUtils.${configured.icecapPlat}.bundle {
-    firmware = composition.image;
   };
 
 }

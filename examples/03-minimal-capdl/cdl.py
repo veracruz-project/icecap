@@ -1,4 +1,4 @@
-from icecap_framework import *
+from icecap_framework import BaseComposition, ElfComponent
 
 class ExampleComponent(ElfComponent):
 

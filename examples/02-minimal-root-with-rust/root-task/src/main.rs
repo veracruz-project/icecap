@@ -2,8 +2,6 @@
 #![no_main]
 #![feature(format_args_nl)]
 
-extern crate alloc;
-
 use icecap_std::prelude::*;
 use icecap_std::sel4::{BootInfo, BootInfoExtraStructureId};
 use icecap_fdt::DeviceTree;
@@ -16,7 +14,6 @@ fn main(bootinfo: BootInfo) -> Fallible<()> {
         match extra.id {
             BootInfoExtraStructureId::Fdt => {
                 let dt = DeviceTree::read(extra.content).unwrap();
-                debug_println!("fdt:");
                 debug_println!("{}", dt);
             }
         }
