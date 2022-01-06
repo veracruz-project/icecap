@@ -28,15 +28,18 @@ struct Badges {
 
 fn main(config: Config) -> Fallible<()> {
 
-    let mut rb = RingBuffer::realize_unmanaged(&config.serial_server_ring_buffer);
+    let mut rb = BufferedRingBuffer::new(RingBuffer::realize_unmanaged(&config.serial_server_ring_buffer));
+
+    // let mut buf = vec![];
+
+    // rb.ring_buffer().enable_notify_read();
+    // rb.ring_buffer().enable_notify_write();
 
     loop {
         let badge = config.event_nfn.wait();
         if badge & config.badges.timeout != 0 {
-
         }
         if badge & config.badges.serial_server_ring_buffer != 0 {
-
         } 
     }
 }
