@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 #![feature(alloc_prelude)]
-#![feature(format_args_nl)]
 #![feature(c_variadic)]
 #![feature(new_uninit)]
 #![feature(llvm_asm)]

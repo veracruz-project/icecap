@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![feature(format_args_nl)]
 #![feature(never_type)]
 #![allow(unused_variables)]
 

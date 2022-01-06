@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 #![feature(drain_filter)]
-#![feature(format_args_nl)]
 #![feature(never_type)]
 
 use icecap_std::prelude::*;

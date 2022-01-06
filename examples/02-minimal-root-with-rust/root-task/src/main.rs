@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![feature(format_args_nl)]
 
 use icecap_std::prelude::*;
 use icecap_std::sel4::{BootInfo, BootInfoExtraStructureId};

@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(format_args_nl)]
 #![feature(const_panic)]
 
 // TODO remove or guard with feature

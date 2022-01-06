@@ -76,8 +76,12 @@ macro_rules! print {
 
 #[macro_export]
 macro_rules! println {
-    () => ($crate::_fmt::print!("\n"));
+    () => ($crate::print!("\n"));
     ($($arg:tt)*) => ({
-        $crate::_fmt::_print(format_args_nl!($($arg)*));
+        // NOTE
+        // If feature(format_args_nl) is evel stabilized, replace with:
+        // $crate::_fmt::_print(format_args_nl!($($arg)*));
+        $crate::print!($($arg)*);
+        $crate::print!("\n");
     })
 }
