@@ -8,6 +8,9 @@ use icecap_std::prelude::*;
 
 declare_main!(main);
 
+// TODO multiple threads
+// TODO mutex
+
 fn main(config: example_component_config::Config) -> Fallible<()> {
     debug_println!("{:#?}", config);
     Ok(())

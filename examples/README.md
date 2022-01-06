@@ -99,13 +99,16 @@ nix-build examples/ -A minimal-capdl.run && ./result/run
 nix-build examples/ -A minimal-capdl-with-rust.run && ./result/run
 ```
 
-### A basic componentized system
+### Putting it all together: A basic componentized system
 
 ```
 nix-build examples/ -A basic-system.run && ./result/run
 ```
 
-### Case study: the IceCap Hypervisor
+<!-- TODO show off the icecap-sel4 crate -->
+<!-- TODO minimal dyndl example -->
+
+### Case study: The IceCap Hypervisor
 
 ```
 nix-build examples/ -A hypervisor.run && ./result/run

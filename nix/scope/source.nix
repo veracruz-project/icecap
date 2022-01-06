@@ -28,6 +28,7 @@ rec {
     relativeRaw = suffix: ../../src + "/${suffix}";
 
     splitTrivially = store: { inherit store; env = store; };
+    extend = suffix: lib.mapAttrs (_: v: "${v}${suffix}");
 
 
     gitUrlOf = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";

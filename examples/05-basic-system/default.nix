@@ -7,20 +7,20 @@ let
   inherit (pkgs.none.icecap) elfUtils icecapSrc platUtils;
 
   crates = rec {
-    application = configured.callPackage ./application/crate.nix {
+    application = configured.callPackage ./components/application/crate.nix {
       inherit timer-server-types;
     };
-    serial-server = configured.callPackage ./serial-server/crate.nix {};
-    timer-server = configured.callPackage ./timer-server/crate.nix {
+    serial-server = configured.callPackage ./components/serial-server/crate.nix {};
+    timer-server = configured.callPackage ./components/timer-server/crate.nix {
       inherit timer-server-types;
     };
-    timer-server-types = configured.callPackage ./timer-server/types/crate.nix {};
+    timer-server-types = configured.callPackage ./components/timer-server/types/crate.nix {};
   };
 
 in rec {
 
   composition = configured.compose {
-    action.script = icecapSrc.absoluteSplit ./cdl.py;
+    action.script = icecapSrc.extend "/composition.py" (icecapSrc.absoluteSplit ./cdl);
     config = {
       components = {
         application.image = application.split;
