@@ -11,21 +11,18 @@ self: super: with self;
         selfBuildHost = pkgsBuildHost.icecap;
         selfBuildTarget = pkgsBuildTarget.icecap;
         selfHostHost = pkgsHostHost.icecap;
-        selfTargetTarget = pkgsTargetTarget.icecap or {}; # might be missing
+        selfTargetTarget = pkgsTargetTarget.icecap or {};
       }) {};
     in
       lib.makeScopeWithSplicing
         splicePackages
         newScope
         otherSplices
-        (_: {}) # keep
-        (_: {}) # extra
+        (_: {})
+        (_: {})
         (self: callPackage ../scope {} self // {
-          __dontRecurseWhenSplicing = true;
-          inherit otherSplices;
-          pkgsBuildHostScope = otherSplices.selfBuildHost;
-          pkgsBuildBuildScope = otherSplices.selfBuildBuild;
-          pkgsTargetTargetScope = otherSplices.selfTargetTarget;
+          __dontRecurseWhenSplicing = true; # recursing breaks attribute sets whose keys depend on the offset
+          inherit otherSplices; # for convenience
         })
       ;
 

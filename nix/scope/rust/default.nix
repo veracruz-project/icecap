@@ -62,9 +62,9 @@ in {
   rustTargets = icecapSrc.relative "rust/support/targets";
 
   rustc0 = callPackage ./rustc.nix {
-    rustc = pkgsBuildHostScope.rustcPrebuilt;
-    cargo = pkgsBuildHostScope.cargoPrebuilt;
-    rustfmt = pkgsBuildHostScope.rustfmtPrebuilt;
+    rustc = otherSplices.selfBuildHost.rustcPrebuilt;
+    cargo = otherSplices.selfBuildHost.cargoPrebuilt;
+    rustfmt = otherSplices.selfBuildHost.rustfmtPrebuilt;
     targets = [ devPkgs linuxPkgs muslPkgs nonePkgs ];
   };
 
@@ -72,8 +72,8 @@ in {
   rustc = devPkgs.icecap.rustc0;
 
   cargo0 = callPackage ./in-tree-component.nix {
-    rustc = pkgsBuildHostScope.rustc0;
-    cargo = pkgsBuildHostScope.cargoPrebuilt;
+    rustc = otherSplices.selfBuildHost.rustc0;
+    cargo = otherSplices.selfBuildHost.cargoPrebuilt;
   } {
     package = "cargo";
   };
@@ -92,7 +92,7 @@ in {
 
   fetchCargo = callPackage ./fetch-cargo.nix {};
   fetchCargoBootstrap = callPackage ./fetch-cargo.nix {
-    cargo = pkgsBuildHostScope.cargoPrebuilt;
+    cargo = otherSplices.selfBuildHost.cargoPrebuilt;
   };
   fetchCrates = callPackage ./fetch-crates.nix {};
   cargoLockToNix = callPackage ./cargo-lock-to-nix {};

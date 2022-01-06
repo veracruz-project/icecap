@@ -10,9 +10,9 @@ let
     stdenv = self.stdenvMirage;
   });
 
-  targetCC = self.pkgsTargetTargetScope.stdenvMirage.cc;
+  targetCC = self.otherSplices.selfTargetTarget.stdenvMirage.cc;
 
-  inherit (self) pkgsBuildHostScope pkgsBuildBuildScope;
+  inherit (self) otherSplices;
   inherit (self) ocaml ocamlBuildBuild;
 
   # TODO
@@ -41,15 +41,15 @@ let
         path = writeText "findlib.conf" ''
           ldconf     = "ignore"
           destdir    = "@out@/lib"
-          path       = "${pkgsBuildHostScope.ocamlfind.dummies}/lib:${lib.concatMapStringsSep ":" (x: "${x}/lib") (buildInputs ++ nativeBuildInputs)}"
-          stdlib     = "${pkgsBuildHostScope.ocaml}/lib/ocaml"
-          ocamlc     = "${pkgsBuildHostScope.ocaml}/bin/ocamlc"
-          ocamlopt   = "${pkgsBuildHostScope.ocaml}/bin/ocamlopt"
-          ocamlcp    = "${pkgsBuildHostScope.ocaml}/bin/ocamlcp"
-          ocamlmklib = "${pkgsBuildHostScope.ocaml}/bin/ocamlmklib"
-          ocamlmktop = "${pkgsBuildHostScope.ocaml}/bin/ocamlmktop"
-          ocamldoc   = "${pkgsBuildHostScope.ocaml}/bin/ocamldoc"
-          ocamldep   = "${pkgsBuildHostScope.ocaml}/bin/ocamldep"
+          path       = "${otherSplices.selfBuildHost.ocamlfind.dummies}/lib:${lib.concatMapStringsSep ":" (x: "${x}/lib") (buildInputs ++ nativeBuildInputs)}"
+          stdlib     = "${otherSplices.selfBuildHost.ocaml}/lib/ocaml"
+          ocamlc     = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlc"
+          ocamlopt   = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlopt"
+          ocamlcp    = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlcp"
+          ocamlmklib = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlmklib"
+          ocamlmktop = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlmktop"
+          ocamldoc   = "${otherSplices.selfBuildHost.ocaml}/bin/ocamldoc"
+          ocamldep   = "${otherSplices.selfBuildHost.ocaml}/bin/ocamldep"
         '';
       }
     ]
@@ -58,30 +58,30 @@ let
         path = writeText "findlib.conf" ''
           ldconf     = "ignore"
           destdir    = "@out@/lib"
-          path       = "${pkgsBuildBuildScope.ocamlfind.dummies}/lib:${lib.concatStringsSep ":" (map (x: "${x}/lib") nativeBuildInputs)}"
-          stdlib     = "${pkgsBuildBuildScope.ocaml}/lib/ocaml"
-          ocamlc     = "${pkgsBuildBuildScope.ocaml}/bin/ocamlc"
-          ocamlopt   = "${pkgsBuildBuildScope.ocaml}/bin/ocamlopt"
-          ocamlcp    = "${pkgsBuildBuildScope.ocaml}/bin/ocamlcp"
-          ocamlmklib = "${pkgsBuildBuildScope.ocaml}/bin/ocamlmklib"
-          ocamlmktop = "${pkgsBuildBuildScope.ocaml}/bin/ocamlmktop"
-          ocamldoc   = "${pkgsBuildBuildScope.ocaml}/bin/ocamldoc"
-          ocamldep   = "${pkgsBuildBuildScope.ocaml}/bin/ocamldep"
+          path       = "${otherSplices.selfBuildBuild.ocamlfind.dummies}/lib:${lib.concatStringsSep ":" (map (x: "${x}/lib") nativeBuildInputs)}"
+          stdlib     = "${otherSplices.selfBuildBuild.ocaml}/lib/ocaml"
+          ocamlc     = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamlc"
+          ocamlopt   = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamlopt"
+          ocamlcp    = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamlcp"
+          ocamlmklib = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamlmklib"
+          ocamlmktop = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamlmktop"
+          ocamldoc   = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamldoc"
+          ocamldep   = "${otherSplices.selfBuildBuild.ocaml}/bin/ocamldep"
         '';
       }
       { name = "etc/findlib.conf.d/mycross.conf";
         path = writeText "mycross.conf" ''
           ldconf(mycross)     = "ignore"
           destdir(mycross)    = "@out@/mycross-sysroot/lib/"
-          path(mycross)       = "${pkgsBuildHostScope.ocamlfind.dummies}/lib:${lib.concatStringsSep ":" (map (x: "${x}/mycross-sysroot/lib/") buildInputs)}"
-          stdlib(mycross)     = "${pkgsBuildHostScope.ocaml}/lib/ocaml"
-          ocamlc(mycross)     = "${pkgsBuildHostScope.ocaml}/bin/ocamlc"
-          ocamlopt(mycross)   = "${pkgsBuildHostScope.ocaml}/bin/ocamlopt"
-          ocamlcp(mycross)    = "${pkgsBuildHostScope.ocaml}/bin/ocamlcp"
-          ocamlmklib(mycross) = "${pkgsBuildHostScope.ocaml}/bin/ocamlmklib"
-          ocamlmktop(mycross) = "${pkgsBuildHostScope.ocaml}/bin/ocamlmktop"
-          ocamldoc(mycross)   = "${pkgsBuildHostScope.ocaml}/bin/ocamldoc"
-          ocamldep(mycross)   = "${pkgsBuildHostScope.ocaml}/bin/ocamldep"
+          path(mycross)       = "${otherSplices.selfBuildHost.ocamlfind.dummies}/lib:${lib.concatStringsSep ":" (map (x: "${x}/mycross-sysroot/lib/") buildInputs)}"
+          stdlib(mycross)     = "${otherSplices.selfBuildHost.ocaml}/lib/ocaml"
+          ocamlc(mycross)     = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlc"
+          ocamlopt(mycross)   = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlopt"
+          ocamlcp(mycross)    = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlcp"
+          ocamlmklib(mycross) = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlmklib"
+          ocamlmktop(mycross) = "${otherSplices.selfBuildHost.ocaml}/bin/ocamlmktop"
+          ocamldoc(mycross)   = "${otherSplices.selfBuildHost.ocaml}/bin/ocamldoc"
+          ocamldep(mycross)   = "${otherSplices.selfBuildHost.ocaml}/bin/ocamldep"
         '';
       }
     ]
@@ -95,8 +95,8 @@ in {
     inherit ocamlBuildBuild targetCC;
   };
 
-  ocamlBuildBuild = pkgsBuildBuildScope.ocaml;
-  buildPackagesOCaml = pkgsBuildHostScope.ocamlPackages;
+  ocamlBuildBuild = otherSplices.selfBuildBuild.ocaml;
+  buildPackagesOCaml = otherSplices.selfBuildHost.ocamlPackages;
 
   ocamlfind = callPackage ./tools/ocamlfind {};
   ocamlbuild = callPackage ./tools/ocamlbuild {};
@@ -124,7 +124,7 @@ in {
 
   mirage-icecap = callPackage ./mirage/mirage-icecap.nix {};
 
-  icecap-ocaml-runtime = pkgsBuildHostScope.icecap-ocaml-runtime-build;
+  icecap-ocaml-runtime = otherSplices.selfBuildHost.icecap-ocaml-runtime-build;
   icecap-ocaml-runtime-build = callPackage ./mirage/icecap-ocaml-runtime {
     inherit targetCC;
   };
