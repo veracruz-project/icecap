@@ -9,7 +9,7 @@ use icecap_core::prelude::*;
 pub type Nanoseconds = u64;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct Request {
+pub enum Request {
     SetTimeout(Nanoseconds),
     GetTime,
 }
