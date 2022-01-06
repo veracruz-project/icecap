@@ -3,11 +3,18 @@
 
 extern crate alloc;
 
+use core::convert::TryFrom;
+
 use serde::{Serialize, Deserialize};
 
-use icecap_std::prelude::*;
+use icecap_std::{
+    prelude::*,
+    rpc_sel4::rpc_server,
+};
 use icecap_start_generic::declare_generic_main;
-pub use icecap_drivers::timer::{TimerDevice, QemuTimerDevice};
+use icecap_drivers::timer::{TimerDevice, QemuTimerDevice};
+
+use timer_server_types::{Request, NS_IN_S};
 
 declare_generic_main!(main);
 
@@ -29,23 +36,50 @@ struct Badges {
 fn main(config: Config) -> Fallible<()> {
 
     let dev = QemuTimerDevice::new(config.dev_vaddr);
+    dev.set_enable(false);
+    dev.clear_interrupt();
     config.irq_handler.ack()?;
 
-    let second = dev.get_freq() as u64;
+    let freq = dev.get_freq().into();
+    let ns_to_ticks = |ns| convert(ns, freq, NS_IN_S);
+    let ticks_to_ns = |ticks| convert(ticks, NS_IN_S, freq);
+
+    let mut compare_state: Option<u64> = None;
 
     loop {
-        let count = dev.get_count();
-        debug_println!("count {}", count);
-        dev.set_compare(count + second);
-        dev.set_enable(true);
         let (info, badge) = config.loop_ep.recv();
         if badge & config.badges.irq != 0 {
-            dev.set_enable(false);
+            if let Some(compare) = compare_state {
+                if compare <= dev.get_count() {
+                    compare_state = None;
+                    config.client_timeout.signal();
+                    dev.set_enable(false);
+                }
+            }
             dev.clear_interrupt();
             config.irq_handler.ack()?;
         }
         if badge & config.badges.client != 0 {
-
+            match rpc_server::recv::<Request>(&info) {
+                Request::SetTimeout(ns) => {
+                    let ticks = ns_to_ticks(ns);
+                    let compare = ticks + dev.get_count();
+                    compare_state = Some(compare);
+                    dev.set_compare(compare);
+                    dev.set_enable(true);
+                    rpc_server::reply(&());
+                }
+                Request::GetTime => {
+                    let ticks = dev.get_count();
+                    let response = ticks_to_ns(ticks);
+                    rpc_server::reply(&response);
+                }
+            }
         } 
     }
+}
+
+// NOTE this function is correct on the domain relevant to this example
+fn convert(value: u64, numerator: u64, denominator: u64) -> u64 {
+    u64::try_from((u128::from(value) * u128::from(numerator)) / u128::from(denominator)).unwrap()
 }

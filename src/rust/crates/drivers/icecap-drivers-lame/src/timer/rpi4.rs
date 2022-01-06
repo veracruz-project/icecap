@@ -5,7 +5,6 @@ use crate::timer::*;
 
 const MATCH_COUNT: usize = 4;
 const FREQ: u64 = 1 * MHZ;
-const NS_PER_TICK: u64 = GHZ / FREQ;
 
 register_structs! {
     pub BcmSystemTimerRegisterBlock {

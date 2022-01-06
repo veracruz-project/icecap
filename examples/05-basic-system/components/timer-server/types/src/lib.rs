@@ -6,6 +6,8 @@ use serde::{Serialize, Deserialize};
 
 use icecap_core::prelude::*;
 
+pub const NS_IN_S: Nanoseconds = 1_000_000_000;
+
 pub type Nanoseconds = u64;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

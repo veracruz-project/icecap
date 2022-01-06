@@ -33,24 +33,31 @@ fn main(config: Config) -> Fallible<()> {
     dev.init();
     config.irq_handler.ack()?;
 
-    let mut rb = RingBuffer::realize_unmanaged(&config.client_ring_buffer);
+    let mut rb = BufferedRingBuffer::new(RingBuffer::realize_unmanaged(&config.client_ring_buffer));
+    rb.ring_buffer().enable_notify_read();
+    rb.ring_buffer().enable_notify_write();
 
     loop {
-
-        while let Some(c) = dev.get_char() {
-            dev.put_char(b'<');
-            dev.put_char(c);
-            dev.put_char(b'>');
-        }
-
         let badge = config.event_nfn.wait();
+
         if badge & config.badges.irq != 0 {
-            dev.put_char(b'+');
+            while let Some(c) = dev.get_char() {
+                rb.tx(&[c]);
+            }
             dev.handle_irq();
             config.irq_handler.ack()?;
         }
-        if badge & config.badges.client != 0 {
 
+        if badge & config.badges.client != 0 {
+            rb.rx_callback();
+            rb.tx_callback();
+            if let Some(chars) = rb.rx() {
+                for c in chars {
+                    dev.put_char(c);
+                }
+            }
+            rb.ring_buffer().enable_notify_read();
+            rb.ring_buffer().enable_notify_write();
         } 
     }
 }
