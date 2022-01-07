@@ -1,10 +1,10 @@
-use core::mem::size_of;
-use alloc::prelude::v1::*;
 use alloc::collections::BTreeMap;
+use alloc::prelude::v1::*;
+use core::mem::size_of;
 
-use crate::utils::align_up;
-use crate::{Result, bail, ensure, warn_malformed};
 use crate::types::*;
+use crate::utils::align_up;
+use crate::{bail, ensure, warn_malformed, Result};
 
 struct Cursor<'a> {
     buf: &'a [u8],
@@ -12,12 +12,8 @@ struct Cursor<'a> {
 }
 
 impl<'a> Cursor<'a> {
-
     fn new(buf: &'a [u8]) -> Self {
-        Self {
-            buf,
-            i: 0,
-        }
+        Self { buf, i: 0 }
     }
 
     fn advance(&mut self, n: usize) {
@@ -29,7 +25,7 @@ impl<'a> Cursor<'a> {
     }
 
     fn read(&mut self, n: usize) -> Result<&[u8]> {
-        if let Some(sub) = self.buf.get(self.i .. self.i + n) {
+        if let Some(sub) = self.buf.get(self.i..self.i + n) {
             self.advance(n);
             Ok(sub)
         } else {
@@ -99,8 +95,7 @@ impl<'a> Cursor<'a> {
         loop {
             let tok = self.read_be_u32()?;
             match tok {
-                TOK_NOP => {
-                }
+                TOK_NOP => {}
                 TOK_PROP => {
                     let prop = self.read_prop_header()?;
                     let name = strings.get(prop.name_off)?.into();
@@ -112,9 +107,7 @@ impl<'a> Cursor<'a> {
                     let child = self.read_node(strings)?;
                     children.insert(name, Box::new(child));
                 }
-                TOK_END_NODE => {
-                    break
-                }
+                TOK_END_NODE => break,
                 _ => {
                     bail!("unexpected token: {:x}", tok)
                 }
@@ -143,23 +136,24 @@ struct Strings<'a> {
 }
 
 impl<'a> Strings<'a> {
-
     fn get(&self, offset: u32) -> Result<&str> {
         cstring_at(self.table, offset as usize)
     }
-
 }
 
 fn cstring_at(buf: &[u8], offset: usize) -> Result<&str> {
-    let sub = buf.get(offset..).ok_or(warn_malformed!("offset {} out of bounds", offset))?;
-    let n = sub.iter().position(|&b| b == 0).ok_or(warn_malformed!("no null byte"))?;
+    let sub = buf
+        .get(offset..)
+        .ok_or(warn_malformed!("offset {} out of bounds", offset))?;
+    let n = sub
+        .iter()
+        .position(|&b| b == 0)
+        .ok_or(warn_malformed!("no null byte"))?;
     core::str::from_utf8(&sub[..n]).map_err(|err| warn_malformed!("utf8 error: {:?}", err))
 }
 
 impl DeviceTree {
-
     pub fn read(dtb: &[u8]) -> Result<Self> {
-
         let header = Cursor::new(dtb).read_header()?;
         ensure!(header.magic == MAGIC);
         ensure!(header.version == VERSION);
@@ -168,10 +162,14 @@ impl DeviceTree {
         let mem_rsvmap = Cursor::new(&dtb[header.off_mem_rsvmap as usize..]).read_mem_rsvmap()?;
 
         let strings = Strings {
-            table: &dtb[header.off_dt_strings as usize .. (header.off_dt_strings + header.size_dt_strings) as usize],
+            table: &dtb[header.off_dt_strings as usize
+                ..(header.off_dt_strings + header.size_dt_strings) as usize],
         };
 
-        let mut cursor = Cursor::new(&dtb[header.off_dt_struct as usize .. (header.off_dt_struct + header.size_dt_struct) as usize]);
+        let mut cursor = Cursor::new(
+            &dtb[header.off_dt_struct as usize
+                ..(header.off_dt_struct + header.size_dt_struct) as usize],
+        );
 
         let tok = cursor.read_be_u32()?;
         ensure!(tok == TOK_BEGIN_NODE);

@@ -1,19 +1,16 @@
-use core::iter;
 use alloc::prelude::v1::*;
+use core::iter;
 
-use crate::utils::align_up;
 use crate::types::*;
+use crate::utils::align_up;
 
 struct Strings {
     buf: Vec<u8>,
 }
 
 impl Strings {
-
     fn new() -> Self {
-        Self {
-            buf: Vec::new(),
-        }
+        Self { buf: Vec::new() }
     }
 
     // TODO deduplicate strings
@@ -30,11 +27,8 @@ struct Writer {
 }
 
 impl Writer {
-
     fn new() -> Self {
-        Self {
-            buf: Vec::new(),
-        }
+        Self { buf: Vec::new() }
     }
 
     fn pad(&mut self, n: usize) {
@@ -99,9 +93,7 @@ impl Writer {
 }
 
 impl DeviceTree {
-
     pub fn write(&self) -> Vec<u8> {
-
         let mut mem_rsvmap = Writer::new();
         mem_rsvmap.write_mem_rsvmap(&self.mem_rsvmap);
         let mem_rsvmap = mem_rsvmap.buf;

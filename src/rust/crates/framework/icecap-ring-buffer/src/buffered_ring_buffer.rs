@@ -1,8 +1,8 @@
-use core::cmp::min;
 use alloc::collections::VecDeque;
 use alloc::vec::Vec;
+use core::cmp::min;
 
-use crate::ring_buffer::{RingBuffer, PacketRingBuffer};
+use crate::ring_buffer::{PacketRingBuffer, RingBuffer};
 
 pub struct BufferedRingBuffer {
     rb: RingBuffer,
@@ -10,7 +10,6 @@ pub struct BufferedRingBuffer {
 }
 
 impl BufferedRingBuffer {
-
     pub fn new(rb: RingBuffer) -> Self {
         Self {
             rb,
@@ -35,14 +34,13 @@ impl BufferedRingBuffer {
                     self.rb.write(buf.as_slice());
                     self.q.pop_front();
                     notify = true;
-                },
+                }
             }
         }
         notify
     }
 
-    pub fn rx_callback(&self) {
-    }
+    pub fn rx_callback(&self) {}
 
     pub fn tx_callback(&mut self) -> bool {
         let notify = self.flush_tx();
@@ -71,7 +69,7 @@ impl BufferedRingBuffer {
             let mut buf = vec![0; n];
             self.rb.read(buf.as_mut_slice());
             self.rb.notify_read();
-            return Some(buf)
+            return Some(buf);
         }
         None
     }
@@ -92,7 +90,6 @@ impl BufferedRingBuffer {
         }
         notify
     }
-
 }
 
 pub struct BufferedPacketRingBuffer {
@@ -101,7 +98,6 @@ pub struct BufferedPacketRingBuffer {
 }
 
 impl BufferedPacketRingBuffer {
-
     pub fn new(rb: PacketRingBuffer) -> Self {
         Self {
             rb,
@@ -117,18 +113,17 @@ impl BufferedPacketRingBuffer {
                 Some(buf) => {
                     // TODO split and send partial
                     if !self.rb.write(buf) {
-                        break
+                        break;
                     }
                     self.q.pop_front();
                     notify = true;
-                },
+                }
             }
         }
         notify
     }
 
-    pub fn rx_callback(&self) {
-    }
+    pub fn rx_callback(&self) {}
 
     pub fn tx_callback(&mut self) -> bool {
         let notify = self.flush_tx();
@@ -163,9 +158,7 @@ impl BufferedPacketRingBuffer {
         notify
     }
 
-
     pub fn packet_ring_buffer(&self) -> &PacketRingBuffer {
         &self.rb
     }
-
 }

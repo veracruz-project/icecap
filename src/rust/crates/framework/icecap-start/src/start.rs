@@ -1,17 +1,19 @@
 use icecap_failure::Fallible;
-use icecap_sel4::{sys, BootInfo, debug_println};
+use icecap_sel4::{debug_println, sys, BootInfo};
 
 use crate::config;
 
-pub fn run_main<T: config::Config>(f: impl Fn(T) -> Fallible<()>, config: *const u8, config_size: usize) {
-    let s: &'static [u8] = unsafe {
-        core::slice::from_raw_parts(config, config_size)
-    };
+pub fn run_main<T: config::Config>(
+    f: impl Fn(T) -> Fallible<()>,
+    config: *const u8,
+    config_size: usize,
+) {
+    let s: &'static [u8] = unsafe { core::slice::from_raw_parts(config, config_size) };
     let config = match config::deserialize(s) {
         Ok(config) => config,
         Err(err) => {
             debug_println!("failed to deserialize config: {}", err);
-            return
+            return;
         }
     };
     if let Err(err) = f(config) {
@@ -26,14 +28,12 @@ macro_rules! declare_main {
         pub extern "C" fn icecap_main(config: *const u8, config_size: usize) {
             $crate::start::run_main($main, config, config_size);
         }
-    }
+    };
 }
 
 pub fn run_root_main(f: impl Fn(BootInfo) -> Fallible<()>, config: *const u8, config_size: usize) {
     assert_eq!(config_size, 0); // HACK
-    let bootinfo = unsafe {
-        BootInfo::from_ptr(config as *const sys::seL4_BootInfo)
-    };
+    let bootinfo = unsafe { BootInfo::from_ptr(config as *const sys::seL4_BootInfo) };
     if let Err(err) = f(bootinfo) {
         debug_println!("err: {}", err)
     }
@@ -46,13 +46,11 @@ macro_rules! declare_root_main {
         pub extern "C" fn icecap_main(config: *const u8, config_size: usize) {
             $crate::start::run_root_main($main, config, config_size);
         }
-    }
+    };
 }
 
 pub fn run_raw_main(f: impl Fn(&[u8]) -> Fallible<()>, config: *const u8, config_size: usize) {
-    let s: &'static [u8] = unsafe {
-        core::slice::from_raw_parts(config, config_size)
-    };
+    let s: &'static [u8] = unsafe { core::slice::from_raw_parts(config, config_size) };
     if let Err(err) = f(s) {
         debug_println!("err: {}", err)
     }
@@ -65,5 +63,5 @@ macro_rules! declare_raw_main {
         pub extern "C" fn icecap_main(config: *const u8, config_size: usize) {
             $crate::start::run_raw_main($main, config, config_size);
         }
-    }
+    };
 }

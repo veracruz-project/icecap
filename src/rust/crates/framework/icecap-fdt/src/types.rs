@@ -1,5 +1,5 @@
-use alloc::prelude::v1::*;
 use alloc::collections::BTreeMap;
+use alloc::prelude::v1::*;
 
 pub(crate) const MAGIC: u32 = 0xd00dfeed;
 pub(crate) const HEADER_SIZE: usize = 10 * 4;

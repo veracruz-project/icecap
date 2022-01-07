@@ -4,9 +4,10 @@
 extern crate alloc;
 
 use alloc::prelude::v1::*;
-use icecap_runtime::image_path;
-use icecap_backtrace_types::RawBacktrace;
+
 use icecap_backtrace_collect::{collect_raw_backtrace, SKIP};
+use icecap_backtrace_types::RawBacktrace;
+use icecap_runtime::image_path;
 
 #[derive(Debug, Clone)]
 pub struct Backtrace {

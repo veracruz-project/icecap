@@ -1,8 +1,9 @@
 use alloc::vec::Vec;
-use serde::{Serialize, Deserialize};
 
-pub use postcard::Error as Error;
-pub use postcard::Result as Result;
+use serde::{Deserialize, Serialize};
+
+pub use postcard::Error;
+pub use postcard::Result;
 
 pub trait Config: Serialize + for<'a> Deserialize<'a> {}
 

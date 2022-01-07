@@ -27,7 +27,6 @@ struct Formatter<'a, 'b> {
 }
 
 impl<'a, 'b> Formatter<'a, 'b> {
-
     fn device_tree(&mut self, dt: &DeviceTree) -> fmt::Result {
         for ReserveEntry { address, size } in &dt.mem_rsvmap {
             writeln!(self.f, "/memreserve/ 0x{:x} 0x{:x}", address, size)?;
@@ -85,7 +84,7 @@ impl<'a, 'b> Formatter<'a, 'b> {
     }
 
     fn indent(&mut self, level: usize) -> fmt::Result {
-        for _ in 0 .. level * INDENT_WIDTH {
+        for _ in 0..level * INDENT_WIDTH {
             write!(self.f, " ")?
         }
         Ok(())

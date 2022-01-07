@@ -1,6 +1,6 @@
 #![no_std]
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub use icecap_config_sys::*;
 

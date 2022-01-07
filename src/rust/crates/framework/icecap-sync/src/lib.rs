@@ -3,11 +3,9 @@
 mod mutex;
 
 pub use mutex::{
-    GenericMutex, GenericMutexGuard, MutexNotification,
-    Mutex, MutexGuard, ExplicitMutexNotification,
+    ExplicitMutexNotification, GenericMutex, GenericMutexGuard, Mutex, MutexGuard,
+    MutexNotification,
 };
 
 // for macro
-pub use icecap_sel4::{
-    Notification, LocalCPtr,
-};
+pub use icecap_sel4::{LocalCPtr, Notification};

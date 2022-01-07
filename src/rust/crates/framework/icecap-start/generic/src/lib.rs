@@ -21,15 +21,17 @@ pub use icecap_start::config;
 //     }, config, config_size)
 // }
 
-pub fn run_generic_main<T: config::Config>(f: impl Fn(T) -> Fallible<()>, config: *const u8, config_size: usize) {
-    let s: &'static [u8] = unsafe {
-        core::slice::from_raw_parts(config, config_size)
-    };
+pub fn run_generic_main<T: config::Config>(
+    f: impl Fn(T) -> Fallible<()>,
+    config: *const u8,
+    config_size: usize,
+) {
+    let s: &'static [u8] = unsafe { core::slice::from_raw_parts(config, config_size) };
     let config = match serde_json::from_slice(s) {
         Ok(config) => config,
         Err(err) => {
             debug_println!("failed to deserialize generic config: {}", err);
-            return
+            return;
         }
     };
     if let Err(err) = f(config) {
@@ -44,5 +46,5 @@ macro_rules! declare_generic_main {
         pub extern "C" fn icecap_main(config: *const u8, config_size: usize) {
             $crate::run_generic_main($main, config, config_size);
         }
-    }
+    };
 }

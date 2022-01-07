@@ -1,11 +1,16 @@
-use core::arch::aarch64::{__dsb, __dmb, SY};
-use core::cmp::max;
-use core::ops::Deref;
-use core::intrinsics::volatile_copy_nonoverlapping_memory;
-use core::sync::atomic::{fence, Ordering};
-use alloc::vec::Vec;
 use alloc::boxed::Box;
-use tock_registers::{registers::ReadWrite, interfaces::{Readable, Writeable, ReadWriteable}, register_bitfields, register_structs};
+use alloc::vec::Vec;
+use core::arch::aarch64::{__dmb, __dsb, SY};
+use core::cmp::max;
+use core::intrinsics::volatile_copy_nonoverlapping_memory;
+use core::ops::Deref;
+use core::sync::atomic::{fence, Ordering};
+
+use tock_registers::{
+    interfaces::{ReadWriteable, Readable, Writeable},
+    register_bitfields, register_structs,
+    registers::ReadWrite,
+};
 
 pub type Kick = Box<dyn Fn()>;
 
@@ -50,9 +55,7 @@ pub struct Ctrl {
 
 impl Ctrl {
     pub fn new(base_addr: usize) -> Self {
-        Self {
-            base_addr,
-        }
+        Self { base_addr }
     }
     fn ptr(&self) -> *const CtrlBlock {
         self.base_addr as *const _
@@ -115,7 +118,6 @@ pub struct RingBuffer {
 }
 
 impl RingBuffer {
-
     pub fn new(read: RingBufferSide<*const u8>, write: RingBufferSide<*mut u8>) -> Self {
         Self {
             read,
@@ -257,7 +259,6 @@ impl RingBuffer {
     pub fn disable_notify_write(&self) {
         self.write.ctrl.status.modify(Status::NOTIFY_WRITE.val(0));
     }
-
 }
 
 pub struct PacketRingBuffer {
@@ -265,11 +266,8 @@ pub struct PacketRingBuffer {
 }
 
 impl PacketRingBuffer {
-
     pub fn new(rb: RingBuffer) -> Self {
-        Self {
-            rb,
-        }
+        Self { rb }
     }
 
     const HEADER_SIZE: usize = core::mem::size_of::<u32>();
@@ -284,13 +282,13 @@ impl PacketRingBuffer {
 
     pub fn poll(&self) -> Option<usize> {
         if self.rb.poll_read() < Self::HEADER_SIZE {
-            return None
+            return None;
         }
         let mut header = [0; Self::HEADER_SIZE];
         self.rb.peek(&mut header);
         let n = u32::from_le_bytes(header) as usize;
         if n > self.rb.poll_read() - Self::HEADER_SIZE {
-            return None
+            return None;
         }
         Some(n)
     }
@@ -348,5 +346,4 @@ impl PacketRingBuffer {
     pub fn disable_notify_write(&self) {
         self.rb.disable_notify_write();
     }
-
 }

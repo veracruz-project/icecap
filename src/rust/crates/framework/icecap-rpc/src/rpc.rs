@@ -1,11 +1,12 @@
-use core::mem::size_of;
-use core::convert::TryInto;
 use alloc::vec::Vec;
-use serde::{Serialize, Deserialize};
-use crate::{ParameterValue, ReadCall, WriteCall, call::SliceReader};
+use core::convert::TryInto;
+use core::mem::size_of;
+
+use serde::{Deserialize, Serialize};
+
+use crate::{call::SliceReader, ParameterValue, ReadCall, WriteCall};
 
 pub trait RPC: Sized {
-
     fn send(&self, call: &mut impl WriteCall);
 
     fn recv(call: &mut impl ReadCall) -> Self;
@@ -17,17 +18,15 @@ pub trait RPC: Sized {
     }
 
     fn recv_from_slice(parameters: &[ParameterValue]) -> Self {
-        Self::recv(&mut SliceReader {
-            unread: parameters,
-        })
+        Self::recv(&mut SliceReader { unread: parameters })
     }
 }
 
 impl<T: Serialize + for<'a> Deserialize<'a>> RPC for T {
-
     fn send(&self, call: &mut impl WriteCall) {
         let mut bytes = postcard::to_allocvec(self).unwrap();
-        let num_parameters = (bytes.len() + size_of::<ParameterValue>() - 1) / size_of::<ParameterValue>();
+        let num_parameters =
+            (bytes.len() + size_of::<ParameterValue>() - 1) / size_of::<ParameterValue>();
         bytes.resize_with(num_parameters * size_of::<ParameterValue>(), || 0);
         let chunks = bytes.chunks_exact(size_of::<ParameterValue>());
         assert_eq!(chunks.remainder().len(), 0);

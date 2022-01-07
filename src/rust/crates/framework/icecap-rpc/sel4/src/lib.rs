@@ -2,8 +2,9 @@
 
 extern crate alloc;
 
-use core::marker::PhantomData;
 use alloc::vec::Vec;
+use core::marker::PhantomData;
+
 use icecap_sel4::prelude::*;
 
 pub use icecap_rpc::*;
@@ -14,12 +15,8 @@ struct ReadCallImpl {
 }
 
 impl ReadCallImpl {
-
     fn new(length: usize) -> Self {
-        Self {
-            length,
-            cursor: 0,
-        }
+        Self { length, cursor: 0 }
     }
 
     fn complete<T: RPC>(info: &MessageInfo) -> T {
@@ -29,7 +26,6 @@ impl ReadCallImpl {
 }
 
 impl ReadCall for ReadCallImpl {
-
     fn read_value(&mut self) -> ParameterValue {
         assert_ne!(self.cursor, self.length);
         let value = MessageRegister::new(self.cursor as i32).get();
@@ -47,11 +43,8 @@ struct WriteCallImpl {
 }
 
 impl WriteCallImpl {
-
     fn new() -> Self {
-        Self {
-            cursor: 0,
-        }
+        Self { cursor: 0 }
     }
 
     fn complete(message: &impl RPC) -> MessageInfo {
@@ -63,7 +56,6 @@ impl WriteCallImpl {
 }
 
 impl WriteCall for WriteCallImpl {
-
     fn write_value(&mut self, value: ParameterValue) {
         MessageRegister::new(self.cursor as i32).set(value);
         self.cursor += 1;
@@ -77,7 +69,6 @@ pub struct RPCClient<Input> {
 }
 
 impl<Input: RPC> RPCClient<Input> {
-
     pub fn new(endpoint: Endpoint) -> Self {
         Self {
             endpoint,

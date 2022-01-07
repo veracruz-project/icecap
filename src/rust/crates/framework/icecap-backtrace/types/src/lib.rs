@@ -2,9 +2,10 @@
 
 extern crate alloc;
 
-use alloc::vec::Vec;
 use alloc::string::String;
-use serde::{Serialize, Deserialize};
+use alloc::vec::Vec;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawBacktrace {
@@ -21,7 +22,6 @@ pub struct RawStackFrame {
 }
 
 impl RawBacktrace {
-
     pub fn serialize(&self) -> String {
         hex::encode(postcard::to_allocvec(self).unwrap())
     }
@@ -29,5 +29,4 @@ impl RawBacktrace {
     pub fn deserialize(s: &str) -> Self {
         postcard::from_bytes(&hex::decode(s).unwrap()).unwrap()
     }
-
 }

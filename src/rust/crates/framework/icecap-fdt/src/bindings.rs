@@ -1,6 +1,6 @@
 use alloc::prelude::v1::*;
-use core::mem::size_of;
 use core::convert::{TryFrom, TryInto};
+use core::mem::size_of;
 use core::ops::{Deref, DerefMut};
 
 use crate::types::{Node, Value};
@@ -11,29 +11,51 @@ pub const DEFAULT_ADDRESS_CELLS: u32 = 2;
 pub const DEFAULT_SIZE_CELLS: u32 = 1;
 
 impl Node {
-
-    pub fn get_property<'a, K: Into<&'a str>, V: TryFrom<&'a Value>>(&'a self, name: K) -> Option<V> {
-        self.properties.get(name.into()).and_then(|v: &Value| v.try_into().ok())
+    pub fn get_property<'a, K: Into<&'a str>, V: TryFrom<&'a Value>>(
+        &'a self,
+        name: K,
+    ) -> Option<V> {
+        self.properties
+            .get(name.into())
+            .and_then(|v: &Value| v.try_into().ok())
     }
 
     pub fn remove_property<'a, K: Into<&'a str>>(&mut self, name: K) -> Option<Value> {
         self.properties.remove(name.into())
     }
 
-    pub fn set_property<K: Into<String>, V: Into<Value>>(&mut self, name: K, value: V) -> Option<Value> {
+    pub fn set_property<K: Into<String>, V: Into<Value>>(
+        &mut self,
+        name: K,
+        value: V,
+    ) -> Option<Value> {
         self.properties.insert(name.into(), value.into())
     }
 
     // TODO unify with set_property
-    pub fn set_property_iter<K: Into<String>, V: Into<Value>, T: IntoIterator<Item = V>>(&mut self, name: K, value: T) -> Option<Value> {
+    pub fn set_property_iter<K: Into<String>, V: Into<Value>, T: IntoIterator<Item = V>>(
+        &mut self,
+        name: K,
+        value: T,
+    ) -> Option<Value> {
         self.set_property(name, Value::from_iter(value))
     }
 
-    pub fn set_property_cell<K: Into<String>>(&mut self, name: K, spec: SizeSpec, value: Cells) -> Option<Value> {
+    pub fn set_property_cell<K: Into<String>>(
+        &mut self,
+        name: K,
+        spec: SizeSpec,
+        value: Cells,
+    ) -> Option<Value> {
         self.set_property(name, spec.cell(value))
     }
 
-    pub fn set_property_cells<K: Into<String>, T: IntoIterator<Item = Cells>>(&mut self, name: K, spec: SizeSpec, value: T) -> Option<Value> {
+    pub fn set_property_cells<K: Into<String>, T: IntoIterator<Item = Cells>>(
+        &mut self,
+        name: K,
+        spec: SizeSpec,
+        value: T,
+    ) -> Option<Value> {
         self.set_property_iter(name, value.into_iter().map(|v| spec.cell(v)))
     }
 
@@ -63,7 +85,10 @@ impl Node {
     }
 
     // TODO unify with set_compatible
-    pub fn set_compatible_iter<V: Into<Value>, T: IntoIterator<Item = V>>(&mut self, value: T) -> Option<Value> {
+    pub fn set_compatible_iter<V: Into<Value>, T: IntoIterator<Item = V>>(
+        &mut self,
+        value: T,
+    ) -> Option<Value> {
         self.set_property_iter("compatible", value)
     }
 
@@ -81,11 +106,13 @@ impl Node {
     }
 
     pub fn get_address_cells(&self) -> u32 {
-        self.get_property("#address-cells").unwrap_or(DEFAULT_ADDRESS_CELLS)
+        self.get_property("#address-cells")
+            .unwrap_or(DEFAULT_ADDRESS_CELLS)
     }
 
     pub fn get_size_cells(&self) -> u32 {
-        self.get_property("#size-cells").unwrap_or(DEFAULT_SIZE_CELLS)
+        self.get_property("#size-cells")
+            .unwrap_or(DEFAULT_SIZE_CELLS)
     }
 
     pub fn get_size_spec(&self) -> SizeSpec {
@@ -111,7 +138,6 @@ pub struct SizeSpec {
 }
 
 impl SizeSpec {
-
     fn render(num_cells: u32, v: usize) -> Value {
         match num_cells {
             // TODO handle more cases (e.g. 0 is reasonable)
@@ -139,7 +165,6 @@ impl SizeSpec {
             Cells::Raw64(v) => v.into(),
         }
     }
-
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -151,7 +176,6 @@ pub enum Cells {
 }
 
 impl Value {
-
     pub fn from_iter<V: Into<Value>, T: IntoIterator<Item = V>>(vs: T) -> Self {
         let mut raw = vec![];
         for v in vs {

@@ -1,7 +1,8 @@
-use icecap_sel4::Notification;
-use core::sync::atomic::{AtomicIsize, Ordering, fence};
 use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
+use core::sync::atomic::{fence, AtomicIsize, Ordering};
+
+use icecap_sel4::Notification;
 
 pub trait MutexNotification {
     fn get(&self) -> Notification;
@@ -13,17 +14,15 @@ struct RawGenericMutex<N> {
 }
 
 impl<N> RawGenericMutex<N> {
-
     pub const fn new(notification: N) -> Self {
         Self {
             notification,
-            value: AtomicIsize::new(1)
+            value: AtomicIsize::new(1),
         }
     }
 }
 
 impl<N: MutexNotification> RawGenericMutex<N> {
-
     fn lock(&self) {
         let old_value = self.value.fetch_sub(1, Ordering::Acquire);
         if old_value <= 0 {
@@ -53,7 +52,6 @@ pub struct GenericMutexGuard<'a, N: MutexNotification, T: ?Sized + 'a> {
 }
 
 impl<N, T> GenericMutex<N, T> {
-
     pub const fn new(notification: N, val: T) -> Self {
         Self {
             raw: RawGenericMutex::new(notification),
@@ -67,18 +65,13 @@ impl<N, T> GenericMutex<N, T> {
 }
 
 impl<N: MutexNotification, T> GenericMutex<N, T> {
-
     unsafe fn guard(&self) -> GenericMutexGuard<'_, N, T> {
-        GenericMutexGuard {
-            mutex: self,
-        }
+        GenericMutexGuard { mutex: self }
     }
 
     pub fn lock(&self) -> GenericMutexGuard<'_, N, T> {
         self.raw.lock();
-        unsafe {
-            self.guard()
-        }
+        unsafe { self.guard() }
     }
 }
 
@@ -92,17 +85,13 @@ impl<'a, N: MutexNotification, T: ?Sized + 'a> Deref for GenericMutexGuard<'a, N
     type Target = T;
 
     fn deref(&self) -> &T {
-        unsafe {
-            &*self.mutex.data.get()
-        }
+        unsafe { &*self.mutex.data.get() }
     }
 }
 
 impl<'a, N: MutexNotification, T: ?Sized + 'a> DerefMut for GenericMutexGuard<'a, N, T> {
     fn deref_mut(&mut self) -> &mut T {
-        unsafe {
-            &mut *self.mutex.data.get()
-        }
+        unsafe { &mut *self.mutex.data.get() }
     }
 }
 
@@ -139,12 +128,10 @@ macro_rules! unsafe_static_mutex {
                 extern "C" {
                     static $extern: u64;
                 }
-                let raw = unsafe {
-                    $extern
-                };
+                let raw = unsafe { $extern };
                 assert_ne!(raw, 0); // HACK
                 $crate::LocalCPtr::from_raw(raw)
             }
         }
-    }
+    };
 }

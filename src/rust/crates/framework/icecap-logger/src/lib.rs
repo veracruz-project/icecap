@@ -4,9 +4,11 @@
 #[macro_use]
 extern crate alloc;
 
-use core::default::Default;
 use alloc::prelude::v1::*;
+use core::default::Default;
+
 use log::{Log, Metadata, Record};
+
 pub use log::{self, Level, SetLoggerError};
 
 pub struct Logger {
@@ -22,7 +24,6 @@ pub enum DisplayMode {
 }
 
 impl Default for Logger {
-
     fn default() -> Self {
         Self {
             level: Level::Info,
@@ -34,14 +35,12 @@ impl Default for Logger {
 }
 
 impl Default for DisplayMode {
-
     fn default() -> Self {
         DisplayMode::Module
     }
 }
 
 impl Log for Logger {
-
     fn enabled(&self, metadata: &Metadata) -> bool {
         metadata.level() <= self.level
     }
@@ -63,10 +62,18 @@ impl Log for Logger {
                     format!("{:<5} [{}] {}", level_string, target, record.args())
                 }
                 DisplayMode::Line => {
-                    format!("{:<5} [{}:{}] {}",
+                    format!(
+                        "{:<5} [{}:{}] {}",
                         level_string,
-                        record.file().map(|x| x.to_string()).or(record.file_static().map(|x| x.to_string())).unwrap_or("?".to_string()),
-                        record.line().map(|x| format!("{}", x)).unwrap_or("?".to_string()),
+                        record
+                            .file()
+                            .map(|x| x.to_string())
+                            .or(record.file_static().map(|x| x.to_string()))
+                            .unwrap_or("?".to_string()),
+                        record
+                            .line()
+                            .map(|x| format!("{}", x))
+                            .unwrap_or("?".to_string()),
                         record.args(),
                     )
                 }
@@ -81,7 +88,6 @@ impl Log for Logger {
 }
 
 impl Logger {
-
     pub fn init(self) -> Result<(), SetLoggerError> {
         log::set_max_level(self.level.to_level_filter());
         log::set_logger(Box::leak(Box::new(self)))?;

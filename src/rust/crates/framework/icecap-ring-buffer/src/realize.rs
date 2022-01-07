@@ -1,6 +1,8 @@
 use alloc::boxed::Box;
+
 use icecap_config::*;
-use crate::{RingBuffer, RingBufferSide, RingBufferPointer, Kick};
+
+use crate::{Kick, RingBuffer, RingBufferPointer, RingBufferSide};
 
 fn mk_kick(nfn: Notification) -> Kick {
     Box::new(move || nfn.signal())
@@ -14,7 +16,6 @@ fn mk_kicks(kicks: &RingBufferKicksConfig<Notification>) -> RingBufferKicksConfi
 }
 
 impl RingBuffer {
-
     pub fn realize(config: &RingBufferConfig, kicks: RingBufferKicksConfig<Kick>) -> Self {
         Self::new(
             RingBufferSide::realize(&config.read, kicks.read),
@@ -39,13 +40,7 @@ impl RingBuffer {
 }
 
 impl<T: RingBufferPointer> RingBufferSide<T> {
-
     pub fn realize(config: &RingBufferSideConfig, kick: Kick) -> Self {
-        Self::new(
-            config.size,
-            config.ctrl,
-            T::from_address(config.data),
-            kick,
-        )
+        Self::new(config.size, config.ctrl, T::from_address(config.data), kick)
     }
 }
