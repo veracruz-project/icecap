@@ -1,4 +1,5 @@
 use core::convert::TryInto;
+
 use alloc::vec;
 use alloc::vec::Vec;
 
@@ -29,7 +30,11 @@ impl BootInfo {
         let extra_end = extra_start.offset(bootinfo.extraLen.try_into().unwrap());
         while extra_start < extra_end {
             let header = &*(extra_start as *const sys::seL4_BootInfoHeader);
-            let cur_start = extra_start.offset(core::mem::size_of::<sys::seL4_BootInfoHeader>().try_into().unwrap());
+            let cur_start = extra_start.offset(
+                core::mem::size_of::<sys::seL4_BootInfoHeader>()
+                    .try_into()
+                    .unwrap(),
+            );
             let cur_end = extra_start.offset(header.len.try_into().unwrap());
             let id = match header.id.try_into().unwrap() {
                 sys::SEL4_BOOTINFO_HEADER_PADDING => None,
@@ -48,9 +53,6 @@ impl BootInfo {
             extra_start = cur_end;
         }
         assert_eq!(extra_start, extra_end);
-        Self {
-            bootinfo,
-            extra,
-        }
+        Self { bootinfo, extra }
     }
 }

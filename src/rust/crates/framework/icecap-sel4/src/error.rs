@@ -1,9 +1,6 @@
-use core::{
-    fmt, result, mem,
-};
-use crate::{
-    sys,
-};
+use core::{fmt, mem, result};
+
+use crate::sys;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -35,7 +32,6 @@ impl Into<sys::seL4_Error> for Error {
 }
 
 impl Error {
-
     pub(crate) unsafe fn unchecked(err: sys::seL4_Error) -> Self {
         mem::transmute(err) // no reason to pattern match when err is returned from sys
     }

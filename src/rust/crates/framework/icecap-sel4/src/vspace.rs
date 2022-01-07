@@ -1,8 +1,4 @@
-use crate::{
-    Result,
-    ObjectBlueprint, LocalCPtr, ObjectFixedSize, PGD,
-    CapRights, VMAttributes,
-};
+use crate::{CapRights, LocalCPtr, ObjectBlueprint, ObjectFixedSize, Result, VMAttributes, PGD};
 
 pub trait Frame: LocalCPtr + ObjectFixedSize {
     fn frame_size() -> FrameSize;
@@ -19,7 +15,6 @@ pub enum FrameSize {
 }
 
 impl FrameSize {
-
     pub const fn blueprint(self) -> ObjectBlueprint {
         match self {
             FrameSize::Small => ObjectBlueprint::SmallPage,
@@ -40,7 +35,6 @@ impl FrameSize {
         1 << self.bits()
     }
 }
-
 
 // TODO
 pub trait VSpaceBranch: LocalCPtr {

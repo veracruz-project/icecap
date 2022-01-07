@@ -1,11 +1,4 @@
-use crate::{
-    sys,
-    Word,
-    MessageInfo,
-    MessageRegister,
-    UserContext,
-    reply,
-};
+use crate::{reply, sys, MessageInfo, MessageRegister, UserContext, Word};
 
 // TODO
 // - use proper types in fault structs (e.g. signed for seL4_VGICMaintenance_IDX)
@@ -19,13 +12,11 @@ pub trait IsFault {
 }
 
 #[derive(Debug)]
-pub struct NullFault {
-}
+pub struct NullFault {}
 
 impl IsFault for NullFault {
     fn get() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
@@ -48,8 +39,12 @@ impl IsFault for CapFault {
             in_recv_phase: get(sys::seL4_CapFault_Msg_seL4_CapFault_InRecvPhase),
             lookup_failure_type: get(sys::seL4_CapFault_Msg_seL4_CapFault_LookupFailureType),
             bits_left: get(sys::seL4_CapFault_Msg_seL4_CapFault_BitsLeft),
-            guard_mismatch_guard_found: get(sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_GuardFound),
-            guard_mismatch_bits_found: get(sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_BitsFound),
+            guard_mismatch_guard_found: get(
+                sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_GuardFound,
+            ),
+            guard_mismatch_bits_found: get(
+                sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_BitsFound,
+            ),
         }
     }
 }
@@ -243,7 +238,6 @@ const HSR_SYNDROME_VALID: Word = 1 << 24;
 const SRT_MASK: Word = 0x1f;
 
 impl VMFault {
-
     pub fn is_valid(&self) -> bool {
         self.fsr & HSR_SYNDROME_VALID != 0
     }
@@ -296,7 +290,6 @@ impl VMFault {
         let gpr = ctx.gpr_mut(self.gpr_index());
         *gpr = val.set(*gpr);
     }
-
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -308,7 +301,6 @@ pub enum VMFaultWidth {
 }
 
 impl VMFaultWidth {
-
     pub fn mask(self) -> u64 {
         match self {
             Self::Byte => 0xff,
@@ -368,7 +360,6 @@ impl From<VMFaultData> for VMFaultWidth {
 ///
 
 impl UnknownSyscall {
-
     pub fn reply(num_regs: usize) {
         reply(MessageInfo::new(0, 0, 0, num_regs as u64))
     }
@@ -411,7 +402,6 @@ impl UnknownSyscall {
 }
 
 impl VCPUFault {
-
     pub fn is_wf(&self) -> bool {
         // AArch64 ESR_EL{1,2}
         self.hsr >> 26 == 1

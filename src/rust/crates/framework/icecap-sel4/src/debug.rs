@@ -1,34 +1,24 @@
-use crate::{
-    sys, LocalCPtr, TCB, CPtr,
-};
+use crate::{sys, CPtr, LocalCPtr, TCB};
 
 pub fn debug_put_char(c: u8) {
-    unsafe {
-        sys::seL4_DebugPutChar(c)
-    }
+    unsafe { sys::seL4_DebugPutChar(c) }
 }
 
 pub fn debug_snapshot() {
-    unsafe {
-        sys::seL4_DebugSnapshot()
-    }
+    unsafe { sys::seL4_DebugSnapshot() }
 }
 
 impl TCB {
     pub fn debug_name(self, name: &str) {
         let mut name = name.as_bytes().to_vec();
         name.push(0);
-        unsafe {
-            sys::seL4_DebugNameThread(self.raw(), name.as_ptr())
-        }
+        unsafe { sys::seL4_DebugNameThread(self.raw(), name.as_ptr()) }
     }
 }
 
 impl CPtr {
     pub fn debug_identify(self) -> u32 {
-        unsafe {
-            sys::seL4_DebugCapIdentify(self.raw())
-        }
+        unsafe { sys::seL4_DebugCapIdentify(self.raw()) }
     }
 }
 

@@ -1,9 +1,9 @@
 use core::fmt;
+
 #[cfg(feature = "serde1")]
-use serde::{Serialize, Deserialize};
-use crate::{
-    sys, Result,
-};
+use serde::{Deserialize, Serialize};
+
+use crate::{sys, Result};
 
 pub type RawCPtr = sys::seL4_CPtr; // u64
 
@@ -41,9 +41,7 @@ impl CPtrWithDepth {
     pub const WORD_SIZE: usize = 64;
 
     pub const fn new(cptr: CPtr, depth: usize) -> Self {
-        Self {
-            cptr, depth,
-        }
+        Self { cptr, depth }
     }
 
     pub const fn deep(cptr: CPtr) -> Self {
@@ -110,7 +108,6 @@ pub enum ObjectBlueprint {
 }
 
 impl ObjectBlueprint {
-
     pub const fn ty(self) -> ObjectType {
         match self {
             Self::Untyped { .. } => ObjectType::Untyped,
@@ -157,7 +154,6 @@ impl ObjectBlueprint {
 }
 
 pub trait LocalCPtr: Sized + Copy {
-
     fn cptr(self) -> CPtr;
 
     fn from_cptr(cptr: CPtr) -> Self;
@@ -268,7 +264,6 @@ impl<T: LocalCPtr> HasDepth for T {
 }
 
 impl CNode {
-
     pub fn relative<T: HasDepth>(self, t: T) -> RelativeCPtr {
         RelativeCPtr {
             root: self,

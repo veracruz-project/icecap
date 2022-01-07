@@ -1,10 +1,6 @@
-use core::{
-    ops::{Not, BitOr, BitOrAssign, BitAnd, BitAndAssign},
-};
+use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not};
 
-use crate::{
-    sys,
-};
+use crate::sys;
 
 pub type Word = sys::seL4_Word;
 pub type Slot = sys::seL4_Word;
@@ -14,7 +10,6 @@ pub type Badge = sys::seL4_Word;
 pub struct CapRights(sys::seL4_CapRights_t);
 
 impl CapRights {
-
     pub fn raw(self) -> sys::seL4_CapRights_t {
         self.0
     }
@@ -25,12 +20,7 @@ impl CapRights {
 
     pub fn new(grant_reply: bool, grant: bool, read: bool, write: bool) -> Self {
         Self::from_raw(unsafe {
-            sys::seL4_CapRights_new(
-                grant_reply as u64,
-                grant as u64,
-                read as u64,
-                write as u64,
-            )
+            sys::seL4_CapRights_new(grant_reply as u64, grant as u64, read as u64, write as u64)
         })
     }
 
@@ -72,14 +62,12 @@ impl CapRights {
     pub fn no_rights() -> Self {
         Self::new(false, false, false, false)
     }
-
 }
 
 #[derive(Debug, Copy, Clone)]
 pub struct MessageInfo(sys::seL4_MessageInfo_t);
 
 impl MessageInfo {
-
     pub fn raw(self) -> sys::seL4_MessageInfo_t {
         self.0
     }
@@ -100,24 +88,18 @@ impl MessageInfo {
     }
 
     pub fn label(self) -> Word {
-        unsafe {
-            sys::seL4_MessageInfo_get_label(self.raw())
-        }
+        unsafe { sys::seL4_MessageInfo_get_label(self.raw()) }
     }
 
     pub fn length(self) -> Word {
-        unsafe {
-            sys::seL4_MessageInfo_get_length(self.raw())
-        }
+        unsafe { sys::seL4_MessageInfo_get_length(self.raw()) }
     }
-
 }
 
 #[derive(Debug, Copy, Clone)]
 pub struct CNodeCapData(sys::seL4_CNode_CapData_t);
 
 impl CNodeCapData {
-
     pub fn raw(self) -> Word {
         self.0.words[0]
     }
@@ -127,15 +109,12 @@ impl CNodeCapData {
     }
 
     pub fn new(guard: u64, guard_size: u64) -> Self {
-        Self::from_raw(unsafe {
-            sys::seL4_CNode_CapData_new(guard, guard_size)
-        })
+        Self::from_raw(unsafe { sys::seL4_CNode_CapData_new(guard, guard_size) })
     }
 
     pub fn skip(guard_size: u64) -> Self {
         Self::new(0, guard_size)
     }
-
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -228,7 +207,6 @@ pub enum VCPUReg {
 pub struct UserContext(sys::seL4_UserContext);
 
 impl UserContext {
-
     #[allow(dead_code)]
     pub(crate) fn raw(&self) -> &sys::seL4_UserContext {
         &self.0

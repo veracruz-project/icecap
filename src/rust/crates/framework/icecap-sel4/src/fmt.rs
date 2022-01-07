@@ -15,7 +15,7 @@ impl fmt::Write for Debug {
 
 pub fn _debug_print(args: fmt::Arguments) {
     fmt::write(&mut Debug, args).unwrap_or_else(|err| {
-         panic!("write error: {:?}", err) // TODO panicking could result in loop
+        panic!("write error: {:?}", err) // TODO panicking could result in loop
     })
 }
 

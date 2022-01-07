@@ -1,32 +1,23 @@
-use crate::{
-    sys, MessageInfo, Word,
-};
+use crate::{sys, MessageInfo, Word};
 
 pub fn reply(info: MessageInfo) {
-    unsafe {
-        sys::seL4_Reply(info.raw())
-    }
+    unsafe { sys::seL4_Reply(info.raw()) }
 }
 
 #[derive(Copy, Clone, Debug)]
 pub struct MessageRegister(i32);
 
 impl MessageRegister {
-
     pub const fn new(i: i32) -> Self {
         Self(i)
     }
 
     pub fn set(self, v: Word) {
-        unsafe {
-            sys::seL4_SetMR(self.0, v)
-        }
+        unsafe { sys::seL4_SetMR(self.0, v) }
     }
 
     pub fn get(self) -> Word {
-        unsafe {
-            sys::seL4_GetMR(self.0)
-        }
+        unsafe { sys::seL4_GetMR(self.0) }
     }
 }
 

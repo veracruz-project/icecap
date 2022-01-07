@@ -32,59 +32,40 @@ pub mod _fmt;
 //   - use references to TypedCPtr's for liveness and use of 'Deref' for managed CPtr's
 
 pub use types::{
-    Word, Slot, Badge,
-    CapRights, MessageInfo, CNodeCapData, VMAttributes,
-    UserContext, VCPUReg,
+    Badge, CNodeCapData, CapRights, MessageInfo, Slot, UserContext, VCPUReg, VMAttributes, Word,
 };
 
-pub use error::{
-    Error, Result,
-};
+pub use error::{Error, Result};
 
 pub use cspace::{
-    CPtr, CPtrWithDepth,
-    ObjectType, ObjectBlueprint,
-    LocalCPtr, ObjectFixedSize, ObjectVariableSize,
-    RelativeCPtr,
-
-    Untyped,
-    Endpoint, Notification,
-    TCB, VCPU,
-    CNode,
-    SmallPage, LargePage, HugePage,
-    PGD, PUD, PD, PT,
-    IRQHandler,
-    ASIDPool,
-    Unspecified, Null,
+    ASIDPool, CNode, CPtr, CPtrWithDepth, Endpoint, HugePage, IRQHandler, LargePage, LocalCPtr,
+    Notification, Null, ObjectBlueprint, ObjectFixedSize, ObjectType, ObjectVariableSize,
+    RelativeCPtr, SmallPage, Unspecified, Untyped, PD, PGD, PT, PUD, TCB, VCPU,
 };
 
-pub use vspace::{
-    Frame, FrameSize, VSpaceBranch,
-};
+pub use vspace::{Frame, FrameSize, VSpaceBranch};
 
-pub use invoke::{
-    yield_,
-};
+pub use invoke::yield_;
 
-pub use endpoint::{
-    reply, MessageRegister,
-    MR_0, MR_1, MR_2, MR_3,
-    MR_4, MR_5, MR_6, MR_7,
-};
+pub use endpoint::{reply, MessageRegister, MR_0, MR_1, MR_2, MR_3, MR_4, MR_5, MR_6, MR_7};
 
 pub use fault::{
-    Fault, IsFault,
+    CapFault,
+    Fault,
+    IsFault,
     // fault types:
-    NullFault, CapFault, UnknownSyscall, UserException,
-    VMFault, VGICMaintenance, VCPUFault, VPPIEvent,
+    NullFault,
+    UnknownSyscall,
+    UserException,
+    VCPUFault,
+    VGICMaintenance,
+    VMFault,
+    VMFaultData,
     // helpers:
-    VMFaultWidth, VMFaultData,
+    VMFaultWidth,
+    VPPIEvent,
 };
 
-pub use bootinfo::{
-    BootInfo, BootInfoExtraStructure, BootInfoExtraStructureId,
-};
+pub use bootinfo::{BootInfo, BootInfoExtraStructure, BootInfoExtraStructureId};
 
-pub use debug::{
-    debug_put_char, debug_snapshot,
-};
+pub use debug::{debug_put_char, debug_snapshot};
