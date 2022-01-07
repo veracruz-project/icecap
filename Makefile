@@ -11,6 +11,10 @@ update-generated-sources:
 check-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.check --no-out-link) && $$script
 
+.PHONY: fmt
+fmt:
+	nix-shell src/rust/shell.nix --pure --run 'make -C src/rust fmt'
+
 .PHONY: html-docs
 html-docs: check-generated-sources | $(out)
 	nix-build -A meta.generatedDocs.html -o $(out)/html-docs
