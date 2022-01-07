@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use core::fmt::{self, Write};
+use core::fmt::Write;
 
 use serde::{Serialize, Deserialize};
 
@@ -13,6 +13,8 @@ use icecap_std::rpc_sel4::RPCClient;
 use icecap_start_generic::declare_generic_main;
 
 use timer_server_types::{Request, Nanoseconds, NS_IN_S};
+
+mod fmt;
 
 declare_generic_main!(main);
 
@@ -33,12 +35,6 @@ struct Badges {
 struct State {
     serial_client: BufferedRingBuffer,
     timer_client: RPCClient<Request>,
-}
-
-const TICK: Nanoseconds = NS_IN_S;
-
-macro_rules! out {
-    ($dst:expr, $($arg:tt)*) => ($crate::Writer($dst).write_fmt(format_args!($($arg)*)).unwrap());
 }
 
 fn main(config: Config) -> Fallible<()> {
@@ -63,6 +59,8 @@ fn main(config: Config) -> Fallible<()> {
 
 impl State {
 
+    const TICK: Nanoseconds = NS_IN_S;
+
     fn init(&mut self) {
         self.enable_serial_server_ring_buffer_events();
         self.tick();
@@ -76,7 +74,7 @@ impl State {
     fn tick(&mut self) {
         let time = self.timer_client.call::<Nanoseconds>(&Request::GetTime);
         out!(&mut self.serial_client, "time: {} ns\n", time);
-        self.timer_client.call::<()>(&Request::SetTimeout(TICK));
+        self.timer_client.call::<()>(&Request::SetTimeout(Self::TICK));
     }
 
     fn handle_timeout_event(&mut self) {
@@ -92,14 +90,5 @@ impl State {
             }
         }
         self.enable_serial_server_ring_buffer_events()
-    }
-}
-
-struct Writer<'a>(pub &'a mut BufferedRingBuffer);
-
-impl fmt::Write for Writer<'_> {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.0.tx(s.as_bytes());
-        Ok(())
     }
 }
