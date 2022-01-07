@@ -53,7 +53,7 @@ impl GICDistRegWord {
             0xF20..=0xF2C => GICDistRegWord::GICD_SPENDSGIRn(calc_reg_num(offset, 0xF20)),
             0xFD0..=0xFEC => GICDistRegWord::ICPIDRn(calc_reg_num(offset, 0xFD0)),
             0xFF0..=0xFFC => GICDistRegWord::ICCIDRn(calc_reg_num(offset, 0xFF0)),
-            _ => panic!("Undefined register offset {:x}", offset)
+            _ => panic!("Undefined register offset {:x}", offset),
         }
     }
 }
@@ -73,21 +73,21 @@ impl GICDistRegByte {
         match offset {
             0x400..=0x7F8 => GICDistRegByte::GICD_IPRIORITYRn(
                 calc_reg_num(offset, 0x400),
-                calc_reg_byte_offset(offset, 0x400)
-                ),
+                calc_reg_byte_offset(offset, 0x400),
+            ),
             0x800..=0xBF8 => GICDistRegByte::GICD_ITARGETSRn(
                 calc_reg_num(offset, 0x800),
-                calc_reg_byte_offset(offset, 0x800)
-                ),
+                calc_reg_byte_offset(offset, 0x800),
+            ),
             0xF10..=0xF1C => GICDistRegByte::GICD_CPENDSGIRn(
                 calc_reg_num(offset, 0xF10),
-                calc_reg_byte_offset(offset, 0xF10)
-                ),
+                calc_reg_byte_offset(offset, 0xF10),
+            ),
             0xF20..=0xF2C => GICDistRegByte::GICD_SPENDSGIRn(
                 calc_reg_num(offset, 0xF20),
-                calc_reg_byte_offset(offset, 0xF20)
-                ),
-            _ => panic!("Undefined register offset {:x}", offset)
+                calc_reg_byte_offset(offset, 0xF20),
+            ),
+            _ => panic!("Undefined register offset {:x}", offset),
         }
     }
 }

@@ -9,6 +9,4 @@ mod gic;
 mod distributor;
 mod error;
 
-pub use gic::{
-    GIC, GICCallbacks, NodeIndex, IRQ, PPI, SPI, QualifiedIRQ,
-};
+pub use gic::{GICCallbacks, NodeIndex, QualifiedIRQ, GIC, IRQ, PPI, SPI};

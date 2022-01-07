@@ -1,25 +1,23 @@
+use alloc::collections::BTreeMap;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
-use alloc::collections::BTreeMap;
 
 use icecap_core::{
     prelude::*,
-    sel4::fault::*,
-    runtime::Thread,
-    sync::{Mutex, ExplicitMutexNotification},
     rpc_sel4::RPCClient,
+    runtime::Thread,
+    sel4::fault::*,
+    sync::{ExplicitMutexNotification, Mutex},
 };
-use icecap_vmm_gic::*;
 use icecap_event_server_types as event_server;
+use icecap_vmm_gic::*;
 
 use crate::psci;
-
 
 const SYS_PSCI: Word = 0;
 const SYS_PUTCHAR: Word = 1337;
 
 const BADGE_FAULT: Badge = 0;
-
 
 pub struct VMMConfig<E> {
     pub cnode: CNode,
@@ -54,7 +52,6 @@ pub struct IRQMap {
     pub spi: BTreeMap<usize, (event_server::InIndex, usize, bool)>, // (in_index, nid, must_ack)
 }
 
-
 pub struct VMMNode<E> {
     pub node_index: NodeIndex,
 
@@ -84,23 +81,30 @@ pub struct VMMGICCallbacks {
     irq_map: IRQMap,
 }
 
-
 impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
-
     pub fn run(mut self) -> Fallible<()> {
-
         let event_server_client_ep = self.event_server_client_ep;
 
-        let nodes = Arc::new(Mutex::new(ExplicitMutexNotification::new(self.nodes_lock), Vec::new()));
+        let nodes = Arc::new(Mutex::new(
+            ExplicitMutexNotification::new(self.nodes_lock),
+            Vec::new(),
+        ));
 
-        let gic = GIC::new(self.nodes.len(), VMMGICCallbacks {
-            irq_map: self.irq_map,
-            vcpus: self.nodes.iter().map(|node| node.vcpu).collect(),
-            event_server_client: event_server_client_ep.iter().map(|ep| {
-                RPCClient::<event_server::calls::Client>::new(*ep)
-            }).collect(),
-        });
-        let gic = Arc::new(Mutex::new(ExplicitMutexNotification::new(self.gic_lock), gic));
+        let gic = GIC::new(
+            self.nodes.len(),
+            VMMGICCallbacks {
+                irq_map: self.irq_map,
+                vcpus: self.nodes.iter().map(|node| node.vcpu).collect(),
+                event_server_client: event_server_client_ep
+                    .iter()
+                    .map(|ep| RPCClient::<event_server::calls::Client>::new(*ep))
+                    .collect(),
+            },
+        );
+        let gic = Arc::new(Mutex::new(
+            ExplicitMutexNotification::new(self.gic_lock),
+            gic,
+        ));
 
         for (i, node_config) in self.nodes.drain(..).enumerate() {
             let node = VMMNode {
@@ -113,7 +117,9 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 cnode: self.cnode,
                 fault_reply_slot: node_config.fault_reply_slot,
 
-                event_server_client: RPCClient::<event_server::calls::Client>::new(event_server_client_ep[i]),
+                event_server_client: RPCClient::<event_server::calls::Client>::new(
+                    event_server_client_ep[i],
+                ),
                 event_server_bitfield: unsafe {
                     event_server::Bitfield::new(node_config.event_server_bitfield)
                 },
@@ -142,7 +148,6 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
 }
 
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
-
     fn run(&mut self) -> Fallible<()> {
         self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?;
         self.tcb.resume()?;
@@ -160,7 +165,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             self.handle_syscall(&fault)?;
                         }
                         Fault::VGICMaintenance(fault) => {
-                            self.gic.lock().handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
+                            self.gic
+                                .lock()
+                                .handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
                             reply(MessageInfo::empty());
                         }
                         Fault::VCPUFault(fault) => {
@@ -185,31 +192,38 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 }
                 event_bit_groups => {
                     let mut gic = self.gic.lock();
-                    self.event_server_bitfield.clear(event_bit_groups, |bit| -> Fallible<()> {
-                        let in_index = bit as usize;
-                        // debug_println!("in_index = {}", in_index);
-                        let irq = {
-                            let mut irq = None;
-                            for (ppi, (ppi_in_index, _must_ack)) in &gic.callbacks().irq_map.ppi {
-                                if *ppi_in_index == in_index {
-                                    irq = Some(QualifiedIRQ::QualifiedPPI { node: self.node_index, irq: *ppi });
-                                    break;
-                                }
-                            }
-                            if let None = irq {
-                                for (spi, (spi_in_index, nid, _must_ack)) in &gic.callbacks().irq_map.spi {
-                                    assert_eq!(*nid, self.node_index);
-                                    if *spi_in_index == in_index {
-                                        irq = Some(QualifiedIRQ::SPI { irq: *spi });
+                    self.event_server_bitfield
+                        .clear(event_bit_groups, |bit| -> Fallible<()> {
+                            let in_index = bit as usize;
+                            // debug_println!("in_index = {}", in_index);
+                            let irq = {
+                                let mut irq = None;
+                                for (ppi, (ppi_in_index, _must_ack)) in &gic.callbacks().irq_map.ppi
+                                {
+                                    if *ppi_in_index == in_index {
+                                        irq = Some(QualifiedIRQ::QualifiedPPI {
+                                            node: self.node_index,
+                                            irq: *ppi,
+                                        });
                                         break;
                                     }
                                 }
-                            }
-                            irq.unwrap()
-                        };
-                        gic.handle_irq(self.node_index, irq)?;
-                        Ok(())
-                    })?;
+                                if let None = irq {
+                                    for (spi, (spi_in_index, nid, _must_ack)) in
+                                        &gic.callbacks().irq_map.spi
+                                    {
+                                        assert_eq!(*nid, self.node_index);
+                                        if *spi_in_index == in_index {
+                                            irq = Some(QualifiedIRQ::SPI { irq: *spi });
+                                            break;
+                                        }
+                                    }
+                                }
+                                irq.unwrap()
+                            };
+                            gic.handle_irq(self.node_index, irq)?;
+                            Ok(())
+                        })?;
                 }
             }
         }
@@ -217,7 +231,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_page_fault(&mut self, fault: VMFault) -> Fallible<()> {
         let addr = fault.addr as usize;
-        if self.gic_dist_paddr <= addr && addr < self.gic_dist_paddr + GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE {
+        if self.gic_dist_paddr <= addr
+            && addr < self.gic_dist_paddr + GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE
+        {
             let offset = addr - self.gic_dist_paddr;
             self.handle_dist_fault(fault, offset)?;
         } else {
@@ -232,11 +248,16 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         if fault.is_write() {
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             let data = fault.data(&ctx);
-            self.gic.lock().handle_write(self.node_index, offset, data)?;
+            self.gic
+                .lock()
+                .handle_write(self.node_index, offset, data)?;
             ctx.advance();
             self.tcb.write_all_registers(false, &mut ctx).unwrap();
         } else if fault.is_read() {
-            let data = self.gic.lock().handle_read(self.node_index, offset, fault.width())?;
+            let data = self
+                .gic
+                .lock()
+                .handle_read(self.node_index, offset, fault.width())?;
             let mut ctx = self.tcb.read_all_registers(false).unwrap();
             fault.emulate_read(&mut ctx, data);
             ctx.advance();
@@ -249,15 +270,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_syscall(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
         Ok(match fault.syscall {
-            SYS_PUTCHAR => {
-                self.sys_putchar(fault)?
-            }
-            SYS_PSCI => {
-                self.sys_psci(fault)?
-            }
-            _ => {
-                E::handle_syscall(self, fault)?
-            }
+            SYS_PUTCHAR => self.sys_putchar(fault)?,
+            SYS_PSCI => self.sys_psci(fault)?,
+            _ => E::handle_syscall(self, fault)?,
         })
     }
 
@@ -270,18 +285,14 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     fn sys_psci(&self, fault: &UnknownSyscall) -> Fallible<()> {
         let fid = fault.x0 as u32;
         let ret = match fid {
-            psci::FID_PSCI_VERSION => {
-                psci::VERSION
-            }
+            psci::FID_PSCI_VERSION => psci::VERSION,
             psci::FID_PSCI_FEATURES => {
                 let qfid = fault.x1 as u32;
                 match qfid {
                     psci::FID_CPU_ON => {
                         0 // no feature flags
                     }
-                    _ => {
-                        psci::RET_NOT_SUPPORTED
-                    }
+                    _ => psci::RET_NOT_SUPPORTED,
                 }
             }
             psci::FID_CPU_ON => {
@@ -303,9 +314,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 });
                 psci::RET_SUCCESS
             }
-            psci::FID_MIGRATE_INFO_TYPE => {
-                psci::RET_NOT_SUPPORTED
-            }
+            psci::FID_MIGRATE_INFO_TYPE => psci::RET_NOT_SUPPORTED,
             _ => {
                 panic!("unexpected psci fid {:x}", fid);
             }
@@ -314,22 +323,21 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         fault.advance_and_reply();
         Ok(())
     }
-
 }
 
-
 impl GICCallbacks for VMMGICCallbacks {
-
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
                 // assert_eq!(calling_node, node); // TODO
                 if let Some((in_index, must_ack)) = self.irq_map.ppi.get(&irq) {
                     if *must_ack {
-                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
-                            nid: calling_node,
-                            index: *in_index,
-                        });
+                        self.event_server_client[calling_node].call::<()>(
+                            &event_server::calls::Client::End {
+                                nid: calling_node,
+                                index: *in_index,
+                            },
+                        );
                     }
                 } else {
                     self.vcpus[node].ack_vppi(irq as u64)?;
@@ -338,10 +346,12 @@ impl GICCallbacks for VMMGICCallbacks {
             QualifiedIRQ::SPI { irq } => {
                 if let Some((in_index, nid, must_ack)) = self.irq_map.spi.get(&irq) {
                     if *must_ack {
-                        self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::End {
-                            nid: *nid,
-                            index: *in_index,
-                        });
+                        self.event_server_client[calling_node].call::<()>(
+                            &event_server::calls::Client::End {
+                                nid: *nid,
+                                index: *in_index,
+                            },
+                        );
                     }
                 } else {
                     // panic!("unbound irq: {}", irq); // TODO
@@ -351,54 +361,112 @@ impl GICCallbacks for VMMGICCallbacks {
         Ok(())
     }
 
-    fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()> {
+    fn vcpu_inject_irq(
+        &mut self,
+        calling_node: NodeIndex,
+        target_node: NodeIndex,
+        index: usize,
+        irq: IRQ,
+        priority: usize,
+    ) -> Fallible<()> {
         if calling_node != target_node && irq > 15 {
-            debug_println!("warning: cross-core vcpu_inject_irq({}), node:{} -> node:{}", irq, calling_node, target_node);
+            debug_println!(
+                "warning: cross-core vcpu_inject_irq({}), node:{} -> node:{}",
+                irq,
+                calling_node,
+                target_node
+            );
         }
         self.vcpus[target_node].inject_irq(irq as u16, priority as u8, 0, index as u8)?;
         Ok(())
     }
 
-    fn set_affinity(&mut self, calling_node: NodeIndex, irq: SPI, affinity: NodeIndex) -> Fallible<()> {
-        debug_println!("VMMGICCallbacks::set_affinity({}, {}, {})", calling_node, irq, affinity);
+    fn set_affinity(
+        &mut self,
+        calling_node: NodeIndex,
+        irq: SPI,
+        affinity: NodeIndex,
+    ) -> Fallible<()> {
+        debug_println!(
+            "VMMGICCallbacks::set_affinity({}, {}, {})",
+            calling_node,
+            irq,
+            affinity
+        );
         // TODO
         Ok(())
     }
 
-    fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()> {
-        debug_println!("VMMGICCallbacks::set_priority({}, {:?}, {})", calling_node, irq, priority);
-        self.configure(calling_node, irq, event_server::ConfigureAction::SetPriority(priority))
+    fn set_priority(
+        &mut self,
+        calling_node: NodeIndex,
+        irq: QualifiedIRQ,
+        priority: usize,
+    ) -> Fallible<()> {
+        debug_println!(
+            "VMMGICCallbacks::set_priority({}, {:?}, {})",
+            calling_node,
+            irq,
+            priority
+        );
+        self.configure(
+            calling_node,
+            irq,
+            event_server::ConfigureAction::SetPriority(priority),
+        )
     }
 
-    fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()> {
-        self.configure(calling_node, irq, event_server::ConfigureAction::SetEnabled(enabled))
+    fn set_enabled(
+        &mut self,
+        calling_node: NodeIndex,
+        irq: QualifiedIRQ,
+        enabled: bool,
+    ) -> Fallible<()> {
+        self.configure(
+            calling_node,
+            irq,
+            event_server::ConfigureAction::SetEnabled(enabled),
+        )
     }
 }
 
 impl VMMGICCallbacks {
-
-    fn configure(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, action: event_server::ConfigureAction) -> Fallible<()> {
-        debug_println!("VMMGICCallbacks::configure({}, {:?}, {:?})", calling_node, irq, action);
+    fn configure(
+        &mut self,
+        calling_node: NodeIndex,
+        irq: QualifiedIRQ,
+        action: event_server::ConfigureAction,
+    ) -> Fallible<()> {
+        debug_println!(
+            "VMMGICCallbacks::configure({}, {:?}, {:?})",
+            calling_node,
+            irq,
+            action
+        );
         match irq {
             QualifiedIRQ::QualifiedPPI { node, irq } => {
                 // assert_eq!(calling_node, node); // TODO
                 if let Some((in_index, _must_ack)) = self.irq_map.ppi.get(&irq) {
-                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
-                        nid: calling_node,
-                        index: *in_index,
-                        action,
-                    });
+                    self.event_server_client[calling_node].call::<()>(
+                        &event_server::calls::Client::Configure {
+                            nid: calling_node,
+                            index: *in_index,
+                            action,
+                        },
+                    );
                 } else {
                     self.vcpus[node].ack_vppi(irq as u64)?;
                 }
             }
             QualifiedIRQ::SPI { irq } => {
                 if let Some((in_index, nid, _must_ack)) = self.irq_map.spi.get(&irq) {
-                    self.event_server_client[calling_node].call::<()>(&event_server::calls::Client::Configure {
-                        nid: *nid,
-                        index: *in_index,
-                        action,
-                    });
+                    self.event_server_client[calling_node].call::<()>(
+                        &event_server::calls::Client::Configure {
+                            nid: *nid,
+                            index: *in_index,
+                            action,
+                        },
+                    );
                 } else {
                     panic!("unbound irq: {}", irq); // TODO
                 }

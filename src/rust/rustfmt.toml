@@ -8,5 +8,4 @@ ignore = [
 
     # TODO
     "crates/hypervisor/components",
-    "crates/hypervisor/icecap-vmm",
 ]

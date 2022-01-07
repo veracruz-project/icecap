@@ -3,8 +3,8 @@
 #![allow(unreachable_patterns)]
 
 use alloc::vec::Vec; // GOAL: Only used during initial distributor allocation.
-use core::fmt;
 use core::convert::TryFrom;
+use core::fmt;
 
 use biterate::biterate;
 
@@ -16,13 +16,9 @@ use crate::error::*;
 mod registers;
 mod register;
 
-use registers::{
-    GICDistRegWord, GICDistRegByte,
-};
+use registers::{GICDistRegByte, GICDistRegWord};
 
-use register::{
-    Register32,
-};
+use register::Register32;
 
 pub const GIC_DIST_SIZE: usize = 0x1000;
 
@@ -133,7 +129,6 @@ impl fmt::Display for Distributor {
 }
 
 impl Distributor {
-
     pub fn new(num_nodes: usize) -> Self {
         let mut gic_dist = Self {
             num_nodes,
@@ -237,7 +232,12 @@ impl Distributor {
         to_ack
     }
 
-    pub fn handle_write(&mut self, offset: usize, node_index: usize, val: VMFaultData) -> Result<WriteAction, IRQError> {
+    pub fn handle_write(
+        &mut self,
+        offset: usize,
+        node_index: usize,
+        val: VMFaultData,
+    ) -> Result<WriteAction, IRQError> {
         match val {
             VMFaultData::Word(val) => {
                 let reg = GICDistRegWord::from_offset(offset);
@@ -249,7 +249,6 @@ impl Distributor {
                         if val == 1 {
                             let prev = self.control.fetch_or(val);
                             if prev == 0 {
-
                                 // Identify newly enabled IRQs and either inject or acknowledge them.
                                 let base_irq = 0;
                                 let num_irqs = 1020;
@@ -259,7 +258,10 @@ impl Distributor {
                                 if to_inject.len() == 0 && to_ack.len() == 0 {
                                     return Ok(WriteAction::NoAction);
                                 } else {
-                                    return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
+                                    return Ok(WriteAction::InjectAndAckIRQs((
+                                        Some(to_inject),
+                                        Some(to_ack),
+                                    )));
                                 }
                             }
                         } else if val == 0 {
@@ -269,18 +271,19 @@ impl Distributor {
                             }
                         } else {
                             // Invalid encoding.
-                            return Err( IRQError{ irq_error_type:
-                                IRQErrorType::InvalidRegisterWrite, });
+                            return Err(IRQError {
+                                irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                            });
                         }
 
                         // If the state hasn't changed, take no action.
                         return Ok(WriteAction::NoAction);
                     }
-                    GICDistRegWord::GICD_IIDR |
-                        GICDistRegWord::GICD_TYPER => {
-                            // These are read-only.
-                            return Err( IRQError{ irq_error_type:
-                                IRQErrorType::InvalidRegisterWrite, });
+                    GICDistRegWord::GICD_IIDR | GICDistRegWord::GICD_TYPER => {
+                        // These are read-only.
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                        });
                     }
                     GICDistRegWord::GICD_IGROUPRn(reg_num) => {
                         // Set group registers.
@@ -321,7 +324,10 @@ impl Distributor {
                         if to_inject.len() == 0 && to_ack.len() == 0 {
                             return Ok(WriteAction::NoAction);
                         } else {
-                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
+                            return Ok(WriteAction::InjectAndAckIRQs((
+                                Some(to_inject),
+                                Some(to_ack),
+                            )));
                         }
                     }
                     GICDistRegWord::GICD_ICENABLERn(reg_num) => {
@@ -397,12 +403,13 @@ impl Distributor {
                         if reg_num == 0 {
                             // IRQs 0->15 are SGIs and are RO.
                             if val & 0xFFFF != 0 {
-                                return Err( IRQError{ irq_error_type:
-                                    IRQErrorType::InvalidRegisterWrite, });
+                                return Err(IRQError {
+                                    irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                                });
                             }
                             pending_reg = &mut self.pending0[node_index];
                         } else {
-                            pending_reg  = &mut self.pending[reg_num - 1];
+                            pending_reg = &mut self.pending[reg_num - 1];
                         }
                         pending_reg.fetch_and(!val);
 
@@ -446,7 +453,7 @@ impl Distributor {
                         if reg_num == 0 {
                             active_reg = &mut self.active0[node_index];
                         } else {
-                            active_reg  = &mut self.active[reg_num - 1];
+                            active_reg = &mut self.active[reg_num - 1];
                         }
                         active_reg.fetch_and(!val);
 
@@ -480,8 +487,9 @@ impl Distributor {
                         let targets_reg;
                         if reg_num < 8 {
                             // These are read-only.
-                            return Err( IRQError{ irq_error_type:
-                                IRQErrorType::InvalidRegisterWrite, });
+                            return Err(IRQError {
+                                irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                            });
                         } else {
                             targets_reg = &mut self.targets[reg_num - 8];
                         }
@@ -501,7 +509,10 @@ impl Distributor {
                         if to_inject.len() == 0 && to_ack.len() == 0 {
                             return Ok(WriteAction::NoAction);
                         } else {
-                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
+                            return Ok(WriteAction::InjectAndAckIRQs((
+                                Some(to_inject),
+                                Some(to_ack),
+                            )));
                         }
                     }
                     GICDistRegWord::GICD_ICFGRn(reg_num) => {
@@ -531,7 +542,9 @@ impl Distributor {
                     GICDistRegWord::GICD_NSACRn(reg_num) => {
                         // Set non-secure access control registers.
                         // - Not implemented.  The VM is not in Secure mode.
-                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterWrite, });
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                        });
                     }
                     GICDistRegWord::GICD_SGIR => {
                         // Inject SGIs into one or more CPU interfaces.
@@ -596,7 +609,7 @@ impl Distributor {
                         }
 
                         let sgi_pending_reg;
-                        sgi_pending_reg  = &mut self.sgi_pending[node_index][reg_num];
+                        sgi_pending_reg = &mut self.sgi_pending[node_index][reg_num];
                         let prev = sgi_pending_reg.fetch_and(!val);
 
                         // Identify any IRQs for this node that are no longer
@@ -624,7 +637,7 @@ impl Distributor {
                         }
 
                         let sgi_pending_reg;
-                        sgi_pending_reg  = &mut self.sgi_pending[node_index][reg_num];
+                        sgi_pending_reg = &mut self.sgi_pending[node_index][reg_num];
                         let prev = sgi_pending_reg.fetch_or(val);
 
                         let num_irqs = 4;
@@ -651,15 +664,17 @@ impl Distributor {
                             return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), None)));
                         }
                     }
-                    GICDistRegWord::ICPIDRn(reg_num) |
-                        GICDistRegWord::ICCIDRn(reg_num) => {
-                            // These are read-only.
-                            return Err( IRQError{ irq_error_type:
-                                IRQErrorType::InvalidRegisterWrite, });
-                        }
+                    GICDistRegWord::ICPIDRn(reg_num) | GICDistRegWord::ICCIDRn(reg_num) => {
+                        // These are read-only.
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                        });
+                    }
                     _ => {
                         // Invalid register.
-                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterWrite, });
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                        });
                     }
                 }
             }
@@ -679,8 +694,9 @@ impl Distributor {
                         let targets_reg;
                         if reg_num < 8 {
                             // These are read-only.
-                            return Err( IRQError{ irq_error_type:
-                                IRQErrorType::InvalidRegisterWrite, });
+                            return Err(IRQError {
+                                irq_error_type: IRQErrorType::InvalidRegisterWrite,
+                            });
                         } else {
                             targets_reg = &mut self.targets[reg_num - 8];
                         }
@@ -700,7 +716,10 @@ impl Distributor {
                         if to_inject.len() == 0 && to_ack.len() == 0 {
                             return Ok(WriteAction::NoAction);
                         } else {
-                            return Ok(WriteAction::InjectAndAckIRQs((Some(to_inject), Some(to_ack))));
+                            return Ok(WriteAction::InjectAndAckIRQs((
+                                Some(to_inject),
+                                Some(to_ack),
+                            )));
                         }
                     }
                     _ => {
@@ -708,11 +727,16 @@ impl Distributor {
                     }
                 }
             }
-            _ => panic!("Writes to GIC distributor registers must by byte- or word-aligned.")
+            _ => panic!("Writes to GIC distributor registers must by byte- or word-aligned."),
         }
     }
 
-    pub fn handle_read(&self, offset: usize, node_index: usize, width: VMFaultWidth) -> Result<(VMFaultData, ReadAction), IRQError> {
+    pub fn handle_read(
+        &self,
+        offset: usize,
+        node_index: usize,
+        width: VMFaultWidth,
+    ) -> Result<(VMFaultData, ReadAction), IRQError> {
         match width {
             VMFaultWidth::Word => {
                 let reg = GICDistRegWord::from_offset(offset);
@@ -744,8 +768,8 @@ impl Distributor {
                         let val = group_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
-                    GICDistRegWord::GICD_ISENABLERn(reg_num) |
-                        GICDistRegWord::GICD_ICENABLERn(reg_num) => {
+                    GICDistRegWord::GICD_ISENABLERn(reg_num)
+                    | GICDistRegWord::GICD_ICENABLERn(reg_num) => {
                         // Read enable registers.
                         // NOTE: Register 0 is banked for each CPU.
                         let enable_reg;
@@ -757,8 +781,8 @@ impl Distributor {
                         let val = enable_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
-                    GICDistRegWord::GICD_ISPENDRn(reg_num) |
-                        GICDistRegWord::GICD_ICPENDRn(reg_num) => {
+                    GICDistRegWord::GICD_ISPENDRn(reg_num)
+                    | GICDistRegWord::GICD_ICPENDRn(reg_num) => {
                         // Read pending registers.
                         // NOTE: Register 0 is banked for each CPU.
                         let pending_reg;
@@ -770,8 +794,8 @@ impl Distributor {
                         let val = pending_reg.load();
                         return Ok((VMFaultData::Word(val), ReadAction::NoAction));
                     }
-                    GICDistRegWord::GICD_ISACTIVERn(reg_num) |
-                        GICDistRegWord::GICD_ICACTIVERn(reg_num) => {
+                    GICDistRegWord::GICD_ISACTIVERn(reg_num)
+                    | GICDistRegWord::GICD_ICACTIVERn(reg_num) => {
                         // Read active registers.
                         // NOTE: Register 0 is banked for each CPU.
                         let active_reg;
@@ -828,14 +852,18 @@ impl Distributor {
                     GICDistRegWord::GICD_NSACRn(reg_num) => {
                         // Read non-secure access control registers.
                         // - Not implemented.  The VM is not in Secure mode.
-                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterRead, });
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterRead,
+                        });
                     }
                     GICDistRegWord::GICD_SGIR => {
                         // This is write-only.
-                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterRead, });
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterRead,
+                        });
                     }
-                    GICDistRegWord::GICD_CPENDSGIRn(reg_num) |
-                        GICDistRegWord::GICD_SPENDSGIRn(reg_num) => {
+                    GICDistRegWord::GICD_CPENDSGIRn(reg_num)
+                    | GICDistRegWord::GICD_SPENDSGIRn(reg_num) => {
                         // Read sgi pending registers.
                         // NOTE: Registers are banked for each CPU.
                         let sgi_pending_reg;
@@ -859,7 +887,9 @@ impl Distributor {
                     }
                     _ => {
                         // Invalid register.
-                        return Err( IRQError{ irq_error_type: IRQErrorType::InvalidRegisterRead, });
+                        return Err(IRQError {
+                            irq_error_type: IRQErrorType::InvalidRegisterRead,
+                        });
                     }
                 }
             }
@@ -867,14 +897,16 @@ impl Distributor {
                 let reg = GICDistRegByte::from_offset(offset);
                 panic!("Byte-addressed reads from {:?} not yet implemented.", reg);
             }
-            _ => panic!("Reads from GIC distributor registers must by byte- or word-aligned.")
+            _ => panic!("Reads from GIC distributor registers must by byte- or word-aligned."),
         }
     }
 
     pub(crate) fn should_inject(&self, irq: IRQ, cpu: CPU) -> bool {
-        self.is_gic_enabled() && self.is_enabled(irq, cpu) &&
-            self.is_target(irq, cpu) && self.is_pending(irq, cpu) &&
-            !self.is_active(irq, cpu)
+        self.is_gic_enabled()
+            && self.is_enabled(irq, cpu)
+            && self.is_target(irq, cpu)
+            && self.is_pending(irq, cpu)
+            && !self.is_active(irq, cpu)
     }
 
     fn is_gic_enabled(&self) -> bool {
@@ -884,7 +916,9 @@ impl Distributor {
     /// Get the priority of the given irq for the given cpu.
     pub(crate) fn get_priority(&self, irq: IRQ, cpu: CPU) -> Result<u32, IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(cpu),
+            });
         }
 
         let priority_reg;
@@ -969,7 +1003,9 @@ impl Distributor {
 
     fn clear_pending(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(cpu),
+            });
         }
 
         let reg;
@@ -988,7 +1024,9 @@ impl Distributor {
 
     pub(crate) fn set_pending(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(cpu),
+            });
         }
 
         let reg;
@@ -1005,17 +1043,28 @@ impl Distributor {
         Ok(())
     }
 
-    fn set_sgi_pending(&mut self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
+    fn set_sgi_pending(
+        &mut self,
+        irq: IRQ,
+        source_cpu: CPU,
+        target_cpu: CPU,
+    ) -> Result<(), IRQError> {
         if source_cpu >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(source_cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(source_cpu),
+            });
         }
 
         if target_cpu >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(target_cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(target_cpu),
+            });
         }
 
         if irq > 16 {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidIRQ(irq) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidIRQ(irq),
+            });
         }
 
         // Identify the correct SGI register for the target cpu
@@ -1038,17 +1087,28 @@ impl Distributor {
         Ok(())
     }
 
-    fn clear_sgi_pending(&mut self, irq: IRQ, source_cpu: CPU, target_cpu: CPU) -> Result<(), IRQError> {
+    fn clear_sgi_pending(
+        &mut self,
+        irq: IRQ,
+        source_cpu: CPU,
+        target_cpu: CPU,
+    ) -> Result<(), IRQError> {
         if usize::try_from(source_cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(source_cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(source_cpu),
+            });
         }
 
         if usize::try_from(target_cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(target_cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(target_cpu),
+            });
         }
 
         if irq > 16 {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidIRQ(irq) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidIRQ(irq),
+            });
         }
 
         // Identify the correct SGI register for the target cpu
@@ -1091,7 +1151,9 @@ impl Distributor {
 
     fn clear_active(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(cpu),
+            });
         }
 
         let reg;
@@ -1113,7 +1175,9 @@ impl Distributor {
     // so as soon as the seL4 API call to inject an IRQ is invoked.
     pub(crate) fn set_active(&mut self, irq: IRQ, cpu: CPU) -> Result<(), IRQError> {
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(cpu),
+            });
         }
 
         let reg;
@@ -1137,7 +1201,9 @@ impl Distributor {
         let cpu = node_index as CPU;
 
         if usize::try_from(cpu).unwrap() >= self.num_nodes {
-            return Err(IRQError{ irq_error_type: IRQErrorType::InvalidCPU(cpu) });
+            return Err(IRQError {
+                irq_error_type: IRQErrorType::InvalidCPU(cpu),
+            });
         }
 
         if irq < 16 {
@@ -1204,7 +1270,7 @@ impl Distributor {
             for target in bank {
                 target.store(0x0);
                 for irq in 0..4 {
-                    target.fetch_or( (1 << idx) << (irq * 8));
+                    target.fetch_or((1 << idx) << (irq * 8));
                 }
             }
         }

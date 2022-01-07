@@ -2,7 +2,7 @@
 
 use core::fmt;
 
-use crate::distributor::{IRQ, CPU};
+use crate::distributor::{CPU, IRQ};
 
 pub(crate) enum IRQErrorType {
     InvalidCPU(CPU),
@@ -19,9 +19,7 @@ pub struct IRQError {
 
 impl IRQError {
     fn new(irq_error_type: IRQErrorType) -> IRQError {
-        IRQError {
-            irq_error_type,
-        }
+        IRQError { irq_error_type }
     }
 }
 

@@ -1,18 +1,16 @@
 #![allow(dead_code)]
 #![allow(unreachable_patterns)]
 
-use core::convert::TryFrom;
 use alloc::collections::VecDeque;
 use alloc::vec::Vec;
+use core::convert::TryFrom;
 
-use icecap_sel4::fault::*;
 use icecap_failure::*;
+use icecap_sel4::fault::*;
 
 use biterate::biterate;
 
-use crate::distributor::{
-    Distributor, WriteAction, ReadAction,
-};
+use crate::distributor::{Distributor, ReadAction, WriteAction};
 
 pub type NodeIndex = usize;
 pub type IRQ = usize;
@@ -28,16 +26,37 @@ pub enum QualifiedIRQ {
 }
 
 pub trait GICCallbacks {
-
     fn ack(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()>;
 
-    fn vcpu_inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ, priority: usize) -> Fallible<()>;
+    fn vcpu_inject_irq(
+        &mut self,
+        calling_node: NodeIndex,
+        target_node: NodeIndex,
+        index: usize,
+        irq: IRQ,
+        priority: usize,
+    ) -> Fallible<()>;
 
-    fn set_affinity(&mut self, calling_node: NodeIndex, spi: SPI, affinity: NodeIndex) -> Fallible<()>;
+    fn set_affinity(
+        &mut self,
+        calling_node: NodeIndex,
+        spi: SPI,
+        affinity: NodeIndex,
+    ) -> Fallible<()>;
 
-    fn set_priority(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, priority: usize) -> Fallible<()>;
+    fn set_priority(
+        &mut self,
+        calling_node: NodeIndex,
+        irq: QualifiedIRQ,
+        priority: usize,
+    ) -> Fallible<()>;
 
-    fn set_enabled(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ, enabled: bool) -> Fallible<()>;
+    fn set_enabled(
+        &mut self,
+        calling_node: NodeIndex,
+        irq: QualifiedIRQ,
+        enabled: bool,
+    ) -> Fallible<()>;
 }
 
 pub struct GIC<T> {
@@ -53,23 +72,21 @@ struct LR {
 }
 
 impl<T> GIC<T> {
-
     pub const DISTRIBUTOR_SIZE: usize = 4096;
 }
 
 impl<T: GICCallbacks> GIC<T> {
-
     pub fn new(num_nodes: usize, callbacks: T) -> Self {
         Self {
             num_nodes,
             callbacks,
             dist: Distributor::new(num_nodes),
-            lrs: (0..num_nodes).map(|_| {
-                LR {
+            lrs: (0..num_nodes)
+                .map(|_| LR {
                     mirror: [None; NUM_LRS],
                     overflow: VecDeque::new(),
-                }
-            }).collect(),
+                })
+                .collect(),
         }
     }
 
@@ -82,11 +99,11 @@ impl<T: GICCallbacks> GIC<T> {
     /// SGIs are handled within the GIC and are initiated by writes to the GIC Distributor.
     pub fn handle_irq(&mut self, calling_node: NodeIndex, irq: QualifiedIRQ) -> Fallible<()> {
         match irq {
-            QualifiedIRQ::QualifiedPPI { node, irq }=> {
+            QualifiedIRQ::QualifiedPPI { node, irq } => {
                 let target_node = node;
                 self.forward_irq(calling_node, target_node, irq)?;
             }
-            QualifiedIRQ::SPI { irq }=> {
+            QualifiedIRQ::SPI { irq } => {
                 // For SPIs, we need to pick one of the targets.
                 // Select the caller node if it's a target, otherwise the first returned from the
                 // Distributor's `get_spi_targets()` method.
@@ -134,11 +151,16 @@ impl<T: GICCallbacks> GIC<T> {
     }
 
     /// Handles reads from the GIC Distributor and returns the requested data.
-    pub fn handle_read(&mut self, node: NodeIndex, offset: usize, width: VMFaultWidth) -> Fallible<VMFaultData> {
+    pub fn handle_read(
+        &mut self,
+        node: NodeIndex,
+        offset: usize,
+        width: VMFaultWidth,
+    ) -> Fallible<VMFaultData> {
         let (data, read_action) = self.dist.handle_read(offset, node, width)?;
         match read_action {
             ReadAction::NoAction => {}
-            _ => panic!("Unexpected ReadAction")
+            _ => panic!("Unexpected ReadAction"),
         };
         Ok(data)
     }
@@ -147,7 +169,12 @@ impl<T: GICCallbacks> GIC<T> {
     ///
     /// The `calling_node` arg is necessary to support callbacks.  The caller may be writing data to
     /// the Distributor that affects other target nodes.
-    pub fn handle_write(&mut self, calling_node: NodeIndex, offset: usize, data: VMFaultData) -> Fallible<()> {
+    pub fn handle_write(
+        &mut self,
+        calling_node: NodeIndex,
+        offset: usize,
+        data: VMFaultData,
+    ) -> Fallible<()> {
         let write_action = self.dist.handle_write(offset, calling_node, data)?;
 
         match write_action {
@@ -164,7 +191,10 @@ impl<T: GICCallbacks> GIC<T> {
                         if *irq >= 16 {
                             let qualified_irq;
                             if *irq < 32 {
-                                qualified_irq = QualifiedIRQ::QualifiedPPI { node: *target_node, irq: *irq };
+                                qualified_irq = QualifiedIRQ::QualifiedPPI {
+                                    node: *target_node,
+                                    irq: *irq,
+                                };
                             } else {
                                 qualified_irq = QualifiedIRQ::SPI { irq: *irq };
                             }
@@ -181,12 +211,17 @@ impl<T: GICCallbacks> GIC<T> {
                     }
                 }
             }
-            _ => panic!("Unexpected WriteAction")
+            _ => panic!("Unexpected WriteAction"),
         }
         Ok(())
     }
 
-    fn forward_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, irq: IRQ) -> Fallible<()> {
+    fn forward_irq(
+        &mut self,
+        calling_node: NodeIndex,
+        target_node: NodeIndex,
+        irq: IRQ,
+    ) -> Fallible<()> {
         let mut index = None;
 
         // Find the next empty slot in the list register mirror.
@@ -210,7 +245,13 @@ impl<T: GICCallbacks> GIC<T> {
         Ok(())
     }
 
-    fn inject_irq(&mut self, calling_node: NodeIndex, target_node: NodeIndex, index: usize, irq: IRQ) -> Fallible<()> {
+    fn inject_irq(
+        &mut self,
+        calling_node: NodeIndex,
+        target_node: NodeIndex,
+        index: usize,
+        irq: IRQ,
+    ) -> Fallible<()> {
         // Get the priority for the IRQ.
         let priority = usize::try_from(self.dist.get_priority(irq, target_node)?)?;
         let priority = priority >> 3; // The LRs only use the top 5 bits of the 8-bit priority
@@ -223,7 +264,8 @@ impl<T: GICCallbacks> GIC<T> {
         if self.dist.should_inject(irq, target_node) {
             self.dist.set_active(irq, target_node)?;
             self.lrs[target_node].mirror[index] = Some(irq);
-            self.callbacks.vcpu_inject_irq(calling_node, target_node, index, irq, priority)?;
+            self.callbacks
+                .vcpu_inject_irq(calling_node, target_node, index, irq, priority)?;
         }
 
         Ok(())
@@ -241,6 +283,6 @@ impl<T: GICCallbacks> GIC<T> {
             }
         }
 
-        return false
+        return false;
     }
 }

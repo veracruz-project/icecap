@@ -4,7 +4,6 @@
 pub struct Register32(pub u32);
 
 impl Register32 {
-
     pub fn new(v: u32) -> Self {
         Self(v)
     }
