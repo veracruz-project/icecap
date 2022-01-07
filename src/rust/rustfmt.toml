@@ -4,4 +4,12 @@ ignore = [
     "crates/9p",
     "crates/framework/icecap-failure",
     "crates/framework/icecap-unwind",
+
+    "crates/framework/icecap-core",
+    "crates/framework/icecap-std",
+    "crates/hypervisor",
+    "crates/drivers",
+    "crates/dyndl",
+    "crates/helpers",
+    "crates/std-support",
 ]
