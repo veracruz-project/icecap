@@ -9,28 +9,28 @@
 // HACK
 __thread __attribute__((weak)) seL4_IPCBuffer *__sel4_ipc_buffer;
 
-seL4_Word icecap_runtime_heap_start = 0;
-seL4_Word icecap_runtime_heap_end = 0;
-seL4_CPtr icecap_runtime_heap_lock = 0;
+seL4_Word icecap_runtime_heap_start;
+seL4_Word icecap_runtime_heap_end;
+seL4_CPtr icecap_runtime_heap_lock;
 
-seL4_Word icecap_runtime_text_start = 0;
-seL4_Word icecap_runtime_text_end = 0;
-seL4_Word icecap_runtime_eh_frame_hdr_start = 0;
-seL4_Word icecap_runtime_eh_frame_hdr_end = 0;
-seL4_Word icecap_runtime_eh_frame_end = 0;
+seL4_Word icecap_runtime_text_start;
+seL4_Word icecap_runtime_text_end;
+seL4_Word icecap_runtime_eh_frame_hdr_start;
+seL4_Word icecap_runtime_eh_frame_hdr_end;
+seL4_Word icecap_runtime_eh_frame_end;
+const char *icecap_runtime_image_path;
 
-seL4_Word icecap_runtime_tls_region_align = 0;
-seL4_Word icecap_runtime_tls_region_size = 0;
+seL4_Word icecap_runtime_tls_region_align;
+seL4_Word icecap_runtime_tls_region_size;
 
-seL4_Word icecap_runtime_print_lock;
-seL4_Word icecap_runtime_fault_handling;
-seL4_CPtr icecap_runtime_supervisor_endpoint;
+seL4_CPtr icecap_runtime_print_lock;
+seL4_CPtr icecap_runtime_idle_notification;
+__thread seL4_CPtr icecap_runtime_tcb;
 
-const char *icecap_runtime_image_path = 0;
+static struct icecap_runtime_tls_image __icecap_runtime_tls_image;
 
-__thread seL4_CPtr icecap_runtime_tcb = 0;
-
-struct icecap_runtime_tls_image __icecap_runtime_tls_image = {0};
+// NOTE for now, this is only used by 'icecap_runtime_stop_component' for accessing the list of TCBs.
+static struct icecap_runtime_config *__icecap_runtime_config;
 
 void ICECAP_NORETURN __icecap_runtime_reserve_tls(struct icecap_runtime_config *config, seL4_Word thread_index, seL4_Word size, seL4_Word align);
 
@@ -78,6 +78,7 @@ void ICECAP_NORETURN __icecap_runtime_start(struct icecap_runtime_config *config
 
 void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *config, seL4_Word thread_index, void *tls_region)
 {
+    __icecap_runtime_config = config;
     seL4_Word tpidr = __icecap_runtime_tls_region_init_of(&config->tls_image, tls_region);
     __icecap_runtime_set_tpidr(tpidr);
     __sel4_ipc_buffer = config->threads[thread_index].ipc_buffer;
@@ -95,8 +96,7 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         icecap_runtime_tls_region_align = __icecap_runtime_tls_region_align_of(&config->tls_image);
         icecap_runtime_tls_region_size = __icecap_runtime_tls_region_size_of(&config->tls_image);
         icecap_runtime_print_lock = config->print_lock;
-        icecap_runtime_fault_handling = config->fault_handling;
-        icecap_runtime_supervisor_endpoint = config->supervisor_endpoint;
+        icecap_runtime_idle_notification = config->idle_notification;
         __icecap_runtime_tls_image = config->tls_image;
         icecap_main((void *)((char *)config + config->arg.offset), config->arg.size);
     } else {
@@ -106,7 +106,7 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         seL4_Word entry_arg1 = seL4_GetMR(2);
         ((icecap_runtime_secondary_thread_entry_fn)entry_vaddr)(entry_arg0, entry_arg1);
     }
-    icecap_runtime_exit();
+    icecap_runtime_stop_component();
 }
 
 seL4_Word icecap_runtime_tls_region_init(void *region)
@@ -150,21 +150,29 @@ void icecap_runtime_tls_region_insert_tcb(void *dst_tls_region, seL4_CPtr tcb)
 
 static void debug_print(const char *s); // HACK
 
-void ICECAP_NORETURN icecap_runtime_exit(void)
+void ICECAP_NORETURN icecap_runtime_stop_thread(void)
 {
-    debug_print("icecap_runtime_exit()\n"); // HACK
-
-    // HACK
-    //  - should make syscall to fault handler if present
-    //  - should act on all threads of the protection domain
-    //  - should take and pass on status
-
     if (icecap_runtime_tcb) {
         seL4_TCB_Suspend(icecap_runtime_tcb);
     }
-
-    int ICECAP_UNUSED x = *(int *)0x13333337;
+    seL4_Wait(icecap_runtime_idle_notification, seL4_Null);
     ICECAP_UNREACHABLE();
+}
+
+void ICECAP_NORETURN icecap_runtime_stop_component(void)
+{
+    seL4_CPtr tcb;
+
+    debug_print("icecap_runtime_stop_component()\n"); // HACK
+
+    for (int i = 0; i < __icecap_runtime_config->num_threads; i++) {
+        tcb = __icecap_runtime_config->threads[i].tcb;
+        if (tcb && tcb != icecap_runtime_tcb) {
+            seL4_TCB_Suspend(tcb);
+        }
+    }
+
+    icecap_runtime_stop_thread();
 }
 
 #ifdef ICECAP_RUNTIME_ROOT
@@ -175,17 +183,17 @@ extern seL4_Word __icecap_runtime_root_tbss_end[];
 
 static seL4_Uint8 __attribute__((aligned(4096))) __icecap_runtime_root_heap[ICECAP_RUNTIME_ROOT_HEAP_SIZE];
 
-// must be static because of flexible array member ('threads')
+// NOTE
+// This must be static both because of flexible array member ('threads'), and to allow access at runtime.
 static struct icecap_runtime_config root_config = {
     .heap_info = {
         .start = (seL4_Word)&__icecap_runtime_root_heap[0],
         .end = (seL4_Word)&__icecap_runtime_root_heap[ICECAP_RUNTIME_ROOT_HEAP_SIZE],
-        .lock = 0, // none
+        .lock = 0,
     },
     .eh_info = {
         // TODO
     },
-    .fault_handling = 0, // TODO
     .num_threads = 1,
     .threads = {
         {},
@@ -249,5 +257,5 @@ void __attribute__((weak)) ICECAP_NORETURN __assert_fail(const char *expr, const
     debug_print(func);
     debug_print(")\n");
 
-    icecap_runtime_exit();
+    icecap_runtime_stop_component();
 }

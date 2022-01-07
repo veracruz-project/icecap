@@ -50,9 +50,8 @@ struct icecap_runtime_config {
     struct icecap_runtime_eh_info eh_info;
     struct icecap_runtime_tls_image tls_image;
     struct icecap_runtime_arg arg;
-    seL4_Word fault_handling; // how to exit
     seL4_CPtr print_lock;
-    seL4_CPtr supervisor_endpoint;
+    seL4_CPtr idle_notification;
     seL4_Uint64 num_threads;
     struct icecap_runtime_thread_config threads[];
 };
@@ -82,9 +81,7 @@ extern seL4_Word icecap_runtime_tls_region_align;
 extern seL4_Word icecap_runtime_tls_region_size;
 
 extern seL4_CPtr icecap_runtime_print_lock;
-extern seL4_Word icecap_runtime_fault_handling;
-extern seL4_CPtr icecap_runtime_supervisor_endpoint;
-
+extern seL4_CPtr icecap_runtime_idle_notification;
 extern __thread seL4_CPtr icecap_runtime_tcb;
 
 // returns TPIDR
@@ -100,4 +97,18 @@ void icecap_runtime_tls_region_insert(
 void icecap_runtime_tls_region_insert_ipc_buffer(void *dst_tls_region, void *ipc_buffer);
 void icecap_runtime_tls_region_insert_tcb(void *dst_tls_region, seL4_CPtr tcb);
 
-void ICECAP_NORETURN icecap_runtime_exit(void);
+void ICECAP_NORETURN icecap_runtime_stop_thread(void);
+void ICECAP_NORETURN icecap_runtime_stop_component(void);
+
+// TODO
+
+// Support some kind of early initialization hook and/or constructors.  This
+// would enable extensibility. For example, it would allow early Rust code to
+// depend on component-specific symbols which themselves require early
+// initialization.  This extension mechanism would replace older hacks such as
+// 'icecap_runtime_supervisor_ep' and 'icecap_runtime_fault_handling'.
+
+// This early initialization hook should allow initialization routines to shrink
+// the arg. An routine might use some of the arg for itself and then pass the
+// rest on.  This hook should also allow routines to hook into other parts of
+// the C runtime, such as exiting and fault handling.
