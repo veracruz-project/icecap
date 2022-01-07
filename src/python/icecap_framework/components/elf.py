@@ -36,8 +36,6 @@ class ElfComponent(BaseComponent):
         self.primary_thread = self.thread('primary', affinity=affinity, prio=prio, max_prio=max_prio)
         self.secondary_threads = []
 
-        self.supervisor_endpoint = 0
-
     def pre_finalize(self):
         self.runtime_config(self.heap(), self.arg())
 
@@ -79,7 +77,7 @@ class ElfComponent(BaseComponent):
         if self.fault_handler is not None:
             self.fault_handler.handle(thread)
 
-    def runtime_config(self, heap_info, arg_bin, fault_handling=1):
+    def runtime_config(self, heap_info, arg_bin):
         self.align(PAGE_SIZE)
         config_vaddr = self.cur_vaddr
 
@@ -95,12 +93,14 @@ class ElfComponent(BaseComponent):
                     'offset': 0,
                     'size': 0,
                 },
-                'fault_handling': fault_handling,
                 'print_lock': self.cspace().alloc(
                     self.alloc(ObjectType.seL4_NotificationObject, 'print_lock'),
                     read=True, write=True, badge=1,
                     ),
-                'supervisor_endpoint': self.supervisor_endpoint,
+                'idle_notification': self.cspace().alloc(
+                    self.alloc(ObjectType.seL4_NotificationObject, 'idle_notification'),
+                    read=True,
+                    ),
             },
             'threads': [ thread.get_thread_runtime_config() for thread in self.threads() ],
             'image_path': str(self.elf_full_path),

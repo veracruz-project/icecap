@@ -39,5 +39,5 @@
 #define ZF_LOGE(...) ZF_show(__VA_ARGS__)
 #define ZF_LOGF(...) do { \
     ZF_show(__VA_ARGS__); \
-    icecap_runtime_exit(); \
+    icecap_runtime_stop_component(); \
 } while (0)

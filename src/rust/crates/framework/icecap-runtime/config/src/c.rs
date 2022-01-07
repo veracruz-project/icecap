@@ -42,9 +42,8 @@ pub struct CommonConfig {
     pub eh_info: EhInfo,
     pub tls_image: TlsImage,
     pub arg: Arg,
-    pub fault_handling: u64,
     pub print_lock: u64,
-    pub supervisor_endpoint: u64,
+    pub idle_notification: u64,
 }
 
 #[repr(C)]
