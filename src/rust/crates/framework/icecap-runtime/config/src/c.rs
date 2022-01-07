@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[repr(C)]
 #[derive(Debug, Clone, Serialize, Deserialize)]

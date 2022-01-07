@@ -4,11 +4,12 @@
 // TODO split into with-alloc and without-alloc parts
 extern crate alloc;
 
-use core::mem;
-use core::slice;
 use alloc::prelude::v1::*;
 use alloc::vec;
-use serde::{Serialize, Deserialize};
+use core::mem;
+use core::slice;
+
+use serde::{Deserialize, Serialize};
 
 mod c;
 
@@ -23,13 +24,10 @@ pub struct Config<T> {
 }
 
 fn as_bytes<T: ?Sized>(v: &T) -> &[u8] {
-    unsafe {
-        slice::from_raw_parts(v as *const T as *const u8, mem::size_of_val(v))
-    }
+    unsafe { slice::from_raw_parts(v as *const T as *const u8, mem::size_of_val(v)) }
 }
 
 impl<T> Config<T> {
-
     fn struct_size(&self) -> usize {
         mem::size_of::<CommonConfig>()
         + mem::size_of::<u64>() // num_threads
@@ -44,13 +42,10 @@ impl<T> Config<T> {
             arg: f(self.arg)?,
         })
     }
-
 }
 
 impl<T: AsRef<[u8]>> Config<T> {
-
     pub fn serialize(mut self) -> Vec<Vec<u8>> {
-
         assert_eq!(self.common.eh_info.image_path_offset, 0);
         assert_eq!(self.common.arg.offset, 0);
         assert_eq!(self.common.arg.size, 0);
@@ -79,5 +74,4 @@ impl<T: AsRef<[u8]>> Config<T> {
 
         vec![struct_, blob]
     }
-
 }
