@@ -18,6 +18,6 @@ extern "C" {
     pub(crate) static icecap_runtime_eh_frame_hdr_end: usize;
     pub(crate) static icecap_runtime_eh_frame_end: usize;
 
-    pub(crate) static icecap_runtime_supervisor_ep: u64;
+    pub(crate) static icecap_runtime_supervisor_endpoint: u64;
 
 }

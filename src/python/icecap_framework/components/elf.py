@@ -36,7 +36,7 @@ class ElfComponent(BaseComponent):
         self.primary_thread = self.thread('primary', affinity=affinity, prio=prio, max_prio=max_prio)
         self.secondary_threads = []
 
-        self.supervisor_ep = 0
+        self.supervisor_endpoint = 0
 
     def pre_finalize(self):
         self.runtime_config(self.heap(), self.arg())
@@ -100,7 +100,7 @@ class ElfComponent(BaseComponent):
                     self.alloc(ObjectType.seL4_NotificationObject, 'print_lock'),
                     read=True, write=True, badge=1,
                     ),
-                'supervisor_ep': self.supervisor_ep,
+                'supervisor_endpoint': self.supervisor_endpoint,
             },
             'threads': [ thread.get_thread_runtime_config() for thread in self.threads() ],
             'image_path': str(self.elf_full_path),

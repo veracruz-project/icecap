@@ -44,7 +44,7 @@ pub struct CommonConfig {
     pub arg: Arg,
     pub fault_handling: u64,
     pub print_lock: u64,
-    pub supervisor_ep: u64,
+    pub supervisor_endpoint: u64,
 }
 
 #[repr(C)]

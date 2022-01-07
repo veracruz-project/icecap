@@ -29,6 +29,6 @@ pub fn tcb() -> TCB {
 
 pub fn supervisor() -> Endpoint {
     Endpoint::from_raw(unsafe {
-        c::icecap_runtime_supervisor_ep
+        c::icecap_runtime_supervisor_endpoint
     })
 }

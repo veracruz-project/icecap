@@ -52,7 +52,7 @@ struct icecap_runtime_config {
     struct icecap_runtime_arg arg;
     seL4_Word fault_handling; // how to exit
     seL4_CPtr print_lock;
-    seL4_CPtr supervisor_ep;
+    seL4_CPtr supervisor_endpoint;
     seL4_Uint64 num_threads;
     struct icecap_runtime_thread_config threads[];
 };
@@ -83,7 +83,7 @@ extern seL4_Word icecap_runtime_tls_region_size;
 
 extern seL4_CPtr icecap_runtime_print_lock;
 extern seL4_Word icecap_runtime_fault_handling;
-extern seL4_CPtr icecap_runtime_supervisor_ep;
+extern seL4_CPtr icecap_runtime_supervisor_endpoint;
 
 extern __thread seL4_CPtr icecap_runtime_tcb;
 
