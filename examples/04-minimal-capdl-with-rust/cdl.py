@@ -8,13 +8,11 @@ class ExampleComponent(ElfComponent):
 
         secondary_thread = self.secondary_thread('secondary_thread')
         lock_nfn = self.alloc(ObjectType.seL4_NotificationObject, name='lock_nfn')
-
-        ep = self.alloc(ObjectType.seL4_EndpointObject, name='ep')
+        barrier_nfn = self.alloc(ObjectType.seL4_NotificationObject, name='barrier_nfn')
 
         self._arg = {
             'lock_nfn': self.cspace().alloc(lock_nfn, read=True, write=True),
-            'primary_thread_ep_cap': self.cspace().alloc(ep, write=True, grantreply=True),
-            'secondary_thread_ep_cap': self.cspace().alloc(ep, read=True),
+            'barrier_nfn': self.cspace().alloc(barrier_nfn, read=True, write=True),
             'secondary_thread': secondary_thread.endpoint,
             'foo': [1, 2, 3],
         }
