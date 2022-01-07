@@ -14,7 +14,7 @@ Notably, IceCap replaces the C-based seL4 userspace of the
 exception of CapDL, IceCap's seL4 userspace contains
 [less than 350 lines of C](./src/c/icecap-runtime).
 
-We are still working on adding documentation to this repository.  In the
+Some of the documentation in this repository is under construction.  In the
 meantime, we are eager to share and discuss any aspect of IceCap's design and
 implementation with you directly. Please feel free to reach out to project lead
 [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
