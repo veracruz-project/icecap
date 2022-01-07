@@ -12,7 +12,10 @@ extern "C" {
     pub(crate) static icecap_runtime_tls_region_align: usize;
     pub(crate) static icecap_runtime_tls_region_size: usize;
     pub(crate) fn icecap_runtime_tls_region_init(tls_region: usize) -> u64;
-    pub(crate) fn icecap_runtime_tls_region_insert_ipc_buffer(dst_tls_region: usize, ipc_buffer: usize);
+    pub(crate) fn icecap_runtime_tls_region_insert_ipc_buffer(
+        dst_tls_region: usize,
+        ipc_buffer: usize,
+    );
     pub(crate) fn icecap_runtime_tls_region_insert_tcb(dst_tls_region: usize, tcb: sys::seL4_CPtr);
 
     pub(crate) fn icecap_runtime_stop_thread() -> !;

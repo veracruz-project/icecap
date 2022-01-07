@@ -1,6 +1,6 @@
-
 use icecap_sel4::prelude::*;
 use icecap_sel4::sys;
+
 use crate::c;
 
 pub struct TlsRegion {
@@ -9,17 +9,12 @@ pub struct TlsRegion {
 }
 
 impl TlsRegion {
-
     pub fn align() -> usize {
-        unsafe {
-            c::icecap_runtime_tls_region_align
-        }
+        unsafe { c::icecap_runtime_tls_region_align }
     }
 
     pub fn size() -> usize {
-        unsafe {
-            c::icecap_runtime_tls_region_size
-        }
+        unsafe { c::icecap_runtime_tls_region_size }
     }
 
     pub fn num_small_pages() -> usize {
@@ -35,26 +30,19 @@ impl TlsRegion {
     pub fn init(base: usize) -> Self {
         Self {
             base,
-            tpidr: unsafe {
-                c::icecap_runtime_tls_region_init(base)
-            },
+            tpidr: unsafe { c::icecap_runtime_tls_region_init(base) },
         }
     }
 
     pub fn insert_ipc_buffer(&self, ipc_buffer: usize) {
-        unsafe {
-            c::icecap_runtime_tls_region_insert_ipc_buffer(self.base, ipc_buffer)
-        }
+        unsafe { c::icecap_runtime_tls_region_insert_ipc_buffer(self.base, ipc_buffer) }
     }
 
     pub fn insert_tcb(&self, tcb: sys::seL4_CPtr) {
-        unsafe {
-            c::icecap_runtime_tls_region_insert_tcb(self.base, tcb)
-        }
+        unsafe { c::icecap_runtime_tls_region_insert_tcb(self.base, tcb) }
     }
 
     pub fn tpidr(&self) -> u64 {
         self.tpidr
     }
-
 }
