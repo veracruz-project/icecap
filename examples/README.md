@@ -2,8 +2,6 @@
 
 ```
 UNDER CONSTRUCTION
-
-For now, check out the examples in this directory.
 ```
 
 This is a guided, interactive introduction to the IceCap Framework. It will lead you through the layers of the framework with the help of the example systems in this directory. If you encounter problems or have questions of any kind, please raise an issue or reach out to [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
@@ -143,7 +141,7 @@ Now, let's look at an example where the component is written in Rust, and has mu
 
 ```
 nix-build examples/ -A minimal-capdl-with-rust.run && ./result/run
-nix-build examples/ -A minimal-capdl.composition.cdl
+nix-build examples/ -A minimal-capdl-with-rust.composition.cdl
 ls result/
 ```
 
@@ -192,18 +190,21 @@ find result/
 cat result/icecap.cdl
 ```
 
-<!-- TODO mention icecap-show-backtrace -->
-<!-- TODO minimal dyndl example -->
-
-<!-- Compare the IceCap Framework interface to CapDL to [CAmkES](https://trustworthy.systems/projects/TS) -->
-
 ### Case study: The IceCap Hypervisor
 
-```
-nix-build examples/ -A hypervisor.run && ./result/run
-```
+The original purpose of the IceCap Framework is the IceCap Hypervisor, a hypervisor with a minimal trusted computing base which serves as a research vehicle for virtualization-based confidential computing.
+The IceCap Hypervisor doubles as the reference application of the IceCap Framework.
+See [../README.md](../README.md) for an overview of the IceCap Hypervisor.
+This section will focus on how the IceCap Framework is used to create the IceCap Hypervisor.
+
+The IceCap Hypervisor is a CapDL-based system created using the IceCap Framework, just like `05-basic-system`, only much more complex and much more useful.
+
+First, build and run a simple demonstration of the IceCap Hypervisor.
+(For a more sophisticated demo, see [../demos/hypervisor-demo/README.md](../demos/hypervisor-demo/README.md)).
 
 ```
+   [container] nix-build examples/ -A hypervisor.run && ./result/run
+
                # ... wait for the host VM to boot to a shell ...
 
                # Spawn a VM in a realm:
@@ -233,3 +234,41 @@ nix-build examples/ -A hypervisor.run && ./result/run
 
                # As usual, '<ctrl>-a x' quits QEMU.
 ```
+
+To get a picture of the system, take a look at its CapDL specification:
+
+```
+nix-build examples/ -A hypervisor.configured.icecapFirmware.cdl
+find result/
+cat result/icecap.cdl
+```
+
+For reference, the IceCap Hypervisor's CapDL specification is created with the an invocation like the following:
+
+```
+python3 -m icecap_hypervisor.cli firmware $config -o $out
+```
+
+Where `icecap_hypervisor` is the Python module located at [../src/python/icecap_hypervisor](../src/python/icecap_hypervisor).
+
+The Rust code for the IceCap Hypervisor components is located at [../src/rust/crates/hypervisor/components](../src/rust/crates/hypervisor/components).
+
+```
+TODO
+```
+
+<!-- vmm -->
+<!-- dyndl -->
+<!-- mirage -->
+
+### Case study: Veracruz
+
+```
+TODO
+```
+
+<!-- NOTES -->
+
+<!-- TODO mention icecap-show-backtrace -->
+<!-- TODO minimal dyndl example -->
+<!-- TODO compare the IceCap Framework interface to CapDL with [CAmkES](https://trustworthy.systems/projects/TS) -->

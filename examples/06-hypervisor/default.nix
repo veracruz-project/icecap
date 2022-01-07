@@ -8,6 +8,8 @@ let
 
 in rec {
 
+  inherit configured; # for convenience
+
   run = platUtils.${icecapPlat}.bundle {
     firmware = icecapFirmware.image;
     payload = icecapFirmware.mkDefaultPayload {
