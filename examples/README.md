@@ -10,9 +10,9 @@ This is a guided, interactive introduction to the IceCap Framework. It will lead
 
 ### Prerequisites
 
-This document assumes that the reader is familiar with [seL4](https://sel4.systems/) kernel API, or at least has the excellent [seL4 Reference Manual](https://sel4.systems/Info/Docs/seL4-manual-latest.pdf) handy.
+This document assumes that the reader is familiar with [seL4](https://sel4.systems/), or at least has the excellent [seL4 Reference Manual](https://sel4.systems/Info/Docs/seL4-manual-latest.pdf) handy.
 
-This document does not assume that the reader is familiar with Nix, but the reader would benefit from having the [Nix manual](https://nixos.org/manual/nix/stable/) handy.
+This document does not assume that the reader is familiar with Nix. You wish to refer to the [Nix manual](https://nixos.org/manual/nix/stable/).
 
 ### Development environment
 
@@ -38,12 +38,12 @@ This docker container is effectively stateless. All of the build system's state 
 ### Our first system
 
 Our first system has consists only of a trivial root task: hello world, in C.
-Here is the source: [`./01-minimal-root/root-task/src/main.c`](./01-minimal-root/root-task/src/main.c).
+Here is the source: [./01-minimal-root/root-task/src/main.c](./01-minimal-root/root-task/src/main.c).
 
 The example systems in the guide are configured for `qemu-system-aarch64 -machine virt`.
 Each example system is accompanied by a build target which builds the system and creates a convenient shell script to run it emulate it.
 
-To build the first system, run the following from the repository root:
+To build the first system, run the following from the root of this repository:
 
 ```
 nix-build examples/ -A minimal-root.run
@@ -59,7 +59,7 @@ cat ./result/run # take a look
 # '<ctrl>-a x' quits QEMU
 ```
 
-The following is the ONLY code compiled into the root task:
+The following is the _only_ code compiled into the root task:
 - `libsel4`
 - [../src/c/icecap-runtime](../src/c/icecap-runtime)
 - [../src/c/icecap-utils](../src/c/icecap-utils)
@@ -68,10 +68,11 @@ The following is the ONLY code compiled into the root task:
 
 `libicecap-utils` depends only on `libsel4` and `libicecap-runtime` and contains a few namespaced utilities, such as `icecap_utils_debug_printf`.
 
-##### Using Rust
+### Using Rust
 
 By writing seL4 components in Rust, we benefit not only from Rust's memory safe and advanced language features, but also the Rust library ecosystem. The IceCap Framework includes a collection of crates for creating seL4 components.
 Check out the [rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/) for the IceCap crates.
+The [icecap-core](https://arm-research.gitlab.io/security/icecap/html/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html) crate is a good entrypoint.
 [./02-minimal-root-with-rust/root-task/src/main.rs](./02-minimal-root-with-rust/root-task/src/main.rs) is an example of a simple root task, written in Rust, which parses the Flattened Device Tree passed to it by the kernel via the `bootinfo`.
 
 ```
@@ -80,34 +81,121 @@ nix-build examples/ -A minimal-root-with-rust.run && ./result/run
 
 ### Leveraging CapDL
 
+CapDL[[1]](https://trustworthy.systems/publications/papers/Kuz_KLW_10.pdf)[[2]](https://docs.sel4.systems/projects/capdl/) (Capability Distribution Language) is a language and set of accompanying tools for declaratively specifying the state of objects and capabilites of a seL4-based system.
+In this part of the guide, we will be using CapDL to specify the initial state of our systems.
+We will use the [capdl-loader](https://github.com/seL4/capdl/tree/master/capdl-loader-app) as the root task, whose only job is to realize the specified state.
+This root task is bundled with a CapDL specification at compile time.
+
+Our first CapDL-based system comprises of only a single component.
+That component, found at [./03-minimal-capdl/example-component/src/main.c](./03-minimal-capdl/example-component/src/main.c), is just a simple C program which prints some configuration data passed to it.
+Build and run the example, then examine the system's CapDL specification, along with the files it refers to:
+
 ```
+nix-build examples/ -A minimal-capdl.run && ./result/run
 nix-build examples/ -A minimal-capdl.composition.cdl
 cat result/icecap.cdl
 ls result/links/
 ```
 
+Note that `example-component`'s address space is populated not just by `example_component.elf`, but also by a binary configuration blob called `example_component_config.bin`.
+This blob is a `struct icecap_runtime_config` (defined in [../src/c/icecap-runtime/include/icecap-runtime.h](../src/c/icecap-runtime/include/icecap-runtime.h)).
+A JSON object roughly corresponding to the value of this blob can be found at `result/example_component_config.json`:
+
 ```
-nix-build examples/ -A minimal-capdl.run && ./result/run
+cat result/example_component_config.json
 ```
 
-##### The IceCap Python libraries
+As mentioned before, `libicecap-runtime` contains the code which runs between `_start` and `icecap_main`.
+In the case of a CapDL component (as opposed to when `libicecap-runtime` is compiled for a root task), `ICECAP_RUNTIME_ROOT` is not defined.
+`_start` is defined in [../src/c/icecap-runtime/src/start.S](../src/c/icecap-runtime/src/start.S).
+Go ahead and visually trace execution from `_start` to `icecap_main` for the case where `thread_index == 1`.
+The steps are as follows:
 
-##### Typed component configuration
+- The component begins at `_start` with `x0 <- struct icecap_runtime_config *config` and `x1 <- seL4_Word thread_index`.
+- `__icecap_runtime_reserve_tls`, defined in `tls.S`, reserves some memory at the beginning of the stack of the thread's TLS region and passes control back to `runtime.c:__icecap_runtime_continue`.
+- The runtime initializes the TLS region.
+- Recall that we are only considering the case of the primary thread. The primary thread is responsible for moving some configuration values out of the `struct icecap_runtime_config` and into symbols that will be accessed by application code (e.g. from Rust).
+- Finally, the primary thread calls `icecap_main`, which is defined by the application.
+
+The application code's interface the the IceCap C runtime ([../src/c/icecap-runtime/include/icecap-runtime.h](../src/c/icecap-runtime/include/icecap-runtime.h)) is comprised of symbols with configuration information (e.g. the location of the heap, some notification objects for use as static locks, and exception handling information), and a few functions such as `icecap_runtime_stop_thread()` and `icecap_runtime_stop_component()`. The crate at [../src/rust/crates/framework/icecap-std](../src/rust/crates/framework/icecap-std) uses this interface to provide a Rust runtime (including, for example, allocation and exception handling).
+
+### The IceCap Python libraries
+
+Now let's focus on how the CapDL specification we found at `-A minimal-capdl.composition.cdl` was produced.
+The IceCap framework includes a Python library built on top of the [CapDL Python library](https://github.com/seL4/capdl/tree/master/python-capdl-tool).
+This library is located at [../src/python/icecap_framework](../src/python/icecap_framework).
+To describe a system, we write a small Python program ([./03-minimal-capdl/cdl.py](./03-minimal-capdl/cdl.py)) using this library whose input is the binaries of our components, and whose output is what you saw at `-A minimal-capdl.composition.cdl`.
+
+The IceCap Framework's Nix build system takes care of the details of running that Python code.
+See [./03-minimal-capdl/default.nix#L14](./03-minimal-capdl/default.nix#L14) for an example.
+For details, either trace the Nix code back to [../nix/scope/configured/capdl/mk-icedl.nix](../nix/scope/configured/capdl/mk-icedl.nix) or take a look at the relevant bits of Makefile in the repository referenced in [Building without Nix](../docs/building-without-nix.md).
+
+The only thing `class ExampleComponent` in `cdl.py` does is create the file found at `result/example_component_arg.bin` after `nix-build examples/ -A minimal-capdl.composition.cdl`.
+The contents of this file is embedded into the `struct icecap_runtime_config` blob passed to the component, and is ultimately the argument to `void icecap_main(void *arg, seL4_Word arg_size)`.
+Recall that this function is declared in `icecap-runtime.h` and defined by the application.
+
+In the case of `03-minimal-capdl`, that "`arg`" blob is the text `"Hello, CapDL!\n"`.
+In the manner described just now, that text makes its way from `cdl.py` to `main.c`.
+
+### Using Rust with CapDL: Typed configuration, threads, and more
+
+Now, let's look at an example where the component is written in Rust, and has multiple statically declared threads. Build and run the example, and then prepare to look at its CapDL specification:
 
 ```
 nix-build examples/ -A minimal-capdl-with-rust.run && ./result/run
+nix-build examples/ -A minimal-capdl.composition.cdl
+ls result/
 ```
+
+Observe that `main()` defined in [./04-minimal-capdl-with-rust/example-component/src/main.rs](./04-minimal-capdl-with-rust/example-component/src/main.rs) takes value of type `example_component_config::Config`, which is defined in [./04-minimal-capdl-with-rust/example-component/config/src/lib.rs](./04-minimal-capdl-with-rust/example-component/config/src/lib.rs).
+In [./04-minimal-capdl-with-rust/cdl.py](./04-minimal-capdl-with-rust/cdl.py), we implement `arg_json()` and `serialize_arg()` to create `result/example_component_arg.bin` which is a serialized blob of type `example_component_config::Config`. See `result/example_component_arg.json` for a JSON representation of its value.
+
+This is accomplished by creating a program called `serialize-example-component-config` (source at [./04-minimal-capdl-with-rust/example-component/config/cli/src/main.rs](./04-minimal-capdl-with-rust/example-component/config/cli/src/main.rs)) and passing it to our Python code as configuration in [./04-minimal-capdl-with-rust/default.nix](./04-minimal-capdl-with-rust/default.nix). Note how the `icecap-config-cli-core` crate handled most of the boilerplate for us.
+
+Look at the type of [./04-minimal-capdl-with-rust/example-component/config/src/lib.rs](./04-minimal-capdl-with-rust/example-component/config/src/lib.rs), along with the value you saw at `example_component_arg.json`. The `Config` type has both application-specific data (the `"foo"` field) and capability pointers (e.g. the `"barrier_nfn"` field). Our Python script `cdl.py` declares some seL4 objects with `self.alloc()` and grants capabilities for those objects to the component with `self.cspace().alloc()`. It passes the capability pointers of those capabilities in the component's address space to the component application code via `Config`.
+
+The script also creates a static secondary thread with `self.secondary_thread()`.
+This creates a TCB object and a stack.
+At component boot, that thread will execute from `_start` just like the primary thread, but it will be passed a nonzero `thread_index`.
+Eventually it will diverge from the primary thread in `__icecap_runtime_continue()` in [../src/c/icecap-runtime/src/runtime.c](../src/c/icecap-runtime/src/runtime.c).
+It will then block, waiting for the primary thread to send it a function pointer and arguments via an associated endpoint.
+The `icecap-runtime` crate provides a high level interface to this low-level abstraction.
+The `example_component_config::Config` field `secondary_thread: icecap_runtime::Thread` is just a wrapper around `icecap_sel4::Endpoint`.
+Observe how the thread is sent a closure in [./04-minimal-capdl-with-rust/example-component/src/main.rs](./04-minimal-capdl-with-rust/example-component/src/main.rs),
+
+Observe how `cdl.py` also provides `main.rs` with a few seL4 notification objects which are used for synchronization between the two threads.
 
 ### Putting it all together: A basic componentized system
 
+The next example is a CapDL-based system with multiple components:
+
+- [./05-basic-system/components/serial-server](./05-basic-system/components/serial-server): Drives the serial device and provides an interface to `application`
+- [./05-basic-system/components/timer-server](./05-basic-system/components/timer-server): Drives the timer device and provides an interface to `application`
+- [./05-basic-system/components/application](./05-basic-system/components/application): Prints the time every second, and echos keyboard input
+
 ```
 nix-build examples/ -A basic-system.run && ./result/run
+# wait for the example to boot and then type some characters
 ```
 
-<!-- TODO suggest just looking at icecap-core -->
-<!-- TODO show off more of the icecap-sel4 crate -->
+Our Python script is a bit more complicated, and is broken up into several modules: [./05-basic-system/cdl](./05-basic-system/cdl). Note that the components extend `class GenericElfComponent` rather than `class ElfComponent`. We forgo build-time type-checking of configuration in this example for the sake of focus. Everything from the perspective of each component's `fn main()` is the same as if we were type-checking configuration at build time.
+
+Our Python script grants `serial-server` and `timer-server` capabilities and device memory so that they can drive their respective devices. IPC objects and shared memory connect each to `application`.
+
+Note the use of the `icecap-rpc{-sel4}` crates to pass small Rust values over the endpoint connecting `application` and `timer-server`.
+
+Take a look at the CapDL specification for this example, and correlate what you see there with code in the Python script:
+
+```
+nix-build examples/ -A basic-system.composition.cdl
+find result/
+cat result/icecap.cdl
+```
+
 <!-- TODO mention icecap-show-backtrace -->
 <!-- TODO minimal dyndl example -->
+
+<!-- Compare the IceCap Framework interface to CapDL to [CAmkES](https://trustworthy.systems/projects/TS) -->
 
 ### Case study: The IceCap Hypervisor
 
