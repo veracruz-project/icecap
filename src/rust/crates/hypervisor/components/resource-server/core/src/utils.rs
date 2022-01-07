@@ -1,12 +1,16 @@
-use icecap_core::prelude::*;
 use dyndl_types::*;
+use icecap_core::prelude::*;
 
 pub fn blueprint_of(obj: &Obj) -> ObjectBlueprint {
     match obj {
-        Obj::Untyped(obj) => ObjectBlueprint::Untyped { size_bits: obj.size_bits },
+        Obj::Untyped(obj) => ObjectBlueprint::Untyped {
+            size_bits: obj.size_bits,
+        },
         Obj::Endpoint => ObjectBlueprint::Endpoint,
         Obj::Notification => ObjectBlueprint::Notification,
-        Obj::CNode(obj) => ObjectBlueprint::CNode { size_bits: obj.size_bits },
+        Obj::CNode(obj) => ObjectBlueprint::CNode {
+            size_bits: obj.size_bits,
+        },
         Obj::TCB(_) => ObjectBlueprint::TCB,
         Obj::VCPU => ObjectBlueprint::VCPU,
         Obj::SmallPage(_) => ObjectBlueprint::SmallPage,

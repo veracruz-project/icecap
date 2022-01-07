@@ -1,11 +1,10 @@
-use core::slice;
 use core::convert::TryFrom;
-use icecap_core::prelude::*;
-use dyndl_types::*;
+use core::slice;
 
-use crate::{
-    CRegion, utils::rights_of, cpu::schedule,
-};
+use dyndl_types::*;
+use icecap_core::prelude::*;
+
+use crate::{cpu::schedule, utils::rights_of, CRegion};
 
 pub struct RealmObjectInitializationResources {
     pub pgd: PGD,
@@ -16,32 +15,42 @@ pub struct RealmObjectInitializationResources {
 }
 
 impl RealmObjectInitializationResources {
-
     pub fn fill_frame<T: Frame>(&self, frame: T, fill: &Fill) -> Fallible<()> {
         let vaddr = match T::frame_size() {
             FrameSize::Small => self.small_page_addr,
             FrameSize::Large => self.large_page_addr,
             _ => panic!(),
         };
-        frame.map(self.pgd, vaddr, CapRights::read_write(), VMAttributes::default() & !VMAttributes::PAGE_CACHEABLE)?;
-        let view = unsafe {
-            slice::from_raw_parts_mut(vaddr as *mut u8, T::frame_size().bytes())
-        };
+        frame.map(
+            self.pgd,
+            vaddr,
+            CapRights::read_write(),
+            VMAttributes::default() & !VMAttributes::PAGE_CACHEABLE,
+        )?;
+        let view = unsafe { slice::from_raw_parts_mut(vaddr as *mut u8, T::frame_size().bytes()) };
         for entry in fill {
-            view[entry.offset..(entry.offset + entry.content.len())].copy_from_slice(&entry.content);
+            view[entry.offset..(entry.offset + entry.content.len())]
+                .copy_from_slice(&entry.content);
         }
         frame.unmap()?;
         Ok(())
     }
 
-    pub fn initialize(&self, num_nodes: usize, model: &Model, caps: &[Unspecified], cregion: &mut CRegion) -> Fallible<Vec<Vec<TCB>>> {
+    pub fn initialize(
+        &self,
+        num_nodes: usize,
+        model: &Model,
+        caps: &[Unspecified],
+        cregion: &mut CRegion,
+    ) -> Fallible<Vec<Vec<TCB>>> {
         Initialize {
             initialization_resources: self,
             num_nodes,
             model,
             caps: &caps,
             cregion,
-        }.initialize()
+        }
+        .initialize()
     }
 }
 
@@ -54,7 +63,6 @@ struct Initialize<'a> {
 }
 
 impl<'a> Initialize<'a> {
-
     fn initialize(&mut self) -> Fallible<Vec<Vec<TCB>>> {
         self.init_vspaces()?;
         self.init_cspaces()?;
@@ -99,11 +107,12 @@ impl<'a> Initialize<'a> {
                                 let frame: LargePage = self.copy(orig_frame)?;
                                 let rights = rights_of(&cap.rights);
                                 // TODO more VMAttributes from cdl
-                                let attrs = VMAttributes::default() & !(if !cap.cached {
-                                    VMAttributes::PAGE_CACHEABLE
-                                } else {
-                                    VMAttributes::NONE
-                                });
+                                let attrs = VMAttributes::default()
+                                    & !(if !cap.cached {
+                                        VMAttributes::PAGE_CACHEABLE
+                                    } else {
+                                        VMAttributes::NONE
+                                    });
                                 frame.map(pgd, vaddr, rights, attrs)?;
                             }
                             PDEntry::PT(cap) => {
@@ -118,11 +127,12 @@ impl<'a> Initialize<'a> {
                                     let vaddr = vaddr + (i << 12);
                                     let rights = rights_of(&cap.rights);
                                     // TODO more VMAttributes from cdl
-                                    let attrs = VMAttributes::default() & !(if !cap.cached {
-                                        VMAttributes::PAGE_CACHEABLE
-                                    } else {
-                                        VMAttributes::NONE
-                                    });
+                                    let attrs = VMAttributes::default()
+                                        & !(if !cap.cached {
+                                            VMAttributes::PAGE_CACHEABLE
+                                        } else {
+                                            VMAttributes::NONE
+                                        });
                                     frame.map(pgd, vaddr, rights, attrs)?;
                                 }
                             }
@@ -138,13 +148,14 @@ impl<'a> Initialize<'a> {
         for (cnode, obj) in self.it::<CNode, &obj::CNode>() {
             for (i, cap) in &obj.entries {
                 // TODO enforce per-extern policy
-                let dst = cnode.relative(&CPtrWithDepth::new(CPtr::from_raw(*i as u64), obj.size_bits));
+                let dst = cnode.relative(&CPtrWithDepth::new(
+                    CPtr::from_raw(*i as u64),
+                    obj.size_bits,
+                ));
                 let mut rights = CapRights::all_rights();
                 let mut badge = None;
                 let ptr = match cap {
-                    Cap::Untyped(cap) => {
-                        cap.obj
-                    }
+                    Cap::Untyped(cap) => cap.obj,
                     Cap::Endpoint(cap) => {
                         badge = Some(cap.badge);
                         rights = rights_of(&cap.rights);
@@ -159,15 +170,9 @@ impl<'a> Initialize<'a> {
                         badge = Some(CNodeCapData::new(cap.guard, cap.guard_size).raw());
                         cap.obj
                     }
-                    Cap::TCB(cap) => {
-                        cap.obj
-                    }
-                    Cap::VCPU(cap) => {
-                        cap.obj
-                    }
-                    Cap::PGD(cap) => {
-                        cap.obj
-                    }
+                    Cap::TCB(cap) => cap.obj,
+                    Cap::VCPU(cap) => cap.obj,
+                    Cap::PGD(cap) => cap.obj,
                     Cap::LargePage(cap) => {
                         rights = rights_of(&cap.rights);
                         cap.obj
@@ -176,7 +181,11 @@ impl<'a> Initialize<'a> {
                         bail!("unsupported cap {:?}", cap)
                     }
                 };
-                let src = self.cregion.root.root.relative(self.cap::<Unspecified>(ptr));
+                let src = self
+                    .cregion
+                    .root
+                    .root
+                    .relative(self.cap::<Unspecified>(ptr));
                 match badge {
                     // HACK 0-badge != no-badge
                     None | Some(0) => dst.copy(&src, rights),
@@ -206,8 +215,19 @@ impl<'a> Initialize<'a> {
             tcb.bind_notification(bound_notification)?;
         }
 
-        tcb.configure(fault_ep, cspace, cspace_root_data, vspace, obj.ipc_buffer_addr, ipc_buffer_frame)?;
-        tcb.set_sched_params(self.initialization_resources.tcb_authority, obj.max_prio as u64, obj.prio as u64)?;
+        tcb.configure(
+            fault_ep,
+            cspace,
+            cspace_root_data,
+            vspace,
+            obj.ipc_buffer_addr,
+            ipc_buffer_frame,
+        )?;
+        tcb.set_sched_params(
+            self.initialization_resources.tcb_authority,
+            obj.max_prio as u64,
+            obj.prio as u64,
+        )?;
         schedule(tcb, None)?;
 
         let mut regs = UserContext::default();
@@ -234,7 +254,9 @@ impl<'a> Initialize<'a> {
     fn copy<T: LocalCPtr>(&mut self, cap: T) -> Fallible<T> {
         let slot = self.cregion.alloc().unwrap();
         let src = self.cregion.context().relative(cap);
-        self.cregion.relative_cptr(slot).copy(&src, CapRights::all_rights())?;
+        self.cregion
+            .relative_cptr(slot)
+            .copy(&src, CapRights::all_rights())?;
         Ok(self.cregion.cptr_with_depth(slot).local_cptr())
     }
 
@@ -260,11 +282,16 @@ impl<'a> Initialize<'a> {
         })
     }
 
-    fn it_cap<O: LocalCPtr + 'a, T: TryFrom<&'a Obj> + 'a>(model: &'a Model, caps: &'a [Unspecified]) -> impl Iterator<Item = (O, T)> + 'a {
+    fn it_cap<O: LocalCPtr + 'a, T: TryFrom<&'a Obj> + 'a>(
+        model: &'a Model,
+        caps: &'a [Unspecified],
+    ) -> impl Iterator<Item = (O, T)> + 'a {
         Self::it_i(model).map(move |(i, obj)| (caps[i].downcast(), obj))
     }
 
-    fn it<O: LocalCPtr + 'a, T: TryFrom<&'a Obj> + 'a>(&'a self) -> impl Iterator<Item = (O, T)> + 'a {
+    fn it<O: LocalCPtr + 'a, T: TryFrom<&'a Obj> + 'a>(
+        &'a self,
+    ) -> impl Iterator<Item = (O, T)> + 'a {
         Self::it_cap(&self.model, &self.caps)
     }
 }

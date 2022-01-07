@@ -4,7 +4,9 @@ extern crate alloc;
 
 use alloc::collections::btree_map::BTreeMap;
 use alloc::string::String;
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
+
 use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

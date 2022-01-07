@@ -5,10 +5,12 @@
 use core::convert::TryFrom;
 
 use icecap_core::prelude::*;
-use crate::{CRegion, Slot, UntypedId, ElaboratedUntyped};
+
+use crate::{CRegion, ElaboratedUntyped, Slot, UntypedId};
 
 mod node;
-use node::{Node, NodeType, AccessibleNodeType, LeafNodes};
+
+use node::{AccessibleNodeType, LeafNodes, Node, NodeType};
 
 pub struct AllocatorBuilder {
     cregion: CRegion,
@@ -17,7 +19,6 @@ pub struct AllocatorBuilder {
 }
 
 impl AllocatorBuilder {
-
     pub fn new(cregion: CRegion) -> Self {
         Self {
             cregion,
@@ -31,7 +32,10 @@ impl AllocatorBuilder {
         self.untyped.push(untyped);
     }
 
-    pub fn set_fragmentation_threshold_size_bits(&mut self, fragmentation_threshold_size_bits: usize) {
+    pub fn set_fragmentation_threshold_size_bits(
+        &mut self,
+        fragmentation_threshold_size_bits: usize,
+    ) {
         self.fragmentation_threshold_size_bits = fragmentation_threshold_size_bits;
     }
 
@@ -68,27 +72,21 @@ impl AllocatorBuilder {
                 if untyped_id.paddr < half_addr {
                     high_addr = half_addr - 1;
                     if node.left.is_none() {
-                        node.left = Some(
-                            Box::new(
-                                Node {
-                                    node_type: NodeType::Inaccessible,
-                                    left: None,
-                                    right: None,
-                                })
-                            );
+                        node.left = Some(Box::new(Node {
+                            node_type: NodeType::Inaccessible,
+                            left: None,
+                            right: None,
+                        }));
                     }
                     node = node.left.as_mut().unwrap();
                 } else {
                     low_addr = half_addr;
                     if node.right.is_none() {
-                        node.right = Some(
-                            Box::new(
-                                Node {
-                                    node_type: NodeType::Inaccessible,
-                                    left: None,
-                                    right: None,
-                                })
-                            );
+                        node.right = Some(Box::new(Node {
+                            node_type: NodeType::Inaccessible,
+                            left: None,
+                            right: None,
+                        }));
                     }
                     node = node.right.as_mut().unwrap();
                 }
@@ -128,7 +126,6 @@ pub struct Allocator {
 }
 
 impl Allocator {
-
     /// Determine if there is sufficient Untyped left to create the number and
     /// size of objects provided to the function.
     ///
@@ -180,7 +177,9 @@ impl Allocator {
 
         // Mutate the temporary RelativeCPtr to add the realm CNode's guard and store it as
         // the CPtr to the realm's CNode.
-        realm_cregion.root.mutate(&temp_rel_cptr, CNodeCapData::new(guard, guard_size).raw())?;
+        realm_cregion
+            .root
+            .mutate(&temp_rel_cptr, CNodeCapData::new(guard, guard_size).raw())?;
 
         // Clean up the temporary Slot and RelativeCPtr.
         temp_rel_cptr.delete()?;
@@ -192,7 +191,12 @@ impl Allocator {
     // destination_cnode: cptr to the destination cnode
     // slot: slot in which to create the object
     // blueprint: blueprint of the object to be created
-    fn create_object(&mut self, destination_cnode: &RelativeCPtr, slot: Slot, blueprint: ObjectBlueprint) -> UntypedId {
+    fn create_object(
+        &mut self,
+        destination_cnode: &RelativeCPtr,
+        slot: Slot,
+        blueprint: ObjectBlueprint,
+    ) -> UntypedId {
         let phys_size_bits = blueprint.physical_size_bits();
 
         // Find a Node of Untyped to retype.
@@ -202,9 +206,10 @@ impl Allocator {
         if untyped_id.size_bits > phys_size_bits {
             // The difference between phys_size_bits and next_smallest_size
             // identifies how many times we'll have to split the Untyped.
-            for _ in phys_size_bits .. untyped_id.size_bits {
+            for _ in phys_size_bits..untyped_id.size_bits {
                 // Split the Untyped into slots in the root CNode.
-                let (left_child_untyped_id, right_child_untyped_id) = self.split_untyped(untyped_id);
+                let (left_child_untyped_id, right_child_untyped_id) =
+                    self.split_untyped(untyped_id);
 
                 // Work down the right side of the tree.
                 untyped_id = right_child_untyped_id;
@@ -222,7 +227,14 @@ impl Allocator {
 
         // Get the local cptr for the Untyped and retype it into the destination cnode.
         let local_cptr = node.local_cptr(&self.cregion);
-        local_cptr.retype(blueprint, &destination_cnode, u64::try_from(slot).unwrap(), 1).unwrap();
+        local_cptr
+            .retype(
+                blueprint,
+                &destination_cnode,
+                u64::try_from(slot).unwrap(),
+                1,
+            )
+            .unwrap();
 
         // Return the untyped id of the node that was retyped.
         return untyped_id;
@@ -232,7 +244,9 @@ impl Allocator {
     fn split_untyped(&mut self, untyped_id: UntypedId) -> (UntypedId, UntypedId) {
         // Create the blueprint for the new Untyped.
         let new_size_bits = untyped_id.size_bits - 1;
-        let blueprint = ObjectBlueprint::Untyped { size_bits: new_size_bits };
+        let blueprint = ObjectBlueprint::Untyped {
+            size_bits: new_size_bits,
+        };
 
         // Identify the slot numbers into which the Untyped will be split.
         let left_slot = self.cregion.alloc().unwrap();
@@ -246,37 +260,41 @@ impl Allocator {
         let local_cptr = node.local_cptr(&self.cregion);
 
         // Split the Untyped by retyping into two Untyped regions.
-        local_cptr.retype(blueprint, &self.cregion.root, u64::try_from(left_slot).unwrap(), 1).unwrap();
-        local_cptr.retype(blueprint, &self.cregion.root, u64::try_from(right_slot).unwrap(), 1).unwrap();
+        local_cptr
+            .retype(
+                blueprint,
+                &self.cregion.root,
+                u64::try_from(left_slot).unwrap(),
+                1,
+            )
+            .unwrap();
+        local_cptr
+            .retype(
+                blueprint,
+                &self.cregion.root,
+                u64::try_from(right_slot).unwrap(),
+                1,
+            )
+            .unwrap();
 
         // Add the child Nodes to the parent Node.
-        node.left = Some(
-            Box::new(
-                Node {
-                    node_type: NodeType::Accessible {
-                        consumed: false,
-                        accessible_node_type: AccessibleNodeType::Managed {
-                            slot: left_slot,
-                        },
-                    },
-                    left: None,
-                    right: None,
-                })
-        );
+        node.left = Some(Box::new(Node {
+            node_type: NodeType::Accessible {
+                consumed: false,
+                accessible_node_type: AccessibleNodeType::Managed { slot: left_slot },
+            },
+            left: None,
+            right: None,
+        }));
 
-        node.right = Some(
-            Box::new(
-                Node {
-                    node_type: NodeType::Accessible {
-                        consumed: false,
-                        accessible_node_type: AccessibleNodeType::Managed {
-                            slot: right_slot,
-                        },
-                    },
-                    left: None,
-                    right: None,
-                })
-        );
+        node.right = Some(Box::new(Node {
+            node_type: NodeType::Accessible {
+                consumed: false,
+                accessible_node_type: AccessibleNodeType::Managed { slot: right_slot },
+            },
+            left: None,
+            right: None,
+        }));
 
         // Add the new children to leaf_nodes.
         let left_child_untyped_id = UntypedId {
@@ -286,7 +304,7 @@ impl Allocator {
         self.leaf_nodes.add_leaf(&left_child_untyped_id);
 
         let right_child_untyped_id = UntypedId {
-           paddr: untyped_id.paddr + (1 << new_size_bits),
+            paddr: untyped_id.paddr + (1 << new_size_bits),
             size_bits: new_size_bits,
         };
         self.leaf_nodes.add_leaf(&right_child_untyped_id);
@@ -296,9 +314,11 @@ impl Allocator {
 
     // Creates multiple objects in the provided cregion based on the provided blueprints.
     // TODO: Refactor to create all the objects from a single Untyped to reduce syscalls.
-    pub fn create_objects(&mut self, realm_cregion: &mut CRegion,
-                          blueprints: &[ObjectBlueprint]) -> Fallible<(Vec<Slot>, Vec<UntypedId>)> {
-
+    pub fn create_objects(
+        &mut self,
+        realm_cregion: &mut CRegion,
+        blueprints: &[ObjectBlueprint],
+    ) -> Fallible<(Vec<Slot>, Vec<UntypedId>)> {
         let mut slots = Vec::new();
         let mut untyped_ids = Vec::new();
 
@@ -327,8 +347,7 @@ impl Allocator {
         let high_addr = 0xFFFF_FFFF_FFFF_FFFF;
         let depth_from_root = 0;
 
-        self.revoke_and_free_helper(&mut node, low_addr, high_addr,
-                                    depth_from_root, untyped_id)?;
+        self.revoke_and_free_helper(&mut node, low_addr, high_addr, depth_from_root, untyped_id)?;
 
         self.cap_derivation_tree = node.clone();
 
@@ -336,9 +355,14 @@ impl Allocator {
     }
 
     // Recursive helper function for revoke_and_free()
-    fn revoke_and_free_helper(&mut self, node: &mut Node, low_addr: usize,
-                              high_addr: usize, depth_from_root: usize,
-                              untyped_id: &UntypedId) -> Fallible<()> {
+    fn revoke_and_free_helper(
+        &mut self,
+        node: &mut Node,
+        low_addr: usize,
+        high_addr: usize,
+        depth_from_root: usize,
+        untyped_id: &UntypedId,
+    ) -> Fallible<()> {
         // Check if we're at the correct level of the tree.
         if (64 - depth_from_root) == untyped_id.size_bits {
             // Enforce the invariant that we only revoke and free accessible,
@@ -364,7 +388,7 @@ impl Allocator {
             // function only gets called when the realm is being destroyed, so
             // we aren't at risk of leaking slots.
 
-        // If we're too high in the tree, recurse down.
+            // If we're too high in the tree, recurse down.
         } else {
             // Verify the paddr is in bounds
             assert!(untyped_id.paddr >= low_addr && untyped_id.paddr <= high_addr);
@@ -373,23 +397,31 @@ impl Allocator {
             if untyped_id.paddr < half_addr {
                 // Recurse down the left child.
                 assert!(!node.left.is_none());
-                self.revoke_and_free_helper(node.left.as_mut().unwrap(), low_addr,
-                                            half_addr - 1, depth_from_root + 1,
-                                            untyped_id)?;
+                self.revoke_and_free_helper(
+                    node.left.as_mut().unwrap(),
+                    low_addr,
+                    half_addr - 1,
+                    depth_from_root + 1,
+                    untyped_id,
+                )?;
             } else {
                 // Recurse down the right child.
                 assert!(!node.right.is_none());
-                self.revoke_and_free_helper(node.right.as_mut().unwrap(), half_addr,
-                                            high_addr, depth_from_root + 1,
-                                            untyped_id)?;
+                self.revoke_and_free_helper(
+                    node.right.as_mut().unwrap(),
+                    half_addr,
+                    high_addr,
+                    depth_from_root + 1,
+                    untyped_id,
+                )?;
             }
 
             // If the node is accessible and its children are deletable (or empty),
             // revoke the Node's capability, add it to LeafNodes, and delete the children.
-            if node.is_accessible() &&
-                (node.left.is_none() || node.left.as_ref().unwrap().is_deletable()) &&
-                (node.right.is_none() || node.right.as_ref().unwrap().is_deletable()) {
-
+            if node.is_accessible()
+                && (node.left.is_none() || node.left.as_ref().unwrap().is_deletable())
+                && (node.right.is_none() || node.right.as_ref().unwrap().is_deletable())
+            {
                 // Clean up the children.
                 if !node.left.is_none() {
                     // Free the child's slot in the Managed CNode.
@@ -433,7 +465,6 @@ impl Allocator {
 
                 // Add the node's freed Untyped to the leaf_nodes structure.
                 self.leaf_nodes.add_leaf(&untyped_id);
-
             }
         }
         Ok(())

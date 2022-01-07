@@ -1,29 +1,24 @@
-use icecap_std::prelude::*;
-use icecap_linux_syscall::*;
-
+use alloc::boxed::Box;
 use core::ffi::VaList;
 use core::mem::MaybeUninit;
-use core::ptr;
 use core::ops::Range;
-use alloc::boxed::Box;
+use core::ptr;
 
+use icecap_linux_syscall::*;
+use icecap_std::prelude::*;
 
 const OCAML_HEAP_SIZE: usize = 2097152; // 2MB
 static mut OCAML_HEAP: &'static mut [u8] = &mut [0; OCAML_HEAP_SIZE];
 
 fn ocaml_heap_ptr_range() -> Range<*const u8> {
-    unsafe {
-        OCAML_HEAP.as_ptr_range()
-    }
+    unsafe { OCAML_HEAP.as_ptr_range() }
 }
-
 
 pub fn init() {
     unsafe {
         set_syscall_handler(c_handle_syscall);
     }
 }
-
 
 unsafe extern "C" fn c_handle_syscall(sysnum: i64, mut args: ...) -> i64 {
     handle_syscall(sysnum, &mut args.as_va_list()).unwrap()
@@ -45,9 +40,7 @@ fn handle_known_syscall(syscall: Syscall) -> Fallible<i64> {
     use Syscall::*;
 
     Ok(match syscall {
-        Getuid | Geteuid | Getgid | Getegid => {
-            -ENOSYS
-        }
+        Getuid | Geteuid | Getgid | Getegid => -ENOSYS,
         Brk { addr } => {
             (if addr.is_null() {
                 ocaml_heap_ptr_range().start
@@ -57,9 +50,17 @@ fn handle_known_syscall(syscall: Syscall) -> Fallible<i64> {
                 ptr::null()
             }) as i64
         }
-        Mmap { addr, length, prot, flag, fd, offset } => {
+        Mmap {
+            addr,
+            length,
+            prot,
+            flag,
+            fd,
+            offset,
+        } => {
             if flag & MAP_ANONYMOUS != 0 {
-                let ret: *const [MaybeUninit<u8>] = Box::into_raw(Box::<[u8]>::new_uninit_slice(length));
+                let ret: *const [MaybeUninit<u8>] =
+                    Box::into_raw(Box::<[u8]>::new_uninit_slice(length));
                 ret as *const () as i64
             } else {
                 -ENOMEM

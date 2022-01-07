@@ -3,7 +3,9 @@
 extern crate alloc;
 
 use alloc::vec::Vec;
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
+
 use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

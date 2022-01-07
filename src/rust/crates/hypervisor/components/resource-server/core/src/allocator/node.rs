@@ -1,6 +1,7 @@
 use alloc::collections::BTreeMap;
 
 use icecap_core::prelude::*;
+
 use crate::{CRegion, Slot, UntypedId};
 
 // TODO: Encode the invariant that a consumed node never has children.
@@ -31,8 +32,13 @@ impl Node {
     // Returns a reference to a Node's AccessibleNodeType variant
     pub(crate) fn get_accessible_node_type(&self) -> &AccessibleNodeType {
         match &self.node_type {
-            NodeType::Inaccessible => panic!("Attempting to access members of an Inaccessible Node"),
-            NodeType::Accessible { consumed, accessible_node_type } => &accessible_node_type,
+            NodeType::Inaccessible => {
+                panic!("Attempting to access members of an Inaccessible Node")
+            }
+            NodeType::Accessible {
+                consumed,
+                accessible_node_type,
+            } => &accessible_node_type,
         }
     }
 
@@ -49,7 +55,11 @@ impl Node {
 
     pub(crate) fn is_managed(&self) -> bool {
         if self.is_accessible() {
-            if let NodeType::Accessible { consumed, accessible_node_type } = &self.node_type {
+            if let NodeType::Accessible {
+                consumed,
+                accessible_node_type,
+            } = &self.node_type
+            {
                 if let AccessibleNodeType::Managed { .. } = accessible_node_type {
                     return true;
                 }
@@ -84,8 +94,7 @@ impl Node {
     pub(crate) fn is_deletable(&self) -> bool {
         // We can delete an accessible node that is not consumed and which has
         // no children.
-        self.is_accessible() && !self.is_consumed() &&
-            self.left.is_none() && self.right.is_none()
+        self.is_accessible() && !self.is_consumed() && self.left.is_none() && self.right.is_none()
     }
 
     // Gets the local local_cptr for the node.
@@ -95,9 +104,7 @@ impl Node {
         let accessible_node_type = self.get_accessible_node_type();
 
         match accessible_node_type {
-            AccessibleNodeType::BuiltIn { local_cptr } => {
-                *local_cptr
-            }
+            AccessibleNodeType::BuiltIn { local_cptr } => *local_cptr,
             AccessibleNodeType::Managed { slot } => {
                 cregion.cptr_with_depth(*slot).local_cptr_hack::<Untyped>()
             }
@@ -111,12 +118,8 @@ impl Node {
         let accessible_node_type = self.get_accessible_node_type();
 
         match accessible_node_type {
-            AccessibleNodeType::BuiltIn { local_cptr } => {
-                cregion.context().relative(*local_cptr)
-            }
-            AccessibleNodeType::Managed { slot } => {
-                cregion.relative_cptr(*slot)
-            }
+            AccessibleNodeType::BuiltIn { local_cptr } => cregion.context().relative(*local_cptr),
+            AccessibleNodeType::Managed { slot } => cregion.relative_cptr(*slot),
         }
     }
 
@@ -161,7 +164,10 @@ impl Node {
     // capability derivation tree to the Node specified by UntypedId.
     //
     // panics if the Node is not in the tree.
-    pub(crate) fn get_node_mut<'a>(root_node: &'a mut Node, untyped_id: &UntypedId) -> &'a mut Node {
+    pub(crate) fn get_node_mut<'a>(
+        root_node: &'a mut Node,
+        untyped_id: &UntypedId,
+    ) -> &'a mut Node {
         let mut depth = 64;
         let mut low_addr = 0;
         let mut high_addr = 0xFFFF_FFFF_FFFF_FFFF;
@@ -197,17 +203,13 @@ pub(crate) enum NodeType {
     Accessible {
         consumed: bool,
         accessible_node_type: AccessibleNodeType,
-    }
+    },
 }
 
 #[derive(Clone, Debug)]
 pub(crate) enum AccessibleNodeType {
-    BuiltIn {
-        local_cptr: Untyped,
-    },
-    Managed {
-        slot: Slot,
-    },
+    BuiltIn { local_cptr: Untyped },
+    Managed { slot: Slot },
 }
 
 /// Structure for conveniently finding consumable leaf nodes in the capability
@@ -236,7 +238,8 @@ impl LeafNodes {
         match self.leaf_nodes.get_mut(&untyped_id.size_bits) {
             Some(untyped_ids) => untyped_ids.push(untyped_id.clone()),
             None => {
-                self.leaf_nodes.insert(untyped_id.size_bits, vec![untyped_id.clone()]);
+                self.leaf_nodes
+                    .insert(untyped_id.size_bits, vec![untyped_id.clone()]);
             }
         }
     }

@@ -1,9 +1,9 @@
-use icecap_std::prelude::*;
-use core::result;
-use core::cmp::Ordering;
 use alloc::collections::{BTreeMap, BTreeSet};
+use core::cmp::Ordering;
+use core::result;
 
 use icecap_drivers::timer::TimerDevice;
+use icecap_std::prelude::*;
 
 pub type Error = ();
 pub type ClientId = usize;
@@ -50,7 +50,6 @@ impl PartialEq for Timer {
 struct Timers(Vec<Timer>);
 
 impl Timers {
-
     fn new() -> Self {
         Timers(vec![])
     }
@@ -67,7 +66,6 @@ impl Timers {
             Some(self.0[0].compare)
         }
     }
-
 }
 
 type Completed = BTreeMap<ClientId, BTreeSet<TimerId>>;
@@ -82,7 +80,6 @@ pub struct Server<D: TimerDevice> {
 }
 
 impl<D: TimerDevice> Server<D> {
-
     pub fn new(clients: Vec<Notification>, timers_per_client: TimerId, device: D) -> Self {
         assert!(clients.len() <= 64);
         assert!(timers_per_client <= 64);
@@ -114,7 +111,7 @@ impl<D: TimerDevice> Server<D> {
     }
 
     fn now_tick(&self) -> Tick {
-       self.device.get_count() as i64
+        self.device.get_count() as i64
     }
 
     fn now_ns(&self) -> Nanosecond {
@@ -130,7 +127,10 @@ impl<D: TimerDevice> Server<D> {
         while self.outstanding.0.len() > 0 && self.outstanding.0[0].compare <= count {
             let mut timer = self.outstanding.0.remove(0);
             let client = timer.client;
-            self.completed.get_mut(&timer.client).unwrap().insert(timer.timer);
+            self.completed
+                .get_mut(&timer.client)
+                .unwrap()
+                .insert(timer.timer);
             if let Some(period) = &timer.period {
                 timer.compare += period.period;
                 self.outstanding.insert(timer);
@@ -170,14 +170,21 @@ impl<D: TimerDevice> Server<D> {
     }
 
     fn remove_timer(&mut self, cid: ClientId, tid: TimerId) {
-        for _ in self.outstanding.0.drain_filter(|timer| {
-            timer.client == cid && timer.timer == tid
-        }) {
+        for _ in self
+            .outstanding
+            .0
+            .drain_filter(|timer| timer.client == cid && timer.timer == tid)
+        {
             self.completed.get_mut(&cid).unwrap().remove(&tid);
         }
     }
 
-    pub fn oneshot_relative(&mut self, cid: ClientId, tid: TimerId, ns: Nanosecond) -> result::Result<(), Error> {
+    pub fn oneshot_relative(
+        &mut self,
+        cid: ClientId,
+        tid: TimerId,
+        ns: Nanosecond,
+    ) -> result::Result<(), Error> {
         self.guard_tid(tid)?;
         let now = self.now_tick();
         self.set_timer(Timer {
@@ -190,7 +197,12 @@ impl<D: TimerDevice> Server<D> {
         Ok(())
     }
 
-    pub fn oneshot_absolute(&mut self, cid: ClientId, tid: TimerId, ns: Nanosecond) -> result::Result<(), Error> {
+    pub fn oneshot_absolute(
+        &mut self,
+        cid: ClientId,
+        tid: TimerId,
+        ns: Nanosecond,
+    ) -> result::Result<(), Error> {
         self.guard_tid(tid)?;
         let now = self.now_tick();
         self.set_timer(Timer {
@@ -203,7 +215,12 @@ impl<D: TimerDevice> Server<D> {
         Ok(())
     }
 
-    pub fn periodic(&mut self, cid: ClientId, tid: TimerId, ns: Nanosecond) -> result::Result<(), Error> {
+    pub fn periodic(
+        &mut self,
+        cid: ClientId,
+        tid: TimerId,
+        ns: Nanosecond,
+    ) -> result::Result<(), Error> {
         self.guard_tid(tid)?;
         let now = self.now_tick();
         let period = self.ns_to_tick(ns);
@@ -211,9 +228,7 @@ impl<D: TimerDevice> Server<D> {
             client: cid,
             timer: tid,
             compare: now + period,
-            period: Some(Period {
-                period,
-            }),
+            period: Some(Period { period }),
         });
         self.update(now);
         Ok(())
@@ -238,5 +253,4 @@ impl<D: TimerDevice> Server<D> {
     pub fn time(&mut self, _cid: ClientId) -> Nanosecond {
         self.now_ns()
     }
-
 }

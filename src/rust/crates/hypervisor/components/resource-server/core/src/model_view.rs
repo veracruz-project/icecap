@@ -1,5 +1,7 @@
 use alloc::prelude::v1::*;
+
 use dyndl_types::*;
+
 use crate::blueprint_of;
 
 pub struct ModelView {
@@ -9,7 +11,6 @@ pub struct ModelView {
 }
 
 impl ModelView {
-
     pub fn new(model: &Model) -> Self {
         let mut view = Self {
             local_objects: vec![],
@@ -18,7 +19,6 @@ impl ModelView {
         };
 
         for (i, obj) in model.objects.iter().enumerate() {
-
             match &obj.object {
                 AnyObj::Local(_) => {
                     view.local_objects.push(i);

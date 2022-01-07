@@ -3,24 +3,22 @@ mod bulk_transport;
 pub mod syscall;
 use icecap_host_vmm_types::{DirectRequest, DirectResponse};
 
-pub use error::{
-    LameError, Result,
-};
-pub use bulk_transport::{
-    BulkTransport,
-};
+pub use bulk_transport::BulkTransport;
+pub use error::{LameError, Result};
 
-pub struct Host {
-}
+pub struct Host {}
 
 impl Host {
-
     pub fn new() -> Result<Self> {
-        Ok(Self {
-        })
+        Ok(Self {})
     }
 
-    pub fn create_realm(&mut self, realm_id: usize, spec: &[u8], bulk_transport_chunk_size: usize) -> Result<()> {
+    pub fn create_realm(
+        &mut self,
+        realm_id: usize,
+        spec: &[u8],
+        bulk_transport_chunk_size: usize,
+    ) -> Result<()> {
         syscall::declare(realm_id, spec.len());
         let mut bulk_transport = BulkTransport::open()?;
         bulk_transport.send_spec(realm_id, spec, bulk_transport_chunk_size)?;

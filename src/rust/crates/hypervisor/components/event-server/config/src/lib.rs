@@ -2,11 +2,13 @@
 
 extern crate alloc;
 
-use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
-use serde::{Serialize, Deserialize};
+use alloc::vec::Vec;
+
 use icecap_config::*;
 use icecap_event_server_types::*;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

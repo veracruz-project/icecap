@@ -1,5 +1,5 @@
-use core::ops::Range;
 use alloc::collections::BTreeMap;
+use core::ops::Range;
 
 #[derive(Debug)]
 pub struct Set {
@@ -9,7 +9,6 @@ pub struct Set {
 }
 
 impl Set {
-
     pub fn new() -> Self {
         Self {
             elements: BTreeMap::new(),
@@ -25,7 +24,7 @@ impl Set {
             // was not already in the set.
             match self.elements.insert(key, false) {
                 Some(false) => panic!("Attempting to insert elements already in the Set"),
-                _ => {},
+                _ => {}
             }
         }
     }
@@ -62,13 +61,13 @@ impl Set {
         }
 
         if found_range {
-            for key in low..high+1 {
+            for key in low..high + 1 {
                 // Assign each key to true and verify that it wasn't already true.
                 if let Some(true) = self.elements.insert(key, true) {
                     panic!("Attempting to withdraw a slot that is already assigned.");
                 }
             }
-            return Some(low..high+1);
+            return Some(low..high + 1);
         } else {
             return None;
         }

@@ -3,8 +3,9 @@
 
 extern crate alloc;
 
-use icecap_std::prelude::*;
 use cortex_a::asm::*;
+
+use icecap_std::prelude::*;
 
 declare_raw_main!(main);
 

@@ -1,8 +1,10 @@
-use icecap_std::prelude::*;
 use icecap_resource_server_config::*;
 use icecap_resource_server_core::*;
+use icecap_std::prelude::*;
 
-pub fn realize_initialization_resources(x: &ConfigRealmObjectInitializationResources) -> RealmObjectInitializationResources {
+pub fn realize_initialization_resources(
+    x: &ConfigRealmObjectInitializationResources,
+) -> RealmObjectInitializationResources {
     RealmObjectInitializationResources {
         pgd: x.pgd,
         asid_pool: x.asid_pool,
@@ -25,5 +27,7 @@ pub fn realize_extern(x: &ConfigExtern) -> Extern {
 }
 
 pub fn realize_externs(x: &ConfigExterns) -> Externs {
-    x.iter().map(|(k, v)| (k.clone(), realize_extern(v))).collect()
+    x.iter()
+        .map(|(k, v)| (k.clone(), realize_extern(v)))
+        .collect()
 }

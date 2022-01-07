@@ -1,8 +1,7 @@
 #![no_std]
 #![feature(c_variadic)]
 
-use core::ffi::{VaList, c_void};
-
+use core::ffi::{c_void, VaList};
 
 pub const ENOSYS: i64 = 38;
 pub const ENOMEM: i64 = 12;
@@ -10,14 +9,12 @@ pub const ENOMEM: i64 = 12;
 pub const SEEK_CUR: i32 = 1;
 pub const MAP_ANONYMOUS: i32 = 0x20;
 
-
 #[repr(C)]
 #[derive(Debug)]
 pub struct IOVec {
     pub iov_base: *const c_void,
     pub iov_len: usize,
 }
-
 
 #[derive(Debug)]
 pub enum Syscall {
@@ -41,7 +38,7 @@ pub enum Syscall {
     Getgid,
     Getegid,
     Brk {
-        addr: *const u8 // TODO c_void
+        addr: *const u8, // TODO c_void
     },
     Mmap {
         addr: *const u8, // TODO c_void
@@ -54,7 +51,6 @@ pub enum Syscall {
 }
 
 impl Syscall {
-
     pub fn get(sysnum: i64, args: &mut VaList) -> Option<Self> {
         use Syscall::*;
 
@@ -89,16 +85,12 @@ impl Syscall {
                 fd: unsafe { args.arg() },
                 offset: unsafe { args.arg() },
             },
-            _ => {
-                return None
-            }
+            _ => return None,
         })
     }
-
 }
 
-
-pub type SyscallHandler = unsafe extern "C" fn (i64, ...) -> i64;
+pub type SyscallHandler = unsafe extern "C" fn(i64, ...) -> i64;
 
 extern "C" {
     static mut __sysinfo: SyscallHandler;

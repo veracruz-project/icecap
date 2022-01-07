@@ -1,20 +1,9 @@
-use core::{
-    cell::RefCell,
-};
-use alloc::{
-    vec::Vec,
-    collections::BTreeMap,
-    sync::Arc,
-};
+use alloc::{collections::BTreeMap, sync::Arc, vec::Vec};
+use core::cell::RefCell;
 
 use biterate::biterate;
-
-use icecap_std::{
-    prelude::*,
-    sync::Mutex,
-};
-
 use icecap_event_server_types::*;
+use icecap_std::{prelude::*, sync::Mutex};
 
 mod impls;
 mod init;

@@ -2,16 +2,20 @@ use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use crate::{Result, syscall::spec_chunk};
+use crate::{syscall::spec_chunk, Result};
 
 const BULK_TRANSPORT_PATH: &str = "/dev/resource_server";
 
 pub struct BulkTransport(File);
 
 impl BulkTransport {
-
     pub fn open() -> Result<Self> {
-        Ok(Self(OpenOptions::new().read(true).write(true).open(PathBuf::from(BULK_TRANSPORT_PATH))?))
+        Ok(Self(
+            OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(PathBuf::from(BULK_TRANSPORT_PATH))?,
+        ))
     }
 
     pub fn send(&mut self, bytes: &[u8]) -> Result<()> {
@@ -29,9 +33,13 @@ impl BulkTransport {
         Ok(())
     }
 
-    pub fn send_spec_from_file(&mut self, realm_id: usize, path: &impl AsRef<Path>, chunk_size: usize) -> Result<()> {
+    pub fn send_spec_from_file(
+        &mut self,
+        realm_id: usize,
+        path: &impl AsRef<Path>,
+        chunk_size: usize,
+    ) -> Result<()> {
         let spec = fs::read(path)?;
         self.send_spec(realm_id, &spec, chunk_size)
     }
-
 }

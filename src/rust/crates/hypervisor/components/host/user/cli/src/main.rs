@@ -1,39 +1,35 @@
 use std::fs;
 
-use clap::{Arg, App, SubCommand};
+use clap::{App, Arg, SubCommand};
 
 use icecap_host_user::*;
 use icecap_host_vmm_types::DirectRequest;
 
 fn main() -> Result<()> {
     let matches = App::new("")
-            .subcommand(SubCommand::with_name("create")
-                .arg(Arg::with_name("REALM_ID")
-                    .required(true)
-                    .index(1))
-                .arg(Arg::with_name("SPEC")
-                    .required(true)
-                    .index(2)))
-            .subcommand(SubCommand::with_name("destroy")
-                .arg(Arg::with_name("REALM_ID")
-                    .required(true)
-                    .index(1)))
-            .subcommand(SubCommand::with_name("run")
-                .arg(Arg::with_name("REALM_ID")
-                    .required(true)
-                    .index(1))
-                .arg(Arg::with_name("VIRTUAL_NODE")
-                    .required(true)
-                    .index(2)))
-            .subcommand(SubCommand::with_name("hack-run")
-                .arg(Arg::with_name("REALM_ID")
-                    .required(true)
-                    .index(1)))
-            .subcommand(SubCommand::with_name("benchmark")
-                .arg(Arg::with_name("BENCHMARK_COMMAND")
-                .required(true)
-                .index(1)))
-            .get_matches();
+        .subcommand(
+            SubCommand::with_name("create")
+                .arg(Arg::with_name("REALM_ID").required(true).index(1))
+                .arg(Arg::with_name("SPEC").required(true).index(2)),
+        )
+        .subcommand(
+            SubCommand::with_name("destroy")
+                .arg(Arg::with_name("REALM_ID").required(true).index(1)),
+        )
+        .subcommand(
+            SubCommand::with_name("run")
+                .arg(Arg::with_name("REALM_ID").required(true).index(1))
+                .arg(Arg::with_name("VIRTUAL_NODE").required(true).index(2)),
+        )
+        .subcommand(
+            SubCommand::with_name("hack-run")
+                .arg(Arg::with_name("REALM_ID").required(true).index(1)),
+        )
+        .subcommand(
+            SubCommand::with_name("benchmark")
+                .arg(Arg::with_name("BENCHMARK_COMMAND").required(true).index(1)),
+        )
+        .get_matches();
 
     let subcommand = match &matches.subcommand {
         Some(subcommand) => subcommand,
@@ -52,7 +48,11 @@ fn main() -> Result<()> {
         }
         "run" => {
             let realm_id = subcommand.matches.value_of("REALM_ID").unwrap().parse()?;
-            let virtual_node = subcommand.matches.value_of("VIRTUAL_NODE").unwrap().parse()?;
+            let virtual_node = subcommand
+                .matches
+                .value_of("VIRTUAL_NODE")
+                .unwrap()
+                .parse()?;
             run(realm_id, virtual_node)?;
         }
         "hack-run" => {

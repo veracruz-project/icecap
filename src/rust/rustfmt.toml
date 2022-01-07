@@ -5,7 +5,4 @@ ignore = [
     "crates/9p",
     "crates/framework/icecap-failure",
     "crates/framework/icecap-unwind",
-
-    # TODO
-    "crates/hypervisor/components",
 ]

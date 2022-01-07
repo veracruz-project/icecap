@@ -2,7 +2,8 @@
 #![feature(type_ascription)]
 
 use core::sync::atomic::{AtomicU64, Ordering};
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
 
 use biterate::biterate;
 use finite_set::*;
@@ -14,26 +15,24 @@ pub type InIndex = usize;
 
 #[derive(Clone)]
 pub struct Bitfield {
-    addr: usize
+    addr: usize,
 }
 
 impl Bitfield {
-
     const GROUP_BITS: u32 = 64;
 
     pub unsafe fn new(addr: usize) -> Self {
-        Self {
-            addr,
-        }
+        Self { addr }
     }
 
     fn group(&self, group_index: u32) -> &AtomicU64 {
         unsafe {
-            &*((self.addr + core::mem::size_of::<u64>() * (group_index as usize)) as *const AtomicU64)
+            &*((self.addr + core::mem::size_of::<u64>() * (group_index as usize))
+                as *const AtomicU64)
         }
     }
 
-    pub fn set(&self, bit: u32) -> /* notify: */ bool {
+    pub fn set(&self, bit: u32) -> bool {
         let group_index = bit / Self::GROUP_BITS;
         let member_index = bit % Self::GROUP_BITS;
         let member = 1 << member_index;
@@ -41,7 +40,11 @@ impl Bitfield {
         old & member == 0
     }
 
-    pub fn clear<E>(&self, badge: u64, mut f: impl FnMut(/* bit: */ u32) -> Result<(), E>) -> Result<(), E> {
+    pub fn clear<E>(
+        &self,
+        badge: u64,
+        mut f: impl FnMut(/* bit: */ u32) -> Result<(), E>,
+    ) -> Result<(), E> {
         for group_index in biterate(badge) {
             let members = self.group(group_index).swap(0, Ordering::SeqCst);
             for member_index in biterate(members) {
@@ -72,12 +75,30 @@ pub mod calls {
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
     pub enum Client {
-        Signal { index: OutIndex },
-        SEV { nid: NodeIndex },
-        Poll { nid: NodeIndex },
-        End { nid: NodeIndex, index: InIndex },
-        Configure { nid: NodeIndex, index: InIndex, action: ConfigureAction },
-        Move { src_nid: NodeIndex, src_index: InIndex, dst_nid: NodeIndex, dst_index: InIndex },
+        Signal {
+            index: OutIndex,
+        },
+        SEV {
+            nid: NodeIndex,
+        },
+        Poll {
+            nid: NodeIndex,
+        },
+        End {
+            nid: NodeIndex,
+            index: InIndex,
+        },
+        Configure {
+            nid: NodeIndex,
+            index: InIndex,
+            action: ConfigureAction,
+        },
+        Move {
+            src_nid: NodeIndex,
+            src_index: InIndex,
+            dst_nid: NodeIndex,
+            dst_index: InIndex,
+        },
     }
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,7 +111,11 @@ pub mod calls {
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
     pub enum Host {
-        Subscribe { nid: NodeIndex, realm_id: RealmId, realm_nid: NodeIndex },
+        Subscribe {
+            nid: NodeIndex,
+            realm_id: RealmId,
+            realm_nid: NodeIndex,
+        },
     }
 }
 
@@ -154,8 +179,8 @@ pub mod events {
 
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Finite)]
     pub enum HostIn {
-        RealmEvent, // private
-        SPI(SPI), // shared
+        RealmEvent,                   // private
+        SPI(SPI),                     // shared
         RingBuffer(HostRingBufferIn), // shared
     }
 

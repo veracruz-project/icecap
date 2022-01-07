@@ -3,8 +3,8 @@
 
 extern crate alloc;
 
-use icecap_std::prelude::*;
 use icecap_fault_handler_config::{Config, Thread};
+use icecap_std::prelude::*;
 use sel4::Fault;
 
 declare_main!(main);

@@ -10,8 +10,12 @@
 
 extern crate alloc;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
+use icecap_event_server_types::{
+    calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
+};
+use icecap_mirage_config::Config;
 use icecap_std::{
     config::RingBufferConfig,
     config::RingBufferKicksConfig,
@@ -23,10 +27,6 @@ use icecap_std::{
     runtime as icecap_runtime,
     sel4::sys::c_types::*,
 };
-use icecap_mirage_config::Config;
-use icecap_event_server_types::{
-    calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
-};
 
 mod c;
 mod syscall;
@@ -36,7 +36,6 @@ mod time_hack;
 declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
-
     let net_rb = {
         let event_server = RPCClient::<EventServerRequest>::new(config.event_server_endpoint);
         let index = {
@@ -70,7 +69,7 @@ fn main(config: Config) -> Fallible<()> {
         event_server_bitfield,
         net_ifaces: vec![net],
     };
-    unsafe  {
+    unsafe {
         GLOBAL_STATE = Some(state);
     };
 
@@ -122,52 +121,42 @@ impl State {
         F: FnOnce(usize, Box<dyn FnOnce(&mut [u8])>) -> T,
     {
         let buf = self.net_ifaces[id].rx().unwrap();
-        f(buf.len(), Box::new(move |foreign_buf| {
-            foreign_buf.copy_from_slice(&buf)
-        }))
+        f(
+            buf.len(),
+            Box::new(move |foreign_buf| foreign_buf.copy_from_slice(&buf)),
+        )
     }
 }
 
 #[no_mangle]
 extern "C" fn impl_wfe() {
-    with(|s| {
-        s.wfe()
-    })
+    with(|s| s.wfe())
 }
 
 #[no_mangle]
 extern "C" fn impl_get_time_ns() -> u64 {
-    with(|s| {
-        time_hack::time_ns()
-    })
+    with(|s| time_hack::time_ns())
 }
 
 #[no_mangle]
 extern "C" fn impl_set_timeout_ns(ns: u64) {
-    with(|s| {
-    })
+    with(|s| {})
 }
 
 #[no_mangle]
 extern "C" fn impl_num_net_ifaces() -> usize {
-    with(|s| {
-        s.net_ifaces.len()
-    })
+    with(|s| s.net_ifaces.len())
 }
 
 #[no_mangle]
 extern "C" fn impl_net_iface_poll(id: NetIfaceId) -> c_int {
-    with(|s| {
-        s.net_ifaces[id].poll().is_some()
-    }) as c_int
+    with(|s| s.net_ifaces[id].poll().is_some()) as c_int
 }
 
 #[no_mangle]
 extern "C" fn impl_net_iface_tx(id: NetIfaceId, buf: *const u8, n: usize) {
     with(|s| {
-        s.net_ifaces[id].tx(unsafe {
-            core::slice::from_raw_parts(buf, n)
-        });
+        s.net_ifaces[id].tx(unsafe { core::slice::from_raw_parts(buf, n) });
     })
 }
 
@@ -180,9 +169,7 @@ extern "C" fn impl_net_iface_rx(id: NetIfaceId) -> usize {
             unsafe {
                 c::costub_alloc(n, &mut handle, &mut buf);
             }
-            f(unsafe {
-                core::slice::from_raw_parts_mut(buf, n)
-            });
+            f(unsafe { core::slice::from_raw_parts_mut(buf, n) });
             handle
         })
     })

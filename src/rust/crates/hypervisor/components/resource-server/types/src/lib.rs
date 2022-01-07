@@ -2,7 +2,8 @@
 
 extern crate alloc;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+
 use icecap_rpc::*;
 
 pub type RealmId = usize;
@@ -13,16 +14,36 @@ pub type Nanoseconds = usize;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Request {
-    Declare { realm_id: RealmId, spec_size: usize },
-    SpecChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, offset: usize },
-    FillChunk { realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, object_index: usize, fill_entry_index: usize, offset: usize },
-    Realize { realm_id: RealmId },
-    Destroy { realm_id: RealmId },
+    Declare {
+        realm_id: RealmId,
+        spec_size: usize,
+    },
+    SpecChunk {
+        realm_id: usize,
+        bulk_data_offset: usize,
+        bulk_data_size: usize,
+        offset: usize,
+    },
+    FillChunk {
+        realm_id: usize,
+        bulk_data_offset: usize,
+        bulk_data_size: usize,
+        object_index: usize,
+        fill_entry_index: usize,
+        offset: usize,
+    },
+    Realize {
+        realm_id: RealmId,
+    },
+    Destroy {
+        realm_id: RealmId,
+    },
 
     // still around for benchmarking
-    HackRun { realm_id: RealmId },
+    HackRun {
+        realm_id: RealmId,
+    },
 }
-
 
 #[derive(Clone, Debug)]
 pub struct Yield {
@@ -39,7 +60,6 @@ pub enum ResumeHostCondition {
     RealmYieldedBack(YieldBackCondition),
 }
 
-
 #[derive(Clone, Debug)]
 pub enum YieldBackCondition {
     WFE { timeout: Nanoseconds },
@@ -51,7 +71,6 @@ pub enum YieldBackCondition {
 // }
 
 impl RPC for Yield {
-
     fn send(&self, _call: &mut impl WriteCall) {
         // TODO
         unimplemented!()
@@ -76,7 +95,10 @@ impl RPC for Yield {
         let virtual_node = get_field(swap, 2);
         let timeout = decode_option(call.read_value());
         Self {
-            physical_node, realm_id, virtual_node, timeout,
+            physical_node,
+            realm_id,
+            virtual_node,
+            timeout,
         }
     }
 }
@@ -85,7 +107,6 @@ const RESUME_HOST_CONDITION_TAG_TIMEOUT: u64 = 1;
 const RESUME_HOST_CONDITION_TAG_HOST_EVENT: u64 = 2;
 
 impl RPC for ResumeHostCondition {
-
     fn send(&self, call: &mut impl WriteCall) {
         match self {
             Self::Timeout => {

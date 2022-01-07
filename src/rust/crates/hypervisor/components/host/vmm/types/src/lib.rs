@@ -1,6 +1,6 @@
 #![no_std]
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub type SysId = u64;
 pub mod sys_id {

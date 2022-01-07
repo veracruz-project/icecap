@@ -2,8 +2,9 @@
 
 extern crate alloc;
 
-use serde::{Serialize, Deserialize};
 use icecap_config::*;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

@@ -1,10 +1,12 @@
 #![allow(unused_variables)]
 
-use icecap_core::prelude::*;
-use core::ops::Range;
 use core::convert::TryFrom;
+use core::ops::Range;
+
+use icecap_core::prelude::*;
 
 mod set;
+
 use set::Set;
 
 /// CRegion is a CNode with associated metadata.
@@ -28,10 +30,9 @@ pub struct CRegion {
 pub type Slot = usize;
 
 impl CRegion {
-
     pub fn new(root: RelativeCPtr, guard: u64, guard_size: u64, radix: usize) -> Self {
         let mut set = Set::new();
-        set.deposit(0 .. 1 << radix);
+        set.deposit(0..1 << radix);
         Self {
             root,
             guard,
@@ -55,7 +56,7 @@ impl CRegion {
 
     /// Free a single slot in the cregion.
     pub fn free(&mut self, slot: Slot) {
-        self.set.deposit(slot..(slot+1));
+        self.set.deposit(slot..(slot + 1));
     }
 
     pub fn free_range(&mut self, slots: Range<Slot>) {

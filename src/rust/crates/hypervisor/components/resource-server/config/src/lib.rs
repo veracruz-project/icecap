@@ -5,9 +5,11 @@ extern crate alloc;
 use alloc::collections::btree_map::BTreeMap;
 use alloc::string::String;
 use alloc::vec::Vec;
-use serde::{Serialize, Deserialize};
-use icecap_config::*;
+
+use serde::{Deserialize, Serialize};
+
 use dyndl_types::ExternObj;
+use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

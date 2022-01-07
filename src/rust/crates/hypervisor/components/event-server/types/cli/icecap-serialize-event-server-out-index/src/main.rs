@@ -18,8 +18,8 @@ fn main() -> Result<(), std::io::Error> {
 }
 
 fn f<T: Finite>(index: &str) -> usize
-  where
-    T: for<'de> serde::de::Deserialize<'de>
+where
+    T: for<'de> serde::de::Deserialize<'de>,
 {
     let v: T = serde_json::from_str(index).unwrap();
     v.to_nat()

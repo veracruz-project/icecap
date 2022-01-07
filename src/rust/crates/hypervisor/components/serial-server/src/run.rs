@@ -1,13 +1,14 @@
-use core::fmt::Write;
 use alloc::collections::VecDeque;
+use core::fmt::Write;
+
+use icecap_drivers::serial::SerialDevice;
 use icecap_std::prelude::*;
 use icecap_std::rpc_sel4::{rpc_server, RPCClient};
-use icecap_drivers::serial::SerialDevice;
 use icecap_timer_server_client::*;
 
 use crate::{
-    event::{Event},
     color::{Color, COLORS},
+    event::Event,
     out,
 };
 
@@ -32,7 +33,7 @@ struct Client {
 enum InputState {
     Start,
     NewLine,
-    Escape
+    Escape,
 }
 
 const ESCAPE: u8 = b'@';
@@ -41,7 +42,6 @@ const MAX_NUM_CLIENTS: usize = COLORS.len();
 const BUFFER_LIMIT: usize = 0x1000;
 
 impl<T: SerialDevice> SerialServer<T> {
-
     fn new(dev: T, clients: Vec<RingBuffer>) -> Self {
         assert!(clients.len() <= MAX_NUM_CLIENTS);
 
@@ -51,11 +51,15 @@ impl<T: SerialDevice> SerialServer<T> {
         // }
         // clear_color();
 
-        let clients_ = clients.into_iter().enumerate().map(|(i, client)| Client {
-            driver: BufferedRingBuffer::new(client),
-            buffer: VecDeque::with_capacity(BUFFER_LIMIT),
-            color: &COLORS[i],
-        }).collect::<Vec<_>>();
+        let clients_ = clients
+            .into_iter()
+            .enumerate()
+            .map(|(i, client)| Client {
+                driver: BufferedRingBuffer::new(client),
+                buffer: VecDeque::with_capacity(BUFFER_LIMIT),
+                color: &COLORS[i],
+            })
+            .collect::<Vec<_>>();
 
         let active_input_client = if clients_.is_empty() { None } else { Some(0) };
 
@@ -70,7 +74,6 @@ impl<T: SerialDevice> SerialServer<T> {
     }
 
     fn run(&mut self, timer: TimerClient, event_ep: Endpoint, cspace: CNode, reply_ep: Endpoint) {
-
         // TODO for (i, client) in self.clients.iter_mut().enumerate()
         for i in 0..self.clients.len() {
             self.clients[i].driver.ring_buffer().enable_notify_read();
@@ -144,12 +147,18 @@ impl<T: SerialDevice> SerialServer<T> {
             self.clients[client_id].driver.rx_into(&mut buf);
             self.handle_client_char(client_id, buf[0]);
         }
-        self.clients[client_id].driver.ring_buffer().enable_notify_read()
+        self.clients[client_id]
+            .driver
+            .ring_buffer()
+            .enable_notify_read()
     }
 
     fn handle_tx(&mut self, client_id: ClientId) {
         self.clients[client_id].driver.tx_callback();
-        self.clients[client_id].driver.ring_buffer().enable_notify_write();
+        self.clients[client_id]
+            .driver
+            .ring_buffer()
+            .enable_notify_write();
     }
 
     fn handle_client_char(&mut self, client_id: ClientId, c: u8) {
@@ -180,7 +189,8 @@ impl<T: SerialDevice> SerialServer<T> {
                         any_else = true;
                     }
                 }
-            } if c == b'\n' || (self.last_output_client == Some(client_id) && !any_else) {
+            }
+            if c == b'\n' || (self.last_output_client == Some(client_id) && !any_else) {
                 self.flush(client_id);
             }
         }
@@ -198,7 +208,11 @@ impl<T: SerialDevice> SerialServer<T> {
     }
 
     fn flush_line(&mut self, client_id: ClientId) -> bool {
-        let i = match self.clients[client_id].buffer.iter().position(|c| *c == b'\n') {
+        let i = match self.clients[client_id]
+            .buffer
+            .iter()
+            .position(|c| *c == b'\n')
+        {
             None => return false,
             Some(i) => i,
         };
@@ -212,53 +226,55 @@ impl<T: SerialDevice> SerialServer<T> {
 
     fn handle_char(&mut self, c: u8) {
         use InputState::*;
-        let raw = |c| if let b'\r' | b'\n' = c { NewLine } else { Start };
+        let raw = |c| {
+            if let b'\r' | b'\n' = c {
+                NewLine
+            } else {
+                Start
+            }
+        };
         self.input_state = match self.input_state {
             Start => {
                 self.forward(c);
                 raw(c)
             }
-            NewLine => {
-                match c {
-                    ESCAPE => {
-                        Escape
-                    }
-                    _ => {
-                        self.forward(c);
-                        raw(c)
-                    }
+            NewLine => match c {
+                ESCAPE => Escape,
+                _ => {
+                    self.forward(c);
+                    raw(c)
                 }
-            }
-            Escape => {
-                match c {
-                    ESCAPE => {
-                        self.forward(c);
-                        Start
-                    }
-                    b'?' => {
-                        self.clear_output_client();
-                        out!(&self.dev,
-"--- SerialServer help ---
+            },
+            Escape => match c {
+                ESCAPE => {
+                    self.forward(c);
+                    Start
+                }
+                b'?' => {
+                    self.clear_output_client();
+                    out!(
+                        &self.dev,
+                        "--- SerialServer help ---
 Escape char: {}
 0 - {} switches input to that client
 ?      shows this help\n",
-                            ESCAPE, self.clients.len() - 1
-                        );
+                        ESCAPE,
+                        self.clients.len() - 1
+                    );
+                    NewLine
+                }
+                _ => {
+                    let client_id = (c as ClientId).wrapping_sub(b'0' as ClientId);
+                    if client_id < self.clients.len() {
+                        self.set_input_client(client_id);
                         NewLine
-                    }
-                    _ => {
-                        let client_id = (c as ClientId).wrapping_sub(b'0' as ClientId);
-                        if client_id < self.clients.len() {
-                            self.set_input_client(client_id);
-                            NewLine
-                        } else {
-                            self.forward(ESCAPE);
-                            self.forward(c);
-                            Start
-                        }
+                    } else {
+                        self.forward(ESCAPE);
+                        self.forward(c);
+                        Start
                     }
                 }
-            }
+            },
         };
     }
 
@@ -290,6 +306,13 @@ Escape char: {}
     }
 }
 
-pub fn run(clients: Vec<RingBuffer>, timer: TimerClient, event_ep: Endpoint, cspace: CNode, reply_ep: Endpoint, dev: impl SerialDevice) {
+pub fn run(
+    clients: Vec<RingBuffer>,
+    timer: TimerClient,
+    event_ep: Endpoint,
+    cspace: CNode,
+    reply_ep: Endpoint,
+    dev: impl SerialDevice,
+) {
     SerialServer::new(dev, clients).run(timer, event_ep, cspace, reply_ep)
 }

@@ -3,13 +3,13 @@
 
 extern crate alloc;
 
-use icecap_std::prelude::*;
-use icecap_std::sel4::fault::*;
-use icecap_std::finite_set::Finite;
-use icecap_std::rpc_sel4::*;
 use icecap_host_vmm_config::*;
-use icecap_vmm::*;
 use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
+use icecap_std::finite_set::Finite;
+use icecap_std::prelude::*;
+use icecap_std::rpc_sel4::*;
+use icecap_std::sel4::fault::*;
+use icecap_vmm::*;
 
 #[allow(unused_imports)]
 use icecap_benchmark_server_types as benchmark_server;
@@ -17,15 +17,22 @@ use icecap_benchmark_server_types as benchmark_server;
 declare_main!(main);
 
 pub fn main(config: Config) -> Fallible<()> {
-
     let resource_server_ep = config.resource_server_ep;
     let event_server_client_ep = config.event_server_client_ep;
     let event_server_control_ep = config.event_server_control_ep;
     let benchmark_server_ep = config.benchmark_server_ep;
 
     let irq_map = IRQMap {
-        ppi: config.ppi_map.into_iter().map(|(ppi, (in_index, must_ack))| (ppi, (in_index.to_nat(), must_ack))).collect(),
-        spi: config.spi_map.into_iter().map(|(spi, (in_index, nid, must_ack))| (spi, (in_index.to_nat(), nid, must_ack))).collect(),
+        ppi: config
+            .ppi_map
+            .into_iter()
+            .map(|(ppi, (in_index, must_ack))| (ppi, (in_index.to_nat(), must_ack)))
+            .collect(),
+        spi: config
+            .spi_map
+            .into_iter()
+            .map(|(spi, (in_index, nid, must_ack))| (spi, (in_index.to_nat(), nid, must_ack)))
+            .collect(),
     };
 
     VMMConfig {
@@ -36,8 +43,11 @@ pub fn main(config: Config) -> Fallible<()> {
         event_server_client_ep,
         irq_map,
         gic_dist_paddr: config.gic_dist_paddr,
-        nodes: config.nodes.iter().enumerate().map(|(i, node)| {
-            VMMNodeConfig {
+        nodes: config
+            .nodes
+            .iter()
+            .enumerate()
+            .map(|(i, node)| VMMNodeConfig {
                 tcb: node.tcb,
                 vcpu: node.vcpu,
                 ep: node.ep_read,
@@ -49,9 +59,10 @@ pub fn main(config: Config) -> Fallible<()> {
                     event_server_control_ep: event_server_control_ep[i],
                     benchmark_server_ep,
                 },
-            }
-        }).collect(),
-    }.run()
+            })
+            .collect(),
+    }
+    .run()
 }
 
 struct Extension {
@@ -63,19 +74,14 @@ struct Extension {
 }
 
 impl VMMExtension for Extension {
-
     fn handle_wf(_node: &mut VMMNode<Self>) -> Fallible<()> {
         panic!()
     }
 
     fn handle_syscall(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
         Ok(match fault.syscall {
-            sys_id::RESOURCE_SERVER_PASSTHRU => {
-                Self::sys_resource_server_passthru(node, fault)?
-            }
-            sys_id::DIRECT => {
-                Self::sys_direct(node, fault)?
-            }
+            sys_id::RESOURCE_SERVER_PASSTHRU => Self::sys_resource_server_passthru(node, fault)?,
+            sys_id::DIRECT => Self::sys_direct(node, fault)?,
             _ => {
                 panic!("unknown syscall: {:?}", fault)
             }
@@ -89,11 +95,10 @@ impl VMMExtension for Extension {
 }
 
 impl Extension {
-
     fn userspace_syscall(
         node: &mut VMMNode<Self>,
         fault: &UnknownSyscall,
-        f: impl FnOnce(&mut VMMNode<Self>, &[u64]) -> Fallible<Vec<u64>>
+        f: impl FnOnce(&mut VMMNode<Self>, &[u64]) -> Fallible<Vec<u64>>,
     ) -> Fallible<()> {
         let length = fault.x0 as usize;
         let parameters = (0..length).map(|i| fault.gpr(i + 1)).collect::<Vec<u64>>();
@@ -108,7 +113,10 @@ impl Extension {
         Ok(())
     }
 
-    fn sys_resource_server_passthru(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
+    fn sys_resource_server_passthru(
+        node: &mut VMMNode<Self>,
+        fault: &UnknownSyscall,
+    ) -> Fallible<()> {
         Self::userspace_syscall(node, fault, |node, values| {
             let recv_info = node.extension.resource_server_ep.call(proxy::up(values));
             let resp = proxy::down(&recv_info);
@@ -145,5 +153,4 @@ impl Extension {
     fn direct(_node: &mut VMMNode<Self>, _request: &DirectRequest) -> Fallible<DirectResponse> {
         panic!()
     }
-
 }

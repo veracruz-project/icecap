@@ -11,36 +11,31 @@ mod writer;
 
 declare_main!(main);
 
-use icecap_std::prelude::*;
-use icecap_std::finite_set::Finite;
-use icecap_std::rpc_sel4::RPCClient;
-use icecap_std::config::RingBufferKicksConfig;
-use icecap_timer_server_client::*;
 use icecap_serial_server_config::Config;
+use icecap_std::config::RingBufferKicksConfig;
+use icecap_std::finite_set::Finite;
+use icecap_std::prelude::*;
+use icecap_std::rpc_sel4::RPCClient;
+use icecap_timer_server_client::*;
 
 use icecap_event_server_types::calls::Client as EventServerRequest;
 use icecap_event_server_types::events;
 
-use run::{run, ClientId};
 use event::Event;
+use run::{run, ClientId};
 
 pub fn main(config: Config) -> Fallible<()> {
-
     let timer = TimerClient::new(config.timer_ep_write);
 
     let event_server = RPCClient::<EventServerRequest>::new(config.event_server);
     let mk_signal = move |index: events::SerialServerOut| -> icecap_std::ring_buffer::Kick {
         let event_server = event_server.clone();
         let index = index.to_nat();
-        Box::new(move || event_server.call::<()>(&EventServerRequest::Signal {
-            index,
-        }))
+        Box::new(move || event_server.call::<()>(&EventServerRequest::Signal { index }))
     };
-    let mk_kicks = |rb: events::SerialServerRingBuffer| {
-        RingBufferKicksConfig {
-            read: mk_signal(events::SerialServerOut::RingBuffer(rb.clone())),
-            write: mk_signal(events::SerialServerOut::RingBuffer(rb.clone())),
-        }
+    let mk_kicks = |rb: events::SerialServerRingBuffer| RingBufferKicksConfig {
+        read: mk_signal(events::SerialServerOut::RingBuffer(rb.clone())),
+        write: mk_signal(events::SerialServerOut::RingBuffer(rb.clone())),
     };
 
     let mut clients = vec![];
@@ -64,29 +59,26 @@ pub fn main(config: Config) -> Fallible<()> {
 
     let irq_nfn = config.irq_nfn;
     let irq_handler = config.irq_handler;
-    config.irq_thread.start(move || {
-        loop {
-            irq_handler.ack().unwrap();
-            irq_nfn.wait();
-            RPCClient::<Event>::new(event_ep).call::<()>(&Event::Interrupt);
-        }
+    config.irq_thread.start(move || loop {
+        irq_handler.ack().unwrap();
+        irq_nfn.wait();
+        RPCClient::<Event>::new(event_ep).call::<()>(&Event::Interrupt);
     });
 
     let timer_wait = config.timer_wait;
-    config.timer_thread.start(move || {
-        loop {
-            timer_wait.wait();
-            RPCClient::<Event>::new(event_ep).call::<()>(&Event::Timeout);
-        }
+    config.timer_thread.start(move || loop {
+        timer_wait.wait();
+        RPCClient::<Event>::new(event_ep).call::<()>(&Event::Timeout);
     });
 
-    for (i, client) in core::iter::once(&config.host_client).chain(config.realm_clients.iter()).enumerate() {
+    for (i, client) in core::iter::once(&config.host_client)
+        .chain(config.realm_clients.iter())
+        .enumerate()
+    {
         let nfn = client.wait;
-        client.thread.start(move || {
-            loop {
-                nfn.wait();
-                RPCClient::<Event>::new(event_ep).call::<()>(&Event::Con(i as ClientId));
-            }
+        client.thread.start(move || loop {
+            nfn.wait();
+            RPCClient::<Event>::new(event_ep).call::<()>(&Event::Con(i as ClientId));
         });
     }
 

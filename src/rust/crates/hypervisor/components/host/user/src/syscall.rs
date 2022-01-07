@@ -1,8 +1,9 @@
 use std::fs::File;
 use std::os::unix::io::AsRawFd;
-use icecap_rpc::*;
+
 use icecap_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
 use icecap_resource_server_types::Request;
+use icecap_rpc::*;
 
 cfg_if::cfg_if! {
     if #[cfg(target_env = "gnu")] {
@@ -29,9 +30,7 @@ struct YieldTo {
 
 fn ioctl<T>(request: u32, ptr: *mut T) {
     let f = File::open("/sys/kernel/debug/icecap_vmm").unwrap();
-    let ret = unsafe {
-        libc::ioctl(f.as_raw_fd(), request as Ioctl, ptr)
-    };
+    let ret = unsafe { libc::ioctl(f.as_raw_fd(), request as Ioctl, ptr) };
     assert_eq!(ret, 0);
 }
 
@@ -64,7 +63,6 @@ pub fn direct(request: &DirectRequest) -> DirectResponse {
     call_passthru(host_vmm_sys_id::DIRECT, request)
 }
 
-
 fn resource_server_passthru<Output: RPC>(request: &Request) -> Output {
     call_passthru(host_vmm_sys_id::RESOURCE_SERVER_PASSTHRU, request)
 }
@@ -72,15 +70,37 @@ fn resource_server_passthru<Output: RPC>(request: &Request) -> Output {
 //
 
 pub fn declare(realm_id: usize, spec_size: usize) {
-    resource_server_passthru(&Request::Declare { realm_id, spec_size })
+    resource_server_passthru(&Request::Declare {
+        realm_id,
+        spec_size,
+    })
 }
 
 pub fn spec_chunk(realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, offset: usize) {
-    resource_server_passthru(&Request::SpecChunk { realm_id, bulk_data_offset, bulk_data_size, offset })
+    resource_server_passthru(&Request::SpecChunk {
+        realm_id,
+        bulk_data_offset,
+        bulk_data_size,
+        offset,
+    })
 }
 
-pub fn fill_chunk(realm_id: usize, bulk_data_offset: usize, bulk_data_size: usize, object_index: usize, fill_entry_index: usize, offset: usize) {
-    resource_server_passthru(&Request::FillChunk { realm_id, bulk_data_offset, bulk_data_size, object_index, fill_entry_index, offset })
+pub fn fill_chunk(
+    realm_id: usize,
+    bulk_data_offset: usize,
+    bulk_data_size: usize,
+    object_index: usize,
+    fill_entry_index: usize,
+    offset: usize,
+) {
+    resource_server_passthru(&Request::FillChunk {
+        realm_id,
+        bulk_data_offset,
+        bulk_data_size,
+        object_index,
+        fill_entry_index,
+        offset,
+    })
 }
 
 pub fn realize(realm_id: usize) {

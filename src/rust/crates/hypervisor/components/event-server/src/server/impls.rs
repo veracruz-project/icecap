@@ -1,17 +1,12 @@
-use core::{
-    cell::RefCell,
-};
-use alloc::{
-    sync::Arc,
-};
+use alloc::sync::Arc;
+use core::cell::RefCell;
 
-use icecap_std::prelude::*;
 use finite_set::Finite;
+use icecap_std::prelude::*;
 
 use super::*;
 
 impl EventServer {
-
     pub fn create_realm(&mut self, rid: RealmId, num_nodes: usize) -> Fallible<()> {
         assert!(!self.realms.contains_key(&rid));
         let inactive = self.inactive_realms.get(&rid).unwrap();
@@ -27,7 +22,12 @@ impl EventServer {
         Ok(())
     }
 
-    pub fn host_subscribe(&mut self, nid: NodeIndex, rid: RealmId, realm_nid: NodeIndex) -> Fallible<()> {
+    pub fn host_subscribe(
+        &mut self,
+        nid: NodeIndex,
+        rid: RealmId,
+        realm_nid: NodeIndex,
+    ) -> Fallible<()> {
         let in_space = &mut self.realms.get_mut(&rid).unwrap().in_spaces[realm_nid];
         let slot: SubscriptionSlot = in_space.borrow().subscription_slot.clone();
         let old = slot.replace(Some(self.host_subscriptions[nid].subscriber.clone()));
@@ -38,10 +38,16 @@ impl EventServer {
         Ok(())
     }
 
-    pub fn resource_server_subscribe(&mut self, nid: NodeIndex, host_nid: NodeIndex) -> Fallible<()> {
+    pub fn resource_server_subscribe(
+        &mut self,
+        nid: NodeIndex,
+        host_nid: NodeIndex,
+    ) -> Fallible<()> {
         let in_space = &mut self.host.in_spaces[host_nid];
         let slot: SubscriptionSlot = in_space.borrow().subscription_slot.clone();
-        let old = slot.replace(Some(self.resource_server_subscriptions[nid].subscriber.clone()));
+        let old = slot.replace(Some(
+            self.resource_server_subscriptions[nid].subscriber.clone(),
+        ));
         assert!(old.is_none());
         assert!(self.resource_server_subscriptions[nid].slot.is_none());
         self.resource_server_subscriptions[nid].slot = Some(slot.clone());
@@ -49,7 +55,11 @@ impl EventServer {
         Ok(())
     }
 
-    pub fn resource_server_unsubscribe(&mut self, nid: NodeIndex, host_nid: NodeIndex) -> Fallible<()> {
+    pub fn resource_server_unsubscribe(
+        &mut self,
+        nid: NodeIndex,
+        host_nid: NodeIndex,
+    ) -> Fallible<()> {
         let in_space = &mut self.host.in_spaces[host_nid];
         let slot: SubscriptionSlot = in_space.borrow().subscription_slot.clone();
         let old = slot.replace(None);
@@ -59,7 +69,6 @@ impl EventServer {
 }
 
 impl Client {
-
     pub fn sev(&mut self, nid: NodeIndex) -> Fallible<()> {
         // self.in_spaces[nid].borrow_mut().notify_subscriber()
         panic!()
@@ -77,11 +86,22 @@ impl Client {
         self.in_spaces[nid].borrow_mut().end(index)
     }
 
-    pub fn configure(&mut self, nid: NodeIndex, index: InIndex, action: ConfigureAction) -> Fallible<()> {
+    pub fn configure(
+        &mut self,
+        nid: NodeIndex,
+        index: InIndex,
+        action: ConfigureAction,
+    ) -> Fallible<()> {
         self.in_spaces[nid].borrow_mut().configure(index, action)
     }
 
-    pub fn move_(&mut self, src_nid: NodeIndex, src_index: InIndex, dst_nid: NodeIndex, dst_index: InIndex) -> Fallible<()> {
+    pub fn move_(
+        &mut self,
+        src_nid: NodeIndex,
+        src_index: InIndex,
+        dst_nid: NodeIndex,
+        dst_index: InIndex,
+    ) -> Fallible<()> {
         if (src_nid, src_index) != (dst_nid, dst_index) {
             let mut tmp = None;
             core::mem::swap(
@@ -111,7 +131,6 @@ impl Client {
 }
 
 impl Event {
-
     pub fn signal(&self) -> Fallible<()> {
         if let Some(target) = &self.target {
             target.in_space.borrow_mut().signal(target.index)?;
@@ -139,7 +158,6 @@ impl Event {
 }
 
 impl InSpace {
-
     pub fn signal(&mut self, index: InIndex) -> Fallible<()> {
         let entry = self.entries[index].as_mut().unwrap();
         if self.notification.bitfield.set(index as u32) {
@@ -184,7 +202,6 @@ impl InSpace {
 }
 
 impl Subscriber {
-
     pub fn signal(&self) -> Fallible<()> {
         match self {
             Self::Event(ev) => ev.borrow().signal()?,
@@ -195,19 +212,20 @@ impl Subscriber {
 }
 
 impl InactiveRealm {
-
     pub fn create_client(&self, num_nodes: usize) -> Fallible<Client> {
         assert!(num_nodes <= self.in_notifications.len());
 
         let client = Client {
             out_space: self.out_space.clone(),
-            in_spaces: (0..num_nodes).map(|nid| {
-                Arc::new(RefCell::new(InSpace {
-                    notification: self.in_notifications[nid].clone(),
-                    subscription_slot: Arc::new(RefCell::new(None)),
-                    entries: (0..events::RealmIn::CARDINALITY).map(|_| None).collect(),
-                }))
-            }).collect()
+            in_spaces: (0..num_nodes)
+                .map(|nid| {
+                    Arc::new(RefCell::new(InSpace {
+                        notification: self.in_notifications[nid].clone(),
+                        subscription_slot: Arc::new(RefCell::new(None)),
+                        entries: (0..events::RealmIn::CARDINALITY).map(|_| None).collect(),
+                    }))
+                })
+                .collect(),
         };
 
         for (in_index, entry) in self.in_entries.iter().enumerate() {
@@ -231,7 +249,6 @@ impl InactiveRealm {
 ///
 
 impl IRQThread {
-
     pub fn run(&self) -> Fallible<()> {
         loop {
             let badge = self.notification.wait();

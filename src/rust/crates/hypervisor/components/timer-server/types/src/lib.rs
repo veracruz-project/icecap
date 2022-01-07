@@ -1,6 +1,6 @@
 #![no_std]
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub type TimerID = i64;
 pub type Nanoseconds = u64;
