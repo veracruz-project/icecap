@@ -1,13 +1,11 @@
 use std::env;
 use std::fs;
 use std::io::{self, Read, Write};
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
 
 use icecap_fdt::DeviceTree;
-use icecap_fdt_bindings::{
-    Chosen,
-    Device, RingBuffer,
-};
+use icecap_fdt_bindings::{Chosen, Device, RingBuffer};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Input {

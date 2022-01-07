@@ -23,7 +23,8 @@ pub fn main() -> Result<(), io::Error> {
     let module = format!("icecap_{}_config", arg.replace("-", "_"));
 
     gen!(
-        module.as_str(), [
+        module.as_str(),
+        [
             icecap_fault_handler_config,
             icecap_timer_server_config,
             icecap_serial_server_config,

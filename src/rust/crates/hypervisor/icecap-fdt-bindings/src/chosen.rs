@@ -1,6 +1,7 @@
-use core::ops::Range;
 use alloc::prelude::v1::*;
-use serde::{Serialize, Deserialize};
+use core::ops::Range;
+
+use serde::{Deserialize, Serialize};
 
 use icecap_fdt::{DeviceTree, Node};
 
@@ -15,7 +16,6 @@ pub struct Chosen {
 }
 
 impl Chosen {
-
     pub fn set_bootargs(&mut self, bootargs: Vec<String>) -> &mut Self {
         self.bootargs = Some(bootargs);
         self
