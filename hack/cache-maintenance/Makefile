@@ -6,7 +6,7 @@ none:
 .PHONY: source-test
 source-test:
 	CURRENT_REV="$$(git show -s --format=%H)" \
-		nix-build source-test.nix -A test
+		nix-build source-test.nix -A test --no-out-link
 
 # NOTE
 # Must provide `REMOTE=<remote, e.g. ssh host>`.
