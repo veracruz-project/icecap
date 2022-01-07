@@ -5,10 +5,10 @@ use icecap_core::{backtrace::Backtrace, runtime};
 use crate::{print, println};
 
 #[lang = "eh_personality"]
-extern fn eh_personality() {}
+extern "C" fn eh_personality() {}
 
 #[panic_handler]
-extern fn panic_handler(info: &PanicInfo) -> ! {
+extern "C" fn panic_handler(info: &PanicInfo) -> ! {
     print!("panicked");
     if let Some(args) = info.message() {
         print!(" with '{}'", args);

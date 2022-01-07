@@ -1,3 +1,5 @@
+#![rustfmt::skip]
+
 pub use alloc::prelude::v1::*;
 pub use alloc::vec;
 

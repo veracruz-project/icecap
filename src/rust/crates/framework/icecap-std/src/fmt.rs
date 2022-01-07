@@ -1,13 +1,14 @@
-use core::fmt;
 use alloc::boxed::Box;
+use core::fmt;
 
-use icecap_core::sel4::debug_put_char;
 use icecap_core::ring_buffer::BufferedRingBuffer;
-use icecap_core::sync::{GenericMutex, unsafe_static_mutex};
+use icecap_core::sel4::debug_put_char;
+use icecap_core::sync::{unsafe_static_mutex, GenericMutex};
 
 unsafe_static_mutex!(Lock, icecap_runtime_print_lock);
 
-static GLOBAL_WRITER: GenericMutex<Lock, Option<Box<IceCapConWriter>>> = GenericMutex::new(Lock, None);
+static GLOBAL_WRITER: GenericMutex<Lock, Option<Box<IceCapConWriter>>> =
+    GenericMutex::new(Lock, None);
 
 struct IceCapDebugWriter;
 
@@ -26,9 +27,7 @@ struct IceCapConWriter {
 
 impl IceCapConWriter {
     fn new(ring_buffer: BufferedRingBuffer) -> Self {
-        Self {
-            ring_buffer,
-        }
+        Self { ring_buffer }
     }
 }
 
@@ -61,7 +60,8 @@ fn print_to(global_writer: &mut Option<Box<IceCapConWriter>>, args: fmt::Argumen
             let writer: &mut IceCapConWriter = b;
             fmt::write(writer, args)
         }
-    }.unwrap_or_else(|err| panic!("{:?}", err))
+    }
+    .unwrap_or_else(|err| panic!("{:?}", err))
 }
 
 pub fn _print(args: fmt::Arguments) {

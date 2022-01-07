@@ -1,5 +1,6 @@
 #![no_std]
 #![feature(alloc_prelude)]
+#![rustfmt::skip]
 
 extern crate alloc;
 

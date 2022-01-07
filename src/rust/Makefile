@@ -11,6 +11,10 @@ build: build-seL4 build-linux
 .PHONY: doc
 doc: doc-seL4 doc-linux
 
+.PHONY: fmt
+fmt:
+	cargo fmt --all
+
 icecap_plat := $(ICECAP_PLAT)
 
 icecap_rust_flags := \
