@@ -9,26 +9,29 @@ mod thread;
 mod tls;
 mod debug;
 
-use icecap_sel4::{TCB, Endpoint, LocalCPtr};
+use icecap_sel4::{TCB, LocalCPtr};
 
 pub use thread::Thread;
 pub use tls::TlsRegion;
 pub use debug::{image_path, text, eh_frame_hdr, eh_frame_end};
 
-pub fn exit() -> ! {
+#[deprecated(note="Use ::stop_component() instead of ::exit()")]
+pub use crate::stop_component as exit;
+
+pub fn stop_thread() -> ! {
     unsafe {
-        c::icecap_runtime_exit()
+        c::icecap_runtime_stop_thread()
+    }
+}
+
+pub fn stop_component() -> ! {
+    unsafe {
+        c::icecap_runtime_stop_component()
     }
 }
 
 pub fn tcb() -> TCB {
     TCB::from_raw(unsafe {
         c::icecap_runtime_tcb
-    })
-}
-
-pub fn supervisor() -> Endpoint {
-    Endpoint::from_raw(unsafe {
-        c::icecap_runtime_supervisor_endpoint
     })
 }

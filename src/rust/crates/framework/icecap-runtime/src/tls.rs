@@ -1,5 +1,6 @@
 
 use icecap_sel4::prelude::*;
+use icecap_sel4::sys;
 use crate::c;
 
 pub struct TlsRegion {
@@ -46,7 +47,7 @@ impl TlsRegion {
         }
     }
 
-    pub fn insert_tcb(&self, tcb: u64) {
+    pub fn insert_tcb(&self, tcb: sys::seL4_CPtr) {
         unsafe {
             c::icecap_runtime_tls_region_insert_tcb(self.base, tcb)
         }
