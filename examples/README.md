@@ -84,7 +84,6 @@ nix-build examples/ -A minimal-root-with-rust.run && ./result/run
 nix-build examples/ -A minimal-capdl.composition.cdl
 cat result/icecap.cdl
 ls result/links/
-
 ```
 
 ```
@@ -105,7 +104,9 @@ nix-build examples/ -A minimal-capdl-with-rust.run && ./result/run
 nix-build examples/ -A basic-system.run && ./result/run
 ```
 
-<!-- TODO show off the icecap-sel4 crate -->
+<!-- TODO suggest just looking at icecap-core -->
+<!-- TODO show off more of the icecap-sel4 crate -->
+<!-- TODO mention icecap-show-backtrace -->
 <!-- TODO minimal dyndl example -->
 
 ### Case study: The IceCap Hypervisor
@@ -115,7 +116,6 @@ nix-build examples/ -A hypervisor.run && ./result/run
 ```
 
 ```
-
                # ... wait for the host VM to boot to a shell ...
 
                # Spawn a VM in a realm:

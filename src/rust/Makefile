@@ -5,15 +5,15 @@ all: build doc
 clean:
 	rm -rf target
 
+.PHONY: fmt
+fmt:
+	cargo fmt --all
+
 .PHONY: build
 build: build-seL4 build-linux
 
 .PHONY: doc
 doc: doc-seL4 doc-linux
-
-.PHONY: fmt
-fmt:
-	cargo fmt --all
 
 icecap_plat := $(ICECAP_PLAT)
 
