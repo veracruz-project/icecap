@@ -1,7 +1,7 @@
 #![no_std]
 #![feature(type_ascription)]
 
-use num::{PrimInt, One};
+use num::{One, PrimInt};
 
 pub fn biterate<T: PrimInt + One>(set: T) -> Biterator<T> {
     Biterator(set)

@@ -1,6 +1,13 @@
-use icecap_core::prelude::*;
 use core::ops::Deref;
-use tock_registers::{registers::{ReadOnly, WriteOnly, ReadWrite}, interfaces::{Readable, Writeable}, register_structs};
+
+use tock_registers::{
+    interfaces::{Readable, Writeable},
+    register_structs,
+    registers::{ReadOnly, ReadWrite, WriteOnly},
+};
+
+use icecap_core::prelude::*;
+
 use crate::timer::*;
 
 const MATCH_COUNT: usize = 4;
@@ -22,7 +29,6 @@ pub struct BcmSystemTimerDevice {
 }
 
 impl BcmSystemTimerDevice {
-
     pub fn new(base_addr: usize) -> Self {
         Self {
             base_addr,
@@ -34,27 +40,22 @@ impl BcmSystemTimerDevice {
     fn ptr(&self) -> *const BcmSystemTimerRegisterBlock {
         self.base_addr as *const _
     }
-
 }
 
 impl Deref for BcmSystemTimerDevice {
     type Target = BcmSystemTimerRegisterBlock;
 
     fn deref(&self) -> &Self::Target {
-        unsafe {
-            &*self.ptr()
-        }
+        unsafe { &*self.ptr() }
     }
 }
 
 impl TimerDevice for BcmSystemTimerDevice {
-
     fn get_freq(&self) -> u32 {
         FREQ as u32
     }
 
-    fn set_enable(&self, _enabled: bool) {
-    }
+    fn set_enable(&self, _enabled: bool) {}
 
     fn get_count(&self) -> u64 {
         let hi_0 = self.counter_hi.get();
@@ -79,20 +80,25 @@ impl TimerDevice for BcmSystemTimerDevice {
             let lo_0 = self.counter_lo.get();
             let hi = self.counter_hi.get();
             let lo = if hi_0 == hi { lo_0 } else { 0 };
-            if !((compare_hi == hi && compare_lo > lo) ||
-                 (compare_hi == hi + 1 && compare_lo < lo)) {
-                debug_println!("set_compare: 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
-                       compare, hi_0, lo_0, hi, lo);
+            if !((compare_hi == hi && compare_lo > lo) || (compare_hi == hi + 1 && compare_lo < lo))
+            {
+                debug_println!(
+                    "set_compare: 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
+                    compare,
+                    hi_0,
+                    lo_0,
+                    hi,
+                    lo
+                );
             }
         }
         self.compare[self.match_ix].set(compare_lo);
         let count = self.get_count();
         let count_lo = (count & 0xffffffff) as u32;
-        return compare_lo >= count_lo
+        return compare_lo >= count_lo;
     }
 
     fn clear_interrupt(&self) {
         self.ctrl.set(1 << self.match_ix);
     }
-
 }

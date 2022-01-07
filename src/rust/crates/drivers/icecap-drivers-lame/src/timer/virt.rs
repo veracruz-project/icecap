@@ -1,5 +1,11 @@
 use core::ops::Deref;
-use tock_registers::{registers::{ReadOnly, ReadWrite}, interfaces::{Readable, Writeable}, register_structs};
+
+use tock_registers::{
+    interfaces::{Readable, Writeable},
+    register_structs,
+    registers::{ReadOnly, ReadWrite},
+};
+
 use crate::timer::TimerDevice;
 
 register_structs! {
@@ -17,31 +23,24 @@ pub struct QemuTimerDevice {
 }
 
 impl QemuTimerDevice {
-
     pub fn new(base_addr: usize) -> Self {
-        Self {
-            base_addr,
-        }
+        Self { base_addr }
     }
 
     fn ptr(&self) -> *const QemuTimerRegisterBlock {
         self.base_addr as *const _
     }
-
 }
 
 impl Deref for QemuTimerDevice {
     type Target = QemuTimerRegisterBlock;
 
     fn deref(&self) -> &Self::Target {
-        unsafe {
-            &*self.ptr()
-        }
+        unsafe { &*self.ptr() }
     }
 }
 
 impl TimerDevice for QemuTimerDevice {
-
     fn get_freq(&self) -> u32 {
         self.freq.get()
     }
@@ -59,7 +58,5 @@ impl TimerDevice for QemuTimerDevice {
         true
     }
 
-    fn clear_interrupt(&self) {
-    }
-
+    fn clear_interrupt(&self) {}
 }

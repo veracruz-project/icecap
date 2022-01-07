@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use synstructure::{Structure, VariantInfo, decl_derive};
+use synstructure::{decl_derive, Structure, VariantInfo};
 
 fn cardinality_of_type(ty: impl ToTokens) -> impl ToTokens {
     quote! {
@@ -69,8 +69,7 @@ fn derive_finite_impl(input: Structure) -> syn::Result<TokenStream> {
     };
 
     let from_nat = {
-        let mut branches = quote! {
-        };
+        let mut branches = quote! {};
         let mut n_past_variants = quote! {
             0
         };

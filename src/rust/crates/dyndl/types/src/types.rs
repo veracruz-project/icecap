@@ -1,8 +1,10 @@
+use alloc::collections::btree_map::BTreeMap;
+use alloc::string::String;
 use alloc::vec::Vec;
 use core::convert::TryFrom;
-use alloc::string::String;
-use alloc::collections::btree_map::BTreeMap;
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
+
 use dyndl_types_derive::{IsCap, IsObj};
 
 pub type ObjId = usize;
@@ -115,24 +117,23 @@ pub mod obj {
 
     #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, IsObj)]
     pub struct PT {
-        pub entries: Table<cap::SmallPage>
+        pub entries: Table<cap::SmallPage>,
     }
 
     #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, IsObj)]
     pub struct PD {
-        pub entries: Table<PDEntry>
+        pub entries: Table<PDEntry>,
     }
 
     #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, IsObj)]
     pub struct PUD {
-        pub entries: Table<cap::PD>
+        pub entries: Table<cap::PD>,
     }
 
     #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, IsObj)]
     pub struct PGD {
-        pub entries: Table<cap::PUD>
+        pub entries: Table<cap::PUD>,
     }
-
 }
 
 pub mod cap {
@@ -207,7 +208,6 @@ pub mod cap {
     pub struct PGD {
         pub obj: ObjId,
     }
-
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]

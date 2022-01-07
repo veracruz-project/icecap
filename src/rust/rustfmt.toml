@@ -8,8 +8,4 @@ ignore = [
     "crates/framework/icecap-core",
     "crates/framework/icecap-std",
     "crates/hypervisor",
-    "crates/drivers",
-    "crates/dyndl",
-    "crates/helpers",
-    "crates/std-support",
 ]

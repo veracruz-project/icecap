@@ -1,6 +1,13 @@
-use icecap_core::prelude::*;
 use core::ops::Deref;
-use tock_registers::{registers::ReadWrite, interfaces::{Readable, Writeable}, register_structs};
+
+use icecap_core::prelude::*;
+
+use tock_registers::{
+    interfaces::{Readable, Writeable},
+    register_structs,
+    registers::ReadWrite,
+};
+
 use crate::serial::SerialDevice;
 
 // TODO use structured bitfields
@@ -26,11 +33,8 @@ pub struct Device {
 }
 
 impl Device {
-
     pub fn new(base_addr: usize) -> Self {
-        Self {
-            base_addr,
-        }
+        Self { base_addr }
     }
 
     fn ptr(&self) -> *const RegisterBlock {
@@ -40,21 +44,17 @@ impl Device {
     pub fn init(&self) {
         self.handle_irq()
     }
-
 }
 
 impl Deref for Device {
     type Target = RegisterBlock;
 
     fn deref(&self) -> &Self::Target {
-        unsafe {
-            &*self.ptr()
-        }
+        unsafe { &*self.ptr() }
     }
 }
 
 impl SerialDevice for Device {
-
     fn put_char(&self, c: u8) {
         // TODO queue rather than wait
         // loop {
@@ -78,5 +78,4 @@ impl SerialDevice for Device {
     fn handle_irq(&self) {
         self.IER.set(5);
     }
-
 }

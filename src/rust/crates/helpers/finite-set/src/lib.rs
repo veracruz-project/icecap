@@ -3,7 +3,6 @@
 pub use finite_set_derive::Finite;
 
 pub trait Finite {
-
     const CARDINALITY: usize;
 
     fn to_nat(&self) -> usize;
@@ -18,7 +17,7 @@ pub fn test_exhaustively_and_slowly<T: Finite + Eq>() {
         let x = T::from_nat(i);
         assert!(i == x.to_nat());
         for j in 0..i {
-        assert!(x != T::from_nat(j));
+            assert!(x != T::from_nat(j));
         }
     }
 }
@@ -50,7 +49,7 @@ mod test {
     #[derive(Debug, Eq, PartialEq, Finite)]
     enum C {
         X(A, B),
-        Y { a: A, b: B }
+        Y { a: A, b: B },
     }
 
     #[test]

@@ -2,8 +2,8 @@ mod virt;
 mod rpi4;
 
 // TODO Fix names
-pub use virt::QemuTimerDevice;
 pub use rpi4::BcmSystemTimerDevice;
+pub use virt::QemuTimerDevice;
 
 pub const KHZ: u64 = 1000;
 pub const MHZ: u64 = 1000 * KHZ;

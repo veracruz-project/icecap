@@ -1,4 +1,5 @@
 use std::env;
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse, ExprLit, Lit};
@@ -14,5 +15,6 @@ pub fn env_usize(var: TokenStream) -> TokenStream {
     let val = env::var(var).unwrap().parse::<usize>().unwrap();
     quote!(
         #val
-    ).into()
+    )
+    .into()
 }
