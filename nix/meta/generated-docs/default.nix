@@ -1,5 +1,9 @@
 { lib, pkgs, meta }:
 
+let
+ uniqueOn = with lib; f: foldl' (acc: e: if elem (f e) (map f acc) then acc else acc ++ [ e ]) [];
+
+in
 rec {
 
   html = pkgs.dev.linkFarm "html" [
@@ -11,7 +15,7 @@ rec {
     docDeps = true;
   })) meta.rustAggregate.allAttrs;
 
-  rustdocList = lib.concatMap lib.attrValues (lib.attrValues rustdocAttrs);
+  rustdocList = uniqueOn (x: x.worldPath) (lib.concatMap lib.attrValues (lib.attrValues rustdocAttrs));
 
   rustdocHtml = pkgs.dev.runCommand "html" {} ''
     mkdir -p $out
