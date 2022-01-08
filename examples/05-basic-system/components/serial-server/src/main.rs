@@ -8,7 +8,8 @@ use serde::{Serialize, Deserialize};
 use icecap_std::prelude::*;
 use icecap_std::config::*;
 use icecap_start_generic::declare_generic_main;
-use icecap_drivers::serial::{SerialDevice, VirtSerialDevice};
+use icecap_driver_interfaces::SerialDevice;
+use icecap_pl011_driver::Pl011Device;
 
 declare_generic_main!(main);
 
@@ -29,7 +30,7 @@ struct Badges {
 
 fn main(config: Config) -> Fallible<()> {
 
-    let dev = VirtSerialDevice::new(config.dev_vaddr);
+    let dev = Pl011Device::new(config.dev_vaddr);
     dev.init();
     config.irq_handler.ack()?;
 
@@ -44,7 +45,7 @@ fn main(config: Config) -> Fallible<()> {
             while let Some(c) = dev.get_char() {
                 rb.tx(&[c]);
             }
-            dev.handle_irq();
+            dev.handle_interrupt();
             config.irq_handler.ack()?;
         }
 

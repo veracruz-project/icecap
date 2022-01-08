@@ -33,8 +33,11 @@
 
   icecap-plat = ./crates/framework/icecap-plat;
 
-  icecap-drivers = ./crates/drivers/icecap-drivers-lame;
-
+  icecap-driver-interfaces = ./crates/drivers/icecap-driver-interfaces;
+  icecap-bcm-system-timer-driver = ./crates/drivers/devices/bcm-system-timer;
+  icecap-bcm2835-aux-uart-driver = ./crates/drivers/devices/bcm2835-aux-uart;
+  icecap-pl011-driver = ./crates/drivers/devices/pl011;
+  icecap-virt-timer-driver = ./crates/drivers/devices/virt-timer;
 
   absurdity = ./crates/helpers/absurdity;
   biterate = ./crates/helpers/biterate;

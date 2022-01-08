@@ -1,3 +1,5 @@
+#![no_std]
+
 use core::ops::Deref;
 
 use tock_registers::{
@@ -7,8 +9,7 @@ use tock_registers::{
 };
 
 use icecap_core::prelude::*;
-
-use crate::timer::*;
+use icecap_driver_interfaces::{TimerDevice, MHZ};
 
 const MATCH_COUNT: usize = 4;
 const FREQ: u64 = 1 * MHZ;

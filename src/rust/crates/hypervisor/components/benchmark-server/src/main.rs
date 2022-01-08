@@ -5,7 +5,6 @@
 
 use icecap_benchmark_server_config::*;
 use icecap_benchmark_server_types::*;
-use icecap_plat::NUM_CORES;
 use icecap_std::prelude::*;
 use icecap_std::rpc_sel4::*;
 
@@ -24,6 +23,8 @@ pub fn main(config: Config) -> Fallible<()> {
 
 cfg_if::cfg_if! {
     if #[cfg(icecap_benchmark)] {
+        use icecap_plat::NUM_CORES;
+
         fn handle(tcb: TCB, request: &Request) -> Fallible<Response> {
             match request {
                 Request::Start => {

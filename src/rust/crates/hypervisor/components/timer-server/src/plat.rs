@@ -1,19 +1,15 @@
-#[cfg(icecap_plat = "virt")]
-mod plat_impl {
-    pub use icecap_drivers::timer::QemuTimerDevice as PlatformTimerDevice;
+cfg_if::cfg_if! {
+    if #[cfg(icecap_plat = "virt")] {
+        use icecap_virt_timer_driver::VirtTimerDevice;
 
-    pub fn timer_device(base_addr: usize) -> PlatformTimerDevice {
-        PlatformTimerDevice::new(base_addr)
+        pub fn timer_device(base_addr: usize) -> VirtTimerDevice {
+            VirtTimerDevice::new(base_addr)
+        }
+    } else if #[cfg(icecap_plat = "rpi4")] {
+        use icecap_bcm_system_timer_driver::BcmSystemTimerDevice;
+
+        pub fn timer_device(base_addr: usize) -> BcmSystemTimerDevice {
+            BcmSystemTimerDevice::new(base_addr)
+        }
     }
 }
-
-#[cfg(icecap_plat = "rpi4")]
-mod plat_impl {
-    pub use icecap_drivers::timer::BcmSystemTimerDevice as PlatformTimerDevice;
-
-    pub fn timer_device(base_addr: usize) -> PlatformTimerDevice {
-        PlatformTimerDevice::new(base_addr)
-    }
-}
-
-pub use plat_impl::*;

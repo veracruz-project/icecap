@@ -1,6 +1,7 @@
-use core::ops::Deref;
+#![no_std]
+#![allow(dead_code)]
 
-use icecap_core::prelude::*;
+use core::ops::Deref;
 
 use tock_registers::{
     interfaces::{Readable, Writeable},
@@ -8,7 +9,8 @@ use tock_registers::{
     registers::ReadWrite,
 };
 
-use crate::serial::SerialDevice;
+use icecap_core::prelude::*;
+use icecap_driver_interfaces::SerialDevice;
 
 // TODO use structured bitfields
 
@@ -17,7 +19,7 @@ const MU_LSR_DATAREADY: u32 = 1 << 0;
 
 register_structs! {
     #[allow(non_snake_case)]
-    pub RegisterBlock {
+    pub Bcm2835AuxUartRegisterBlock {
         (0x000 => _reserved0),
         (0x040 => IO: ReadWrite<u8>),
         (0x041 => _reserved1),
@@ -28,33 +30,33 @@ register_structs! {
     }
 }
 
-pub struct Device {
+pub struct Bcm2835AuxUartDevice {
     base_addr: usize,
 }
 
-impl Device {
+impl Bcm2835AuxUartDevice {
     pub fn new(base_addr: usize) -> Self {
         Self { base_addr }
     }
 
-    fn ptr(&self) -> *const RegisterBlock {
+    fn ptr(&self) -> *const Bcm2835AuxUartRegisterBlock {
         self.base_addr as *const _
     }
 
     pub fn init(&self) {
-        self.handle_irq()
+        self.handle_interrupt()
     }
 }
 
-impl Deref for Device {
-    type Target = RegisterBlock;
+impl Deref for Bcm2835AuxUartDevice {
+    type Target = Bcm2835AuxUartRegisterBlock;
 
     fn deref(&self) -> &Self::Target {
         unsafe { &*self.ptr() }
     }
 }
 
-impl SerialDevice for Device {
+impl SerialDevice for Bcm2835AuxUartDevice {
     fn put_char(&self, c: u8) {
         // TODO queue rather than wait
         // loop {
@@ -75,7 +77,7 @@ impl SerialDevice for Device {
         }
     }
 
-    fn handle_irq(&self) {
+    fn handle_interrupt(&self) {
         self.IER.set(5);
     }
 }

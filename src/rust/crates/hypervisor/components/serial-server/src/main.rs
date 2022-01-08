@@ -7,7 +7,7 @@ mod run;
 mod event;
 mod color;
 mod plat;
-mod writer;
+mod fmt;
 
 declare_main!(main);
 

@@ -527,6 +527,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "icecap-bcm-system-timer-driver"
+version = "0.1.0"
+dependencies = [
+ "icecap-core",
+ "icecap-driver-interfaces",
+ "tock-registers",
+]
+
+[[package]]
+name = "icecap-bcm2835-aux-uart-driver"
+version = "0.1.0"
+dependencies = [
+ "icecap-core",
+ "icecap-driver-interfaces",
+ "tock-registers",
+]
+
+[[package]]
 name = "icecap-benchmark-server-config"
 version = "0.1.0"
 dependencies = [
@@ -588,11 +606,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "icecap-drivers"
+name = "icecap-driver-interfaces"
 version = "0.1.0"
 dependencies = [
  "icecap-core",
- "tock-registers",
 ]
 
 [[package]]
@@ -713,6 +730,15 @@ version = "0.1.0"
 dependencies = [
  "icecap-config",
  "serde",
+]
+
+[[package]]
+name = "icecap-pl011-driver"
+version = "0.1.0"
+dependencies = [
+ "icecap-core",
+ "icecap-driver-interfaces",
+ "tock-registers",
 ]
 
 [[package]]
@@ -1004,6 +1030,15 @@ dependencies = [
  "gimli 0.20.0",
  "icecap-runtime",
  "log",
+]
+
+[[package]]
+name = "icecap-virt-timer-driver"
+version = "0.1.0"
+dependencies = [
+ "icecap-core",
+ "icecap-driver-interfaces",
+ "tock-registers",
 ]
 
 [[package]]
@@ -1435,8 +1470,11 @@ dependencies = [
 name = "serial-server"
 version = "0.1.0"
 dependencies = [
- "icecap-drivers",
+ "cfg-if 1.0.0",
+ "icecap-bcm2835-aux-uart-driver",
+ "icecap-driver-interfaces",
  "icecap-event-server-types",
+ "icecap-pl011-driver",
  "icecap-serial-server-config",
  "icecap-std",
  "icecap-timer-server-client",
@@ -1530,10 +1568,13 @@ dependencies = [
 name = "timer-server"
 version = "0.1.0"
 dependencies = [
- "icecap-drivers",
+ "cfg-if 1.0.0",
+ "icecap-bcm-system-timer-driver",
+ "icecap-driver-interfaces",
  "icecap-std",
  "icecap-timer-server-config",
  "icecap-timer-server-types",
+ "icecap-virt-timer-driver",
  "tock-registers",
 ]
 

@@ -1,3 +1,5 @@
+#![no_std]
+
 use core::ops::Deref;
 
 use tock_registers::{
@@ -6,10 +8,10 @@ use tock_registers::{
     registers::{ReadOnly, ReadWrite},
 };
 
-use crate::timer::TimerDevice;
+use icecap_driver_interfaces::TimerDevice;
 
 register_structs! {
-    pub QemuTimerRegisterBlock {
+    pub VirtTimerRegisterBlock {
         (0x000 => freq: ReadOnly<u32>),
         (0x004 => enable: ReadWrite<u32>),
         (0x008 => count: ReadOnly<u64>),
@@ -18,29 +20,29 @@ register_structs! {
     }
 }
 
-pub struct QemuTimerDevice {
+pub struct VirtTimerDevice {
     base_addr: usize,
 }
 
-impl QemuTimerDevice {
+impl VirtTimerDevice {
     pub fn new(base_addr: usize) -> Self {
         Self { base_addr }
     }
 
-    fn ptr(&self) -> *const QemuTimerRegisterBlock {
+    fn ptr(&self) -> *const VirtTimerRegisterBlock {
         self.base_addr as *const _
     }
 }
 
-impl Deref for QemuTimerDevice {
-    type Target = QemuTimerRegisterBlock;
+impl Deref for VirtTimerDevice {
+    type Target = VirtTimerRegisterBlock;
 
     fn deref(&self) -> &Self::Target {
         unsafe { &*self.ptr() }
     }
 }
 
-impl TimerDevice for QemuTimerDevice {
+impl TimerDevice for VirtTimerDevice {
     fn get_freq(&self) -> u32 {
         self.freq.get()
     }

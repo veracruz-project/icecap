@@ -4,10 +4,13 @@ fault-handler
 host-vmm
 icecap-backtrace
 icecap-backtrace-collect
+icecap-bcm2835-aux-uart-driver
+icecap-bcm-system-timer-driver
 icecap-core
-icecap-drivers
+icecap-driver-interfaces
 icecap-failure
 icecap-logger
+icecap-pl011-driver
 icecap-plat
 icecap-resource-server-core
 icecap-ring-buffer
@@ -22,6 +25,7 @@ icecap-std-impl
 icecap-sync
 icecap-timer-server-client
 icecap-unwind
+icecap-virt-timer-driver
 icecap-vmm
 icecap-vmm-gic
 idle

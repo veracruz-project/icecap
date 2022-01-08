@@ -7,8 +7,11 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+cfg-if = "*"
 tock-registers = "*"
-icecap-drivers = { path = "../../../drivers/icecap-drivers-lame" }
+icecap-bcm-system-timer-driver = { path = "../../../drivers/devices/bcm-system-timer" }
+icecap-driver-interfaces = { path = "../../../drivers/icecap-driver-interfaces" }
 icecap-std = { path = "../../../framework/icecap-std" }
 icecap-timer-server-config = { path = "./config" }
 icecap-timer-server-types = { path = "./types" }
+icecap-virt-timer-driver = { path = "../../../drivers/devices/virt-timer" }

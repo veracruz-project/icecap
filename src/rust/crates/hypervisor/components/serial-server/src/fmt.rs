@@ -2,7 +2,7 @@
 
 use core::fmt;
 
-use icecap_drivers::serial::SerialDevice;
+use icecap_driver_interfaces::SerialDevice;
 
 pub struct Writer<'a, T>(pub &'a T);
 
@@ -17,5 +17,5 @@ impl<T: SerialDevice> fmt::Write for Writer<'_, T> {
 
 #[macro_export]
 macro_rules! out {
-    ($dst:expr, $($arg:tt)*) => ($crate::writer::Writer($dst).write_fmt(format_args!($($arg)*)).unwrap());
+    ($dst:expr, $($arg:tt)*) => ($crate::fmt::Writer($dst).write_fmt(format_args!($($arg)*)).unwrap());
 }

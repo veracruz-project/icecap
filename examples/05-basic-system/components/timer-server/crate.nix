@@ -6,8 +6,9 @@ crateUtils.mkCrate {
   nix.src = icecapSrc.absoluteSplit ./src;
   nix.local.dependencies = (with globalCrates; [
     icecap-std
-    icecap-drivers
     icecap-start-generic
+    icecap-driver-interfaces
+    icecap-virt-timer-driver
   ]) ++ [
     timer-server-types
   ];

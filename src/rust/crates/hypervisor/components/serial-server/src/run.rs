@@ -1,7 +1,7 @@
 use alloc::collections::VecDeque;
 use core::fmt::Write;
 
-use icecap_drivers::serial::SerialDevice;
+use icecap_driver_interfaces::SerialDevice;
 use icecap_std::prelude::*;
 use icecap_std::rpc_sel4::{rpc_server, RPCClient};
 use icecap_timer_server_client::*;
@@ -90,7 +90,7 @@ impl<T: SerialDevice> SerialServer<T> {
 
             match rpc_server::recv::<Event>(&info) {
                 Event::Interrupt => {
-                    self.dev.handle_irq();
+                    self.dev.handle_interrupt();
                     loop {
                         match self.dev.get_char() {
                             Some(c) => {

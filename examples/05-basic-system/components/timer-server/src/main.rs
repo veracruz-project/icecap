@@ -12,7 +12,8 @@ use icecap_std::{
     rpc_sel4::rpc_server,
 };
 use icecap_start_generic::declare_generic_main;
-use icecap_drivers::timer::{TimerDevice, QemuTimerDevice};
+use icecap_driver_interfaces::TimerDevice;
+use icecap_virt_timer_driver::VirtTimerDevice;
 
 use timer_server_types::{Request, NS_IN_S};
 
@@ -35,7 +36,7 @@ struct Badges {
 
 fn main(config: Config) -> Fallible<()> {
 
-    let dev = QemuTimerDevice::new(config.dev_vaddr);
+    let dev = VirtTimerDevice::new(config.dev_vaddr);
     dev.set_enable(false);
     dev.clear_interrupt();
     config.irq_handler.ack()?;

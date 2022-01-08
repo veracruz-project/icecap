@@ -2,7 +2,7 @@ use alloc::collections::{BTreeMap, BTreeSet};
 use core::cmp::Ordering;
 use core::result;
 
-use icecap_drivers::timer::TimerDevice;
+use icecap_driver_interfaces::TimerDevice;
 use icecap_std::prelude::*;
 
 pub type Error = ();

@@ -7,7 +7,7 @@ extern crate alloc;
 
 use alloc::sync::Arc;
 
-use icecap_drivers::timer::TimerDevice;
+use icecap_driver_interfaces::TimerDevice;
 use icecap_std::{prelude::*, rpc_sel4::*, sync::*};
 use icecap_timer_server_config::Config;
 use icecap_timer_server_types::Request;

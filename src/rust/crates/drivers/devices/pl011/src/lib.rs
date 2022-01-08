@@ -1,3 +1,5 @@
+#![no_std]
+
 use core::ops::Deref;
 
 use tock_registers::{
@@ -6,7 +8,7 @@ use tock_registers::{
     registers::ReadWrite,
 };
 
-use crate::serial::SerialDevice;
+use icecap_driver_interfaces::SerialDevice;
 
 // TODO use structured bitfields
 
@@ -15,7 +17,7 @@ const PL011_UARTFR_RXFE: u32 = 1 << 4;
 
 register_structs! {
     #[allow(non_snake_case)]
-    pub RegisterBlock {
+    pub Pl011RegisterBlock {
         (0x000 => DR: ReadWrite<u8>),
         (0x001 => _reserved0),
         (0x018 => FR: ReadWrite<u32>),
@@ -27,16 +29,16 @@ register_structs! {
     }
 }
 
-pub struct Device {
+pub struct Pl011Device {
     base_addr: usize,
 }
 
-impl Device {
+impl Pl011Device {
     pub fn new(base_addr: usize) -> Self {
         Self { base_addr }
     }
 
-    fn ptr(&self) -> *const RegisterBlock {
+    fn ptr(&self) -> *const Pl011RegisterBlock {
         self.base_addr as *const _
     }
 
@@ -45,15 +47,15 @@ impl Device {
     }
 }
 
-impl Deref for Device {
-    type Target = RegisterBlock;
+impl Deref for Pl011Device {
+    type Target = Pl011RegisterBlock;
 
     fn deref(&self) -> &Self::Target {
         unsafe { &*self.ptr() }
     }
 }
 
-impl SerialDevice for Device {
+impl SerialDevice for Pl011Device {
     fn put_char(&self, c: u8) {
         // TODO queue rather than wait
         loop {
@@ -71,7 +73,7 @@ impl SerialDevice for Device {
         }
     }
 
-    fn handle_irq(&self) {
+    fn handle_interrupt(&self) {
         self.ICR.set(0x7f0);
     }
 }

@@ -2,10 +2,11 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-drivers"
+name = "icecap-virt-timer-driver"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 tock-registers = "*"
-icecap-core = { path = "../../framework/icecap-core" }
+icecap-core = { path = "../../../framework/icecap-core" }
+icecap-driver-interfaces = { path = "../../icecap-driver-interfaces" }
