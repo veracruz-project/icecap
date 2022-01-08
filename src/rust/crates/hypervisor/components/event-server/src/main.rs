@@ -99,7 +99,9 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                     calls::Client::Signal { index } => rpc_server::reply(&client.signal(index)?),
                     calls::Client::SEV { nid } => rpc_server::reply(&client.sev(nid)?),
                     calls::Client::Poll { nid } => rpc_server::reply(&client.poll(nid)?),
-                    calls::Client::End { nid, index } => rpc_server::reply(&client.end(nid, index)?),
+                    calls::Client::End { nid, index } => {
+                        rpc_server::reply(&client.end(nid, index)?)
+                    }
                     calls::Client::Configure { nid, index, action } => {
                         rpc_server::reply(&client.configure(nid, index, action)?)
                     }
