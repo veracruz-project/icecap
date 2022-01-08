@@ -1,7 +1,9 @@
+PLAT ?= virt
+
 out := out
 
-.PHONY: none
-none:
+.PHONY: all
+all: icecap-hypervisor-firmware host-tools build-tools host-kernel realm-kernel html-docs
 
 $(out):
 	mkdir -p $@
@@ -9,6 +11,31 @@ $(out):
 .PHONY: clean
 clean:
 	rm -rf $(out)
+
+.PHONY: icecap-hypervisor-firmware
+icecap-hypervisor-firmware: | $(out)
+	nix-build -A pkgs.none.icecap.configured.$(PLAT).icecapFirmware.display -o $(out)/$@-$(PLAT)
+
+.PHONY: host-tools
+host-tools: | $(out)
+	nix-build -A meta.display.$@ -o $(out)/$@
+
+.PHONY: build-tools
+build-tools: | $(out)
+	nix-build -A meta.display.$@ -o $(out)/$@
+
+.PHONY: host-kernel
+host-kernel: | $(out)
+	nix-build -A meta.display.$@.$(PLAT) -o $(out)/$@-$(PLAT)
+
+.PHONY: realm-kernel
+realm-kernel: | $(out)
+	nix-build -A meta.display.$@ -o $(out)/$@
+
+.PHONY: html-docs
+html-docs: check-generated-sources | $(out)
+	nix-build -A meta.generatedDocs.html -o $(out)/html-docs
+
 
 .PHONY: everything
 everything: check-generated-sources
@@ -29,10 +56,6 @@ ad-hoc-build-tests: check-generated-sources
 .PHONY: tcb-size
 tcb-size:
 	report=$$(nix-build -A meta.tcbSize --no-out-link) && cat $$report
-
-.PHONY: html-docs
-html-docs: check-generated-sources | $(out)
-	nix-build -A meta.generatedDocs.html -o $(out)/html-docs
 
 .PHONY: check-generated-sources
 check-generated-sources:

@@ -1,4 +1,5 @@
 { lib, runCommand
+, callPackage
 , dtb-helpers
 , linuxPkgs
 , deviceTree, platUtils, cpioUtils, elfUtils
@@ -54,7 +55,7 @@ let
         benchmark_server.image = bins.benchmark-server.split;
 
         resource_server.image = bins.resource-server.split;
-        resource_server.heap_size = 128 * 1048576;
+        resource_server.heap_size = 128 * 1048576; # HACK
 
         host_vmm.image = bins.host-vmm.split;
         host_vm.kernel = self.u-boot;
@@ -88,7 +89,7 @@ let
     '') files)}
   '';
 
-in rec {
+in lib.fix (self: with self; {
   inherit components;
   inherit (components) cdl app loader;
 
@@ -107,4 +108,8 @@ in rec {
   host-dts = dtb-helpers.decompileForce host-dtb;
 
   mkDefaultPayload = args: uBoot.mkDefaultPayload ({ dtb = host-dtb; } // args);
-}
+
+  display = callPackage ./display.nix {
+    composition = self;
+  };
+})

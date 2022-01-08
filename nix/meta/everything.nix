@@ -8,25 +8,35 @@ let
     (lib.mapAttrsToList (_: example: example.run) meta.examples)
 
     (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (_: configured: [
+      configured.icecapFirmware.display
       configured.sysroot-rs
     ]))
 
-    (lib.flip lib.concatMap [ dev linux ] (host: [
+    (lib.flip lib.concatMap [ dev linux musl ] (host: [
       host.icecap.crosvm-9p-server
+    ]))
+
+    (lib.flip lib.concatMap [ linux musl ] (host: [
+      host.icecap.icecap-host
+      host.icecap.firecracker
+      host.icecap.firecracker-prebuilt
+      host.icecap.firectl
     ]))
 
     meta.tcbSize
 
     dev.icecap.sel4-manual
+
+    (with meta.display; lib.flatten [
+      host-tools
+      build-tools
+      (lib.attrValues host-kernel)
+      realm-kernel
+    ])
   ];
 
   pure = [
     cached
-
-    musl.icecap.icecap-host
-    musl.icecap.firecracker
-    musl.icecap.firecracker-prebuilt
-    musl.icecap.firectl
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
       meta.tests.backtrace

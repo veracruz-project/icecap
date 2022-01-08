@@ -23,4 +23,6 @@ rec {
 
   tcbSize = call ./tcb-size {};
 
+  display = call ./display.nix {};
+
 }
