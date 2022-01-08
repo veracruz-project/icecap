@@ -53,9 +53,6 @@ in
 
     {
       initramfs.extraInitCommands = ''
-        mkdir -p /etc /bin
-        ln -s $(which sh) /bin/sh
-
         mount -t debugfs none /sys/kernel/debug/
       '';
     }
@@ -84,6 +81,7 @@ in
     (mkIf (cfg.plat == "rpi4") {
       initramfs.extraInitCommands = ''
         sleep 2 # HACK
+        mkdir -p /mnt
         mount -o ro /dev/mmcblk0p1 mnt/
         ln -s /mnt/*-realm-spec.bin /
       '';
