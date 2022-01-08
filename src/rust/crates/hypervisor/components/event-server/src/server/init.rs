@@ -51,7 +51,7 @@ impl EventServerConfig {
 
         let host = Client {
             out_space: mk_out_space(events::HostOut::CARDINALITY),
-            in_spaces: (0..NUM_NODES)
+            in_spaces: (0..NUM_ACTIVE_CORES)
                 .map(|node_index| {
                     Arc::new(RefCell::new(InSpace {
                         entries: (0..events::HostIn::CARDINALITY).map(|_| None).collect(),
@@ -148,7 +148,7 @@ impl EventServerConfig {
             })
             .collect();
 
-        let host_subscriptions = (0..NUM_NODES)
+        let host_subscriptions = (0..NUM_ACTIVE_CORES)
             .map(|node_index| {
                 let event = Arc::new(RefCell::new(Event {
                     target: None,

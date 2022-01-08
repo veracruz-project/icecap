@@ -21,7 +21,7 @@ mod model_view;
 mod initialize_realm_objects;
 mod cpu;
 
-use cpu::{schedule, NUM_NODES};
+use cpu::{schedule, NUM_ACTIVE_CORES};
 use model_view::ModelView;
 use utils::*;
 
@@ -68,7 +68,7 @@ pub struct ResourceServer {
 
     // TODO
     // partial_realms: BTreeMap<RealmId, PartialRealm>,
-    physical_nodes: [Option<(RealmId, VirtualNodeIndex)>; NUM_NODES],
+    physical_nodes: [Option<(RealmId, VirtualNodeIndex)>; NUM_ACTIVE_CORES],
 
     cnode: CNode,
     node_local: Vec<NodeLocal>,
@@ -118,7 +118,7 @@ impl ResourceServer {
             realms: BTreeMap::new(),
             partial_specs: BTreeMap::new(),
 
-            physical_nodes: [None; NUM_NODES],
+            physical_nodes: [None; NUM_ACTIVE_CORES],
 
             cnode,
             node_local,
