@@ -96,6 +96,7 @@ dependencies = [
 name = "benchmark-server"
 version = "0.1.0"
 dependencies = [
+ "cfg-if 1.0.0",
  "icecap-benchmark-server-config",
  "icecap-benchmark-server-types",
  "icecap-plat",
@@ -469,6 +470,7 @@ name = "host-vmm"
 version = "0.1.0"
 dependencies = [
  "biterate",
+ "cfg-if 1.0.0",
  "icecap-benchmark-server-types",
  "icecap-event-server-types",
  "icecap-host-vmm-config",

@@ -7,6 +7,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+cfg-if = "*"
 biterate = { path = "../../../../helpers/biterate" }
 icecap-benchmark-server-types = { path = "../../benchmark-server/types" }
 icecap-event-server-types = { path = "../../event-server/types" }
