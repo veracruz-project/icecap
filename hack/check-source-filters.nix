@@ -1,6 +1,6 @@
 let
   source = builtins.fetchGit {
-    url = ../..;
+    url = ../.;
     rev = builtins.getEnv "CURRENT_REV";
     submodules = true;
   };
