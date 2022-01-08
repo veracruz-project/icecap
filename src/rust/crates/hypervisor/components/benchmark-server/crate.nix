@@ -8,4 +8,7 @@ mkComponent {
     icecap-benchmark-server-types
     icecap-benchmark-server-config
   ];
+  dependencies = {
+    cfg-if = "*";
+  };
 }

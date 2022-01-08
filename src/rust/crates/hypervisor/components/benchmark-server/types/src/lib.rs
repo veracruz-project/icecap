@@ -8,7 +8,10 @@ pub enum Request {
     Finish,
 }
 
-pub type Response = Result<InnerResponse, ()>;
+pub type Response = Result<InnerResponse, Error>;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InnerResponse;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Error;
