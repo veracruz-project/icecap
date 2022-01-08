@@ -3,9 +3,7 @@ from icecap_framework import *
 class Test(GenericElfComponent):
 
     def arg_json(self):
-        return {
-            'test': 'foo',
-            }
+        return None
 
 class Composition(BaseComposition):
 

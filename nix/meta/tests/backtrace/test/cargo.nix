@@ -8,7 +8,4 @@ crateUtils.mkCrate {
     icecap-std
     icecap-start-generic
   ];
-  dependencies = {
-    serde = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };
-  };
 }

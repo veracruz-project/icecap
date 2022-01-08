@@ -29,6 +29,7 @@ let
     musl.icecap.firectl
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
+      meta.tests.backtrace
       meta.tests.realm-vm
       meta.tests.analysis
       meta.tests.benchmark-utilisation
