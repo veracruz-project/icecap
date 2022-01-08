@@ -1,10 +1,14 @@
-mod error;
-mod bulk_transport;
-pub mod syscall;
+use std::error::Error;
+use std::result;
+
 use icecap_host_vmm_types::{DirectRequest, DirectResponse};
 
+mod bulk_transport;
+pub mod syscall;
+
 pub use bulk_transport::BulkTransport;
-pub use error::{LameError, Result};
+
+pub type Result<T> = result::Result<T, Box<dyn Error>>;
 
 pub struct Host {}
 
