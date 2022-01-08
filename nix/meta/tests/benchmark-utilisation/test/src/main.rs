@@ -15,7 +15,7 @@ declare_generic_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
-    bep: Endpoint,
+    benchmark_server_ep: Endpoint,
 }
 
 #[cfg(icecap_plat = "virt")]
@@ -24,7 +24,7 @@ const C: u32 = 10;
 const C: u32 = 1;
 
 fn main(config: Config) -> Fallible<()> {
-    let ep = config.bep;
+    let ep = config.benchmark_server_ep;
 
     let freq = read_cntfrq_el0();
     debug_println!("freq = {}", freq);

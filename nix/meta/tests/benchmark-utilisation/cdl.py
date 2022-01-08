@@ -7,7 +7,7 @@ class Test(GenericElfComponent):
         super().__init__(*args, affinity=0, **kwargs)
 
         self._arg = {
-            'bep': self.cspace().alloc(self.composition.benchmark_server.ep, write=True, grantreply=True),
+            'benchmark_server_ep': self.cspace().alloc(self.composition.benchmark_server.ep, write=True, grantreply=True),
             }
 
     def arg_json(self):
