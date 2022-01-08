@@ -3,7 +3,7 @@ PLAT ?= virt
 out := out
 
 .PHONY: all
-all: icecap-hypervisor-firmware host-tools build-tools host-kernel realm-kernel html-docs
+all: firmware host-tools build-tools host-kernel realm-kernel html-docs
 
 $(out):
 	mkdir -p $@
@@ -12,8 +12,8 @@ $(out):
 clean:
 	rm -rf $(out)
 
-.PHONY: icecap-hypervisor-firmware
-icecap-hypervisor-firmware: | $(out)
+.PHONY: firmware
+firmware: | $(out)
 	nix-build -A pkgs.none.icecap.configured.$(PLAT).icecapFirmware.display -o $(out)/$@-$(PLAT)
 
 .PHONY: host-kernel
