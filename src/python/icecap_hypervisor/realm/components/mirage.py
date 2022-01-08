@@ -30,6 +30,7 @@ class Mirage(ElfComponent):
 
         net_rb = self.composition.extern_ring_buffer('realm_{}_net_ring_buffer'.format(self.composition.realm_id()), size=1<<(21 + 3))
 
+        # TODO
         # con_rb = self.composition.extern_ring_buffer('realm_{}_serial_server_ring_buffer'.format(self.composition.realm_id()), size=4096)
         # con_kick = self.composition.extern(ObjectType.seL4_NotificationObject, 'realm_{}_serial_server_kick'.format(self.composition.realm_id()))
 
@@ -40,6 +41,7 @@ class Mirage(ElfComponent):
 
             'net_rb': self.map_ring_buffer(net_rb),
 
+            # TODO
             # 'con_rb': self.map_ring_buffer(con_rb),
             # 'con_kick': self.cspace().alloc(con_kick, write=True),
 
