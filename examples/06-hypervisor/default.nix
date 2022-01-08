@@ -29,7 +29,12 @@ in rec {
   realms = {
     minimal = import ./realms/01-minimal { inherit lib pkgs; };
     vm = import ./realms/02-vm { inherit lib pkgs; };
-    mirage = import ./realms/03-mirage { inherit lib pkgs; };
+    mirage =
+      if pkgs.dev.hostPlatform.isx86_64
+      then import ./realms/03-mirage { inherit lib pkgs; }
+      else {
+        spec = pkgs.dev.emptyFile;
+      };
   };
 
   hostUser = pkgs.linux.icecap.nixosLite.eval {
