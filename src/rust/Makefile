@@ -9,6 +9,10 @@ clean:
 fmt:
 	cargo fmt --all
 
+.PHONY: fmt-check
+fmt-check:
+	cargo fmt --all -- --check -l
+
 .PHONY: build
 build: build-seL4 build-linux
 

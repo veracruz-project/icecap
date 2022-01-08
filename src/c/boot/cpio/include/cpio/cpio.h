@@ -80,4 +80,3 @@ int cpio_info(const void *archive, unsigned long len, struct cpio_info *info);
  * @param[in] buf_len  The length of the provided buf
  */
 void cpio_ls(const void *archive, unsigned long len, char **buf, unsigned long buf_len);
-
