@@ -12,6 +12,7 @@ extern crate alloc;
 
 use serde::{Deserialize, Serialize};
 
+use finite_set::Finite;
 use icecap_event_server_types::{
     calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
 };
@@ -19,7 +20,6 @@ use icecap_mirage_config::Config;
 use icecap_std::{
     config::RingBufferConfig,
     config::RingBufferKicksConfig,
-    finite_set::Finite,
     logger::{DisplayMode, Level, Logger},
     prelude::*,
     ring_buffer::{BufferedPacketRingBuffer, PacketRingBuffer},

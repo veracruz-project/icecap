@@ -1159,6 +1159,7 @@ dependencies = [
 name = "mirage"
 version = "0.1.0"
 dependencies = [
+ "finite-set",
  "icecap-event-server-types",
  "icecap-linux-syscall",
  "icecap-mirage-config",
