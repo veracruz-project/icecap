@@ -34,7 +34,7 @@ realm-kernel: | $(out)
 
 .PHONY: html-docs
 html-docs: check-generated-sources | $(out)
-	nix-build -A meta.generatedDocs.html -o $(out)/html-docs
+	nix-build -A meta.generatedDocs.html -o $(out)/$@
 
 
 .PHONY: everything
