@@ -10,12 +10,6 @@ $(out):
 clean:
 	rm -rf $(out)
 
-
-### Pure Nix ###
-
-.PHONY: check
-check: everything
-
 .PHONY: everything
 everything: check-generated-sources
 	nix-build -A meta.everything.all --no-out-link
@@ -47,62 +41,3 @@ check-generated-sources:
 .PHONY: update-generated-sources
 update-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.update --no-out-link) && $$script
-
-
-### Source code formatting ###
-
-.PHONY: check-formatting
-check-formatting: rustfmt-check check-generic-formatting
-
-.PHONY: rustfmt
-rustfmt:
-	nix-shell src/rust/shell.nix --pure --run 'make -C src/rust fmt'
-
-.PHONY: rustfmt-check
-rustfmt-check:
-	nix-shell src/rust/shell.nix --pure --run 'make -C src/rust fmt-check'
-
-check_generic_formatting_ignore_flags = \
-	-path ./.git -prune -o \
-	-path ./nixpkgs -prune -o \
-	-path ./nix/nix-linux -prune -o \
-	-path ./docs/images -prune -o \
-	-path '*.patch' -o \
-	-path ./tmp -prune
-
-.PHONY: check-generic-formatting
-check-generic-formatting:
-	find . ! \( $(check_generic_formatting_ignore_flags) \) -type f | \
-		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-generic-formatting.py
-
-
-### Ensuring cache hits ###
-
-.PHONY: check-source-filters
-check-source-filters:
-	CURRENT_REV="$$(git show -s --format=%H)" \
-		nix-build hack/check-source-filters.nix -A test --no-out-link
-
-ifneq ($(F),1)
-deep_clean_dry_run := -n
-endif
-
-# NOTE
-# Must provide `F=1`, otherwise dry run
-.PHONY: deep-clean
-deep-clean:
-	git clean -Xdff $(deep_clean_dry_run) \
-		--exclude='!tmp/' \
-		--exclude='!tmp/**'
-
-
-### Remote cache maintenance ###
-
-# NOTE
-# Must provide `REMOTE=<remote, e.g. ssh host>`
-.PHONY: populate-cache
-populate-cache:
-	test -n "$(REMOTE)"
-	drv=$$(nix-instantiate -A meta.everything.cached) && \
-		nix-store --realise $$drv && \
-		nix-copy-closure --include-outputs --to "$(REMOTE)" $$drv
