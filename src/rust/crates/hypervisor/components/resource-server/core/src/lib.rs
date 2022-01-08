@@ -271,17 +271,15 @@ impl ResourceServer {
             let extern_caps: Vec<Unspecified> = view
                 .extern_objects
                 .iter()
-                .map(|i| {
-                    match &model.objects[*i].object {
-                        AnyObj::Extern(obj) => {
-                            let name = model.objects[*i].name.clone();
-                            let ext = self.externs.remove(&name).unwrap();
-                            assert_eq!(&ext.ty, obj);
-                            externs.insert(name, ext);
-                            ext.cptr
-                        }
-                        _ => panic!(),
+                .map(|i| match &model.objects[*i].object {
+                    AnyObj::Extern(obj) => {
+                        let name = model.objects[*i].name.clone();
+                        let ext = self.externs.remove(&name).unwrap();
+                        assert_eq!(&ext.ty, obj);
+                        externs.insert(name, ext);
+                        ext.cptr
                     }
+                    _ => panic!(),
                 })
                 .collect();
 
