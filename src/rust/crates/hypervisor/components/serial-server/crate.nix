@@ -7,8 +7,8 @@ mkComponent {
     icecap-serial-server-config
     icecap-timer-server-client
     icecap-event-server-types
-
     icecap-driver-interfaces
+    finite-set
 
     # TODO see note in timer-server/crate.nix
     icecap-pl011-driver

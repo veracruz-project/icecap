@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 cfg-if = "*"
 biterate = { path = "../../../../helpers/biterate" }
+finite-set = { path = "../../../../helpers/finite-set" }
 icecap-benchmark-server-types = { path = "../../benchmark-server/types" }
 icecap-event-server-types = { path = "../../event-server/types" }
 icecap-host-vmm-config = { path = "./config" }

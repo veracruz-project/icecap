@@ -471,6 +471,7 @@ version = "0.1.0"
 dependencies = [
  "biterate",
  "cfg-if 1.0.0",
+ "finite-set",
  "icecap-benchmark-server-types",
  "icecap-event-server-types",
  "icecap-host-vmm-config",
@@ -590,8 +591,6 @@ dependencies = [
 name = "icecap-core"
 version = "0.1.0"
 dependencies = [
- "biterate",
- "finite-set",
  "icecap-backtrace",
  "icecap-config",
  "icecap-failure",
@@ -1347,6 +1346,7 @@ name = "realm-vmm"
 version = "0.1.0"
 dependencies = [
  "biterate",
+ "finite-set",
  "icecap-event-server-types",
  "icecap-realm-vmm-config",
  "icecap-std",
@@ -1471,6 +1471,7 @@ name = "serial-server"
 version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
+ "finite-set",
  "icecap-bcm2835-aux-uart-driver",
  "icecap-driver-interfaces",
  "icecap-event-server-types",

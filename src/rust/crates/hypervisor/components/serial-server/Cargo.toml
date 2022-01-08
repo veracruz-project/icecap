@@ -10,6 +10,7 @@ edition = "2018"
 cfg-if = "*"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 tock-registers = "*"
+finite-set = { path = "../../../helpers/finite-set" }
 icecap-bcm2835-aux-uart-driver = { path = "../../../drivers/devices/bcm2835-aux-uart" }
 icecap-driver-interfaces = { path = "../../../drivers/icecap-driver-interfaces" }
 icecap-event-server-types = { path = "../event-server/types" }

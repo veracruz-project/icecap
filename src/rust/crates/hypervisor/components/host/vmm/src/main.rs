@@ -3,9 +3,9 @@
 
 extern crate alloc;
 
+use finite_set::Finite;
 use icecap_host_vmm_config::*;
 use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
-use icecap_std::finite_set::Finite;
 use icecap_std::prelude::*;
 use icecap_std::rpc_sel4::*;
 use icecap_std::sel4::fault::*;

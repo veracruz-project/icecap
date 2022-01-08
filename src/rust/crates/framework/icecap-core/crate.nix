@@ -9,15 +9,11 @@ mkSeL4 {
     icecap-ring-buffer
     icecap-rpc
     icecap-rpc-sel4
-    icecap-config
     icecap-backtrace
     icecap-failure
     icecap-logger
     icecap-start
-
-    # HACK
-    finite-set
-    biterate
+    icecap-config
   ];
   dependencies = {
     icecap-sel4.features = [

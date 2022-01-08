@@ -4,6 +4,7 @@ mkComponent {
   nix.name = "host-vmm";
   nix.local.dependencies = with localCrates; [
     biterate
+    finite-set
     icecap-host-vmm-config
     icecap-std
     icecap-vmm

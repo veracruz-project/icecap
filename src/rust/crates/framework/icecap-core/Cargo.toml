@@ -7,8 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-biterate = { path = "../../helpers/biterate" }
-finite-set = { path = "../../helpers/finite-set" }
 icecap-backtrace = { path = "../icecap-backtrace" }
 icecap-config = { path = "../icecap-config" }
 icecap-failure = { path = "../icecap-failure" }
