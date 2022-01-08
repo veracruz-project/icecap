@@ -4,8 +4,8 @@ let
   inherit (icecap) lib pkgs;
 
   examples = {
-    minimal-root = ./01-minimal-root;
-    minimal-root-with-rust = ./02-minimal-root-with-rust;
+    minimal-root-task = ./01-minimal-root-task;
+    minimal-root-task-with-rust = ./02-minimal-root-task-with-rust;
     minimal-capdl = ./03-minimal-capdl;
     minimal-capdl-with-rust = ./04-minimal-capdl-with-rust;
     basic-system = ./05-basic-system;

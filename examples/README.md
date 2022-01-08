@@ -36,7 +36,7 @@ This docker container is effectively stateless. All of the build system's state 
 ### Our first system
 
 Our first system has consists only of a trivial root task: hello world, in C.
-Here is the source: [./01-minimal-root/root-task/src/main.c](./01-minimal-root/root-task/src/main.c).
+Here is the source: [./01-minimal-root-task/root-task/src/main.c](./01-minimal-root-task/root-task/src/main.c).
 
 The example systems in the guide are configured for `qemu-system-aarch64 -machine virt`.
 Each example system is accompanied by a build target which builds the system and creates a convenient shell script to run it emulate it.
@@ -44,10 +44,10 @@ Each example system is accompanied by a build target which builds the system and
 To build the first system, run the following from the root of this repository:
 
 ```
-nix-build examples/ -A minimal-root.run
+nix-build examples/ -A minimal-root-task.run
 ```
 
-The Docker image is configured to support tab-completion for Nix attribute paths. For example, try `nix-build examples/ -A minimal-root.<tab>`. `minimal-root.run`, for example, corresponds to the attribute found at [./01-minimal-root/default.nix#L10](./01-minimal-root/default.nix#L10).
+The Docker image is configured to support tab-completion for Nix attribute paths. For example, try `nix-build examples/ -A minimal-root-task.<tab>`. `minimal-root-task.run`, for example, corresponds to the attribute found at [./01-minimal-root-task/default.nix#L10](./01-minimal-root-task/default.nix#L10).
 
 Now, run the example:
 
@@ -71,10 +71,10 @@ The following is the _only_ code compiled into the root task:
 By writing seL4 components in Rust, we benefit not only from Rust's memory safe and advanced language features, but also the Rust library ecosystem. The IceCap Framework includes a collection of crates for creating seL4 components.
 Check out the [rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/) for the IceCap crates.
 The [icecap-core](https://arm-research.gitlab.io/security/icecap/html/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html) crate is a good entrypoint.
-[./02-minimal-root-with-rust/root-task/src/main.rs](./02-minimal-root-with-rust/root-task/src/main.rs) is an example of a simple root task, written in Rust, which parses the Flattened Device Tree passed to it by the kernel via the `bootinfo`.
+[./02-minimal-root-task-with-rust/root-task/src/main.rs](./02-minimal-root-task-with-rust/root-task/src/main.rs) is an example of a simple root task, written in Rust, which parses the Flattened Device Tree passed to it by the kernel via the `bootinfo`.
 
 ```
-nix-build examples/ -A minimal-root-with-rust.run && ./result/run
+nix-build examples/ -A minimal-root-task-with-rust.run && ./result/run
 ```
 
 ### Leveraging CapDL
