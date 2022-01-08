@@ -1,18 +1,16 @@
-{ lib, buildPackages, runCommand, writeScript, writeText
-, platUtils
-, devPkgs, linuxPkgs
-
-, mkInstance
+{ lib, writeScript, writeText
+, closureInfo
 
 , dtb-helpers
-, closureInfo
-, callPackage
+, devPkgs, linuxPkgs
+, platUtils
+
+, configured
 }:
 
 let
   inherit (linuxPkgs.icecap) linuxKernel nixosLite;
-  instance = mkInstance {} (self: {});
-  inherit (instance.configured) icecapPlat selectIceCapPlat;
+  inherit (configured) icecapPlat selectIceCapPlat;
 
   localLinuxImages = {
     virt = ../../../../../local/linux/arch/arm64/boot/Image;

@@ -1,14 +1,14 @@
-{ mkInstance
-, deviceTree
+{ mkTest
 , emptyFile
 , linuxPkgs
 }:
 
-mkInstance {} (self: with self;
+mkTest {} (self: with self;
 
 let
   inherit (self.configured) icecapPlat selectIceCapPlat compose kernel mkLinuxRealm bins;
 
+  # NOTE example of how to develop on the linux kernel source
   localLinuxImages = {
     virt = ../../../../../local/linux/arch/arm64/boot/Image;
     rpi4 = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
@@ -26,6 +26,11 @@ in {
     ];
   };
 
+  icecapPlatArgs.virt.devScript = true;
+  icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
+    ln -s ${spec} $out/spec.bin
+  '';
+
   spec = mkLinuxRealm {
     kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
     # kernel = localLinuxImages.virt;
@@ -35,14 +40,6 @@ in {
       "kaslr.lame=1"
     ];
   };
-
-  inherit (composition) cdl;
-  inherit (spec) ddl;
-
-  icecapPlatArgs.virt.devScript = true;
-  icecapPlatArgs.rpi4.extraBootPartitionCommands = ''
-    ln -s ${spec} $out/spec.bin
-  '';
 
   c-helper = linuxPkgs.icecap.callPackage ./helpers/c-helper {};
   rust-helper = linuxPkgs.icecap.callPackage ./helpers/rust-helper {};
@@ -65,10 +62,11 @@ in {
 
   hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      (import ./host.nix {
-        inherit icecapPlat spec;
-      })
+      ./host.nix
       includeHelpers
+      {
+        instance.plat = icecapPlat;
+      }
     ];
   };
 
@@ -78,13 +76,5 @@ in {
       includeHelpers
     ];
   };
-
-  # composition = compose {
-  #   kernel = kernel.override' (attrs: {
-  #     source = attrs.source.override' (attrs': {
-  #       src = with repos; local.seL4;
-  #     });
-  #   });
-  # };
 
 })

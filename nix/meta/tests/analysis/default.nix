@@ -1,10 +1,9 @@
-{ mkInstance
-, emptyFile
+{ mkTest
 , linuxPkgs
 , icecapExternalSrc
 }:
 
-mkInstance { benchmark = true; } (self: with self.configured; with self; {
+mkTest { benchmark = true; } (self: with self.configured; with self; {
 
   payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
@@ -24,8 +23,6 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
     bootargs = commonBootargs;
   };
 
-  inherit (spec) ddl;
-
   commonBootargs = [
     "earlycon=icecap_vmm"
     "console=hvc0"
@@ -37,7 +34,6 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
       ./host.nix
       {
         instance.plat = icecapPlat;
-        instance.spec = spec;
       }
     ];
   };
@@ -47,6 +43,8 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
       ./realm.nix
     ];
   };
+
+  # NOTE example of how to develop on the seL4 kernel source
 
   # kernel = configured.kernel.override' {
   #   source = icecapExternalSrc.seL4.forceLocal;

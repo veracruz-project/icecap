@@ -1,20 +1,20 @@
-{ mkInstance
-, elfUtils, icecapSrc
+{ mkTest
+, icecapSrc
 }:
 
-mkInstance { debug = true; } (self: with self.configured; with self; {
+mkTest { debug = true; } (self: with self.configured; with self; {
 
   composition = compose {
     action.script = icecapSrc.absoluteSplit ./cdl.py;
     config = {
       components = {
-        test.image = elfUtils.split "${test}/bin/test.elf";
+        test.image = test.split;
       };
     };
   };
 
   test = buildIceCapComponent {
-    rootCrate = callPackage ./test/cargo.nix {};
+    rootCrate = callPackage ./test/crate.nix {};
     debug = true;
   };
 

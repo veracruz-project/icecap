@@ -3,6 +3,6 @@
 }:
 
 buildRustPackageIncrementally rec {
-  rootCrate = callPackage ./cargo.nix {};
+  rootCrate = callPackage ./crate.nix {};
   debug = true;
 }

@@ -38,9 +38,6 @@ in
     plat = mkOption {
       type = types.unspecified;
     };
-    spec = mkOption {
-      type = types.unspecified;
-    };
   };
 
   config = lib.mkMerge [

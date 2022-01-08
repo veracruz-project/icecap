@@ -1,8 +1,8 @@
-{ icecapPlat, spec }:
-
 { config, pkgs, lib, ... }:
 
 let
+  icecapPlat = config.instance.plat;
+
   virtualIface = "eth0";
   physicalIface = "eth2";
   hostAddr = "192.168.1.1";
@@ -50,6 +50,12 @@ let
 in
 
 {
+  options.instance = {
+    plat = lib.mkOption {
+      type = lib.types.unspecified;
+    };
+  };
+
   config = {
 
     net.interfaces.${virtualIface}.static = "${hostAddr}/24";
