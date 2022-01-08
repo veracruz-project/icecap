@@ -173,6 +173,10 @@ rec {
     "CXX_${rustTargetName}" = "${stdenv.cc.targetPrefix}c++";
   };
 
+  baseEnv = ccEnv // {
+    RUST_TARGET_PATH = rustTargets;
+  };
+
   linkerCargoConfig = {
     target = {
       ${rustTargetName}.linker =
@@ -182,10 +186,13 @@ rec {
     };
   };
 
-  baseEnv = ccEnv // {
-    RUST_TARGET_PATH = rustTargets;
+  denyWarningsConfig = {
+    target."cfg(all())".rustflags = ["-D" "warnings"];
   };
 
-  baseCargoConfig = linkerCargoConfig;
+  baseCargoConfig = clobber [
+    linkerCargoConfig
+    # denyWarningsConfig
+  ];
 
 }
