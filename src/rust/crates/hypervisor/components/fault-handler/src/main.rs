@@ -5,7 +5,7 @@ extern crate alloc;
 
 use icecap_fault_handler_config::{Config, Thread};
 use icecap_std::prelude::*;
-use sel4::Fault;
+use icecap_std::sel4::Fault;
 
 declare_main!(main);
 
@@ -19,6 +19,6 @@ fn main(config: Config) -> Fallible<()> {
 }
 
 fn handle(thread: &Thread, fault: &Fault) -> Fallible<()> {
-    println!("fault for {:?}: {:x?}", thread.name, fault);
+    println!("fault from {:?}: {:x?}", thread.name, fault);
     Ok(())
 }
