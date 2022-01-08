@@ -1,10 +1,10 @@
 #![feature(panic_info_message)]
 #![feature(rustc_private)]
 
-pub use std::icecap_impl::set_now;
-
 use icecap_core::backtrace::Backtrace;
 use icecap_core::prelude::*;
+
+pub use std::icecap_impl::set_now;
 
 pub fn early_init() {
     set_panic()

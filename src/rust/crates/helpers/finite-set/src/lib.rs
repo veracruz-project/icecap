@@ -30,6 +30,7 @@ extern crate std;
 mod test {
     use super::*;
 
+    // NOTE
     // cargo rustc -p finite-set --profile=check -- -Z macro-backtrace
     // cargo rustc -p finite-set --profile=check -- -Zunstable-options --pretty=expanded
 

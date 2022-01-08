@@ -6,8 +6,6 @@ mod abort;
 mod time;
 mod stdio;
 
-// pub mod sel4;
-
 pub use abort::abort;
 pub use stdio::write_to_fd;
 pub use time::{now, set_now};

@@ -1,7 +1,8 @@
-use proc_macro::TokenStream;
-use quote::quote;
 use std::env;
 use std::path::Path;
+
+use proc_macro::TokenStream;
+use quote::quote;
 use syn::{parse, ItemMod};
 
 /// For now, the following doesn't work:

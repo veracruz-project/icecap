@@ -108,7 +108,8 @@ fn derive_finite_impl(input: Structure) -> syn::Result<TokenStream> {
     };
 
     let finite = input.gen_impl(quote! {
-        // TODO use finite_set::Finite; // TODO hygene
+        // TODO hygiene
+        // TODO use finite_set::Finite;
 
         gen impl Finite for @Self {
             const CARDINALITY: usize = #cardinality;
