@@ -10,11 +10,11 @@ $(out):
 clean:
 	rm -rf $(out)
 
-.PHONY: check
-check: check-generated-sources rustfmt-check check-formatting everything
-
 
 ### Pure Nix ###
+
+.PHONY: check
+check: everything
 
 .PHONY: everything
 everything: check-generated-sources
@@ -40,9 +40,6 @@ tcb-size:
 html-docs: check-generated-sources | $(out)
 	nix-build -A meta.generatedDocs.html -o $(out)/html-docs
 
-
-### Source code maintenance ###
-
 .PHONY: check-generated-sources
 check-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.check --no-out-link) && $$script
@@ -50,6 +47,12 @@ check-generated-sources:
 .PHONY: update-generated-sources
 update-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.update --no-out-link) && $$script
+
+
+### Source code formatting ###
+
+.PHONY: check-formatting
+check-formatting: rustfmt-check check-generic-formatting
 
 .PHONY: rustfmt
 rustfmt:
@@ -59,7 +62,7 @@ rustfmt:
 rustfmt-check:
 	nix-shell src/rust/shell.nix --pure --run 'make -C src/rust fmt-check'
 
-check_formatting_ignore_flags = \
+check_generic_formatting_ignore_flags = \
 	-path ./.git -prune -o \
 	-path ./nixpkgs -prune -o \
 	-path ./nix/nix-linux -prune -o \
@@ -68,10 +71,18 @@ check_formatting_ignore_flags = \
 	-path '*.swp' -o \
 	-path ./tmp -prune 
 
-.PHONY: check-formatting
-check-formatting:
-	find . ! \( $(check_formatting_ignore_flags) \) -type f | \
-		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-formatting.py
+.PHONY: check-generic-formatting
+check-generic-formatting:
+	find . ! \( $(check_generic_formatting_ignore_flags) \) -type f | \
+		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-generic-formatting.py
+
+
+### Ensuring cache hits ###
+
+.PHONY: check-source-filters
+check-source-filters:
+	CURRENT_REV="$$(git show -s --format=%H)" \
+		nix-build hack/check-source-filters.nix -A test --no-out-link
 
 ifneq ($(F),1)
 deep_clean_dry_run := -n
@@ -84,11 +95,6 @@ deep-clean:
 	git clean -Xdff $(deep_clean_dry_run) \
 		--exclude='!tmp/' \
 		--exclude='!tmp/**'
-
-.PHONY: check-source-filters
-check-source-filters:
-	CURRENT_REV="$$(git show -s --format=%H)" \
-		nix-build hack/check-source-filters.nix -A test --no-out-link
 
 
 ### Remote cache maintenance ###
