@@ -68,7 +68,6 @@ check_formatting_ignore_flags = \
 	-path '*.swp' -o \
 	-path ./tmp -prune 
 
-
 .PHONY: check-formatting
 check-formatting:
 	find . ! \( $(check_formatting_ignore_flags) \) -type f | \
