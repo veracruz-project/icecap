@@ -55,7 +55,6 @@ pub fn run(
     irq_handler: IRQHandler,
 ) -> Fallible<!> {
     loop {
-        // TODO can use seL4_ReplyRecv once switch to MCS
         let (recv_info, badge) = endpoint.recv();
 
         {

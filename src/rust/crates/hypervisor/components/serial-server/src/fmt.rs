@@ -1,5 +1,3 @@
-// HACK
-
 use core::fmt;
 
 use icecap_driver_interfaces::SerialDevice;
