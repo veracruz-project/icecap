@@ -276,8 +276,9 @@ impl ResourceServer {
                         let name = model.objects[*i].name.clone();
                         let ext = self.externs.remove(&name).unwrap();
                         assert_eq!(&ext.ty, obj);
+                        let cptr = ext.cptr;
                         externs.insert(name, ext);
-                        ext.cptr
+                        cptr
                     }
                     _ => panic!(),
                 })
