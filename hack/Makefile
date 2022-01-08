@@ -20,7 +20,8 @@ check_generic_formatting_ignore_flags = \
 	-path ./nix/nix-linux -prune -o \
 	-path ./docs/images -prune -o \
 	-path '*.patch' -o \
-	-path ./tmp -prune
+	-path ./tmp -prune -o \
+	-path ./src/rust/target -prune
 
 .PHONY: check-generic-formatting
 check-generic-formatting:
