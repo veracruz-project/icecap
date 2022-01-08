@@ -30,7 +30,12 @@ icecap_env := \
 icecap_build_std_args := \
 	-Z build-std=core,alloc,compiler_builtins -Z build-std-features=compiler-builtins-mem
 
+ifdef P
+package_args_for := -p $(P)
+else
 package_args_for = $(shell awk '{print "-p " $$$$0}' < support/crates-for-$(1).txt)
+endif
+
 seL4_package_args = $(call package_args_for,seL4)
 linux_package_args = $(call package_args_for,linux)
 
