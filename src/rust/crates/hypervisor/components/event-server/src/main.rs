@@ -89,24 +89,17 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                 let req = rpc_server::recv::<calls::Client>(&info);
                 let mut server = server.lock();
                 let client_badge = &badges.client_badges[badge_value as usize];
-                // debug_println!("client: {:?} {:?}", req, client_badge);
                 let client = match client_badge {
                     ClientId::ResourceServer => &mut server.resource_server,
                     ClientId::SerialServer => &mut server.serial_server,
                     ClientId::Host => &mut server.host,
                     ClientId::Realm(rid) => server.realms.get_mut(&rid).unwrap(),
                 };
-                // debug_println!("event-server: {:?} sent {:?}", client_badge, req);
                 match req {
                     calls::Client::Signal { index } => rpc_server::reply(&client.signal(index)?),
                     calls::Client::SEV { nid } => rpc_server::reply(&client.sev(nid)?),
                     calls::Client::Poll { nid } => rpc_server::reply(&client.poll(nid)?),
-                    calls::Client::End { nid, index } => {
-                        // debug_println!("event-server: {:?} sent {:?}", client_badge, req);
-                        let x = rpc_server::reply(&client.end(nid, index)?);
-                        // debug_println!("event-server: done");
-                        x
-                    }
+                    calls::Client::End { nid, index } => rpc_server::reply(&client.end(nid, index)?),
                     calls::Client::Configure { nid, index, action } => {
                         rpc_server::reply(&client.configure(nid, index, action)?)
                     }

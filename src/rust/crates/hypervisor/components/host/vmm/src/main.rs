@@ -132,25 +132,27 @@ impl Extension {
         })
     }
 
-    #[cfg(icecap_benchmark)]
-    fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
-        match request {
-            DirectRequest::BenchmarkUtilisationStart => {
-                RPCClient::new(node.extension.benchmark_server_ep)
-                    .call::<benchmark_server::Response>(&benchmark_server::Request::Start)
-                    .unwrap();
+    cfg_if::cfg_if! {
+        if #[cfg(icecap_benchmark)] {
+            fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
+                match request {
+                    DirectRequest::BenchmarkUtilisationStart => {
+                        RPCClient::new(node.extension.benchmark_server_ep)
+                            .call::<benchmark_server::Response>(&benchmark_server::Request::Start)
+                            .unwrap();
+                    }
+                    DirectRequest::BenchmarkUtilisationFinish => {
+                        RPCClient::new(node.extension.benchmark_server_ep)
+                            .call::<benchmark_server::Response>(&benchmark_server::Request::Finish)
+                            .unwrap();
+                    }
+                }
+                Ok(DirectResponse)
             }
-            DirectRequest::BenchmarkUtilisationFinish => {
-                RPCClient::new(node.extension.benchmark_server_ep)
-                    .call::<benchmark_server::Response>(&benchmark_server::Request::Finish)
-                    .unwrap();
+        } else {
+            fn direct(_node: &mut VMMNode<Self>, _request: &DirectRequest) -> Fallible<DirectResponse> {
+                panic!()
             }
         }
-        Ok(DirectResponse)
-    }
-
-    #[cfg(not(icecap_benchmark))]
-    fn direct(_node: &mut VMMNode<Self>, _request: &DirectRequest) -> Fallible<DirectResponse> {
-        panic!()
     }
 }

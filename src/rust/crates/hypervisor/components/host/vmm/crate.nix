@@ -12,4 +12,7 @@ mkComponent {
     icecap-benchmark-server-types
     icecap-host-vmm-types
   ];
+  dependencies = {
+    cfg-if = "*";
+  };
 }

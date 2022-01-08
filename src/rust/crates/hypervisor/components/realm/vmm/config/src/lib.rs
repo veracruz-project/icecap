@@ -12,7 +12,6 @@ use icecap_event_server_types::events::{RealmIn, RealmOut};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    // pub con: UnmanagedRingBufferConfig,
     pub cnode: CNode,
     pub gic_lock: Notification,
     pub nodes_lock: Notification,

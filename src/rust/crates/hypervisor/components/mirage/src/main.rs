@@ -105,6 +105,7 @@ pub struct State {
 
 impl State {
     fn wfe(&mut self) {
+        // TODO (must be notified of timeouts)
         // let badge = self.event.wait();
         // self.event_server_bitfield.clear_ignore(badge);
     }
@@ -140,7 +141,9 @@ extern "C" fn impl_get_time_ns() -> u64 {
 
 #[no_mangle]
 extern "C" fn impl_set_timeout_ns(ns: u64) {
-    with(|s| {})
+    with(|s| {
+        // HACK
+    })
 }
 
 #[no_mangle]

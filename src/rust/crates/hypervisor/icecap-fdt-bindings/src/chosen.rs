@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 
 use icecap_fdt::{DeviceTree, Node};
 
-// TODO store 'Value's
-
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Chosen {
     bootargs: Option<Vec<String>>,
