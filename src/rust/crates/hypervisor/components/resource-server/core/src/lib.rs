@@ -277,14 +277,8 @@ impl ResourceServer {
                             let name = model.objects[*i].name.clone();
                             let ext = self.externs.remove(&name).unwrap();
                             assert_eq!(&ext.ty, obj);
-                            let cptr = ext.cptr;
-
-                            // Store the removed extern from self.extern to restore
-                            // when the realm is destroyed.
                             externs.insert(name, ext);
-
-                            // Collect the cptr.
-                            cptr
+                            ext.cptr
                         }
                         _ => panic!(),
                     }
