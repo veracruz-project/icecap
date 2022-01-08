@@ -68,7 +68,6 @@ check_generic_formatting_ignore_flags = \
 	-path ./nix/nix-linux -prune -o \
 	-path ./docs/images -prune -o \
 	-path '*.patch' -o \
-	-path '*.swp' -o \
 	-path ./tmp -prune 
 
 .PHONY: check-generic-formatting
