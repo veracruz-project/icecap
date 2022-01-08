@@ -16,20 +16,20 @@ clean:
 icecap-hypervisor-firmware: | $(out)
 	nix-build -A pkgs.none.icecap.configured.$(PLAT).icecapFirmware.display -o $(out)/$@-$(PLAT)
 
-.PHONY: host-tools
-host-tools: | $(out)
-	nix-build -A meta.display.$@ -o $(out)/$@
-
-.PHONY: build-tools
-build-tools: | $(out)
-	nix-build -A meta.display.$@ -o $(out)/$@
-
 .PHONY: host-kernel
 host-kernel: | $(out)
 	nix-build -A meta.display.$@.$(PLAT) -o $(out)/$@-$(PLAT)
 
 .PHONY: realm-kernel
 realm-kernel: | $(out)
+	nix-build -A meta.display.$@ -o $(out)/$@
+
+.PHONY: host-tools
+host-tools: | $(out)
+	nix-build -A meta.display.$@ -o $(out)/$@
+
+.PHONY: build-tools
+build-tools: | $(out)
 	nix-build -A meta.display.$@ -o $(out)/$@
 
 .PHONY: html-docs

@@ -28,10 +28,10 @@ let
     dev.icecap.sel4-manual
 
     (with meta.display; lib.flatten [
-      host-tools
-      build-tools
       (lib.attrValues host-kernel)
       realm-kernel
+      host-tools
+      build-tools
     ])
   ];
 
