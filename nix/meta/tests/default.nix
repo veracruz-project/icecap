@@ -6,8 +6,11 @@ let
     inherit lib pkgs;
   };
 
+  commonModules = import ./common/nixos-lite-modules;
+
   callTest = path: lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
     pkgs.none.icecap.newScope {
+      inherit commonModules;
       inherit configured;
       mkTest = icecapConfigOverride: mkTest {
         configured = configured.override' icecapConfigOverride;

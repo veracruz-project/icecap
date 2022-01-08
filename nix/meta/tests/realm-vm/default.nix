@@ -1,12 +1,12 @@
 { mkTest
-, emptyFile
+, commonModules
 , linuxPkgs
 }:
 
 mkTest {} (self: with self;
 
 let
-  inherit (self.configured) icecapPlat selectIceCapPlat compose kernel mkLinuxRealm bins;
+  inherit (configured) icecapPlat selectIceCapPlat mkLinuxRealm;
 
   # NOTE example of how to develop on the linux kernel source
   localLinuxImages = {
@@ -41,9 +41,6 @@ in {
     ];
   };
 
-  c-helper = linuxPkgs.icecap.callPackage ./helpers/c-helper {};
-  rust-helper = linuxPkgs.icecap.callPackage ./helpers/rust-helper {};
-
   commonBootargs = [
     "earlycon=icecap_vmm"
     "console=hvc0"
@@ -53,17 +50,11 @@ in {
     # "icecap_net.napi_weight=256"
   ];
 
-  includeHelpers = { ... }: {
-    initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${c-helper}/bin/c-helper
-      copy_bin_and_libs ${rust-helper}/bin/rust-helper
-    '';
-  };
-
   hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      ./host.nix
+      commonModules
       includeHelpers
+      ./host.nix
       {
         instance.plat = icecapPlat;
       }
@@ -72,9 +63,20 @@ in {
 
   realmUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      ./realm.nix
+      commonModules
       includeHelpers
+      ./realm.nix
     ];
+  };
+
+  c-helper = linuxPkgs.icecap.callPackage ./helpers/c-helper {};
+  rust-helper = linuxPkgs.icecap.callPackage ./helpers/rust-helper {};
+
+  includeHelpers = { ... }: {
+    initramfs.extraUtilsCommands = ''
+      copy_bin_and_libs ${c-helper}/bin/c-helper
+      copy_bin_and_libs ${rust-helper}/bin/rust-helper
+    '';
   };
 
 })

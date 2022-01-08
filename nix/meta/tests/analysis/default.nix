@@ -1,9 +1,15 @@
 { mkTest
+, commonModules
 , linuxPkgs
 , icecapExternalSrc
 }:
 
-mkTest { benchmark = true; } (self: with self.configured; with self; {
+mkTest { benchmark = true; } (self: with self;
+
+let
+  inherit (configured) icecapPlat mkLinuxRealm;
+
+in {
 
   payload = composition.mkDefaultPayload {
     linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
@@ -31,6 +37,7 @@ mkTest { benchmark = true; } (self: with self.configured; with self; {
 
   hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
+      commonModules
       ./host.nix
       {
         instance.plat = icecapPlat;
@@ -40,6 +47,7 @@ mkTest { benchmark = true; } (self: with self.configured; with self; {
 
   realmUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
+      commonModules
       ./realm.nix
     ];
   };

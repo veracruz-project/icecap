@@ -11,6 +11,13 @@ in
 
     net.interfaces.eth0.static = "${realmAddr}/24";
 
+    initramfs.extraUtilsCommands = ''
+      copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
+      copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
+      copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
+      cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
+    '';
+
     initramfs.extraInitCommands = ''
       # HACK
       seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
@@ -24,13 +31,6 @@ in
 
     # -c --bidir
     # -c -R
-
-    initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
-      copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
-      copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
-      cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
-    '';
 
     initramfs.profile = ''
       x() {

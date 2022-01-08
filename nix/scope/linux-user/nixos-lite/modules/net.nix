@@ -47,6 +47,11 @@ in {
       ${concatStrings (mapAttrsToList (interface: v: ''
         echo "setting up ${interface}..."
         ip link set ${interface} up
+        ${optionalString (hasAttr "delayHack" v) ''
+          # NOTE delaying for a few seconds (e.g. 5) seems to be necessary on the Raspberry Pi 4
+          echo 'DELAY HACK: ${v.delayHack}'
+          sleep ${v.delayHack}
+        ''}
         ${if hasAttr "static" v then ''
           ip address add ${v.static} dev ${interface}
         '' else ''

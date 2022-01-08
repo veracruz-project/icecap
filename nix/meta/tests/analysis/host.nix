@@ -19,42 +19,16 @@ let
     rpi4 = "eth2";
   }.${cfg.plat};
 
-  nftScript = pkgs.writeText "nftables" ''
-    table ip nat {
-      chain prerouting {
-        type nat hook prerouting priority 0;
-      }
-      chain postrouting {
-        type nat hook postrouting priority 100;
-        oifname "${physicalIface}" masquerade
-      }
-    }
-  '';
+  nftScript = config.lib.instance.mkNftablesScriptForNat { inherit physicalIface; };
 
 in
 
 {
-  options.instance = {
-    plat = mkOption {
-      type = types.unspecified;
-    };
-  };
-
   config = lib.mkMerge [
 
     {
       net.interfaces.${virtualIface}.static = "${hostAddr}/24";
       net.interfaces.lo.static = "127.0.0.1";
-
-      initramfs.extraInitCommands = ''
-        # HACK
-        seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
-
-        mkdir -p /etc /bin /mnt/nix/store
-        ln -s $(which sh) /bin/sh
-
-        mount -t debugfs none /sys/kernel/debug/
-      '';
 
       initramfs.extraUtilsCommands = ''
         copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
@@ -64,6 +38,16 @@ in
         copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
         copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
         cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
+      '';
+
+      initramfs.extraInitCommands = ''
+        # HACK
+        seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
+
+        mkdir -p /etc /bin /mnt/nix/store
+        ln -s $(which sh) /bin/sh
+
+        mount -t debugfs none /sys/kernel/debug/
       '';
     }
 

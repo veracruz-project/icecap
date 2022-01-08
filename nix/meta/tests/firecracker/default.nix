@@ -12,6 +12,7 @@ let
   inherit (linuxPkgs.icecap) linuxKernel nixosLite;
   inherit (configured) icecapPlat selectIceCapPlat;
 
+  # NOTE example of how to develop on the linux kernel source
   localLinuxImages = {
     virt = ../../../../../local/linux/arch/arm64/boot/Image;
     rpi4 = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
@@ -78,29 +79,25 @@ lib.fix (self: with self; {
       --config-file /mnt/${config} \
   '';
 
-  config =
-    let
-    in linuxPkgs.writeText "config.json" ''
+  config = linuxPkgs.writeText "config.json" (builtins.toJSON {
+    machine-config = {
+      vcpu_count = 1;
+      mem_size_mib = 512;
+    };
+    boot-source = {
+      kernel_image_path = "/mnt/${realm.linuxImage}";
+      boot_args = "/mnt/${lib.concatStringsSep " " realm.bootargs}";
+      initrd_path = "/mnt/${realm.initrd}";
+    };
+    drives = [
+    ];
+    network-interfaces = [
       {
-        "machine-config": {
-          "vcpu_count": 1,
-          "mem_size_mib": 512
-        },
-        "boot-source": {
-          "kernel_image_path": "/mnt/${realm.linuxImage}",
-          "boot_args": "/mnt/${lib.concatStringsSep " " realm.bootargs}",
-          "initrd_path": "/mnt/${realm.initrd}"
-        },
-        "drives": [
-        ],
-        "network-interfaces": [
-          {
-            "iface_id": "eth0",
-            "host_dev_name": "veth0"
-          }
-        ]
+        iface_id = "eth0";
+        host_dev_name = "veth0";
       }
-    '';
+    ];
+  });
 
 } // lib.optionalAttrs (icecapPlat == "virt") {
 
@@ -140,13 +137,10 @@ lib.fix (self: with self; {
   };
 
   dt = rec {
+    s = lib.mapAttrs (lib.const dtb-helpers.decompile) b;
     b = {
       old = "${linuxPkgs.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
       new = with dtb-helpers; compile (catFiles [ s.old ./rpi4.dtsa ]);
-    };
-    s = {
-      old = dtb-helpers.decompile b.old;
-      new = dtb-helpers.decompile b.new;
     };
   };
 

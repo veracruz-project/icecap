@@ -13,6 +13,16 @@ in
 
     net.interfaces.eth0.static = "${realmAddr}/24";
 
+    initramfs.extraUtilsCommands = ''
+      copy_bin_and_libs ${pkgs.ethtool}/bin/ethtool
+      copy_bin_and_libs ${pkgs.netcat}/bin/nc
+      copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
+      copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
+      copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
+      cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
+    '';
+      # cp -pdv ${pkgs.libunwind}/lib/libunwind-aarch64*.so* $out/lib
+
     initramfs.extraInitCommands = ''
       echo 2 > /proc/sys/kernel/randomize_va_space
       ulimit -c unlimited
@@ -46,16 +56,6 @@ in
 
       # chrt -b 0 iperf3 -c ${hostAddr}
     '';
-
-    initramfs.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.ethtool}/bin/ethtool
-      copy_bin_and_libs ${pkgs.netcat}/bin/nc
-      copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
-      copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
-      copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
-      cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
-    '';
-      # cp -pdv ${pkgs.libunwind}/lib/libunwind-aarch64*.so* $out/lib
 
     initramfs.profile = ''
       ig() {
