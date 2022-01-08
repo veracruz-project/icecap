@@ -10,11 +10,15 @@ def check(content):
     return True
 
 def main():
-    path = sys.argv[1]
-    with open(path, 'rb') as f:
-        content = f.read()
-    if not check(content):
-        print("!", path)
+    ok = True
+    for line in sys.stdin:
+        path = line.rstrip()
+        with open(path, 'rb') as f:
+            content = f.read()
+        if not check(content):
+            print("!", path)
+            ok = False
+    if not ok:
         sys.exit(1)
 
 if __name__ == '__main__':

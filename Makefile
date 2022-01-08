@@ -65,15 +65,14 @@ check_formatting_ignore_flags = \
 	-path ./nix/nix-linux -prune -o \
 	-path ./docs/images -prune -o \
 	-path '*.patch' -o \
+	-path '*.swp' -o \
 	-path ./tmp -prune 
 
-check_formatting_find_invocation = find . ! \( $(check_formatting_ignore_flags) \) -type f
 
 .PHONY: check-formatting
 check-formatting:
-	for f in $$($(check_formatting_find_invocation)); do \
-		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-formatting.py $$f; \
-	done
+	find . ! \( $(check_formatting_ignore_flags) \) -type f | \
+		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-formatting.py
 
 ifneq ($(F),1)
 deep_clean_dry_run := -n
