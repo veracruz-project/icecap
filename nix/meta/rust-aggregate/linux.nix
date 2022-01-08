@@ -12,6 +12,7 @@ let
 
   cargoConfig = nixToToml (crateUtils.clobber [
     crateUtils.baseCargoConfig
+    crateUtils.denyWarningsCargoConfig # NOTE this may become infeasible for dependencies
     (fetchCrates lock).config
   ]);
 

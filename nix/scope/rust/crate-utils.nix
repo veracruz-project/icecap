@@ -186,13 +186,13 @@ rec {
     };
   };
 
-  denyWarningsConfig = {
+  denyWarningsCargoConfig = {
     target."cfg(all())".rustflags = ["-D" "warnings"];
   };
 
   baseCargoConfig = clobber [
     linkerCargoConfig
-    # denyWarningsConfig
+    # denyWarningsCargoConfig
   ];
 
 }
