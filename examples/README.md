@@ -62,7 +62,7 @@ The following is the _only_ code compiled into the root task:
 - [../src/c/icecap-runtime](../src/c/icecap-runtime)
 - [../src/c/icecap-utils](../src/c/icecap-utils)
 
-`libicecap-runtime` is a small C runtime, depending only on `libsel4`, which handles everything from `_start` up until `icecap_main`, which is defined in the root task's `main.c`. Note that, in the case of the root task, `libicecap-runtime` is configured with `#define ICECAP_RUNTIME_ROOT` in [../nix/scope/configured/sel4-user/c/default.nix#L85](../nix/scope/configured/sel4-user/c/default.nix#L85). The root task configuration of `libicecap-runtime` is more complicated than the CapDL component configuration, so we will defer our examination of `libicecap-runtime` until we introduce CapDL. 
+`libicecap-runtime` is a small C runtime, depending only on `libsel4`, which handles everything from `_start` up until `icecap_main`, which is defined in the root task's `main.c`. Note that, in the case of the root task, `libicecap-runtime` is configured with `#define ICECAP_RUNTIME_ROOT` in [../nix/scope/configured/sel4-user/c/default.nix#L85](../nix/scope/configured/sel4-user/c/default.nix#L85). The root task configuration of `libicecap-runtime` is more complicated than the CapDL component configuration, so we will defer our examination of `libicecap-runtime` until we introduce CapDL.
 
 `libicecap-utils` depends only on `libsel4` and `libicecap-runtime` and contains a few namespaced utilities, such as `icecap_utils_debug_printf`.
 
@@ -212,7 +212,7 @@ First, build and run a simple demonstration of the IceCap Hypervisor.
  [icecap host] create vm
 
                # ... wait for the realm VM to boot to a shell ...
-               
+
                # Type '<enter>@?<enter>' for console multiplexer help.
                # The host VM uses virtual console 0, and the realm VM uses virtual console 1.
                # Switch to the realm VM virtual console by typing '<enter>@1<enter>'.

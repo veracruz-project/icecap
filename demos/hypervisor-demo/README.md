@@ -34,7 +34,7 @@ communicates with it via the virtual network:
  [icecap host] icecap-host create 0 /vm-realm-spec.bin && taskset 0x2 icecap-host run 0 0
 
                # ... wait for the realm VM to boot to a shell ...
-               
+
                # Type '<enter>@?<enter>' for console multiplexer help.
                # The host VM uses virtual console 0, and the realm VM uses virtual console 1.
                # Switch to the realm VM virtual console by typing '<enter>@1<enter>'.
@@ -58,7 +58,7 @@ communicates with it via the virtual network:
                # Cease the realm's exectution and destroy it:
 
  [icecap host] kill %% && icecap-host destroy 0
- 
+
                # '<ctrl>-a x' quits QEMU
 ```
 

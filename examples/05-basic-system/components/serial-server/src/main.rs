@@ -59,6 +59,6 @@ fn main(config: Config) -> Fallible<()> {
             }
             rb.ring_buffer().enable_notify_read();
             rb.ring_buffer().enable_notify_write();
-        } 
+        }
     }
 }

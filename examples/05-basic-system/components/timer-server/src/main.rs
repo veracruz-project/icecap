@@ -76,7 +76,7 @@ fn main(config: Config) -> Fallible<()> {
                     rpc_server::reply(&response);
                 }
             }
-        } 
+        }
     }
 }
 

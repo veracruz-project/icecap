@@ -12,7 +12,7 @@ rec {
 
   mkCrate =
     let
-      elaborateNix = 
+      elaborateNix =
         { name, src
         , buildScriptHack ? null
         , keepFilesHack ? []

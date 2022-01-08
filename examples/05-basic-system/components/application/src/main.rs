@@ -53,7 +53,7 @@ fn main(config: Config) -> Fallible<()> {
         }
         if badge & config.badges.serial_server_ring_buffer != 0 {
             state.handle_serial_server_ring_buffer_event();
-        } 
+        }
     }
 }
 
