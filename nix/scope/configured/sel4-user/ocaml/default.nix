@@ -1,9 +1,12 @@
 { lib, stdenv
 , musl, libs, libsel4
-, buildIceCapComponent, globalCrates
+, buildIceCapComponent, globalCrates, rustTargetName
 }:
 
-{
+let
+  rustTargetNameForEnv = lib.toUpper (lib.replaceStrings ["-"] ["_"] rustTargetName);
+
+in {
   mkMirageBinary = mirageLibrary: buildIceCapComponent {
 
     rootCrate = globalCrates.mirage;
@@ -20,8 +23,12 @@
       };
 
       # HACK
-      # NOTE affects fingerprints, so causes last layer to build too much.
-      RUSTFLAGS = lib.concatMap (x: [ "-C" "link-arg=-l${x}" ]) [
+      # NOTE
+      #   Affects fingerprints, so causes last layer to build too much.
+      # TODO
+      #   If must use this hack, use extraLastLayerCargoConfig instead, which is
+      #   more composable. Env vars override instead of composing.
+      "CARGO_TARGET_${rustTargetNameForEnv}_RUSTFLAGS" = lib.concatMap (x: [ "-C" "link-arg=-l${x}" ]) [
         "icecap-mirage-glue" "sel4asmrun" "mirage" "sel4asmrun" "icecap-mirage-glue" "c" "gcc"
       ] ++ [
         # TODO shouldn't be necessary

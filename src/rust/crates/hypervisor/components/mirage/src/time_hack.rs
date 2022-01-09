@@ -1,3 +1,4 @@
+#[allow(deprecated)]
 fn read_cntfrq_el0() -> u32 {
     unsafe {
         let mut r: u32;
@@ -6,6 +7,7 @@ fn read_cntfrq_el0() -> u32 {
     }
 }
 
+#[allow(deprecated)]
 fn read_cntvct_el0() -> u64 {
     unsafe {
         let mut r: u64;

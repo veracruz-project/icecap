@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![feature(alloc_prelude)]
 #![feature(c_variadic)]
 #![feature(new_uninit)]
 #![feature(llvm_asm)]
@@ -10,21 +9,16 @@
 
 extern crate alloc;
 
-use serde::{Deserialize, Serialize};
-
 use finite_set::Finite;
 use icecap_event_server_types::{
     calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
 };
 use icecap_mirage_config::Config;
 use icecap_std::{
-    config::RingBufferConfig,
     config::RingBufferKicksConfig,
-    logger::{DisplayMode, Level, Logger},
     prelude::*,
     ring_buffer::{BufferedPacketRingBuffer, PacketRingBuffer},
     rpc_sel4::RPCClient,
-    runtime as icecap_runtime,
     sel4::sys::c_types::*,
 };
 
