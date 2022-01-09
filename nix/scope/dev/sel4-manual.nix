@@ -39,11 +39,11 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     cd manual
-    make
+    make all markdown
   '';
 
   installPhase = ''
     mkdir $out
-    cp manual.pdf $out
+    cp -r manual.pdf generated_markdown $out
   '';
 }

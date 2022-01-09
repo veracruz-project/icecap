@@ -8,6 +8,7 @@ rec {
 
   html = pkgs.dev.linkFarm "html" [
     { name = "rustdoc"; path = rustdocHtml; }
+    { name = "sel4-manual.pdf"; path = "${pkgs.dev.icecap.sel4-manual}/manual.pdf"; }
   ];
 
   rustdocAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
