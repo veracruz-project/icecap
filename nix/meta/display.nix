@@ -16,9 +16,9 @@
     cp ${pkgs.linux.icecap.linuxKernel.realm.dev}/vmlinux $out
   '';
 
-  host-tools = pkgs.dev.buildEnv {
+  host-tools = pkgs.musl.buildEnv {
     name = "host-tools";
-    paths = with pkgs.linux.icecap; [
+    paths = with pkgs.musl.icecap; [
       icecap-host
       crosvm-9p-server
     ];

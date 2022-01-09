@@ -4,17 +4,28 @@ let
   inherit (pkgs) dev none linux musl;
 
   cached = [
-    (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) meta.demos)
-    (lib.mapAttrsToList (_: example: example.run) meta.examples)
-
     (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (_: configured: [
       configured.icecapFirmware.display
-      configured.sysroot-rs
     ]))
 
-    (lib.flip lib.concatMap [ dev linux musl ] (host: [
-      host.icecap.crosvm-9p-server
-    ]))
+    (with meta.display; lib.flatten [
+      (lib.attrValues host-kernel)
+      realm-kernel
+      host-tools
+      build-tools
+    ])
+
+    (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) meta.demos)
+    (lib.mapAttrsToList (_: example: example.run) meta.examples)
+  ];
+
+  pure = [
+    cached
+
+    meta.tcbSize
+
+    dev.icecap.sel4-manual
+    dev.icecap.bindgen
 
     (lib.flip lib.concatMap [ linux musl ] (host: [
       host.icecap.icecap-host
@@ -23,20 +34,13 @@ let
       host.icecap.firectl
     ]))
 
-    meta.tcbSize
+    (lib.flip lib.concatMap [ dev linux musl ] (host: [
+      host.icecap.crosvm-9p-server
+    ]))
 
-    dev.icecap.sel4-manual
-
-    (with meta.display; lib.flatten [
-      (lib.attrValues host-kernel)
-      realm-kernel
-      host-tools
-      build-tools
-    ])
-  ];
-
-  pure = [
-    cached
+    (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (_: configured: [
+      configured.sysroot-rs
+    ]))
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
       meta.tests.backtrace

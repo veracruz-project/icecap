@@ -36,6 +36,9 @@ build-tools: | $(out)
 html-docs: check-generated-sources | $(out)
 	nix-build -A meta.generatedDocs.html -o $(out)/$@
 
+.PHONY: show-tcb-size
+show-tcb-size:
+	report=$$(nix-build -A meta.tcbSize --no-out-link) && cat $$report
 
 .PHONY: everything
 everything: check-generated-sources
@@ -48,14 +51,6 @@ everything-pure:
 .PHONY: everything-cached
 everything-cached:
 	nix-build -A meta.everything.cached --no-out-link
-
-.PHONY: ad-hoc-build-tests
-ad-hoc-build-tests: check-generated-sources
-	nix-build -A meta.adHocBuildTests.all --no-out-link
-
-.PHONY: tcb-size
-tcb-size:
-	report=$$(nix-build -A meta.tcbSize --no-out-link) && cat $$report
 
 .PHONY: check-generated-sources
 check-generated-sources:
