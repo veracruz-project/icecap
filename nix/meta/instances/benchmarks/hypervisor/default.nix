@@ -2,9 +2,11 @@
 , commonModules
 , linuxPkgs
 , icecapExternalSrc
+
+, withUtilization ? false
 }:
 
-mkInstance { benchmark = true; } (self: with self;
+mkInstance { benchmark = withUtilization; } (self: with self;
 
 let
   inherit (configured) icecapPlat mkLinuxRealm;

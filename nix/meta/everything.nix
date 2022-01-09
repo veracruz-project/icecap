@@ -28,6 +28,7 @@ let
       meta.instances.tests.backtrace
       meta.instances.tests.benchmark-server
       meta.instances.benchmarks.hypervisor
+      meta.instances.benchmarks.hypervisor-with-utilization
       meta.instances.benchmarks.firecracker
     ])
   ];
