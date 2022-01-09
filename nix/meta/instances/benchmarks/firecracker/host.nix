@@ -86,6 +86,8 @@ in
 
     {
       initramfs.extraInitCommands = ''
+        . /etc/profile
+
         ip tuntap add veth0 mode tap
         ip address add ${hostAddr}/24 dev veth0
         ip link set veth0 up

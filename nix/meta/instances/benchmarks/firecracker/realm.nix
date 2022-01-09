@@ -14,6 +14,8 @@ in {
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${hostAddr} dev ${virtualIface}
 
+      . /etc/profile
+
       # for _ in $(seq 2); do
       #   realm_cpu
       #   sleep 5
