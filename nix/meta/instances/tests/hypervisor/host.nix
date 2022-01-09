@@ -42,7 +42,7 @@ in {
         }
 
         start_iperf_server() {
-          chrt -b 0 iperf3 -s
+          chrt -b 0 iperf3 -s > /dev/null
         }
 
         stop_iperf_server() {

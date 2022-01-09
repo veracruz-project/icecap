@@ -72,7 +72,7 @@ let
     };
   };
 
-  mkTopLevel = args: lib.fix (self: 
+  mkTopLevel = args: lib.fix (self:
     let
       concreteArgs = args self;
       pkgs = lib.mapAttrs (_: crossSystem:

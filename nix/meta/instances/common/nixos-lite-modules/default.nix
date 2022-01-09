@@ -122,7 +122,7 @@ in {
 
     (mkIf cfg.realm.enable {
       instance.misc.realm.virtualIface = "eth0";
- 
+
       net.interfaces.${cfg.misc.realm.virtualIface}.static = "${cfg.misc.net.realmAddr}/24";
 
       initramfs.extraInitCommands = ''

@@ -31,7 +31,7 @@ in {
             done
           ''}
           start_realm &
-          start_iperf_server
+          start_iperf_server > /dev/null 
         ''}
       '';
 
