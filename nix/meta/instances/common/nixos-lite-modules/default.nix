@@ -109,7 +109,7 @@ in {
       (mkIf (cfg.host.plat == "rpi4") {
         initramfs.extraInitCommands = ''
           for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-            (set -x && echo performance > $f)
+            echo performance > $f
           done
 
           sleep 2 # HACK
