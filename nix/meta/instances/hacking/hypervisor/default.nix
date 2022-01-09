@@ -54,7 +54,7 @@ in {
 
   hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      commonModules
+      # commonModules
       includeHelpers
       ./host.nix
       {
@@ -65,7 +65,7 @@ in {
 
   realmUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      commonModules
+      # commonModules
       includeHelpers
       ./realm.nix
     ];

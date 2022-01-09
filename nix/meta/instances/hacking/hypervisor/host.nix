@@ -12,7 +12,17 @@ let
   devAddr = "10.0.2.2";
   localIperfPort = "8001";
 
-  nftScript = config.lib.instance.mkNftablesScriptForNat { inherit physicalIface; };
+  nftScript = pkgs.writeText "nat.nft" ''
+    table ip nat {
+      chain prerouting {
+        type nat hook prerouting priority 0;
+      }
+      chain postrouting {
+        type nat hook postrouting priority 100;
+        oifname "${physicalIface}" masquerade
+      }
+    }
+  '';
 
   # testBigFile = "${pkgs.icecap.linuxPkgs.icecap.linuxKernel.host.virt}/vmlinux-5.6.0-rc2";
   testBigFile = pkgs.emptyFile;
@@ -20,6 +30,12 @@ let
 in
 
 {
+  options.instance = {
+    plat = mkOption {
+      type = lib.types.unspecified;
+    };
+  };
+
   config = lib.mkMerge [
 
     {
