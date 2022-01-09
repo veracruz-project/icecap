@@ -34,7 +34,7 @@ in {
     "earlycon=icecap_vmm"
     "console=hvc0"
     "loglevel=7"
-    "icecap_net.napi_weight=64" # global default
+    # "icecap_net.napi_weight=64" # global default
     # "icecap_net.napi_weight=128" # icecap default
     # "icecap_net.napi_weight=256"
   ];
