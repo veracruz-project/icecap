@@ -1,6 +1,4 @@
-{ lib, hostPlatform, targetPlatform
-, zlib
-}:
+{ lib, hostPlatform, zlib }:
 
 self: with self;
 

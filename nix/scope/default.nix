@@ -1,17 +1,21 @@
 { lib, hostPlatform, callPackage, icecapTopLevel }:
 
+let
+  superCallPackage = callPackage;
+in
+
 self:
 
 let
-  superCallPackage = callPackage;
-in let
   callPackage = self.callPackage;
 in
 
+# Add nonePkgs, devPkgs, etc. to scope.
 lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") icecapTopLevel.pkgs //
 
+# To avoid clutter, distribute scope accross multiple files.
+# We opt for a flat scope rather than creating sub-scopes to avoid deeper splicing.
 superCallPackage ./rust {} self //
-
 superCallPackage ./ocaml {} self //
 
 (with self; {

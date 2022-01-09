@@ -31,9 +31,9 @@ self: super: with self;
     aarch64-none = super.overrideCC super.stdenv buildPackages.gccCrossStageStatic;
   }.${super.hostPlatform.system} or super.stdenv;
 
-  # Add Python packages needed by seL4 ecosystem
+  # Add Python packages needed by the seL4 ecosystem
   python3 = super.python3.override {
-    packageOverrides = callPackage ./python.nix {};
+    packageOverrides = callPackage ./python-overrides.nix {};
   };
 
   # Override QEMU source for ../nix-linux

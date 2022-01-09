@@ -22,6 +22,14 @@ It has the following structure:
   # The Nixpkgs library, imported from `../nixpkgs/lib`.
   lib = ...;
 
+  # Arbitrary global config for use anywhere in the build system (currently unused)
+  config = ...;
+
+  # Function to override arguments to `mkTopLevel`.
+  # See `baseArgs :: TopLevel -> Args` for the base arguments.
+  override :: ((TopLevel -> Args) -> (TopLevel -> Args)) -> TopLevel
+  override = f: ...;
+
 }
 
 */
