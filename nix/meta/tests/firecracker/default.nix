@@ -1,4 +1,4 @@
-{ lib, writeScript, writeText
+{ lib, writeScript, writeText, linkFarm
 , closureInfo
 
 , dtb-helpers
@@ -101,7 +101,11 @@ lib.fix (self: with self; {
 
 } // lib.optionalAttrs (icecapPlat == "virt") {
 
-  run = writeScript "run.sh" (with platUtils.virt.extra; ''
+  run = linkFarm "run" [
+    { name = "run"; path = runScript; }
+  ];
+
+  runScript = writeScript "run.sh" (with platUtils.virt.extra; ''
       #!${devPkgs.runtimeShell}
       exec ${cmdPrefix {}} \
         -d unimp,guest_errors \
@@ -111,6 +115,10 @@ lib.fix (self: with self; {
   '');
 
 } // lib.optionalAttrs (icecapPlat == "rpi4") {
+
+  run = linkFarm "run" [
+    { name = "boot"; path = boot; }
+  ];
 
   boot = platUtils.rpi4.extra.bootPartitionLinks {
     payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {

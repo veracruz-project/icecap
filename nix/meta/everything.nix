@@ -47,9 +47,8 @@ let
       meta.tests.realm-vm
       meta.tests.analysis
       meta.tests.benchmark-utilisation
+      meta.tests.firecracker
     ])
-
-    meta.tests.firecracker.rpi4.boot
   ];
 
   impure = [
