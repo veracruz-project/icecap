@@ -23,7 +23,7 @@ in {
     realm-vm = callInstance ./tests/realm-vm;
     firecracker = callInstance ./tests/firecracker;
     analysis = callInstance ./tests/analysis;
-    benchmark-utilisation = callInstance ./tests/benchmark-utilisation;
+    benchmark-server = callInstance ./tests/benchmark-server;
     backtrace = callInstance ./tests/backtrace;
   };
   benchmarks = {

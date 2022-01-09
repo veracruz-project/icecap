@@ -27,7 +27,7 @@ let
       meta.tests.backtrace
       meta.tests.realm-vm
       meta.tests.analysis
-      meta.tests.benchmark-utilisation
+      meta.tests.benchmark-server
       meta.tests.firecracker
     ])
   ];
