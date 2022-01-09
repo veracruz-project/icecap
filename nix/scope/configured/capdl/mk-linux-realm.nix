@@ -3,7 +3,7 @@
 , icecapPlat
 }:
 
-{ kernel, initrd ? null, bootargs ? [] }:
+{ kernel, initramfs ? null, bootargs ? [] }:
 
 let
   ddl = mkIceDL {
@@ -16,7 +16,7 @@ let
         realm_vmm.image = bins.realm-vmm.split;
         realm_vm.bootargs = bootargs;
         realm_vm.kernel = kernel;
-        realm_vm.initrd = initrd;
+        realm_vm.initrd = initramfs;
         realm_vm.dtb = deviceTree.realm.${icecapPlat};
       };
     };

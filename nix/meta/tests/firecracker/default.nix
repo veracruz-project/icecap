@@ -36,7 +36,7 @@ lib.fix (self: with self; {
       "console=ttyS0,115200"
       # NOTE under some circumstances, firmware was silently changing ttyAMA in cmdline.txt to ttyS0 in device tree
     ];
-    initrd = userland.config.build.initramfs;
+    initramfs = userland.config.build.initramfs;
     userland = nixosLite.eval {
       modules = [
         ./host.nix
@@ -55,7 +55,7 @@ lib.fix (self: with self; {
       "panic=1"
       "pci=off"
     ];
-    initrd = userland.config.build.initramfs;
+    initramfs = userland.config.build.initramfs;
     userland = nixosLite.eval {
       modules = [
         ./realm.nix
@@ -87,7 +87,7 @@ lib.fix (self: with self; {
     boot-source = {
       kernel_image_path = "/mnt/${realm.kernel}";
       boot_args = "/mnt/${lib.concatStringsSep " " realm.bootargs}";
-      initrd_path = "/mnt/${realm.initrd}";
+      initrd_path = "/mnt/${realm.initramfs}";
     };
     drives = [
     ];
@@ -110,7 +110,7 @@ lib.fix (self: with self; {
       exec ${cmdPrefix {}} \
         -d unimp,guest_errors \
         -kernel ${host.kernel} \
-        -initrd ${host.initrd} \
+        -initrd ${host.initramfs} \
         -append '${lib.concatStringsSep " " host.bootargs}'
   '');
 
@@ -123,7 +123,7 @@ lib.fix (self: with self; {
   boot = platUtils.rpi4.extra.bootPartitionLinks {
     payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
       kernel = host.kernel;
-      initramfs = host.initrd;
+      initramfs = host.initramfs;
       bootargs = host.bootargs;
       dtb = dt.b.new;
     };

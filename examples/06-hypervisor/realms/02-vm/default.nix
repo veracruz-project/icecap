@@ -8,7 +8,7 @@ let
 in rec {
   spec = mkLinuxRealm {
     kernel = pkgs.linux.icecap.linuxKernel.realm.kernel;
-    initrd = realmUser.config.build.initramfs;
+    initramfs = realmUser.config.build.initramfs;
     bootargs = [
       "earlycon=icecap_vmm"
       "console=hvc0"

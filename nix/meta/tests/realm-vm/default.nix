@@ -34,7 +34,7 @@ in {
   spec = mkLinuxRealm {
     kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
     # kernel = localLinuxImages.virt;
-    initrd = realmUser.config.build.initramfs;
+    initramfs = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
       "kaslr.disclose=1"
       "kaslr.lame=1"

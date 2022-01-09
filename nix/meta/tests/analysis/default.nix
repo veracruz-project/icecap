@@ -25,7 +25,7 @@ in {
 
   spec = mkLinuxRealm {
     kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
-    initrd = realmUser.config.build.initramfs;
+    initramfs = realmUser.config.build.initramfs;
     bootargs = commonBootargs;
   };
 
