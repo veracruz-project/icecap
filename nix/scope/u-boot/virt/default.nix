@@ -28,7 +28,7 @@ let
 
   bootcmd = "smhload ${scriptPath} ${scriptAddr}; source ${scriptAddr}";
 
-  mkDefaultPayload = { linuxImage, initramfs, dtb, bootargs }:
+  mkDefaultPayload = { kernel, initramfs, dtb, bootargs }:
     let
       kernelAddr = "0x80080000";
       initramfsAddr = "0x88000000";
@@ -36,7 +36,7 @@ let
       script = uboot-ng-mkimage {
         type = "script";
         data = writeText "script.txt" ''
-          smhload ${linuxImage} ${kernelAddr}
+          smhload ${kernel} ${kernelAddr}
           smhload ${initramfs} ${initramfsAddr} initramfs_end
           setexpr initramfs_size ''${initramfs_end} - ${initramfsAddr}
           smhload ${dtb} ${dtbAddr}

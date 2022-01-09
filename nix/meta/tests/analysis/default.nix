@@ -12,7 +12,7 @@ let
 in {
 
   payload = composition.mkDefaultPayload {
-    linuxImage = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
+    kernel = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel;
     initramfs = hostUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
       "spec=${spec}"

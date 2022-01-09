@@ -13,7 +13,7 @@ in rec {
   run = platUtils.${icecapPlat}.bundle {
     firmware = icecapFirmware.image;
     payload = icecapFirmware.mkDefaultPayload {
-      linuxImage = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
+      kernel = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
       initramfs = hostUser.config.build.initramfs;
       bootargs = [
         "earlycon=icecap_vmm"

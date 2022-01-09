@@ -29,7 +29,7 @@ let
 
   bootcmd = "load ${scriptPartition} ${scriptAddr} ${scriptPath}; source ${scriptAddr}";
 
-  mkDefaultPayload = { linuxImage, initramfs, dtb, bootargs }:
+  mkDefaultPayload = { kernel, initramfs, dtb, bootargs }:
     let
       kernelAddr = "0x10080000";
       initramfsAddr = "0x18000000";
@@ -47,7 +47,7 @@ let
       };
     in {
       "${scriptName}" = script;
-      Image = linuxImage;
+      Image = kernel;
       initramfs = initramfs;
       "host.dtb" = dtb;
     };

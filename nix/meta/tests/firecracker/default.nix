@@ -23,8 +23,8 @@ in
 lib.fix (self: with self; {
 
   host = rec {
-    linuxImage = linuxKernel.host.${icecapPlat}.kernel;
-    # linuxImage = selectIceCapPlat localLinuxImages;
+    kernel = linuxKernel.host.${icecapPlat}.kernel;
+    # kernel = selectIceCapPlat localLinuxImages;
     bootargs = commonBootargs ++ [
       "script=${script}"
       "nr_cpus=3"
@@ -48,7 +48,7 @@ lib.fix (self: with self; {
   };
 
   realm = rec {
-    linuxImage = linuxKernel.host.virt.kernel;
+    kernel = linuxKernel.host.virt.kernel;
     bootargs = commonBootargs ++ [
       "console=ttyS0"
       "reboot=k"
@@ -85,7 +85,7 @@ lib.fix (self: with self; {
       mem_size_mib = 512;
     };
     boot-source = {
-      kernel_image_path = "/mnt/${realm.linuxImage}";
+      kernel_image_path = "/mnt/${realm.kernel}";
       boot_args = "/mnt/${lib.concatStringsSep " " realm.bootargs}";
       initrd_path = "/mnt/${realm.initrd}";
     };
@@ -109,7 +109,7 @@ lib.fix (self: with self; {
       #!${devPkgs.runtimeShell}
       exec ${cmdPrefix {}} \
         -d unimp,guest_errors \
-        -kernel ${host.linuxImage} \
+        -kernel ${host.kernel} \
         -initrd ${host.initrd} \
         -append '${lib.concatStringsSep " " host.bootargs}'
   '');
@@ -122,7 +122,7 @@ lib.fix (self: with self; {
 
   boot = platUtils.rpi4.extra.bootPartitionLinks {
     payload = linuxPkgs.icecap.uBoot.host.${icecapPlat}.mkDefaultPayload {
-      linuxImage = host.linuxImage;
+      kernel = host.kernel;
       initramfs = host.initrd;
       bootargs = host.bootargs;
       dtb = dt.b.new;
