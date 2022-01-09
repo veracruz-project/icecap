@@ -30,7 +30,7 @@ in
 
     {
       initramfs.extraUtilsCommands = ''
-        copy_bin_and_libs ${pkgs.muslPkgs.icecap.icecap-host}/bin/icecap-host
+        copy_bin_and_libs ${pkgs.icecap.muslPkgs.icecap.icecap-host}/bin/icecap-host
         copy_bin_and_libs ${pkgs.ethtool}/bin/ethtool
         copy_bin_and_libs ${pkgs.strace}/bin/strace
         copy_bin_and_libs ${pkgs.iproute}/bin/ip
@@ -134,7 +134,7 @@ in
           curl google.com
         }
         s() {
-          while true; do sha256sum /mnt/${pkgs.linuxPkgs.icecap.linuxKernel.host.virt}/vmlinux-5.6.0-rc2; done
+          while true; do sha256sum /mnt/${pkgs.icecap.linuxPkgs.icecap.linuxKernel.host.virt}/vmlinux-5.6.0-rc2; done
         }
       '';
     }

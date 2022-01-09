@@ -12,7 +12,7 @@ let
   }.${cfg.plat};
 
   # firecrackerPkg = pkgs.icecap.firecracker-prebuilt;
-  firecrackerPkg = pkgs.muslPkgs.icecap.firecracker;
+  firecrackerPkg = pkgs.icecap.muslPkgs.icecap.firecracker;
   # firecrackerPkg = pkgs.icecap.firecracker;
   # firecrackerPkg = localFirecracker;
 

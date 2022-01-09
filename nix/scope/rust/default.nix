@@ -1,5 +1,4 @@
 { lib, hostPlatform, targetPlatform
-, devPkgs, linuxPkgs, muslPkgs, nonePkgs
 , zlib
 }:
 

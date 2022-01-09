@@ -1,6 +1,6 @@
-{ lib, hostPlatform, callPackage }:
+{ lib, hostPlatform, callPackage, icecapTopLevel }:
 
-self: with self;
+self:
 
 let
   superCallPackage = callPackage;
@@ -8,9 +8,13 @@ in let
   callPackage = self.callPackage;
 in
 
+lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") icecapTopLevel.pkgs //
+
 superCallPackage ./rust {} self //
+
 superCallPackage ./ocaml {} self //
-{
+
+(with self; {
 
   icecapPlats = [
     "virt"
@@ -88,4 +92,4 @@ superCallPackage ./ocaml {} self //
 
   inherit (nixUtils) callWith makeOverridable';
 
-}
+})

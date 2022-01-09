@@ -1,4 +1,4 @@
-{ lib, pkgs, meta } @ topLevel:
+{ lib, config, pkgs, meta } @ topLevel:
 
 let
   call = pkgs.dev.icecap.callWith topLevel;

@@ -47,30 +47,36 @@ let
       none = guard "aarch64-none-elf";
     };
 
-  mkBaseArgs = crossSystem: allPkgs: {
-    inherit crossSystem;
-    overlays = [
-      (import ./nix-linux/overlay.nix)
-      (import ./overlay)
-      (self: super: lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") allPkgs)
-    ];
-    config = {
-      allowUnfree = true;
+  baseArgs = selfTopLevel: {
+    config = {};
+    nixpkgsArgsFor = crossSystem: {
+      inherit crossSystem;
+      overlays = [
+        (_self: _super: {
+          icecapTopLevel = selfTopLevel;
+        })
+        (import ./nix-linux/overlay.nix)
+        (import ./overlay)
+      ];
+      config = {
+        allowUnfree = true;
+      };
     };
   };
 
-  mkTopLevel = mkArgs:
+  mkTopLevel = args: lib.fix (self: 
     let
-      pkgs = lib.fix (self: lib.mapAttrs (_: crossSystem:
-        import ../nixpkgs (mkArgs crossSystem self)
-      ) crossSystems);
-    in
-      lib.fix (self: {
-        inherit lib pkgs;
-        meta = import ./meta self;
-      });
+      concreteArgs = args self;
+      pkgs = lib.mapAttrs (_: crossSystem:
+        import ../nixpkgs (concreteArgs.nixpkgsArgsFor crossSystem)
+      ) crossSystems;
+    in {
+      inherit lib pkgs;
+      inherit (concreteArgs) config;
+      meta = import ./meta self;
+    });
 
-  topLevel = makeOverridableWith lib.id mkTopLevel mkBaseArgs;
+  topLevel = makeOverridableWith lib.id mkTopLevel baseArgs;
 
 in
   topLevel
