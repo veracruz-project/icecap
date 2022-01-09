@@ -17,12 +17,12 @@ let
 
     (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) meta.demos)
     (lib.mapAttrsToList (_: example: example.run) meta.examples)
+
+    meta.tcbSize
   ];
 
   pure = [
     cached
-
-    meta.tcbSize
 
     dev.icecap.sel4-manual
     dev.icecap.bindgen
