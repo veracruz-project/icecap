@@ -14,6 +14,9 @@ let
 
   nftScript = config.lib.instance.mkNftablesScriptForNat { inherit physicalIface; };
 
+  # testBigFile = "${pkgs.icecap.linuxPkgs.icecap.linuxKernel.host.virt}/vmlinux-5.6.0-rc2";
+  testBigFile = pkgs.emptyFile;
+
 in
 
 {
@@ -134,7 +137,7 @@ in
           curl google.com
         }
         s() {
-          while true; do sha256sum /mnt/${pkgs.icecap.linuxPkgs.icecap.linuxKernel.host.virt}/vmlinux-5.6.0-rc2; done
+          while true; do sha256sum /mnt/${testBigFile}; done
         }
       '';
     }

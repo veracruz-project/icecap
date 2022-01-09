@@ -110,8 +110,8 @@ impl Channel<RingBuffer> {
     pub fn apply(&self, name: &str, dt: &mut DeviceTree) {
         let spec = dt.root.get_size_spec();
         let mut node = Node::new();
-        node.set_compatible("icecap,ring-buffer"); // TODO rename to "icecap,channel"
-        node.set_property("name", self.name.as_str()); // TODO rename. "name" is reserved
+        node.set_compatible("icecap,channel");
+        node.set_property("channel-name", self.name.as_str()); // property "name" is reserved
         node.set_property("id", self.id);
         node.set_property_iter("interrupts", &[0, self.irq, 1]);
         self.ring_buffer.set_reg(&mut node, spec);

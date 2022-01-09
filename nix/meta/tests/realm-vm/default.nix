@@ -33,6 +33,7 @@ in {
 
   spec = mkLinuxRealm {
     kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
+    # kernel = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel; # TODO why is this failing?
     # kernel = localLinuxImages.virt;
     initramfs = realmUser.config.build.initramfs;
     bootargs = commonBootargs ++ [
@@ -44,7 +45,7 @@ in {
   commonBootargs = [
     "earlycon=icecap_vmm"
     "console=hvc0"
-    "loglevel=7"
+    "loglevel=8"
     "icecap_net.napi_weight=64" # global default
     # "icecap_net.napi_weight=128" # icecap default
     # "icecap_net.napi_weight=256"
