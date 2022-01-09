@@ -24,11 +24,11 @@ let
     meta.tcbSize
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
-      meta.tests.backtrace
       meta.tests.realm-vm
-      meta.tests.analysis
+      meta.tests.backtrace
       meta.tests.benchmark-server
-      meta.tests.firecracker
+      meta.benchmarks.hypervisor
+      meta.benchmarks.firecracker
     ])
   ];
 

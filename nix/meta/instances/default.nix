@@ -21,11 +21,11 @@ let
 in {
   tests = {
     realm-vm = callInstance ./tests/realm-vm;
-    firecracker = callInstance ./tests/firecracker;
-    analysis = callInstance ./tests/analysis;
     benchmark-server = callInstance ./tests/benchmark-server;
     backtrace = callInstance ./tests/backtrace;
   };
   benchmarks = {
+    hypervisor = callInstance ./benchmarks/hypervisor;
+    firecracker = callInstance ./benchmarks/firecracker;
   };
 }
