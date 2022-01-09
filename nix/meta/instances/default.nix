@@ -26,7 +26,7 @@ in {
   };
   benchmarks = {
     hypervisor = callInstance ./benchmarks/hypervisor {};
-    hypervisor-with-utilization = callInstance ./benchmarks/hypervisor  { withUtilization = true; };
+    hypervisor-with-utilization = callInstance ./benchmarks/hypervisor { withUtilization = true; };
     firecracker = callInstance ./benchmarks/firecracker {};
   };
   hacking = {
