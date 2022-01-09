@@ -6,6 +6,13 @@ let
   cfg = config.instance;
 
 in {
+  options.instance = {
+    hasNat = mkOption {
+      type = types.bool;
+      default = false;
+    };
+  };
+
   config = mkMerge [
     {
       initramfs.extraUtilsCommands = ''
@@ -16,17 +23,19 @@ in {
         . /etc/profile
 
         ${lib.optionalString cfg.autostart.enable ''
-          auto_tests &
+          auto &
         ''}
       '';
 
       initramfs.profile = ''
-        auto_tests() {
+        auto() {
           for _ in $(seq 3); do
             echo test_channel > /dev/icecap_channel_host
           done
 
-          test_nat
+          ${lib.optionalString cfg.hasNat ''
+            test_nat
+          ''}
 
           start_iperf_client
         }

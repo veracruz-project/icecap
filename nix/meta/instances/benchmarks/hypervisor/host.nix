@@ -24,18 +24,22 @@ in {
         . /etc/profile
 
         ${lib.optionalString cfg.autostart.enable ''
+          auto &
+        ''}
+      '';
+
+      initramfs.profile = ''
+        auto() {
           ${lib.optionalString cfg.autostart.cpu ''
             for _ in $(seq 2); do
-              host_cpu
+              cpu_bound
               sleep 5
             done
           ''}
           start_realm &
           start_iperf_server > /dev/null
-        ''}
-      '';
+        }
 
-      initramfs.profile = ''
         start_realm() {
           taskset $realm_affinity icecap-host create 0 /spec.bin && \
             chrt -b 0 taskset $realm_affinity icecap-host run 0 0
@@ -53,18 +57,14 @@ in {
           pkill iperf3
         }
 
-        host_cpu() {
-          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        benchmark_server() {
+          icecap-host benchmark $1
         }
 
-        host_with_utilization() {
+        cpu_bound_with_utilization() {
           benchmark_server start
           sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
           benchmark_server finish
-        }
-
-        benchmark_server() {
-          icecap-host benchmark $1
         }
 
         run_iperf_client_with_utilization() {

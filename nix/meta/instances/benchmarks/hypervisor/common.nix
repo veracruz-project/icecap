@@ -40,6 +40,12 @@ in {
         # sysctl -w net.core.netdev_budget_usecs=2000 # default
         # sysctl -w net.core.netdev_budget_usecs=20000
       '';
+
+      initramfs.profile = ''
+        cpu_bound() {
+          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        }
+      '';
     }
   ];
 }

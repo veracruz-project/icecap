@@ -19,17 +19,17 @@ in {
         . /etc/profile
 
         ${lib.optionalString cfg.autostart.enable ''
-          auto_tests &
+          auto &
         ''}
       '';
 
       initramfs.profile = ''
-        auto_tests() {
+        auto() {
           start_realm &
 
           head -n 3 < /dev/icecap_channel_realm_0
 
-          start_iperf_server
+          start_iperf_server > /dev/null
         }
 
         start_realm() {
@@ -42,7 +42,7 @@ in {
         }
 
         start_iperf_server() {
-          chrt -b 0 iperf3 -s > /dev/null
+          chrt -b 0 iperf3 -s
         }
 
         stop_iperf_server() {

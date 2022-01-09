@@ -16,27 +16,19 @@ in {
         . /etc/profile
 
         ${lib.optionalString cfg.autostart.enable ''
-          ${lib.optionalString cfg.autostart.cpu ''
-            for _ in $(seq 2); do
-              realm_cpu
-              sleep 5
-            done
-          ''}
-          start_iperf_client &
+          auto &
         ''}
       '';
 
       initramfs.profile = ''
-        run_iperf_server() {
-          iperf3 -s -1
-        }
-
-        realm_cpu() {
-          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
-        }
-
-        test_nat() {
-          curl -S http://example.com
+        auto() {
+          ${lib.optionalString cfg.autostart.cpu ''
+            for _ in $(seq 2); do
+              cpu_bound
+              sleep 5
+            done
+          ''}
+          start_iperf_client
         }
 
         start_iperf_client() {
@@ -55,6 +47,10 @@ in {
         stop_iperf_client() {
           touch /stop
           pkill iperf3
+        }
+
+        run_iperf_server() {
+          iperf3 -s -1
         }
       '';
     }

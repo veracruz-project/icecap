@@ -54,6 +54,7 @@ in {
       commonModulesForInstance
       {
         instance.realm.enable = true;
+        instance.hasNat = icecapPlat == "virt";
       }
       ./realm.nix
     ];
