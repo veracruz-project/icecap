@@ -14,7 +14,7 @@ let
     ];
   };
 
-in runCommand "initrd.gz" {
+in runCommand "initramfs.gz" {
   nativeBuildInputs = [ cpio gzip ];
   inherit passthru;
 } ''
