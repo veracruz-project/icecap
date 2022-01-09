@@ -3,44 +3,25 @@
 let
   inherit (pkgs) dev none linux musl;
 
+  forEachIn = lib.flip lib.concatMap;
+  forEachConfigured = f: lib.mapAttrsToList (lib.const f) pkgs.none.icecap.configured;
+
   cached = [
-    (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (_: configured: [
+    (forEachConfigured (configured: [
       configured.icecapFirmware.display
     ]))
 
-    (with meta.display; lib.flatten [
+    (lib.flatten (with meta.display; [
       (lib.attrValues host-kernel)
       realm-kernel
       host-tools
       build-tools
-    ])
+    ]))
 
     (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) meta.demos)
     (lib.mapAttrsToList (_: example: example.run) meta.examples)
 
     meta.tcbSize
-  ];
-
-  pure = [
-    cached
-
-    dev.icecap.sel4-manual
-    dev.icecap.bindgen
-
-    (lib.flip lib.concatMap [ linux musl ] (host: [
-      host.icecap.icecap-host
-      host.icecap.firecracker
-      host.icecap.firecracker-prebuilt
-      host.icecap.firectl
-    ]))
-
-    (lib.flip lib.concatMap [ dev linux musl ] (host: [
-      host.icecap.crosvm-9p-server
-    ]))
-
-    (lib.flip lib.mapAttrsToList pkgs.none.icecap.configured (_: configured: [
-      configured.sysroot-rs
-    ]))
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
       meta.tests.backtrace
@@ -49,6 +30,29 @@ let
       meta.tests.benchmark-utilisation
       meta.tests.firecracker
     ])
+  ];
+
+  pure = [
+    cached
+
+    (forEachIn [ linux musl ] (host: [
+      host.icecap.icecap-host
+      host.icecap.firecracker
+      host.icecap.firecracker-prebuilt
+      host.icecap.firectl
+    ]))
+
+    (forEachIn [ dev linux musl ] (host: [
+      host.icecap.crosvm-9p-server
+    ]))
+
+    (forEachIn [ dev ] (host: [
+      dev.icecap.bindgen
+    ]))
+
+    (forEachConfigured (configured: [
+      configured.sysroot-rs
+    ]))
   ];
 
   impure = [
