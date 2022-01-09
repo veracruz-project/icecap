@@ -1,9 +1,9 @@
-{ mkTest
+{ mkInstance
 , commonModules
 , linuxPkgs
 }:
 
-mkTest {} (self: with self;
+mkInstance {} (self: with self;
 
 let
   inherit (configured) icecapPlat selectIceCapPlat mkLinuxRealm;

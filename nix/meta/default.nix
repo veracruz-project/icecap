@@ -14,7 +14,8 @@ rec {
     hypervisor-demo = import ../../demos/hypervisor-demo;
   };
 
-  tests = call ./tests {};
+  instances = call ./instances {};
+  inherit (instances) tests benchmarks;
 
   generatedSources = call ./generated-sources.nix {};
   generatedDocs = call ./generated-docs {};

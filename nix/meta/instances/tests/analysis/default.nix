@@ -1,10 +1,10 @@
-{ mkTest
+{ mkInstance
 , commonModules
 , linuxPkgs
 , icecapExternalSrc
 }:
 
-mkTest { benchmark = true; } (self: with self;
+mkInstance { benchmark = true; } (self: with self;
 
 let
   inherit (configured) icecapPlat mkLinuxRealm;

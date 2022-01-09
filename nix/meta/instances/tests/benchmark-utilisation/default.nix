@@ -1,9 +1,9 @@
-{ mkTest
+{ mkInstance
 , icecapSrc
 , icecapExternalSrc
 }:
 
-mkTest { benchmark = true; } (self: with self.configured; with self; {
+mkInstance { benchmark = true; } (self: with self.configured; with self; {
 
   composition = compose {
     # inherit (self) kernel;

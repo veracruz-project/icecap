@@ -1,8 +1,8 @@
-{ mkTest
+{ mkInstance
 , icecapSrc
 }:
 
-mkTest { debug = true; } (self: with self.configured; with self; {
+mkInstance { debug = true; } (self: with self.configured; with self; {
 
   composition = compose {
     action.script = icecapSrc.absoluteSplit ./cdl.py;
