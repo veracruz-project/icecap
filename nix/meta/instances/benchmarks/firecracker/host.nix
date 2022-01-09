@@ -2,6 +2,8 @@
 
 with lib;
 
+with import ./common.nix;
+
 let
 
   cfg = config.instance;
@@ -38,9 +40,7 @@ in
       net.interfaces.lo.static = "127.0.0.1";
 
       initramfs.extraInitCommands = ''
-        sysctl -w net.ipv4.ip_forward=1
-
-        mkdir -p /etc /bin /mnt/nix/store
+        mkdir -p /bin
         ln -s $(which sh) /bin/sh
       '';
 
@@ -60,7 +60,8 @@ in
       net.interfaces.${physicalIface} = {};
 
       initramfs.extraInitCommands = ''
-        mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
+        mkdir -p /mnt/nix/store
+        mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store
 
         script="$(sed -rn 's,.*script=([^ ]*).*,\1,p' /proc/cmdline)"
         ln -s /mnt/$script /script
@@ -69,27 +70,28 @@ in
 
     (mkIf (cfg.plat == "rpi4") {
       initramfs.extraInitCommands = ''
-        echo "waiting 2 seconds for mmc..."
-        sleep 2
-
-        mount -o ro /dev/mmcblk0p1 mnt/
-        ln -s /mnt/$script /script
-
         for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
           echo $f
           echo performance > $f
         done
+
+        echo "waiting 2 seconds for mmc..."
+        sleep 2
+
+        mkdir -p /mnt
+        mount -o ro /dev/mmcblk0p1 /mnt
+        ln -s /mnt/$script /script
       '';
     })
 
     {
       initramfs.extraInitCommands = ''
         ip tuntap add veth0 mode tap
-        ip address add 192.168.1.1/24 dev veth0
+        ip address add ${hostAddr}/24 dev veth0
         ip link set veth0 up
 
         # for _ in $(seq 2); do
-        #   sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        #   host__cpu
         #   sleep 10
         # done
 
@@ -101,7 +103,12 @@ in
         # taskset $realm_affinity \
           /script
       '';
-    }
 
+      initramfs.profile = ''
+        host_cpu() {
+          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        }
+      '';
+    }
   ];
 }

@@ -12,19 +12,12 @@ let
   inherit (linuxPkgs.icecap) linuxKernel nixosLite;
   inherit (configured) icecapPlat selectIceCapPlat;
 
-  # NOTE example of how to develop on the linux kernel source
-  localLinuxImages = {
-    virt = ../../../../../local/linux/arch/arm64/boot/Image;
-    rpi4 = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
-  };
-
 in
 
 lib.fix (self: with self; {
 
   host = rec {
     kernel = linuxKernel.host.${icecapPlat}.kernel;
-    # kernel = selectIceCapPlat localLinuxImages;
     bootargs = commonBootargs ++ [
       "script=${script}"
       "nr_cpus=3"
