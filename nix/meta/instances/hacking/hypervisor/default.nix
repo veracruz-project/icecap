@@ -1,6 +1,7 @@
 { mkInstance
 , commonModules
 , linuxPkgs
+, icecapExternalSrc
 }:
 
 mkInstance {} (self: with self;
@@ -79,5 +80,15 @@ in {
       copy_bin_and_libs ${rust-helper}/bin/rust-helper
     '';
   };
+
+  # NOTE example of how to develop on the seL4 kernel source
+
+  # kernel = configured.kernel.override' {
+  #   source = icecapExternalSrc.seL4.forceLocal;
+  # };
+
+  # composition = configured.icecapFirmware.override' {
+  #   inherit (self) kernel;
+  # };
 
 })

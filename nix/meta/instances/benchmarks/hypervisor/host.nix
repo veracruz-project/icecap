@@ -1,121 +1,90 @@
-{ config, pkgs, lib, ... }:
+{ lib, config, pkgs, ... }:
 
 with lib;
 
 let
-
   cfg = config.instance;
 
-  hostAddr = "192.168.1.1";
-  realmAddr = "192.168.1.2";
-
-  virtualIface = {
-    virt = "eth0";
-    rpi4 = "eth0";
-  }.${cfg.plat};
-
-  physicalIface = {
-    virt = "eth2";
-    rpi4 = "eth2";
-  }.${cfg.plat};
-
-  nftScript = config.lib.instance.mkNftablesScriptForNat { inherit physicalIface; };
-
-in
-
-{
-  config = lib.mkMerge [
-
+in {
+  config = mkMerge [
     {
-      net.interfaces.${virtualIface}.static = "${hostAddr}/24";
-      net.interfaces.lo.static = "127.0.0.1";
-
       initramfs.extraUtilsCommands = ''
-        copy_bin_and_libs ${pkgs.icecap.icecap-host}/bin/icecap-host
-        copy_bin_and_libs ${pkgs.iproute}/bin/ip
-        copy_bin_and_libs ${pkgs.nftables}/bin/nft
-        copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
-        copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
-        copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
-        cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
       '';
 
-      initramfs.extraInitCommands = ''
-        # HACK
-        seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
+      initramfs.extraInitCommands = mkAfter ''
+        # https://access.redhat.com/solutions/177953
+        # https://www.redhat.com/files/summit/session-assets/2018/Performance-analysis-and-tuning-of-Red-Hat-Enterprise-Linux-Part-1.pdf
+        # echo 10000000 > /proc/sys/kernel/sched_min_granularity_ns
+        # echo 15000000 > /proc/sys/kernel/sched_wakeup_granularity_ns
 
-        mkdir -p /etc /bin /mnt/nix/store
-        ln -s $(which sh) /bin/sh
-
-        mount -t debugfs none /sys/kernel/debug/
-      '';
-    }
-
-    (mkIf (cfg.plat == "virt") {
-      net.interfaces.${physicalIface} = {};
-
-      initramfs.extraInitCommands = ''
-        sysctl -w net.ipv4.ip_forward=1
-        nft -f ${nftScript}
-        physicalAddr=$(ip address show dev ${physicalIface} | sed -nr 's,.*inet ([^/]*)/.*,\1,p')
-        nft add rule ip nat prerouting ip daddr "$physicalAddr" tcp dport 8080 dnat to ${realmAddr}:8080
-
-        mount -t 9p -o trans=virtio,version=9p2000.L,ro store /mnt/nix/store/
-        spec="$(sed -rn 's,.*spec=([^ ]*).*,\1,p' /proc/cmdline)"
-        echo "cp -L /mnt/$spec /spec.bin..."
-        cp -L "/mnt/$spec" /spec.bin
-        echo "...done"
-      '';
-    })
-
-    (mkIf (cfg.plat == "rpi4") {
-      initramfs.extraInitCommands = ''
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-          echo $f
-          echo performance > $f
-        done
-
-        sleep 2 # HACK
-        mount -o ro /dev/mmcblk0p1 mnt/
-        ln -s /mnt/spec.bin /spec.bin
-      '';
-    })
-
-    {
-      initramfs.extraInitCommands = ''
         export iperf_affinity=0x4
         export realm_affinity=0x2
-        export benchmark_affinity=0x1
 
-        taskset $realm_affinity icecap-host create 0 /spec.bin && \
-          chrt -b 0 taskset $realm_affinity icecap-host run 0 0 &
+        # HACK
+        . /etc/profile
 
-        # chrt -b 0 iperf3 -s
+        ${lib.optionalString cfg.autostart.enable ''
+          ${lib.optionalString cfg.autostart.cpu ''
+            for _ in $(seq 2); do
+              host_cpu
+              sleep 5
+            done
+          ''}
+          start_realm &
+          start_iperf_server
+        ''}
       '';
 
       initramfs.profile = ''
-        x() {
-          s
-          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
-          f
+        start_realm() {
+          taskset $realm_affinity icecap-host create 0 /spec.bin && \
+            chrt -b 0 taskset $realm_affinity icecap-host run 0 0
         }
-        b() {
+
+        destroy_realm() {
+          icecap-host destroy 0
+        }
+
+        start_iperf_server() {
+          chrt -b 0 iperf3 -s
+        }
+
+        stop_iperf_server() {
+          pkill iperf3
+        }
+
+        host_cpu() {
+          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+        }
+
+        host_with_utilization() {
+          benchmark_server start
+          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+          benchmark_server finish
+        }
+
+        benchmark_server() {
           icecap-host benchmark $1
         }
+
+        run_iperf_client_with_utilization() {
+          reverse="--reverse"
+          pin="taskset $iperf_affinity"
+
+          benchmark_server start
+          $pin chrt -b 0 iperf3 -c ${cfg.misc.net.realmAddr} $reverse > /dev/null
+          benchmark_server finish
+        }
+
+        ### shortcuts ###
+
         s() {
-          b start
+          benchmark_server start
         }
         f() {
-          b finish
+          benchmark_server finish
         }
-        # x() {
-        #   s
-        #   # taskset $iperf_affinity chrt -b 0 iperf3 -c ${realmAddr} > /dev/null
-        #   chrt -b 0 iperf3 -c ${realmAddr} --reverse > /dev/null
-        #   f
-        # }
       '';
     }
-
   ];
 }

@@ -56,7 +56,7 @@ let
     ]))
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
-      meta.instances.hacking.hypervisor # NOTE okay to remove this during periods when it's broken
+      # meta.instances.hacking.hypervisor # NOTE okay to remove this during periods when it's broken
     ])
   ];
 

@@ -1,7 +1,6 @@
 { mkInstance
 , commonModules
 , linuxPkgs
-, icecapExternalSrc
 
 , withUtilization ? false
 }:
@@ -35,33 +34,41 @@ in {
     "earlycon=icecap_vmm"
     "console=hvc0"
     "loglevel=7"
+    "icecap_net.napi_weight=64" # global default
+    # "icecap_net.napi_weight=128" # icecap default
+    # "icecap_net.napi_weight=256"
   ];
 
   hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
       commonModules
-      ./host.nix
+      commonModulesForInstance
       {
-        instance.plat = icecapPlat;
+        instance.host.enable = true;
+        instance.host.plat = icecapPlat;
       }
+      ./host.nix
     ];
   };
 
   realmUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
       commonModules
+      commonModulesForInstance
+      {
+        instance.realm.enable = true;
+      }
       ./realm.nix
     ];
   };
 
-  # NOTE example of how to develop on the seL4 kernel source
-
-  # kernel = configured.kernel.override' {
-  #   source = icecapExternalSrc.seL4.forceLocal;
-  # };
-
-  # composition = configured.icecapFirmware.override' {
-  #   inherit (self) kernel;
-  # };
+  commonModulesForInstance = {
+    imports = [
+      ./common.nix
+      {
+        instance.utlization.enable = withUtilization;
+      }
+    ];
+  };
 
 })
