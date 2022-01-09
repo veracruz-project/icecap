@@ -3,11 +3,11 @@ let
 
 in topLevel.lib.fix (self: topLevel // (with self; {
 
-  vt = meta.tests.realm-vm.virt;
+  hh = meta.instances.hacking.hypervisor;
+  vt = hh.virt;
   vc = vt.configured;
   v = vt.run;
-
-  rt = meta.tests.realm-vm.rpi4;
+  rt = hh.rpi4;
   r = rt.run.boot;
 
 }))

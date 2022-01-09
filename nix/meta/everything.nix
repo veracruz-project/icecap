@@ -24,11 +24,11 @@ let
     meta.tcbSize
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
-      meta.tests.hypervisor
-      meta.tests.backtrace
-      meta.tests.benchmark-server
-      meta.benchmarks.hypervisor
-      meta.benchmarks.firecracker
+      meta.instances.tests.hypervisor
+      meta.instances.tests.backtrace
+      meta.instances.tests.benchmark-server
+      meta.instances.benchmarks.hypervisor
+      meta.instances.benchmarks.firecracker
     ])
   ];
 
@@ -55,7 +55,7 @@ let
     ]))
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
-      meta.hacking.hypervisor # NOTE okay to remove this during periods when it's broken
+      meta.instances.hacking.hypervisor # NOTE okay to remove this during periods when it's broken
     ])
   ];
 
