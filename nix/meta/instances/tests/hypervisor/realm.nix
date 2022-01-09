@@ -16,23 +16,19 @@ in {
         . /etc/profile
 
         ${lib.optionalString cfg.autostart.enable ''
-          ${lib.optionalString cfg.autostart.cpu ''
-            for _ in $(seq 2); do
-              realm_cpu
-              sleep 5
-            done
-          ''}
-          start_iperf_client &
+          auto_tests &
         ''}
       '';
 
       initramfs.profile = ''
-        run_iperf_server() {
-          iperf3 -s -1
-        }
+        auto_tests() {
+          for _ in $(seq 3); do
+            echo test_channel > /dev/icecap_channel_host
+          done
 
-        realm_cpu() {
-          sysbench cpu --cpu-max-prime=20000 --num-threads=1 run
+          test_nat
+
+          start_iperf_client
         }
 
         test_nat() {
