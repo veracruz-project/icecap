@@ -1,0 +1,5 @@
+{ emptyFile }:
+
+{
+  run = emptyFile;
+}

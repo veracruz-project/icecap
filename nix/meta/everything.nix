@@ -24,7 +24,7 @@ let
     meta.tcbSize
 
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
-      meta.tests.realm-vm
+      meta.tests.hypervisor
       meta.tests.backtrace
       meta.tests.benchmark-server
       meta.benchmarks.hypervisor
@@ -53,6 +53,10 @@ let
     (forEachConfigured (configured: [
       configured.sysroot-rs
     ]))
+
+    (map (lib.mapAttrsToList (_: plat: plat.run)) [
+      meta.hacking.hypervisor # NOTE okay to remove this during periods when it's broken
+    ])
   ];
 
   impure = [
