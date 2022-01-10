@@ -41,7 +41,7 @@ fn main(config: Config) -> Fallible<()> {
     for _ in 0..6 {
         loop {
             let t = read_cntvct_el0();
-            if t % ((freq / C) as u64) == (0 as u64) {
+            if t % ((freq / C) as u64) == 0u64 {
                 debug_println!("t = {}", t);
                 break;
             }
