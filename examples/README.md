@@ -31,7 +31,9 @@ Next, build, run, and enter a Docker container for development:
 make -C docker/ run && make -C docker/ exec
 ```
 
-This docker container is effectively stateless. All of the build system's state lives in a Docker volume. Consequentially, you can destroy the container, modify the Dockerfile, rebuild the image, and re-run it without losing cached IceCap build artifacts.
+If [./docker/Makefile](./docker/Makefile) detects that you are on Linux, then this Docker container is effectively stateless.
+All of the build system's state lives in a Docker volume.
+Consequentially, you can destroy the container, modify the Dockerfile, rebuild the image, and re-run it without losing cached IceCap build artifacts.
 
 ### Our first system
 

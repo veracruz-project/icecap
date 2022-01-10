@@ -115,6 +115,6 @@ and the rest of the system, as a buffer. Alternatively, you could run something
 like this from outside of the container:
 
 ```
-container_name=icecap-stateless
+container_name=icecap
 rsync -rLv --checksum --delete -e 'docker exec -i' $container_name:/icecap/out/demo/boot/ mnt/
 ```
