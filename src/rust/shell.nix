@@ -13,7 +13,7 @@ dev.mkShell {
   ICECAP_PLAT = plat;
 
   LIBSEL4 = configured.libsel4;
-  ICECAP_RUNTIME = configured.libs.icecap-runtime;
+  ICECAP_RUNTIME = configured.userC.nonRootLibs.icecap-runtime;
 
   LIBCLANG_PATH = "${dev.lib.getLib dev.llvmPackages.libclang}/lib";
 
