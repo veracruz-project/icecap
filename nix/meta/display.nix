@@ -26,12 +26,14 @@
 
   build-tools = pkgs.dev.buildEnv {
     name = "build-tools";
-    paths = with pkgs.dev.icecap; [
-      dyndl-serialize-spec
+    paths = (with pkgs.dev.icecap; [
       icecap-show-backtrace
-      icecap-serialize-runtime-config
       crosvm-9p-server
-    ];
+    ]) ++ (with pkgs.none.buildPackages.icecap; [
+      capdl-tool
+      dyndl-serialize-spec
+      icecap-serialize-runtime-config
+    ]);
   };
 
 }
