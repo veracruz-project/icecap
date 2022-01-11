@@ -316,14 +316,23 @@ The IceCap Hypervisor is a CapDL-based system created using the IceCap
 Framework, just like `05-basic-system`, only much more complex and much more
 useful.
 
-Build and run a simple demonstration of the IceCap Hypervisor.  (For a more
-sophisticated demo, see
+Build and run a simple demonstration of the IceCap Hypervisor, including three
+examples of confidential guests (called "realms").  (For a more sophisticated
+demo, see
 [../demos/hypervisor-demo/README.md](../demos/hypervisor-demo/README.md)).
 
 ```
    [container] nix-build examples/ -A hypervisor.run && ./result/run
 
                # ... wait for the host VM to boot to a shell ...
+
+               # Spawn a minimal realm:
+
+ [icecap host] create minimal
+
+               # Cease the realm's exectution with '<ctrl>-c' and destroy it:
+
+ [icecap host] destroy
 
                # Spawn a VM in a realm:
 
@@ -374,6 +383,22 @@ Where `icecap_hypervisor` is the Python module located at
 The Rust code for the IceCap Hypervisor components is located at
 [../src/rust/crates/hypervisor/components](../src/rust/crates/hypervisor/components).
 
+Like the hypervisor itself, realm images are also specified using CapDL.  Unlike
+the hypervisor's CapDL specification, which is realized by the root task, realm
+CapDL specifications are realized at realm-creation time by a dynamic CapDL
+loader in the [resource
+server](../src/rust/crates/hypervisor/components/resource-server).
+
+Take a look at the realm specifications for each of the three examples realms: a
+minimal realm analogous to the `03-minimal-capdl` example, a Linux VM, and a
+MirageOS unikernel:
+
+```
+nix-build examples/ -A hypervisor.realms.minimal.spec.ddl
+nix-build examples/ -A hypervisor.realms.vm.spec.ddl
+nix-build examples/ -A hypervisor.realms.mirage.spec.ddl
+```
+
 ### Case study: Veracruz
 
 Veracruz is a framework for defining and deploying collaborative,
@@ -382,11 +407,3 @@ individuals. Veracruz's support for the IceCap Hypervisor serves as another
 example for the IceCap Framework:
 
 [https://github.com/veracruz-project/veracruz](https://github.com/veracruz-project/veracruz)
-
-<!-- -- -->
-
-<!--
-TODO mention icecap-show-backtrace
-TODO minimal dyndl example
-TODO compare the IceCap Framework interface to CapDL with [CAmkES](https://trustworthy.systems/projects/TS)
--->
