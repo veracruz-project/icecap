@@ -1,6 +1,6 @@
 # Documentation
 
-- [Overview](../README.md)
+- [Overview](../#IceCap)
 - [seL4 Summit 2020 presentation](https://nickspinale.com/talks/sel4-summit-2020.html)
 - [Quick start](../demos/hypervisor-demo)
 - [Guided introduction](../examples)
