@@ -1,9 +1,5 @@
 # Guided introduction
 
-```
-UNDER CONSTRUCTION
-```
-
 This is a guided, interactive introduction to the IceCap Framework. It will lead you through each layer of the framework with the help of the example systems in this directory. If you encounter problems or have questions of any kind, please raise an issue or reach out to [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
 ### Prerequisites
