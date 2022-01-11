@@ -117,7 +117,7 @@ The steps are as follows:
 - Recall that we are only considering the case of the primary thread. The primary thread is responsible for moving some configuration values out of the `struct icecap_runtime_config` and into symbols that will be accessed by application code (e.g. from Rust).
 - Finally, the primary thread calls `icecap_main`, which is defined by the application.
 
-The application code's interface the the IceCap C runtime ([../src/c/icecap-runtime/include/icecap-runtime.h](../src/c/icecap-runtime/include/icecap-runtime.h)) is comprised of symbols with configuration information (e.g. the location of the heap, some notification objects for use as static locks, and exception handling information), and a few functions such as `icecap_runtime_stop_thread()` and `icecap_runtime_stop_component()`. The crate at [../src/rust/crates/framework/icecap-std](../src/rust/crates/framework/icecap-std) uses this interface to provide a Rust runtime (including, for example, allocation and exception handling).
+Application code's interface to the IceCap C runtime ([../src/c/icecap-runtime/include/icecap-runtime.h](../src/c/icecap-runtime/include/icecap-runtime.h)) is comprised of symbols with configuration information (e.g. the location of the heap, some notification objects for use as static locks, and exception handling information), and a few functions such as `icecap_runtime_stop_thread()` and `icecap_runtime_stop_component()`. The crate at [../src/rust/crates/framework/icecap-std](../src/rust/crates/framework/icecap-std) uses this interface to provide a Rust runtime (including, for example, allocation and exception handling).
 
 ### The IceCap Python libraries
 
