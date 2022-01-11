@@ -384,12 +384,12 @@ The Rust code for the IceCap Hypervisor components is located at
 [../src/rust/crates/hypervisor/components](../src/rust/crates/hypervisor/components).
 
 Like the hypervisor itself, realm images are also specified using CapDL.  Unlike
-the hypervisor's CapDL specification, which is realized by the root task, realm
-CapDL specifications are realized at realm-creation time by a dynamic CapDL
-loader in the [resource
+the hypervisor's CapDL specification, which is realized at boot-time by the root
+task, realm CapDL specifications are realized at realm creation-time by a
+dynamic CapDL loader in the [resource
 server](../src/rust/crates/hypervisor/components/resource-server).
 
-Take a look at the realm specifications for each of the three examples realms: a
+Take a look at the CapDL specifications for each of the three example realms: a
 minimal realm analogous to the `03-minimal-capdl` example, a Linux VM, and a
 MirageOS unikernel:
 
