@@ -11,7 +11,7 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
     config = {
       components = {
         test.image = test.split;
-        benchmark_server.image = bins.benchmark-server.split;
+        benchmark_server.image = hypervisorComponents.benchmark-server.split;
       };
     };
   };

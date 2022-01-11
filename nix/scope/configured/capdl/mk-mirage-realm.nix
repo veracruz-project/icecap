@@ -1,4 +1,4 @@
-{ deviceTree, bins
+{ deviceTree, hypervisorComponents
 , mkIceDL, mkDynDLSpec, mkMirageBinary
 , icecapPlat
 , elfUtils

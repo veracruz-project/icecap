@@ -5,7 +5,7 @@
 , deviceTree, platUtils, cpioUtils, elfUtils
 , icecapPlat
 , mkIceDL, mkCapDLLoader
-, kernel, elfloader, bins
+, kernel, elfloader, hypervisorComponents
 }:
 
 let
@@ -47,17 +47,17 @@ let
       default_affinity = 1;
 
       components = {
-        idle.image = bins.idle.split;
-        fault_handler.image = bins.fault-handler.split;
-        timer_server.image = bins.timer-server.split;
-        serial_server.image = bins.serial-server.split;
-        event_server.image = bins.event-server.split;
-        benchmark_server.image = bins.benchmark-server.split;
+        idle.image = hypervisorComponents.idle.split;
+        fault_handler.image = hypervisorComponents.fault-handler.split;
+        timer_server.image = hypervisorComponents.timer-server.split;
+        serial_server.image = hypervisorComponents.serial-server.split;
+        event_server.image = hypervisorComponents.event-server.split;
+        benchmark_server.image = hypervisorComponents.benchmark-server.split;
 
-        resource_server.image = bins.resource-server.split;
+        resource_server.image = hypervisorComponents.resource-server.split;
         resource_server.heap_size = 128 * 1048576; # HACK
 
-        host_vmm.image = bins.host-vmm.split;
+        host_vmm.image = hypervisorComponents.host-vmm.split;
         host_vm.kernel = self.u-boot;
         host_vm.dtb = deviceTree.host.${icecapPlat}.dtb;
       };

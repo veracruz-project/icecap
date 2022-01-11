@@ -46,7 +46,7 @@ self: with self;
 
   buildIceCapComponent = callPackage ./sel4-user/rust/build-icecap-component.nix {};
 
-  bins = callPackage ./sel4-user/rust/bins.nix {};
+  hypervisorComponents = callPackage ./sel4-user/rust/hypervisor-components.nix {};
 
   # TODO fix and generalize or leave up to downstream projects
   sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
