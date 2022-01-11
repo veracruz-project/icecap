@@ -14,8 +14,7 @@ Notably, IceCap replaces the C-based seL4 userspace of the
 exception of CapDL, IceCap's seL4 userspace contains
 [less than 350 lines of C](./src/c/icecap-runtime).
 
-Some of the documentation in this repository is under construction.  In the
-meantime, we are eager to share and discuss any aspect of IceCap's design and
+We are eager to share and discuss any aspect of IceCap's design and
 implementation with you directly. Please feel free to reach out to project lead
 [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
@@ -25,11 +24,11 @@ implementation with you directly. Please feel free to reach out to project lead
 
 ## Quick start
 
-See [./demos/hypervisor-demo/README.md](./demos/hypervisor-demo) for instructions on how to get a demo up and running.
+See [./demos/hypervisor-demo/README.md](./demos/hypervisor-demo) for instructions on how to get a demo of the IceCap Hypervisor up and running.
 
 ## Guided introduction
 
-See [./examples/README.md](./examples) for a guided introduction to the IceCap framework.
+See [./examples/README.md](./examples) for a guided introduction to the IceCap Framework.
 
 ## Supported platforms
 
@@ -39,6 +38,6 @@ Note that we intentionally use different platform names than the seL4 kernel.
 seL4 has the notion of a `KernelPlatform` (e.g. `bcm2711` for the Raspberry Pi
 4). Our platforms may eventually become more specific than those named by seL4.
 
-- `virt`: A minimal, made-up platform emulated by QEMU with `qemu-system-aarch64 -M virt`
+- `virt`: A minimal, made-up platform emulated by QEMU with `qemu-system-aarch64 -machine virt`
 
 - `rpi4`: Raspberry Pi 4 Model B (with at least 4GiB of RAM)
