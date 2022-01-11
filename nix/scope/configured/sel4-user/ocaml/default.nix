@@ -1,5 +1,5 @@
 { lib, stdenv
-, musl, libs, libsel4
+, musl, userC, libsel4
 , buildIceCapComponent, globalCrates, rustTargetName
 }:
 
@@ -13,8 +13,8 @@ in {
 
     extraLastLayer = attrs: {
       buildInputs = (attrs.buildInputs or []) ++ [
-        libs.icecap-pure # TODO
-        libs.icecap-mirage-glue
+        userC.nonRootLibs.icecap-pure # TODO
+        userC.nonRootLibs.icecap-mirage-glue
         musl
         mirageLibrary
       ];

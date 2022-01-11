@@ -3,7 +3,7 @@
 , fetchCrates, cratesIOIndexCache
 , nixToToml, crateUtils, rustTargets, rustTargetName, globalCrates
 , icecapSrc
-, libsel4, libs
+, libsel4, userC
 
 , release ? true
 
@@ -129,8 +129,8 @@ lib.fix (self: stdenv.mkDerivation ({
   nativeBuildInputs = [ cargo rustc ];
   buildInputs = [
     libsel4
-    libs.icecap-runtime
-    libs.icecap-utils
+    userC.nonRootLibs.icecap-runtime
+    userC.nonRootLibs.icecap-utils
   ];
 
   RUST_TARGET_PATH = rustTargets;

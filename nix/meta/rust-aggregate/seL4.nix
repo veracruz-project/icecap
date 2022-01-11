@@ -1,7 +1,7 @@
 { lib, mkShell, buildPackages
 , rustc, cargo
 , nixToToml, crateUtils, rustTargetName, globalCrates
-, libsel4, libs, icecapPlat
+, libsel4, userC, icecapPlat
 , stdenv, icecapSrc, fetchCrates
 }:
 
@@ -31,7 +31,7 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ cargo rustc ];
-  buildInputs = [ libsel4 libs.icecap-runtime ];
+  buildInputs = [ libsel4 userC.nonRootLibs.icecap-runtime ];
 
   LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
   BINDGEN_EXTRA_CLANG_ARGS = [

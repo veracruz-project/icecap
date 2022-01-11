@@ -30,7 +30,7 @@ self: with self;
   platformInfo = callPackage ./sel4-kernel/platform-info.nix {};
 
   elfloader = callPackage ./elfloader {
-    libcpio = libs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare-metal?
+    libcpio = userC.rootLibs.cpio; # TODO ensure this is sound. Is this library properly compiled for bare-metal?
   };
 
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
@@ -40,7 +40,7 @@ self: with self;
   mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
   mkMirageRealm = callPackage ./capdl/mk-mirage-realm.nix {};
 
-  libs = callPackage ./sel4-user/c {};
+  userC = callPackage ./sel4-user/c {};
 
   inherit (callPackage ./sel4-user/ocaml {}) mkMirageBinary;
 

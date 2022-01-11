@@ -1,7 +1,7 @@
 { lib, hostPlatform, buildPackages
 , buildRustPackageIncrementally, rustTargetName, crateUtils, elfUtils
 , icecapPlat, icecapConfig, globalCrates
-, libsel4, libs
+, libsel4, userC
 , root-task-tls-lds
 , root-task-eh-lds
 }:
@@ -59,7 +59,7 @@ lib.fix (self: buildRustPackageIncrementally ({
     ];
     buildInputs = [
       libsel4
-      libs.${if isRoot then "root" else "nonRoot"}.icecap-runtime
+      userC.${if isRoot then "rootLibs" else "nonRootLibs"}.icecap-runtime
     ];
     dontStrip = true;
     dontPatchELF = true;

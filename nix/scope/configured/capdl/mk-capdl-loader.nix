@@ -2,7 +2,7 @@
 , cpioUtils
 , capdl-tool
 , object-sizes, libsel4
-, libs
+, userC
 , icecapSrc
 }:
 
@@ -22,7 +22,7 @@ let
     # TODO consider parse-capDL --code-static-alloc
 
 in
-libs.mkRoot rec {
+userC.mkRoot rec {
   passthru = {
     inherit spec elfs-cpio;
   };
@@ -33,7 +33,7 @@ libs.mkRoot rec {
     archive-cpio = elfs-cpio;
     symbolName = "_capdl_archive";
   };
-  propagatedBuildInputs = with libs.root; [
+  propagatedBuildInputs = with userC.rootLibs; [
     libsel4
     icecap-runtime
     icecap-pure

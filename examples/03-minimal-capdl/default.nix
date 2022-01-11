@@ -20,10 +20,10 @@ in rec {
     };
   };
 
-  example-component = configured.libs.mk {
+  example-component = configured.userC.mk {
     name = "example-component";
     root = icecapSrc.absoluteSplit ./example-component;
-    propagatedBuildInputs = with configured.libs; [
+    propagatedBuildInputs = with configured.userC.nonRootLibs; [
       icecap-runtime
       icecap-utils
     ];

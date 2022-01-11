@@ -150,9 +150,9 @@ let
     };
   });
 
-  root = mkLibs true;
-  nonRoot = mkLibs false;
+  rootLibs = mkLibs true;
+  nonRootLibs = mkLibs false;
 
 in {
-  inherit mk mkRoot root nonRoot;
-} // nonRoot
+  inherit mk mkRoot rootLibs nonRootLibs;
+}
