@@ -57,14 +57,23 @@ rec {
       <body>
         <div class="markdown-body">
           <h1>IceCap rustdoc</h1>
-          <ul>
-            ${lib.concatMapStrings (world: ''
-              <li>
-                <a href="./worlds/${world.worldPath}/host/index.html">${world.worldPath}</a>
-                (<a href="./worlds/${world.worldPath}/build/quote/index.html">build-dependencies</a>)
-              </li>
-            '') rustdocList}
-          </ul>
+          <p>
+            Start here:
+            <a href="https://arm-research.gitlab.io/security/icecap/html/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html">
+              icecap-core
+            </a>
+          </p>
+          <p>
+            All targets:
+            <ul>
+              ${lib.concatMapStrings (world: ''
+                <li>
+                  <a href="./worlds/${world.worldPath}/host/index.html">${world.worldPath}</a>
+                  (<a href="./worlds/${world.worldPath}/build/quote/index.html">build-dependencies</a>)
+                </li>
+              '') rustdocList}
+            </ul>
+          </p>
         </div>
       </body>
     </html>
