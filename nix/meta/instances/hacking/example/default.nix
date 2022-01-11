@@ -47,27 +47,28 @@ in {
     "earlycon=icecap_vmm"
     "console=hvc0"
     "loglevel=8"
-    "icecap_net.napi_weight=64" # global default
-    # "icecap_net.napi_weight=128" # icecap default
-    # "icecap_net.napi_weight=256"
   ];
 
   hostUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      # commonModules
+      commonModules
       includeHelpers
       ./host.nix
       {
-        instance.plat = icecapPlat;
+        instance.host.enable = true;
+        instance.host.plat = icecapPlat;
       }
     ];
   };
 
   realmUser = linuxPkgs.icecap.nixosLite.eval {
     modules = [
-      # commonModules
+      commonModules
       includeHelpers
       ./realm.nix
+      {
+        instance.realm.enable = true;
+      }
     ];
   };
 

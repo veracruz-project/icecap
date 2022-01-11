@@ -30,6 +30,6 @@ in {
     firecracker = callInstance ./benchmarks/firecracker {};
   };
   hacking = {
-    hypervisor = callInstance ./hacking/hypervisor {};
+    example = callInstance ./hacking/example {};
   };
 }
