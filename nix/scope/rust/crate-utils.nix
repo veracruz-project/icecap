@@ -71,17 +71,22 @@ rec {
             rest
           ]);
 
-      in {
+      in lib.fix (self: {
         inherit (elaboratedNix) name;
         store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
         env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
         dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
         localDependencies = flatten elaboratedNix.local;
+
+        closure = {
+          "${self.name}" = self;
+        } // lib.foldl' (acc: crate: acc // crate.closure) {} self.localDependencies;
+
         # HACK
         hack = {
           inherit elaboratedNix rest;
         };
-      };
+      });
 
   dummySrcLib = linkFarm "dummy-src" [
     (rec {
@@ -122,30 +127,8 @@ rec {
     { name = "Cargo.toml"; path = manifest; }
   ] ++ extra);
 
-  closure = root: closure' [ root ];
-
-  closure' =
-    let
-      nameOf = crate: crate.name;
-      dependenciesOf = crate: crate.localDependencies;
-
-      toAttrs = crates: listToAttrs (map (crate: nameValuePair (nameOf crate) crate) crates);
-
-      go = seen: queue:
-        if queue == {}
-        then seen
-        else
-          let
-            queueNames = attrNames queue;
-            current = queue.${head queueNames};
-            currentDependencies = dependenciesOf queue.${head queueNames};
-            queue' = toAttrs (attrVals (tail queueNames) queue);
-            seenExtension = toAttrs ([ current ] ++ currentDependencies);
-            queueExtension = toAttrs currentDependencies;
-          in
-            go (seen // seenExtension) (queue' // queueExtension);
-
-    in roots: go {} (toAttrs roots);
+  closure = root: root.closure;
+  closureMany = lib.foldl' (acc: crate: acc // closure crate) {};
 
   collectStore = crates: linkFarm "crates" (map (crate: {
     name = crate.name;
