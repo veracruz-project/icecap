@@ -10,12 +10,6 @@
       cp ${pkgs.linux.icecap.uBoot.host.${plat}}/* $out
     '');
 
-  realm-kernel = pkgs.dev.runCommand "realm-kernel" {} ''
-    mkdir $out
-    cp ${pkgs.linux.icecap.linuxKernel.realm}/* $out
-    cp ${pkgs.linux.icecap.linuxKernel.realm.dev}/vmlinux $out
-  '';
-
   host-tools = pkgs.musl.buildEnv {
     name = "host-tools";
     paths = with pkgs.musl.icecap; [
@@ -23,6 +17,21 @@
       crosvm-9p-server
     ];
   };
+
+  realm-kernel = pkgs.dev.runCommand "realm-kernel" {} ''
+    mkdir $out
+    cp ${pkgs.linux.icecap.linuxKernel.realm}/* $out
+    cp ${pkgs.linux.icecap.linuxKernel.realm.dev}/vmlinux $out
+  '';
+
+  realm-libraries = lib.flip lib.mapAttrs pkgs.none.icecap.configured
+    (plat: configured: pkgs.dev.linkFarm "realm-libraries-${plat}" ([
+      { name = "libsel4"; path = configured.libsel4; }
+    ] ++ (with configured.userC.nonRootLibs; [
+      { name = "libicecap-runtime"; path = icecap-runtime; }
+      { name = "libicecap-utils"; path = icecap-utils; }
+      { name = "libicecap-pure"; path = icecap-pure; }
+    ])));
 
   build-tools = pkgs.dev.buildEnv {
     name = "build-tools";

@@ -3,7 +3,7 @@ PLAT ?= virt
 out := out
 
 .PHONY: all
-all: firmware host-tools build-tools host-kernel realm-kernel html-docs
+all: firmware host-kernel host-tools realm-kernel realm-libraries build-tools html-docs
 
 $(out):
 	mkdir -p $@
@@ -20,13 +20,17 @@ firmware: | $(out)
 host-kernel: | $(out)
 	nix-build -A meta.display.$@.$(PLAT) -o $(out)/$@-$(PLAT)
 
+.PHONY: host-tools
+host-tools: | $(out)
+	nix-build -A meta.display.$@ -o $(out)/$@
+
 .PHONY: realm-kernel
 realm-kernel: | $(out)
 	nix-build -A meta.display.$@ -o $(out)/$@
 
-.PHONY: host-tools
-host-tools: | $(out)
-	nix-build -A meta.display.$@ -o $(out)/$@
+.PHONY: realm-libraries
+realm-libraries: | $(out)
+	nix-build -A meta.display.$@.$(PLAT) -o $(out)/$@-$(PLAT)
 
 .PHONY: build-tools
 build-tools: | $(out)

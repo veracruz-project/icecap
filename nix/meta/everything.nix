@@ -13,8 +13,9 @@ let
 
     (lib.flatten (with meta.display; [
       (lib.attrValues host-kernel)
-      realm-kernel
       host-tools
+      realm-kernel
+      (lib.attrValues realm-libraries)
       build-tools
     ]))
 
