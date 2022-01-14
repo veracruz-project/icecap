@@ -99,14 +99,15 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         icecap_runtime_idle_notification = config->idle_notification;
         __icecap_runtime_tls_image = config->tls_image;
         icecap_main((void *)((char *)config + config->arg.offset), config->arg.size);
+        icecap_runtime_stop_component();
     } else {
         seL4_Recv(config->threads[thread_index].endpoint, 0);
         seL4_Word entry_vaddr = seL4_GetMR(0);
         seL4_Word entry_arg0 = seL4_GetMR(1);
         seL4_Word entry_arg1 = seL4_GetMR(2);
         ((icecap_runtime_secondary_thread_entry_fn)entry_vaddr)(entry_arg0, entry_arg1);
+        icecap_runtime_stop_thread();
     }
-    icecap_runtime_stop_component();
 }
 
 seL4_Word icecap_runtime_tls_region_init(void *region)
