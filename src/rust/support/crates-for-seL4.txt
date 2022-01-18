@@ -1,5 +1,6 @@
 benchmark-server
 dyndl-realize
+dyndl-realize-simple
 event-server
 fault-handler
 host-vmm

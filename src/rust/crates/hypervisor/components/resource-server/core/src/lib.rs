@@ -6,7 +6,6 @@ extern crate alloc;
 use alloc::collections::btree_map::BTreeMap;
 use alloc::prelude::v1::*;
 
-use dyndl_realize::Allocator;
 use dyndl_realize::*;
 use icecap_core::prelude::*;
 use icecap_core::rpc_sel4::*;
@@ -53,26 +52,12 @@ struct VirtualNode {
 // }
 
 impl ResourceServer {
-    pub fn new(
-        initialization_resources: SubsystemObjectInitializationResources,
-        allocator: Allocator,
-        externs: Externs,
-
-        cnode: CNode,
-        node_local: Vec<NodeLocal>,
-    ) -> Self {
+    pub fn new(realizer: Realizer, cnode: CNode, node_local: Vec<NodeLocal>) -> Self {
         ResourceServer {
-            realizer: Realizer {
-                initialization_resources,
-                allocator,
-                externs,
-            },
-
+            realizer,
             realms: BTreeMap::new(),
             partial_specs: BTreeMap::new(),
-
             physical_nodes: [None; NUM_ACTIVE_CORES],
-
             cnode,
             node_local,
         }

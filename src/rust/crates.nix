@@ -52,6 +52,8 @@
 
 
   dyndl-realize = ./crates/dyndl/realize;
+  dyndl-realize-simple = ./crates/dyndl/realize/simple;
+  dyndl-realize-simple-config = ./crates/dyndl/realize/simple/config;
   dyndl-types = ./crates/dyndl/types;
   dyndl-types-derive = ./crates/dyndl/types/derive;
   dyndl-serialize-spec = ./crates/dyndl/cli/dyndl-serialize-spec;

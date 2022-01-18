@@ -3,6 +3,7 @@ crosvm-9p
 crosvm-9p-server
 crosvm-9p-server-cli
 crosvm-9p-wire-format-derive
+dyndl-realize-simple-config
 dyndl-serialize-spec
 dyndl-types
 dyndl-types-derive

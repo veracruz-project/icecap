@@ -295,7 +295,24 @@ dependencies = [
  "dyndl-types",
  "icecap-core",
  "log",
- "postcard",
+]
+
+[[package]]
+name = "dyndl-realize-simple"
+version = "0.1.0"
+dependencies = [
+ "dyndl-realize",
+ "dyndl-realize-simple-config",
+ "dyndl-types",
+ "icecap-core",
+]
+
+[[package]]
+name = "dyndl-realize-simple-config"
+version = "0.1.0"
+dependencies = [
+ "dyndl-types",
+ "icecap-config",
  "serde",
 ]
 
@@ -772,6 +789,7 @@ dependencies = [
 name = "icecap-resource-server-config"
 version = "0.1.0"
 dependencies = [
+ "dyndl-realize-simple-config",
  "dyndl-types",
  "icecap-config",
  "serde",
@@ -1388,6 +1406,8 @@ name = "resource-server"
 version = "0.1.0"
 dependencies = [
  "dyndl-realize",
+ "dyndl-realize-simple",
+ "dyndl-realize-simple-config",
  "dyndl-types",
  "icecap-event-server-types",
  "icecap-resource-server-config",

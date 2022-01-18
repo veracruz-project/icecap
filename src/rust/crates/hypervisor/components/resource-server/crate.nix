@@ -11,6 +11,8 @@ mkComponent {
     icecap-timer-server-client
     dyndl-types
     dyndl-realize
+    dyndl-realize-simple
+    dyndl-realize-simple-config
   ];
   dependencies = {
     postcard = postcardCommon;

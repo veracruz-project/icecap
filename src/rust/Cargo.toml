@@ -17,6 +17,8 @@ members = [
     "crates/drivers/icecap-driver-interfaces",
     "crates/dyndl/cli/dyndl-serialize-spec",
     "crates/dyndl/realize",
+    "crates/dyndl/realize/simple",
+    "crates/dyndl/realize/simple/config",
     "crates/dyndl/types",
     "crates/dyndl/types/derive",
     "crates/framework/icecap-backtrace",

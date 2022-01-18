@@ -8,7 +8,5 @@ edition = "2018"
 
 [dependencies]
 log = "*"
-postcard = { version = "*", default-features = false, features = [ "alloc",] }
-serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 dyndl-types = { path = "../types" }
 icecap-core = { path = "../../framework/icecap-core" }

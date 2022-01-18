@@ -5,7 +5,7 @@
 
 extern crate alloc;
 
-use dyndl_realize::*;
+use dyndl_realize_simple::initialize_simple_realizer_from_config;
 use icecap_resource_server_config::*;
 use icecap_resource_server_core::*;
 use icecap_resource_server_types::*;
@@ -14,9 +14,6 @@ use icecap_timer_server_client::*;
 
 use icecap_event_server_types;
 use icecap_event_server_types::calls::ResourceServer as EventServerRequest;
-
-mod realize_config;
-use realize_config::*;
 
 use alloc::sync::Arc;
 use core::intrinsics::volatile_copy_nonoverlapping_memory;
@@ -29,39 +26,10 @@ const BADGE_TIMEOUT: Badge = 0x100;
 declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
-    // Unmap dummy pages in the ResourceServer CNode.
-    config.small_page.unmap()?;
-    config.large_page.unmap()?;
-
-    let cregion = realize_cregion(&config.allocator_cregion);
-    let allocator = {
-        let mut builder = AllocatorBuilder::new(cregion);
-        for DynamicUntyped {
-            slot,
-            size_bits,
-            paddr,
-            ..
-        } in &config.untyped
-        {
-            builder.add_untyped(ElaboratedUntyped {
-                cptr: *slot,
-                untyped_id: UntypedId {
-                    size_bits: *size_bits,
-                    paddr: paddr.unwrap(), // HACK
-                },
-            });
-        }
-        builder.build()
-    };
-
-    let initialization_resources =
-        realize_initialization_resources(&config.initialization_resources);
-    let externs = realize_externs(&config.externs);
+    let realizer = initialize_simple_realizer_from_config(&config.realizer)?;
 
     let server = ResourceServer::new(
-        initialization_resources,
-        allocator,
-        externs,
+        realizer,
         config.cnode,
         config
             .local
