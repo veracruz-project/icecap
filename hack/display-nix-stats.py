@@ -23,8 +23,9 @@ def main():
     elif 'functions'.startswith(args.view):
         def f(entry):
             name = '' if entry['name'] is None else entry['name']
+            file_ = entry['file'] if entry['file'].startswith('/') else '(inline)'
             return '{:8} {:25} {}:{},{}'.format(
-                entry['count'], name, entry['file'], entry['line'], entry['column'])
+                entry['count'], name, file_, entry['line'], entry['column'])
         for entry in sorted(obj['functions'], key=lambda entry: entry['count']):
             print(f(entry))
 
