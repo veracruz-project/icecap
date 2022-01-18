@@ -3,7 +3,7 @@ let
 
 in topLevel.lib.fix (self: topLevel // (with self; {
 
-  hh = meta.instances.hacking.hypervisor;
+  hh = meta.instances.hacking.example;
   hv = hh.virt;
   hr = hh.rpi4;
   v = hv.run;
