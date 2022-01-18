@@ -51,7 +51,7 @@ written in C:
 
 The example systems in the guide are configured for `qemu-system-aarch64
 -machine virt`.  Each example system is accompanied by a build target which
-builds the system and creates a shell script to run it emulate it.
+builds the system and creates a shell script to emulate it.
 
 To build the first system, run the following from the root of this repository:
 
