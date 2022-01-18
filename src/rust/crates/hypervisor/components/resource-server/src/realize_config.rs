@@ -1,11 +1,11 @@
+use dyndl_realize::*;
 use icecap_resource_server_config::*;
-use icecap_resource_server_core::*;
 use icecap_std::prelude::*;
 
 pub fn realize_initialization_resources(
-    x: &ConfigRealmObjectInitializationResources,
-) -> RealmObjectInitializationResources {
-    RealmObjectInitializationResources {
+    x: &ConfigSubsystemObjectInitializationResources,
+) -> SubsystemObjectInitializationResources {
+    SubsystemObjectInitializationResources {
         pgd: x.pgd,
         asid_pool: x.asid_pool,
         tcb_authority: x.tcb_authority,

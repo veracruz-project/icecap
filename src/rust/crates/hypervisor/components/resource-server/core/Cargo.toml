@@ -10,6 +10,7 @@ edition = "2018"
 log = "*"
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+dyndl-realize = { path = "../../../../dyndl/realize" }
 dyndl-types = { path = "../../../../dyndl/types" }
 icecap-core = { path = "../../../../framework/icecap-core" }
 icecap-event-server-types = { path = "../../event-server/types" }

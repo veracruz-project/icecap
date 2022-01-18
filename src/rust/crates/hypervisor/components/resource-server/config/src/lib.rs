@@ -15,7 +15,7 @@ use icecap_config::*;
 pub struct Config {
     pub lock: Notification,
 
-    pub initialization_resources: ConfigRealmObjectInitializationResources,
+    pub initialization_resources: ConfigSubsystemObjectInitializationResources,
     pub small_page: SmallPage,
     pub large_page: LargePage,
 
@@ -41,7 +41,7 @@ pub struct Local {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ConfigRealmObjectInitializationResources {
+pub struct ConfigSubsystemObjectInitializationResources {
     pub pgd: PGD,
     pub asid_pool: ASIDPool,
     pub tcb_authority: TCB,

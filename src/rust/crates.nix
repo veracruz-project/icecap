@@ -51,6 +51,7 @@
   icecap-std-impl = ./crates/std-support/icecap-std-impl;
 
 
+  dyndl-realize = ./crates/dyndl/realize;
   dyndl-types = ./crates/dyndl/types;
   dyndl-types-derive = ./crates/dyndl/types/derive;
   dyndl-serialize-spec = ./crates/dyndl/cli/dyndl-serialize-spec;

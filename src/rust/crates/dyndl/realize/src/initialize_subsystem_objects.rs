@@ -4,9 +4,9 @@ use core::slice;
 use dyndl_types::*;
 use icecap_core::prelude::*;
 
-use crate::{cpu::schedule, utils::rights_of, CRegion};
+use crate::{utils::rights_of, CRegion, VirtualCore, VirtualCoreTCB, VirtualCores};
 
-pub struct RealmObjectInitializationResources {
+pub struct SubsystemObjectInitializationResources {
     pub pgd: PGD,
     pub asid_pool: ASIDPool,
     pub tcb_authority: TCB,
@@ -14,7 +14,7 @@ pub struct RealmObjectInitializationResources {
     pub large_page_addr: usize,
 }
 
-impl RealmObjectInitializationResources {
+impl SubsystemObjectInitializationResources {
     pub fn fill_frame<T: Frame>(&self, frame: T, fill: &Fill) -> Fallible<()> {
         let vaddr = match T::frame_size() {
             FrameSize::Small => self.small_page_addr,
@@ -42,7 +42,7 @@ impl RealmObjectInitializationResources {
         model: &Model,
         caps: &[Unspecified],
         cregion: &mut CRegion,
-    ) -> Fallible<Vec<Vec<TCB>>> {
+    ) -> Fallible<VirtualCores> {
         Initialize {
             initialization_resources: self,
             num_nodes,
@@ -55,7 +55,7 @@ impl RealmObjectInitializationResources {
 }
 
 struct Initialize<'a> {
-    initialization_resources: &'a RealmObjectInitializationResources,
+    initialization_resources: &'a SubsystemObjectInitializationResources,
     num_nodes: usize,
     model: &'a Model,
     caps: &'a [Unspecified],
@@ -63,22 +63,25 @@ struct Initialize<'a> {
 }
 
 impl<'a> Initialize<'a> {
-    fn initialize(&mut self) -> Fallible<Vec<Vec<TCB>>> {
+    fn initialize(&mut self) -> Fallible<VirtualCores> {
         self.init_vspaces()?;
         self.init_cspaces()?;
-        let mut tcbs = vec![vec![]; self.num_nodes];
+        let mut virtual_cores = (0..self.num_nodes)
+            .map(|_| VirtualCore { tcbs: vec![] })
+            .collect::<VirtualCores>();
         for (i, obj) in Self::it_i::<&obj::TCB>(self.model) {
             let tcb = self.cap(i);
             let name = &self.model.objects[i].name;
             self.init_tcb(tcb, obj)?;
             tcb.debug_name(name);
-            tcbs[obj.affinity as usize].push(tcb);
-            // TODO: Implement obj.resume
-            if obj.resume || true {
-                tcb.resume()?;
-            }
+            virtual_cores[obj.affinity as usize]
+                .tcbs
+                .push(VirtualCoreTCB {
+                    cap: tcb,
+                    resume: obj.resume,
+                });
         }
-        Ok(tcbs)
+        Ok(virtual_cores)
     }
 
     fn init_vspaces(&mut self) -> Fallible<()> {
@@ -228,7 +231,7 @@ impl<'a> Initialize<'a> {
             obj.max_prio as u64,
             obj.prio as u64,
         )?;
-        schedule(tcb, None)?;
+        // schedule(tcb, None)?;
 
         let mut regs = UserContext::default();
         *regs.pc_mut() = obj.ip;

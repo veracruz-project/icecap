@@ -289,6 +289,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "dyndl-realize"
+version = "0.1.0"
+dependencies = [
+ "dyndl-types",
+ "icecap-core",
+ "log",
+ "postcard",
+ "serde",
+]
+
+[[package]]
 name = "dyndl-serialize-spec"
 version = "0.1.0"
 dependencies = [
@@ -770,6 +781,7 @@ dependencies = [
 name = "icecap-resource-server-core"
 version = "0.1.0"
 dependencies = [
+ "dyndl-realize",
  "dyndl-types",
  "icecap-core",
  "icecap-event-server-types",
@@ -1375,6 +1387,7 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 name = "resource-server"
 version = "0.1.0"
 dependencies = [
+ "dyndl-realize",
  "dyndl-types",
  "icecap-event-server-types",
  "icecap-resource-server-config",

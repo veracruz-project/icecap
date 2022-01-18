@@ -38,7 +38,7 @@ in {
         }
 
         destroy_realm() {
-          icecap-host destroy 0
+          pkill icecap-host && icecap-host destroy 0
         }
 
         start_iperf_server() {
