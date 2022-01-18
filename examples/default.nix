@@ -9,8 +9,8 @@ let
     minimal-capdl = ./03-minimal-capdl;
     minimal-capdl-with-rust = ./04-minimal-capdl-with-rust;
     basic-system = ./05-basic-system;
-    dyndl = ./wip-dyndl;
-    hypervisor = ./06-hypervisor;
+    dynamism = ./06-dynamism;
+    hypervisor = ./07-hypervisor;
   };
 
 in lib.flip lib.mapAttrs examples (_: path:
