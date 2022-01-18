@@ -100,9 +100,7 @@ impl ResourceServer {
                         .map(|virtual_core_tcb| {
                             let tcb = virtual_core_tcb.cap;
                             cpu::schedule(tcb, None)?;
-                            if virtual_core_tcb.resume || true
-                            /* HACK */
-                            {
+                            if virtual_core_tcb.resume {
                                 tcb.resume()?;
                             }
                             Ok(tcb)

@@ -282,6 +282,7 @@ class ElfThread:
         tcb.prio = prio
         tcb.max_prio = max_prio
         tcb.affinity = affinity
+        tcb.resume = True
         tcb['cspace'] = self.component.cnode_cap
         tcb['vspace'] = Cap(self.component.pd())
         tcb['ipc_buffer_slot'] = ipc_buffer_cap

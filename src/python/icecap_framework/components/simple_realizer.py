@@ -40,15 +40,6 @@ class SimpleRealizer(ElfComponent):
         large_frame = self.cspace().alloc(large_frame_obj)
         self.addr_space().add_hack_page(large_frame_addr, BLOCK_SIZE, Cap(large_frame_obj, read=True, write=True))
 
-        self.endpoints = [
-            self.alloc(ObjectType.seL4_EndpointObject, 'ep_{}'.format(i))
-            for i in range(self.composition.num_nodes())
-            ]
-        self.bound_notifications = [
-            self.alloc(ObjectType.seL4_NotificationObject, 'nfn_{}'.format(i))
-            for i in range(self.composition.num_nodes())
-            ]
-
         self.realizer_config = {
             'initialization_resources': {
                 'pgd': self.cspace().alloc(self.pd(), write=True),
