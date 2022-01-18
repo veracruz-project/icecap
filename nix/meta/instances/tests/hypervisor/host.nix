@@ -25,11 +25,28 @@ in {
 
       initramfs.profile = ''
         auto() {
+          for i in $(seq 3); do
+            start_realm &
+            echo short > /dev/icecap_channel_realm_0
+            response=$(head -n 1 < /dev/icecap_channel_realm_0)
+            [ "$response" = "ok short" ]
+            run_iperf_server > /dev/null
+            stop_and_destroy_realm
+          done
+
           start_realm &
+
+          echo long > /dev/icecap_channel_realm_0
+          response=$(head -n 1 < /dev/icecap_channel_realm_0)
+          [ "$response" = "ok long" ]
 
           head -n 3 < /dev/icecap_channel_realm_0
 
-          start_iperf_server > /dev/null
+          for i in $(seq 3); do
+            run_iperf_server > /dev/null
+          done
+
+          echo PASS
         }
 
         start_realm() {
@@ -38,15 +55,20 @@ in {
         }
 
         destroy_realm() {
-          pkill icecap-host && icecap-host destroy 0
+          icecap-host destroy 0
         }
 
-        start_iperf_server() {
-          chrt -b 0 iperf3 -s
+        stop_and_destroy_realm() {
+          pkill icecap-host && destroy_realm
         }
 
-        stop_iperf_server() {
-          pkill iperf3
+        run_iperf_server() {
+          run_iperf_server_once
+          run_iperf_server_once
+        }
+
+        run_iperf_server_once() {
+          chrt -b 0 iperf3 -s -1
         }
       '';
     }

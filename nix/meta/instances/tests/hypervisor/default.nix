@@ -33,7 +33,7 @@ in {
   commonBootargs = [
     "earlycon=icecap_vmm"
     "console=hvc0"
-    "loglevel=7"
+    "loglevel=6"
   ];
 
   hostUser = linuxPkgs.icecap.nixosLite.eval {

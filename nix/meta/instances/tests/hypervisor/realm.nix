@@ -29,37 +29,36 @@ in {
 
       initramfs.profile = ''
         auto() {
-          for _ in $(seq 3); do
-            echo test_channel > /dev/icecap_channel_host
-          done
+          request=$(head -n 1 < /dev/icecap_channel_host)
+          if [ "$request" = "short" ]; then
+            echo "ok short" > /dev/icecap_channel_host
+            run_iperf_client
+            while true; do
+              sleep 10
+            done
+          fi
+
+          [ "$request" = "long" ]
+          echo "ok long" > /dev/icecap_channel_host
 
           ${lib.optionalString cfg.hasNat ''
             test_nat
           ''}
 
-          start_iperf_client
+          yes test_channel | head -n 3 > /dev/icecap_channel_host
+
+          for _ in $(seq 3); do
+            run_iperf_client
+          done
         }
 
         test_nat() {
           curl -S http://example.com
         }
 
-        start_iperf_client() {
-          while true; do
-            [ -f /stop ] || \
-              chrt -b 0 iperf3 -c ${cfg.misc.net.hostAddr} && cat /proc/interrupts && sleep 10 && \
-              chrt -b 0 iperf3 -R -c ${cfg.misc.net.hostAddr} && cat /proc/interrupts && sleep 10 || \
-              break;
-          done
-
-          # NOTE
-          # -c --bidir
-          # -c -R
-        }
-
-        stop_iperf_client() {
-          touch /stop
-          pkill iperf3
+        run_iperf_client() {
+          chrt -b 0 iperf3 -c ${cfg.misc.net.hostAddr}
+          chrt -b 0 iperf3 -R -c ${cfg.misc.net.hostAddr}
         }
       '';
     }
