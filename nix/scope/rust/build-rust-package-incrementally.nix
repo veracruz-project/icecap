@@ -64,8 +64,6 @@ let
     in
       reverseList (map attrValues (accumulate (map expandLayer layers)));
 
-  listMinus = x: y: filter (z: !(elem z y)) x;
-
   lastLayer = f allAccumulatedLayers;
 
   lock = generateLockfileInternal {
@@ -102,7 +100,7 @@ let
     let
       layer = head accumulatedLayers;
       prev = f (tail accumulatedLayers);
-      dummies = listMinus allCrates layer;
+      dummies = subtractLists layer allCrates;
       src = crateUtils.collectDummies layer dummies;
 
       manifestDir = linkFarm "x" [
