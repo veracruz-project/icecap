@@ -6,7 +6,7 @@ extern crate alloc;
 use alloc::sync::Arc;
 
 use icecap_std::prelude::*;
-use icecap_std::sync::{Mutex, ExplicitMutexNotification};
+use icecap_std::sync::{ExplicitMutexNotification, Mutex};
 
 declare_main!(main);
 
@@ -15,7 +15,10 @@ const INITIAL_VALUE: i32 = 0;
 fn main(config: example_component_config::Config) -> Fallible<()> {
     debug_println!("{:#?}", config);
 
-    let lock = Arc::new(Mutex::new(ExplicitMutexNotification::new(config.lock_nfn), INITIAL_VALUE));
+    let lock = Arc::new(Mutex::new(
+        ExplicitMutexNotification::new(config.lock_nfn),
+        INITIAL_VALUE,
+    ));
     let barrier_nfn = config.barrier_nfn;
 
     config.secondary_thread.start({

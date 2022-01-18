@@ -1,9 +1,9 @@
 #![no_std]
 #![no_main]
 
+use icecap_fdt::DeviceTree;
 use icecap_std::prelude::*;
 use icecap_std::sel4::{BootInfo, BootInfoExtraStructureId};
-use icecap_fdt::DeviceTree;
 
 declare_root_main!(main);
 

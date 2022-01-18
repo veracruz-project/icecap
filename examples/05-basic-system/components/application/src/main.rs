@@ -5,14 +5,14 @@ extern crate alloc;
 
 use core::fmt::Write;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use icecap_std::prelude::*;
-use icecap_std::config::*;
-use icecap_std::rpc_sel4::RPCClient;
 use icecap_start_generic::declare_generic_main;
+use icecap_std::config::*;
+use icecap_std::prelude::*;
+use icecap_std::rpc_sel4::RPCClient;
 
-use timer_server_types::{Request, Nanoseconds, NS_IN_S};
+use timer_server_types::{Nanoseconds, Request, NS_IN_S};
 
 mod fmt;
 
@@ -38,9 +38,10 @@ struct State {
 }
 
 fn main(config: Config) -> Fallible<()> {
-
     let mut state = State {
-        serial_client: BufferedRingBuffer::new(RingBuffer::realize_unmanaged(&config.serial_server_ring_buffer)),
+        serial_client: BufferedRingBuffer::new(RingBuffer::realize_unmanaged(
+            &config.serial_server_ring_buffer,
+        )),
         timer_client: RPCClient::<Request>::new(config.timer_server_ep),
     };
 
@@ -58,7 +59,6 @@ fn main(config: Config) -> Fallible<()> {
 }
 
 impl State {
-
     const TICK: Nanoseconds = NS_IN_S;
 
     fn init(&mut self) {
@@ -74,7 +74,8 @@ impl State {
     fn tick(&mut self) {
         let time = self.timer_client.call::<Nanoseconds>(&Request::GetTime);
         out!(&mut self.serial_client, "time: {} ns\n", time);
-        self.timer_client.call::<()>(&Request::SetTimeout(Self::TICK));
+        self.timer_client
+            .call::<()>(&Request::SetTimeout(Self::TICK));
     }
 
     fn handle_timeout_event(&mut self) {

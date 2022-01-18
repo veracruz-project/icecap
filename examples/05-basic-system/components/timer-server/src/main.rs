@@ -5,14 +5,11 @@ extern crate alloc;
 
 use core::convert::TryFrom;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use icecap_std::{
-    prelude::*,
-    rpc_sel4::rpc_server,
-};
-use icecap_start_generic::declare_generic_main;
 use icecap_driver_interfaces::TimerDevice;
+use icecap_start_generic::declare_generic_main;
+use icecap_std::{prelude::*, rpc_sel4::rpc_server};
 use icecap_virt_timer_driver::VirtTimerDevice;
 
 use timer_server_types::{Request, NS_IN_S};
@@ -35,7 +32,6 @@ struct Badges {
 }
 
 fn main(config: Config) -> Fallible<()> {
-
     let dev = VirtTimerDevice::new(config.dev_vaddr);
     dev.set_enable(false);
     dev.clear_interrupt();

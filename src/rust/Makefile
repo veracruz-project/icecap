@@ -5,13 +5,18 @@ all: build doc
 clean:
 	rm -rf target
 
+define cargo_fmt
+	cargo fmt --all -- $(1)
+	cargo fmt -- $(1) $$(find ../../examples -type f -name '*.rs')
+endef
+
 .PHONY: fmt
 fmt:
-	cargo fmt --all
+	$(call cargo_fmt,)
 
 .PHONY: fmt-check
 fmt-check:
-	cargo fmt --all -- --check -l
+	$(call cargo_fmt,--check -l)
 
 .PHONY: build
 build: build-seL4 build-linux

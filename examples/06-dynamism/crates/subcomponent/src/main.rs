@@ -3,10 +3,10 @@
 
 extern crate alloc;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use icecap_std::prelude::*;
 use icecap_start_generic::declare_generic_main;
+use icecap_std::prelude::*;
 
 declare_generic_main!(main);
 

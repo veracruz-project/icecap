@@ -6,12 +6,12 @@ extern crate alloc;
 use core::convert::TryInto;
 use core::ops::Range;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use dyndl_realize_simple::*;
 use dyndl_realize_simple_config::*;
-use icecap_std::prelude::*;
 use icecap_start_generic::declare_generic_main;
+use icecap_std::prelude::*;
 
 declare_generic_main!(main);
 
@@ -29,7 +29,7 @@ fn main(config: Config) -> Fallible<()> {
         core::slice::from_raw_parts(
             config.subsystem_spec.start as *const u8,
             config.subsystem_spec.len(),
-            )
+        )
     };
 
     let subsystem_spec = postcard::from_bytes(&subsystem_spec_raw).unwrap();

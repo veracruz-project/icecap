@@ -2,7 +2,7 @@
 
 extern crate alloc;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub const NS_IN_S: Nanoseconds = 1_000_000_000;
 
