@@ -302,6 +302,23 @@ find result/
 cat result/icecap.cdl
 ```
 
+### Adding dynamism
+
+So far, we have used CapDL to describe complete, static systems. The IceCap Framework also includes tools and libraries for creating components which dynamically realize CapDL specifications describing subsystems. In [./06-dynamism](./06-dynamism), a component called `supercomponent` is endowed with extra untyped memory resources, and a serialized CapDL specificaiton called `subsystem` is mapped into its address space. It uses the `dyndl-*` crates to repeatedly realize and destroy `subsystem`.
+
+```
+nix-build examples/ -A dynamism.run && ./result/run
+```
+
+Take a look at `subsystem`'s CapDL specification:
+
+```
+nix-build examples/ -A dynamism.subsystem
+cat result/icecap.cdl
+```
+
+You'll notice an object named `extern_nfn`. Objects whose names contain the prefix `extern_` are treated specially by the `dyndl-realize` crate. Such objects refer to shared objects provided by the realizer. In the case of this example, `supersystem` and `subsystem` share a notification object, which they use for communication.
+
 ### Case study: The IceCap Hypervisor
 
 The original purpose of the IceCap Framework is the IceCap Hypervisor, a
