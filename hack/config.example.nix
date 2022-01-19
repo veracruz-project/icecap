@@ -28,9 +28,6 @@ let
 
 in {
 
-  nix.extraOptions = ''
-    sandbox-fallback = false
-  '';
   nix.binaryCaches = [
     http://52.214.93.220:5000
   ];

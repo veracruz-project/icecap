@@ -15,7 +15,7 @@ ARG GID
 ARG STATEFUL
 
 RUN groupadd -f -g $GID x && useradd -u $UID -g $GID -G sudo -m -p x x
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers # for convenience
 
 RUN mkdir -m 0755 /nix && chown x:x /nix
 
