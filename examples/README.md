@@ -311,9 +311,9 @@ So far, we have used CapDL to describe complete, static systems. The IceCap
 Framework also includes tools and libraries for creating components which
 dynamically realize CapDL-like specifications describing subsystems. In
 [./06-dynamism](./06-dynamism), a component called `supercomponent` is endowed
-with extra untyped memory resources, and a serialized CapDL specificaiton called
-`subsystem` is mapped into its address space. It uses the `dyndl-*` crates to
-repeatedly realize and destroy `subsystem`.
+with extra untyped memory resources, and provided with a serialized CapDL
+specificaiton called `subsystem`. It uses the `dyndl-*` crates to repeatedly
+realize and destroy `subsystem`.
 
 ```
 nix-build examples/ -A dynamism.run && ./result/run
