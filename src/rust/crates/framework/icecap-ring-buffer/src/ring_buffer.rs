@@ -12,7 +12,7 @@ use tock_registers::{
     registers::ReadWrite,
 };
 
-pub type Kick = Box<dyn Fn()>;
+pub type Kick = Box<dyn Fn() + Send>;
 
 pub trait RingBufferPointer {
     fn from_address(address: usize) -> Self;
