@@ -1,7 +1,7 @@
 use core::convert::TryFrom;
 use core::slice;
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 use dyndl_types::*;
 use icecap_core::prelude::*;
@@ -18,7 +18,13 @@ pub struct SubsystemObjectInitializationResources {
 
 impl SubsystemObjectInitializationResources {
     // TODO take digest and check after copying to frame
-    pub fn fill_frame<T: Frame>(&self, frame: T, offset: usize, expected_content_digest: &[u8], untrusted_content: &[u8]) -> Fallible<()> {
+    pub fn fill_frame<T: Frame>(
+        &self,
+        frame: T,
+        offset: usize,
+        expected_content_digest: &[u8],
+        untrusted_content: &[u8],
+    ) -> Fallible<()> {
         let vaddr = match T::frame_size() {
             FrameSize::Small => self.small_page_addr,
             FrameSize::Large => self.large_page_addr,

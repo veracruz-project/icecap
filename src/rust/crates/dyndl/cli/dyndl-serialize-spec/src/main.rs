@@ -5,7 +5,7 @@ use std::{
     path::Path,
 };
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 use dyndl_types::*;
 
