@@ -269,9 +269,12 @@ objects which are used for synchronization between the two threads.
 
 The next example is a CapDL-based system with multiple components:
 
-- [./05-basic-system/components/serial-server](./05-basic-system/components/serial-server): Drives the serial device and provides an interface to `application`
-- [./05-basic-system/components/timer-server](./05-basic-system/components/timer-server): Drives the timer device and provides an interface to `application`
-- [./05-basic-system/components/application](./05-basic-system/components/application): Prints the time every second, and echos keyboard input
+- [./05-basic-system/components/serial-server](./05-basic-system/components/serial-server):
+  Drives the serial device and provides an interface to `application`
+- [./05-basic-system/components/timer-server](./05-basic-system/components/timer-server):
+  Drives the timer device and provides an interface to `application`
+- [./05-basic-system/components/application](./05-basic-system/components/application):
+  Prints the time every second, and echos keyboard input
 
 ```
 nix-build examples/ -A basic-system.run && ./result/run
@@ -304,7 +307,13 @@ cat result/icecap.cdl
 
 ### Adding dynamism
 
-So far, we have used CapDL to describe complete, static systems. The IceCap Framework also includes tools and libraries for creating components which dynamically realize CapDL-like specifications describing subsystems. In [./06-dynamism](./06-dynamism), a component called `supercomponent` is endowed with extra untyped memory resources, and a serialized CapDL specificaiton called `subsystem` is mapped into its address space. It uses the `dyndl-*` crates to repeatedly realize and destroy `subsystem`.
+So far, we have used CapDL to describe complete, static systems. The IceCap
+Framework also includes tools and libraries for creating components which
+dynamically realize CapDL-like specifications describing subsystems. In
+[./06-dynamism](./06-dynamism), a component called `supercomponent` is endowed
+with extra untyped memory resources, and a serialized CapDL specificaiton called
+`subsystem` is mapped into its address space. It uses the `dyndl-*` crates to
+repeatedly realize and destroy `subsystem`.
 
 ```
 nix-build examples/ -A dynamism.run && ./result/run
@@ -317,7 +326,11 @@ nix-build examples/ -A dynamism.subsystem
 cat result/icecap.cdl
 ```
 
-You'll notice an object named `extern_nfn`. Objects whose names contain the prefix `extern_` are treated specially by the `dyndl-realize` crate. Such names refer to shared objects provided by the realizer. In the case of this example, `supersystem` and `subsystem` share a notification object, which they use for communication.
+You'll notice an object named `extern_nfn`. Objects whose names contain the
+prefix `extern_` are treated specially by the `dyndl-realize` crate. Such names
+refer to shared objects provided by the realizer. In the case of this example,
+`supersystem` and `subsystem` share a notification object, which they use for
+communication.
 
 ### Case study: The IceCap Hypervisor
 
