@@ -24,12 +24,16 @@ impl Host {
         spec: &[u8],
         bulk_transport_chunk_size: usize,
     ) -> Result<()> {
-        syscall::declare(realm_id, spec.len());
+        let (model, fill_content): (Model, &[u8]) = postcard::take_from_bytes(&spec).unwrap();
+        let skeleton_size = spec.len() - fill_content.len();
+
+        syscall::declare(realm_id, skeleton_size);
+
         let mut bulk_transport = BulkTransport::open()?;
-        bulk_transport.send_spec(realm_id, spec, bulk_transport_chunk_size)?;
+        bulk_transport.send_spec(realm_id, &spec[..skeleton_size], bulk_transport_chunk_size)?;
+
         syscall::realize_start(realm_id);
 
-        let (model, fill_content): (Model, &[u8]) = postcard::take_from_bytes(&spec).unwrap();
         let mut offset = 0;
         for (i, obj) in model.objects.iter().enumerate() {
             if let AnyObj::Local(obj) = &obj.object {
