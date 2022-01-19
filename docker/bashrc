@@ -2,7 +2,7 @@ for f in ~/.bash_completion.d/*; do
   . $f
 done
 
-__icecap_default_expression=.
+__icecap_default_expression=${__icecap_default_expression:-.}
 
 alias n="nix-build ${__icecap_default_expression} -A"
 alias nn="nix-build --no-out-link ${__icecap_default_expression} -A"

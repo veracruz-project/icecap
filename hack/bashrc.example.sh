@@ -1,4 +1,4 @@
-__icecap_default_expression=${parameter:-./tmp/shortcuts.nix}
+__icecap_default_expression=${__icecap_default_expression:-./tmp/shortcuts.nix}
 
 alias n="nix-build ${__icecap_default_expression} -A"
 alias nn="nix-build --no-out-link ${__icecap_default_expression} -A"
