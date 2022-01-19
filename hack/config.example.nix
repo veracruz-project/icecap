@@ -26,13 +26,10 @@ let
     sha256 = "sha256-klo2tWCUyg5s6GrrxPdSSDjF6pz6E1lBeiCLu3A/4cc=";
   };
 
-in
-{
+in {
 
-  nix.package = pkgs.nixUnstable;
   nix.extraOptions = ''
     sandbox-fallback = false
-    experimental-features = nix-command
   '';
   nix.binaryCaches = [
     http://52.214.93.220:5000
