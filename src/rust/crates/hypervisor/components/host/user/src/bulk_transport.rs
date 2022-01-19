@@ -2,7 +2,10 @@ use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use crate::{syscall::spec_chunk, Result};
+use crate::{
+    syscall::{fill_chunk, spec_chunk},
+    Result,
+};
 
 const BULK_TRANSPORT_PATH: &str = "/dev/resource_server";
 
@@ -41,5 +44,17 @@ impl BulkTransport {
     ) -> Result<()> {
         let spec = fs::read(path)?;
         self.send_spec(realm_id, &spec, chunk_size)
+    }
+
+    pub fn send_fill(
+        &mut self,
+        realm_id: usize,
+        object_index: usize,
+        fill_index: usize,
+        content: &[u8],
+    ) -> Result<()> {
+        self.send(content)?;
+        fill_chunk(realm_id, 0, content.len(), object_index, fill_index);
+        Ok(())
     }
 }

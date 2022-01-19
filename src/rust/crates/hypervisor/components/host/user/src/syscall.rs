@@ -91,7 +91,6 @@ pub fn fill_chunk(
     bulk_data_size: usize,
     object_index: usize,
     fill_entry_index: usize,
-    offset: usize,
 ) {
     resource_server_passthru(&Request::FillChunk {
         realm_id,
@@ -99,12 +98,15 @@ pub fn fill_chunk(
         bulk_data_size,
         object_index,
         fill_entry_index,
-        offset,
     })
 }
 
-pub fn realize(realm_id: usize) {
-    resource_server_passthru(&Request::Realize { realm_id })
+pub fn realize_start(realm_id: usize) {
+    resource_server_passthru(&Request::RealizeStart { realm_id })
+}
+
+pub fn realize_finish(realm_id: usize) {
+    resource_server_passthru(&Request::RealizeFinish { realm_id })
 }
 
 pub fn destroy(realm_id: usize) {

@@ -99,8 +99,7 @@ fn run(
             let mut resource_server = server.lock();
 
             match badge {
-                BADGE_HOST_CONTROL =>
-                {
+                BADGE_HOST_CONTROL => {
                     #[allow(unused_variables)]
                     match rpc_server::recv(&info) {
                         Request::Declare {
@@ -133,13 +132,29 @@ fn run(
                             bulk_data_size,
                             object_index,
                             fill_entry_index,
-                            offset,
                         } => {
-                            todo!()
+                            let mut content = vec![0; bulk_data_size];
+                            // TODO zero-copy
+                            unsafe {
+                                volatile_copy_nonoverlapping_memory(
+                                    content.as_mut_ptr(),
+                                    bulk_region.offset(bulk_data_offset as isize),
+                                    bulk_data_size,
+                                );
+                            }
+                            rpc_server::reply::<()>(&resource_server.realize_continue(
+                                realm_id,
+                                object_index,
+                                fill_entry_index,
+                                &content,
+                            )?)
                         }
-                        Request::Realize { realm_id } => {
-                            rpc_server::reply::<()>(&resource_server.realize(node_index, realm_id)?)
+                        Request::RealizeStart { realm_id } => {
+                            rpc_server::reply::<()>(&resource_server.realize_start(realm_id)?)
                         }
+                        Request::RealizeFinish { realm_id } => rpc_server::reply::<()>(
+                            &resource_server.realize_finish(node_index, realm_id)?,
+                        ),
                         Request::Destroy { realm_id } => {
                             rpc_server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
                         }

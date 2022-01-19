@@ -30,9 +30,11 @@ pub enum Request {
         bulk_data_size: usize,
         object_index: usize,
         fill_entry_index: usize,
-        offset: usize,
     },
-    Realize {
+    RealizeStart {
+        realm_id: RealmId,
+    },
+    RealizeFinish {
         realm_id: RealmId,
     },
     Destroy {

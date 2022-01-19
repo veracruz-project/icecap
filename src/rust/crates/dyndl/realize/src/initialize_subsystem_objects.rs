@@ -15,7 +15,8 @@ pub struct SubsystemObjectInitializationResources {
 }
 
 impl SubsystemObjectInitializationResources {
-    pub fn fill_frame<T: Frame>(&self, frame: T, fill: &Fill) -> Fallible<()> {
+    // TODO take digest and check after copying to frame
+    pub fn fill_frame<T: Frame>(&self, frame: T, offset: usize, content: &[u8]) -> Fallible<()> {
         let vaddr = match T::frame_size() {
             FrameSize::Small => self.small_page_addr,
             FrameSize::Large => self.large_page_addr,
@@ -28,10 +29,7 @@ impl SubsystemObjectInitializationResources {
             VMAttributes::default() & !VMAttributes::PAGE_CACHEABLE,
         )?;
         let view = unsafe { slice::from_raw_parts_mut(vaddr as *mut u8, T::frame_size().bytes()) };
-        for entry in fill {
-            view[entry.offset..(entry.offset + entry.content.len())]
-                .copy_from_slice(&entry.content);
-        }
+        view[offset..(offset + content.len())].copy_from_slice(&content);
         frame.unmap()?;
         Ok(())
     }

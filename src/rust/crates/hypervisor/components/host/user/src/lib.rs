@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::result;
 
+use dyndl_types::*;
 use icecap_host_vmm_types::{DirectRequest, DirectResponse};
 
 mod bulk_transport;
@@ -26,7 +27,41 @@ impl Host {
         syscall::declare(realm_id, spec.len());
         let mut bulk_transport = BulkTransport::open()?;
         bulk_transport.send_spec(realm_id, spec, bulk_transport_chunk_size)?;
-        syscall::realize(realm_id);
+        syscall::realize_start(realm_id);
+
+        let (model, fill_content): (Model, &[u8]) = postcard::take_from_bytes(&spec).unwrap();
+        let mut offset = 0;
+        for (i, obj) in model.objects.iter().enumerate() {
+            if let AnyObj::Local(obj) = &obj.object {
+                match obj {
+                    Obj::SmallPage(frame) => {
+                        for (j, entry) in frame.fill.iter().enumerate() {
+                            bulk_transport.send_fill(
+                                realm_id,
+                                i,
+                                j,
+                                &fill_content[offset..offset + entry.length],
+                            )?;
+                            offset = offset + entry.length;
+                        }
+                    }
+                    Obj::LargePage(frame) => {
+                        for (j, entry) in frame.fill.iter().enumerate() {
+                            bulk_transport.send_fill(
+                                realm_id,
+                                i,
+                                j,
+                                &fill_content[offset..offset + entry.length],
+                            )?;
+                            offset = offset + entry.length;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        syscall::realize_finish(realm_id);
         Ok(())
     }
 

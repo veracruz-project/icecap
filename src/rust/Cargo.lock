@@ -717,10 +717,12 @@ name = "icecap-host-user"
 version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
+ "dyndl-types",
  "icecap-host-vmm-types",
  "icecap-resource-server-types",
  "icecap-rpc",
  "libc",
+ "postcard",
 ]
 
 [[package]]

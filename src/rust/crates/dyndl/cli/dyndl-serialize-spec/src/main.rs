@@ -14,12 +14,14 @@ fn main() -> Result<(), io::Error> {
     let objects = output.objects;
     let num_nodes = count_nodes(&objects); // HACK
     let mut model = Model { num_nodes, objects };
-    add_fill(&mut model, &dir)?;
+    let suffix = add_fill(&mut model, &dir)?;
     io::stdout().write_all(&postcard::to_allocvec(&model).unwrap())?;
+    io::stdout().write_all(&suffix)?;
     Ok(())
 }
 
-fn add_fill(model: &mut Model, dir: &Path) -> Result<(), io::Error> {
+fn add_fill(model: &mut Model, dir: &Path) -> Result<Vec<u8>, io::Error> {
+    let mut suffix = vec![];
     for obj in &mut model.objects {
         if let AnyObj::Local(obj) = &mut obj.object {
             if let Some(fill) = match obj {
@@ -33,12 +35,13 @@ fn add_fill(model: &mut Model, dir: &Path) -> Result<(), io::Error> {
                     f.seek(io::SeekFrom::Start(entry.file_offset as u64))?;
                     let mut content = vec![0; entry.length];
                     f.read_exact(&mut content)?;
-                    entry.content = content;
+                    entry.content = vec![]; // TODO put digest here
+                    suffix.extend(&content);
                 }
             }
         }
     }
-    Ok(())
+    Ok(suffix)
 }
 
 fn count_nodes(objects: &Objects) -> usize {

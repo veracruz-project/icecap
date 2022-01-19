@@ -22,12 +22,6 @@ pub use allocator::{Allocator, AllocatorBuilder};
 pub use cregion::{CRegion, Slot};
 pub use initialize_subsystem_objects::SubsystemObjectInitializationResources;
 
-#[allow(dead_code)]
-pub struct FillId {
-    obj_id: ObjId,
-    fill_index: usize,
-}
-
 /// Unique id for an untyped block of memory
 #[derive(Clone, Debug)]
 pub struct UntypedId {
@@ -80,6 +74,14 @@ pub struct VirtualCoreTCB {
     pub resume: bool,
 }
 
+pub struct PartialSubsystem {
+    model: Model,
+    cregion: CRegion,
+    cnode_untyped_id: UntypedId,
+    local_object_slots: Vec<Slot>,
+    local_object_untyped_ids: Vec<UntypedId>,
+}
+
 impl Realizer {
     pub fn new(
         initialization_resources: SubsystemObjectInitializationResources,
@@ -103,8 +105,8 @@ impl Realizer {
         Ok(())
     }
 
-    pub fn realize(&mut self, model: &Model) -> Fallible<Subsystem> {
-        let view = ModelView::new(model);
+    pub fn realize_start(&mut self, model: Model) -> Fallible<PartialSubsystem> {
+        let view = ModelView::new(&model);
 
         // allocate
 
@@ -158,24 +160,55 @@ impl Realizer {
             .allocator
             .create_objects(&mut cregion, &local_object_blueprints)?;
 
-        // fill pages
-        // TODO continuation interface with integrity protection
-        for (i, obj) in model.objects.iter().enumerate() {
-            if let AnyObj::Local(obj) = &obj.object {
-                let cptr_with_depth = cregion.cptr_with_depth(local_object_slots[view.reverse[i]]);
-                match obj {
-                    Obj::SmallPage(frame) => {
-                        self.initialization_resources
-                            .fill_frame(cptr_with_depth.local_cptr::<SmallPage>(), &frame.fill)?;
-                    }
-                    Obj::LargePage(frame) => {
-                        self.initialization_resources
-                            .fill_frame(cptr_with_depth.local_cptr::<LargePage>(), &frame.fill)?;
-                    }
-                    _ => {}
+        Ok(PartialSubsystem {
+            model,
+            cregion,
+            cnode_untyped_id,
+            local_object_slots,
+            local_object_untyped_ids,
+        })
+    }
+
+    pub fn realize_continue(
+        &mut self,
+        partial: &mut PartialSubsystem,
+        obj_id: ObjId,
+        fill_entry_index: usize,
+        content: &[u8],
+    ) -> Fallible<()> {
+        let view = ModelView::new(&partial.model);
+        let obj = &partial.model.objects[obj_id];
+        if let AnyObj::Local(obj) = &obj.object {
+            let cptr_with_depth = partial
+                .cregion
+                .cptr_with_depth(partial.local_object_slots[view.reverse[obj_id]]);
+            match obj {
+                Obj::SmallPage(frame) => {
+                    self.initialization_resources.fill_frame(
+                        cptr_with_depth.local_cptr::<SmallPage>(),
+                        frame.fill[fill_entry_index].offset,
+                        content,
+                    )?;
+                }
+                Obj::LargePage(frame) => {
+                    self.initialization_resources.fill_frame(
+                        cptr_with_depth.local_cptr::<LargePage>(),
+                        frame.fill[fill_entry_index].offset,
+                        content,
+                    )?;
+                }
+                _ => {
+                    panic!()
                 }
             }
+        } else {
+            panic!()
         }
+        Ok(())
+    }
+
+    pub fn realize_finish(&mut self, mut partial: PartialSubsystem) -> Fallible<Subsystem> {
+        let view = ModelView::new(&partial.model);
 
         // initialize objects
         let (externs, extern_caps): (Externs, Vec<Unspecified>) = {
@@ -184,9 +217,9 @@ impl Realizer {
             let extern_caps: Vec<Unspecified> = view
                 .extern_objects
                 .iter()
-                .map(|i| match &model.objects[*i].object {
+                .map(|i| match &partial.model.objects[*i].object {
                     AnyObj::Extern(obj) => {
-                        let name = model.objects[*i].name.clone();
+                        let name = partial.model.objects[*i].name.clone();
                         let ext = self.externs.remove(&name).unwrap();
                         assert_eq!(&ext.ty, obj);
                         let cptr = ext.cptr;
@@ -200,29 +233,31 @@ impl Realizer {
             (externs, extern_caps)
         };
 
-        let all_caps: Vec<Unspecified> = model
+        let all_caps: Vec<Unspecified> = partial
+            .model
             .objects
             .iter()
             .enumerate()
             .map(|(i, obj)| match &obj.object {
-                AnyObj::Local(_) => cregion
-                    .cptr_with_depth(local_object_slots[view.reverse[i]])
+                AnyObj::Local(_) => partial
+                    .cregion
+                    .cptr_with_depth(partial.local_object_slots[view.reverse[i]])
                     .local_cptr::<Unspecified>(),
                 AnyObj::Extern(_) => extern_caps[view.reverse[i]],
             })
             .collect();
 
         let virtual_cores = self.initialization_resources.initialize(
-            model.num_nodes,
-            model,
+            partial.model.num_nodes,
+            &partial.model,
             &all_caps,
-            &mut cregion,
+            &mut partial.cregion,
         )?;
 
         Ok(Subsystem {
             virtual_cores,
-            cnode_untyped_id,
-            object_untyped_ids: local_object_untyped_ids,
+            cnode_untyped_id: partial.cnode_untyped_id,
+            object_untyped_ids: partial.local_object_untyped_ids,
             externs,
         })
     }

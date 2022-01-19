@@ -7,6 +7,7 @@ use alloc::collections::btree_map::BTreeMap;
 use alloc::prelude::v1::*;
 
 use dyndl_realize::*;
+use dyndl_types::*;
 use icecap_core::prelude::*;
 use icecap_core::rpc_sel4::*;
 use icecap_event_server_types as event_server;
@@ -23,8 +24,7 @@ pub struct ResourceServer {
     realms: BTreeMap<RealmId, Realm>,
     partial_specs: BTreeMap<RealmId, Vec<u8>>,
 
-    // TODO
-    // partial_realms: BTreeMap<RealmId, PartialRealm>,
+    partial_realms: BTreeMap<RealmId, PartialRealm>,
     physical_nodes: [Option<(RealmId, VirtualNodeIndex)>; NUM_ACTIVE_CORES],
 
     cnode: CNode,
@@ -47,9 +47,9 @@ struct VirtualNode {
     physical_node: Option<PhysicalNodeIndex>, // TODO include timout target?
 }
 
-// TODO
-// struct PartialRealm {
-// }
+struct PartialRealm {
+    partial_subsystem: PartialSubsystem,
+}
 
 impl ResourceServer {
     pub fn new(realizer: Realizer, cnode: CNode, node_local: Vec<NodeLocal>) -> Self {
@@ -57,6 +57,7 @@ impl ResourceServer {
             realizer,
             realms: BTreeMap::new(),
             partial_specs: BTreeMap::new(),
+            partial_realms: BTreeMap::new(),
             physical_nodes: [None; NUM_ACTIVE_CORES],
             cnode,
             node_local,
@@ -84,10 +85,39 @@ impl ResourceServer {
         Ok(())
     }
 
-    pub fn realize(&mut self, node_index: usize, realm_id: RealmId) -> Fallible<()> {
+    pub fn realize_start(&mut self, realm_id: RealmId) -> Fallible<()> {
         let raw = self.partial_specs.remove(&realm_id).unwrap();
-        let model = postcard::from_bytes(&raw).unwrap();
-        let subsystem = self.realizer.realize(&model)?;
+        let model: Model = postcard::from_bytes(&raw).unwrap();
+        let model_ = model.clone();
+        let partial_subsystem = self.realizer.realize_start(model_)?;
+        self.partial_realms
+            .insert(realm_id, PartialRealm { partial_subsystem });
+        Ok(())
+    }
+
+    pub fn realize_continue(
+        &mut self,
+        realm_id: RealmId,
+        object_index: usize,
+        fill_entry_index: usize,
+        content: &[u8],
+    ) -> Fallible<()> {
+        let partial_realm = self.partial_realms.get_mut(&realm_id).unwrap();
+        self.realizer.realize_continue(
+            &mut partial_realm.partial_subsystem,
+            object_index,
+            fill_entry_index,
+            content,
+        )?;
+        Ok(())
+    }
+
+    pub fn realize_finish(&mut self, node_index: usize, realm_id: RealmId) -> Fallible<()> {
+        let partial_realm = self.partial_realms.remove(&realm_id).unwrap();
+
+        let subsystem = self
+            .realizer
+            .realize_finish(partial_realm.partial_subsystem)?;
 
         let virtual_nodes = subsystem
             .virtual_cores
@@ -110,6 +140,7 @@ impl ResourceServer {
                 })
             })
             .collect::<Fallible<Vec<VirtualNode>>>()?;
+
         self.realms.insert(
             realm_id,
             Realm {
