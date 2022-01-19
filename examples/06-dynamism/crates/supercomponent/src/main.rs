@@ -8,8 +8,9 @@ use core::ops::Range;
 
 use serde::{Deserialize, Serialize};
 
-use dyndl_realize_simple::*;
-use dyndl_realize_simple_config::*;
+use dyndl_types::Model;
+use dyndl_realize_simple::{initialize_simple_realizer_from_config, fill_frames_simple};
+use dyndl_realize_simple_config::ConfigRealizer;
 use icecap_start_generic::declare_generic_main;
 use icecap_std::prelude::*;
 
@@ -32,13 +33,17 @@ fn main(config: Config) -> Fallible<()> {
         )
     };
 
-    let subsystem_spec = postcard::from_bytes(&subsystem_spec_raw).unwrap();
+    let (subsystem_spec, frame_fill): (Model, &[u8]) = postcard::take_from_bytes(&subsystem_spec_raw).unwrap();
 
     let mut realizer = initialize_simple_realizer_from_config(&config.realizer)?;
 
     for _ in 0..3 {
         debug_println!("Realizing subsystem");
-        let subsystem = realizer.realize(&subsystem_spec)?;
+        let subsystem = {
+            let partial_subsystem = realizer.realize_start(subsystem_spec.clone())?;
+            fill_frames_simple(&mut realizer, &partial_subsystem, frame_fill)?;
+            realizer.realize_finish(partial_subsystem)?
+        };
 
         for (affinity, virtual_core) in subsystem.virtual_cores.iter().enumerate() {
             for virtual_core_tcb in virtual_core.tcbs.iter() {

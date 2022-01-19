@@ -1,5 +1,6 @@
 #![no_std]
 
+use dyndl_types::*;
 use dyndl_realize::*;
 use dyndl_realize_simple_config::*;
 use icecap_core::prelude::*;
@@ -69,4 +70,28 @@ pub fn initialize_simple_realizer_from_config(config: &ConfigRealizer) -> Fallib
         .collect();
 
     Ok(Realizer::new(initialization_resources, allocator, externs))
+}
+
+pub fn fill_frames_simple(realizer: &Realizer, partial_subsystem: &PartialSubsystem, frame_fill: &[u8]) -> Fallible<()> {
+    let mut offset = 0;
+    for (i, obj) in partial_subsystem.model.objects.iter().enumerate() {
+        if let AnyObj::Local(obj) = &obj.object {
+            match obj {
+                Obj::SmallPage(frame) => {
+                    for (j, entry) in frame.fill.iter().enumerate() {
+                        realizer.realize_continue(partial_subsystem, i, j, &frame_fill[offset..offset + entry.length])?;
+                        offset = offset + entry.length;
+                    }
+                }
+                Obj::LargePage(frame) => {
+                    for (j, entry) in frame.fill.iter().enumerate() {
+                        realizer.realize_continue(partial_subsystem, i, j, &frame_fill[offset..offset + entry.length])?;
+                        offset = offset + entry.length;
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    Ok(())
 }

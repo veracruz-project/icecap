@@ -75,11 +75,11 @@ pub struct VirtualCoreTCB {
 }
 
 pub struct PartialSubsystem {
-    model: Model,
-    cregion: CRegion,
-    cnode_untyped_id: UntypedId,
-    local_object_slots: Vec<Slot>,
-    local_object_untyped_ids: Vec<UntypedId>,
+    pub model: Model,
+    pub cregion: CRegion,
+    pub cnode_untyped_id: UntypedId,
+    pub local_object_slots: Vec<Slot>,
+    pub local_object_untyped_ids: Vec<UntypedId>,
 }
 
 impl Realizer {
@@ -170,8 +170,8 @@ impl Realizer {
     }
 
     pub fn realize_continue(
-        &mut self,
-        partial: &mut PartialSubsystem,
+        &self,
+        partial: &PartialSubsystem,
         obj_id: ObjId,
         fill_entry_index: usize,
         content: &[u8],
