@@ -9,5 +9,6 @@ mkBin {
     serde = "*";
     serde_json = "*";
     postcard = postcardCommon;
+    sha2 = "*";
   };
 }

@@ -5,6 +5,8 @@ use std::{
     path::Path,
 };
 
+use sha2::{Sha256, Digest};
+
 use dyndl_types::*;
 
 fn main() -> Result<(), io::Error> {
@@ -35,7 +37,12 @@ fn add_fill(model: &mut Model, dir: &Path) -> Result<Vec<u8>, io::Error> {
                     f.seek(io::SeekFrom::Start(entry.file_offset as u64))?;
                     let mut content = vec![0; entry.length];
                     f.read_exact(&mut content)?;
-                    entry.content = vec![]; // TODO put digest here
+                    let digest = {
+                        let mut hasher = Sha256::new();
+                        hasher.update(&content);
+                        hasher.finalize()
+                    };
+                    entry.content = digest.as_slice().to_vec();
                     suffix.extend(&content);
                 }
             }

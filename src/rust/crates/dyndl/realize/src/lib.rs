@@ -174,7 +174,7 @@ impl Realizer {
         partial: &PartialSubsystem,
         obj_id: ObjId,
         fill_entry_index: usize,
-        content: &[u8],
+        untrusted_content: &[u8],
     ) -> Fallible<()> {
         let view = ModelView::new(&partial.model);
         let obj = &partial.model.objects[obj_id];
@@ -187,14 +187,16 @@ impl Realizer {
                     self.initialization_resources.fill_frame(
                         cptr_with_depth.local_cptr::<SmallPage>(),
                         frame.fill[fill_entry_index].offset,
-                        content,
+                        &frame.fill[fill_entry_index].content,
+                        untrusted_content,
                     )?;
                 }
                 Obj::LargePage(frame) => {
                     self.initialization_resources.fill_frame(
                         cptr_with_depth.local_cptr::<LargePage>(),
                         frame.fill[fill_entry_index].offset,
-                        content,
+                        &frame.fill[fill_entry_index].content,
+                        untrusted_content,
                     )?;
                 }
                 _ => {

@@ -8,5 +8,6 @@ mkSeL4 {
   ];
   dependencies = {
     log = "*";
+    sha2 = { version = "*"; default-features = false; };
   };
 }

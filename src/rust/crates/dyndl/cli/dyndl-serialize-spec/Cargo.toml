@@ -10,4 +10,5 @@ edition = "2018"
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = "*"
 serde_json = "*"
+sha2 = "*"
 dyndl-types = { path = "../../types" }

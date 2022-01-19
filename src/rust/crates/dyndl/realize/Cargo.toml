@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 log = "*"
+sha2 = { version = "*", default-features = false }
 dyndl-types = { path = "../types" }
 icecap-core = { path = "../../framework/icecap-core" }
