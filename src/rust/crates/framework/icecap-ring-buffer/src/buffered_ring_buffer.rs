@@ -78,7 +78,7 @@ impl BufferedRingBuffer {
         let mut notify = self.flush_tx();
 
         // TODO split and send partial
-        if self.rb.poll_write() < buf.len() {
+        if !self.q.is_empty() || self.rb.poll_write() < buf.len() {
             self.q.push_back(buf.to_vec());
         } else {
             self.rb.write(buf);
@@ -147,7 +147,7 @@ impl BufferedPacketRingBuffer {
 
     pub fn tx(&mut self, buf: &[u8]) -> bool {
         let mut notify = self.flush_tx();
-        if self.rb.write(buf) {
+        if self.q.is_empty() && self.rb.write(buf) {
             notify = true;
         } else {
             self.q.push_back(buf.to_vec());
