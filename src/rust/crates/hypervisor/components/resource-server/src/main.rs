@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 #![feature(never_type)]
-#![feature(core_intrinsics)]
 
 extern crate alloc;
 
@@ -16,7 +15,6 @@ use icecap_event_server_types;
 use icecap_event_server_types::calls::ResourceServer as EventServerRequest;
 
 use alloc::sync::Arc;
-use core::intrinsics::volatile_copy_nonoverlapping_memory;
 
 const BADGE_HOST_CONTROL: Badge = 0x0;
 const BADGE_HOST_YIELD: Badge = 0x1;
@@ -99,7 +97,8 @@ fn run(
             let mut resource_server = server.lock();
 
             match badge {
-                BADGE_HOST_CONTROL => {
+                BADGE_HOST_CONTROL =>
+                {
                     #[allow(unused_variables)]
                     match rpc_server::recv(&info) {
                         Request::Declare {
@@ -115,15 +114,13 @@ fn run(
                             offset,
                         } => {
                             assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
-                            let mut content = vec![0; bulk_data_size];
-                            unsafe {
-                                volatile_copy_nonoverlapping_memory(
-                                    content.as_mut_ptr(),
+                            let content = unsafe {
+                                core::slice::from_raw_parts(
                                     bulk_region.offset(bulk_data_offset as isize),
                                     bulk_data_size,
-                                );
-                            }
-                            resource_server.incorporate_spec_chunk(realm_id, offset, &content)?;
+                                )
+                            };
+                            resource_server.incorporate_spec_chunk(realm_id, offset, content)?;
                             rpc_server::reply::<()>(&());
                         }
                         Request::FillChunk {
@@ -133,20 +130,18 @@ fn run(
                             object_index,
                             fill_entry_index,
                         } => {
-                            let mut content = vec![0; bulk_data_size];
-                            // TODO zero-copy
-                            unsafe {
-                                volatile_copy_nonoverlapping_memory(
-                                    content.as_mut_ptr(),
+                            assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
+                            let content = unsafe {
+                                core::slice::from_raw_parts(
                                     bulk_region.offset(bulk_data_offset as isize),
                                     bulk_data_size,
-                                );
-                            }
+                                )
+                            };
                             rpc_server::reply::<()>(&resource_server.realize_continue(
                                 realm_id,
                                 object_index,
                                 fill_entry_index,
-                                &content,
+                                content,
                             )?)
                         }
                         Request::RealizeStart { realm_id } => {

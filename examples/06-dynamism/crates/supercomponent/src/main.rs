@@ -8,9 +8,9 @@ use core::ops::Range;
 
 use serde::{Deserialize, Serialize};
 
-use dyndl_types::Model;
-use dyndl_realize_simple::{initialize_simple_realizer_from_config, fill_frames_simple};
+use dyndl_realize_simple::{fill_frames_simple, initialize_simple_realizer_from_config};
 use dyndl_realize_simple_config::ConfigRealizer;
+use dyndl_types::Model;
 use icecap_start_generic::declare_generic_main;
 use icecap_std::prelude::*;
 
@@ -33,7 +33,8 @@ fn main(config: Config) -> Fallible<()> {
         )
     };
 
-    let (subsystem_spec, frame_fill): (Model, &[u8]) = postcard::take_from_bytes(&subsystem_spec_raw).unwrap();
+    let (subsystem_spec, frame_fill): (Model, &[u8]) =
+        postcard::take_from_bytes(&subsystem_spec_raw).unwrap();
 
     let mut realizer = initialize_simple_realizer_from_config(&config.realizer)?;
 
