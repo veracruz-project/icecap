@@ -58,7 +58,9 @@ in {
 
         run_iperf_client() {
           chrt -b 0 iperf3 -c ${cfg.misc.net.hostAddr}
+          sleep 1
           chrt -b 0 iperf3 -R -c ${cfg.misc.net.hostAddr}
+          sleep 1
         }
       '';
     }
