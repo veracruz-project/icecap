@@ -25,42 +25,32 @@ impl Host {
         bulk_transport_chunk_size: usize,
     ) -> Result<()> {
         let (model, fill_content): (Model, &[u8]) = postcard::take_from_bytes(&spec).unwrap();
-        let skeleton_size = spec.len() - fill_content.len();
+        let model_size = spec.len() - fill_content.len();
 
-        syscall::declare(realm_id, skeleton_size);
+        syscall::declare(realm_id, model_size);
 
         let mut bulk_transport = BulkTransport::open()?;
-        bulk_transport.send_spec(realm_id, &spec[..skeleton_size], bulk_transport_chunk_size)?;
+        bulk_transport.send_spec(realm_id, &spec[..model_size], bulk_transport_chunk_size)?;
 
         syscall::realize_start(realm_id);
 
         let mut offset = 0;
         for (i, obj) in model.objects.iter().enumerate() {
             if let AnyObj::Local(obj) = &obj.object {
-                match obj {
-                    Obj::SmallPage(frame) => {
-                        for (j, entry) in frame.fill.iter().enumerate() {
-                            bulk_transport.send_fill(
-                                realm_id,
-                                i,
-                                j,
-                                &fill_content[offset..offset + entry.length],
-                            )?;
-                            offset = offset + entry.length;
-                        }
+                if let Some(fill) = match obj {
+                    Obj::SmallPage(frame) => Some(&frame.fill),
+                    Obj::LargePage(frame) => Some(&frame.fill),
+                    _ => None,
+                } {
+                    for (j, entry) in fill.iter().enumerate() {
+                        bulk_transport.send_fill(
+                            realm_id,
+                            i,
+                            j,
+                            &fill_content[offset..offset + entry.length],
+                        )?;
+                        offset = offset + entry.length;
                     }
-                    Obj::LargePage(frame) => {
-                        for (j, entry) in frame.fill.iter().enumerate() {
-                            bulk_transport.send_fill(
-                                realm_id,
-                                i,
-                                j,
-                                &fill_content[offset..offset + entry.length],
-                            )?;
-                            offset = offset + entry.length;
-                        }
-                    }
-                    _ => {}
                 }
             }
         }

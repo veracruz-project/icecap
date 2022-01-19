@@ -80,30 +80,20 @@ pub fn fill_frames_simple(
     let mut offset = 0;
     for (i, obj) in partial_subsystem.model.objects.iter().enumerate() {
         if let AnyObj::Local(obj) = &obj.object {
-            match obj {
-                Obj::SmallPage(frame) => {
-                    for (j, entry) in frame.fill.iter().enumerate() {
-                        realizer.realize_continue(
-                            partial_subsystem,
-                            i,
-                            j,
-                            &frame_fill[offset..offset + entry.length],
-                        )?;
-                        offset = offset + entry.length;
-                    }
+            if let Some(fill) = match obj {
+                Obj::SmallPage(frame) => Some(&frame.fill),
+                Obj::LargePage(frame) => Some(&frame.fill),
+                _ => None,
+            } {
+                for (j, entry) in fill.iter().enumerate() {
+                    realizer.realize_continue(
+                        partial_subsystem,
+                        i,
+                        j,
+                        &frame_fill[offset..offset + entry.length],
+                    )?;
+                    offset = offset + entry.length;
                 }
-                Obj::LargePage(frame) => {
-                    for (j, entry) in frame.fill.iter().enumerate() {
-                        realizer.realize_continue(
-                            partial_subsystem,
-                            i,
-                            j,
-                            &frame_fill[offset..offset + entry.length],
-                        )?;
-                        offset = offset + entry.length;
-                    }
-                }
-                _ => {}
             }
         }
     }
