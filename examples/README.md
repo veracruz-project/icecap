@@ -308,12 +308,12 @@ cat result/icecap.cdl
 ### Adding dynamism
 
 So far, we have used CapDL to describe complete, static systems. The IceCap
-Framework also includes tools and libraries for creating components which
-dynamically realize CapDL-like specifications describing subsystems. In
-[./06-dynamism](./06-dynamism), a component called `supercomponent` is endowed
-with extra untyped memory resources, and provided with a serialized CapDL
-specificaiton called `subsystem`. It uses the `dyndl-*` crates to repeatedly
-realize and destroy `subsystem`.
+Framework also includes tools and libraries for creating components which are
+capable of dynamically realizing CapDL-like specifications describing subsystems
+at runtime. In [./06-dynamism](./06-dynamism), a component called
+`supercomponent` is endowed with extra untyped memory resources, and provided
+with a serialized CapDL specificaiton called `subsystem`. It uses the `dyndl-*`
+crates to repeatedly realize and destroy `subsystem`.
 
 ```
 nix-build examples/ -A dynamism.run && ./result/run
@@ -437,3 +437,10 @@ individuals. Veracruz's support for the IceCap Hypervisor serves as another
 example for the IceCap Framework:
 
 [https://github.com/veracruz-project/veracruz](https://github.com/veracruz-project/veracruz)
+
+Veracruz's support for IceCap includes a realm with a more rich structure than
+any presented so far in this guide.  The Veracruz Runtime consists of two
+components: a WebAssembly JIT-compiler and sandbox, and a supervisor which
+projects an operating system personality for the sandbox.  The supervisor
+manages the virtual address space of the sandbox and provides services such as
+`mmap`.
