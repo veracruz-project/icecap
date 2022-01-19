@@ -50,12 +50,14 @@ in {
         }
 
         start_realm() {
-          taskset $realm_affinity icecap-host create 0 /spec.bin && \
+          echo "starting realm"
+          time taskset $realm_affinity icecap-host create 0 /spec.bin && \
             chrt -b 0 taskset $realm_affinity icecap-host run 0 0
         }
 
         destroy_realm() {
-          icecap-host destroy 0
+          echo "destroying realm"
+          time icecap-host destroy 0
         }
 
         stop_and_destroy_realm() {
