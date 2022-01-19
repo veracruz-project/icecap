@@ -48,7 +48,7 @@ self: with self;
 
   hypervisorComponents = callPackage ./sel4-user/rust/hypervisor-components.nix {};
 
-  # TODO fix and generalize or leave up to downstream projects
+  # TODO generalize or leave up to downstream projects
   sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
 
   root-task-tls-lds = icecapSrc.relative "c/support/root-task-tls.lds";

@@ -18,7 +18,6 @@ mkMirageLibrary {
       lwt
       mirage-icecap
       base yojson hex
-      # TODO why is this necessary?
       lwt_ppx
     ];
   };
