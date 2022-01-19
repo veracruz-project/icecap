@@ -22,11 +22,12 @@ Throughout this guide, `//` is used to refer to the project root at [../](../).
 
 The easiest way to get started building and hacking on IceCap is with Docker.
 If you want to build IceCap without Docker, the only requirement is
-[Nix](https://nixos.org/manual/nix/stable/). See [Building without
-Docker](./building-without-docker.md) for more information.
+[Nix](https://nixos.org/manual/nix/stable/) (version `>= 2.4`).
 [../docker](../docker) serves not only as a readily accessible environment, but
 also as a reference or starting point for any other development environment for
-hacking on IceCap.
+hacking on IceCap.  [../hack/config.example.nix](../hack/config.example.nix) for
+an examples NixOS module which sets up a complete development environment for
+IceCap.
 
 Start with the following to run and enter the container:
 

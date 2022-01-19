@@ -6,7 +6,6 @@
 - [Guided introduction](../examples)
 - [Hacking guide](./hacking-guide.md)
 - [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
-- [Building without Docker](./building-without-docker.md)
 - [Building without Nix](./building-without-nix.md)
 
 We are eager to share and discuss any aspect of IceCap's design and

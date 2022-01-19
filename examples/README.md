@@ -19,9 +19,8 @@ refer to the [Nix manual](https://nixos.org/manual/nix/stable/).
 
 The easiest way to get started building and hacking on IceCap is with Docker.
 If you want to build IceCap without Docker, the only requirement is
-[Nix](https://nixos.org/manual/nix/stable/). See [Building without
-Docker](../docs/building-without-docker.md) for more information.  If you want
-to incorporate IceCap into a build system without Nix, see [Building without
+[Nix](https://nixos.org/manual/nix/stable/) (version `>= 2.4`).  If you want to
+incorporate IceCap into a build system without Nix, see [Building without
 Nix](../docs/building-without-nix.md).
 
 First, clone this respository and its submodules:
