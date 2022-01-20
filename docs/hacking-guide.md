@@ -25,7 +25,7 @@ If you want to build IceCap without Docker, the only requirement is
 [Nix](https://nixos.org/manual/nix/stable/) (version `>= 2.4`).
 [../docker](../docker) serves not only as a readily accessible environment, but
 also as a reference or starting point for any other development environment for
-hacking on IceCap.  [../hack/config.example.nix](../hack/config.example.nix) for
+hacking on IceCap.  [../hack/dev-environment-examples/config.example.nix](../hack/dev-environment-examples/config.example.nix) for
 an examples NixOS module which sets up a complete development environment for
 IceCap.
 
@@ -101,3 +101,11 @@ TODO
 ```
 TODO
 ```
+
+<!--
+
+TODO
+- gdb
+- git-icecap-keep
+
+-->
