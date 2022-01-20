@@ -2,7 +2,7 @@
 
 crateUtils.mkCrate {
   nix.name = "timer-server-types";
-  nix.src = icecapSrc.absoluteSplit ./src;
+  nix.srcPath = icecapSrc.absolute ./src;
   nix.local.dependencies = with globalCrates; [
     icecap-core
   ];

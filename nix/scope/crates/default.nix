@@ -14,7 +14,7 @@ let
 
     let
       mkBase = isBin: isSeL4: exclude: args: crateUtils.mkCrate (lib.recursiveUpdate args {
-        nix.src = icecapSrc.absoluteSplitWithName args.nix.name (path + "/src");
+        nix.srcPath = icecapSrc.absolute (path + "/src");
         nix.isBin = isBin;
         nix.buildScriptHack =
           if args.nix.buildScriptHack or false
