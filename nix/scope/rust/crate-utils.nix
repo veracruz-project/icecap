@@ -2,6 +2,7 @@
 , writeText, linkFarm, emptyFile
 , nixToToml
 , rustTargets, rustTargetName
+, icecapSrc
 }:
 
 with lib;
@@ -13,7 +14,7 @@ rec {
   mkCrate =
     let
       elaborateNix =
-        { name, src
+        { name, srcPath ? null, src ? icecapSrc.absoluteSplitWithName name srcPath
         , buildScriptHack ? null
         , keepFilesHack ? []
         , isBin ? false
