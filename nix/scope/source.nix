@@ -4,9 +4,11 @@ rec {
 
   icecapSrc = rec {
 
-    clean = src: lib.cleanSourceWith {
+    clean = cleanWithName null;
+
+    cleanWithName = name: src: lib.cleanSourceWith {
       src = lib.cleanSource src;
-      inherit filter;
+      inherit name filter;
     };
 
     filter = name: type:
@@ -17,14 +19,18 @@ rec {
           || baseName == "target" # for src/rust (HACK)
       );
 
-    absolute = clean;
-    absoluteSplit = src: {
-      store = absolute src;
+    absolute = absoluteWithName null;
+    absoluteSplit = absoluteSplitWithName null;
+    absoluteWithName = cleanWithName;
+    absoluteSplitWithName = name: src: {
+      store = absoluteWithName name src;
       env = toString src;
     };
 
-    relative = suffix: (relativeSplit suffix).store;
-    relativeSplit = suffix: absoluteSplit (relativeRaw suffix);
+    relative = relativeWithName null;
+    relativeSplit = relativeSplitWithName null;
+    relativeWithName = name: suffix: (relativeSplitWithName name suffix).store;
+    relativeSplitWithName = name: suffix: absoluteSplitWithName name (relativeRaw suffix);
     relativeRaw = suffix: ../../src + "/${suffix}";
 
     splitTrivially = store: { inherit store; env = store; };
