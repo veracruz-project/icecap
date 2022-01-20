@@ -10,11 +10,6 @@ alias ns='nix-shell'
 alias r="./result/run"
 alias b='./result/debug/icecap-show-backtrace'
 
-k() {
-    remote="${1:-origin}"
-    ref="${2:-HEAD}"
-    short_rev=$(git rev-parse --short=32 "$ref")
-    tag=icecap/keep/$short_rev
-    git tag $tag $short_rev
-    git push "$remote" $tag
-}
+alias mt='miniterm.py /dev/ttyUSB0 115200 --raw --eol LF'
+
+alias k='git-icecap-keep'

@@ -26,6 +26,13 @@ let
     sha256 = "sha256-klo2tWCUyg5s6GrrxPdSSDjF6pz6E1lBeiCLu3A/4cc=";
   };
 
+  git-icecap-keep =
+    let
+      name = "git-icecap-keep";
+    in pkgs.linkFarm name [
+      { name = "bin/${name}"; path = ../git-icecap-keep; }
+    ];
+
 in {
 
   nix.binaryCaches = [
@@ -39,6 +46,7 @@ in {
     git gnumake
     rsync screen python3Packages.pyserial
     nix-bash-completions
+    git-icecap-keep
   ];
 
   programs.bash.interactiveShellInit = ''
