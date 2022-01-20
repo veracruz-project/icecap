@@ -41,9 +41,7 @@ ENV XDG_CACHE_HOME=/nix/cache
 
 RUN mkdir -p .bash_completion.d && \
     curl -SL -o .bash_completion.d/nix \
-        https://raw.githubusercontent.com/hedning/nix-bash-completions/e6db3081fe1f221470a26e345a96855e5f09ddec/_nix && \
-    curl -SL -o .bash_completion.d/complete_alias \
-        https://raw.githubusercontent.com/cykerway/complete-alias/4fcd018faa9413e60ee4ec9f48ebeac933c8c372/complete_alias
+        https://raw.githubusercontent.com/hedning/nix-bash-completions/e6db3081fe1f221470a26e345a96855e5f09ddec/_nix
 
 COPY bashrc .bashrc_icecap
 RUN echo ". ~/.bashrc_icecap" >> .bashrc
