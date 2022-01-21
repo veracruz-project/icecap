@@ -11,8 +11,8 @@ let
 
   # NOTE example of how to develop on the linux kernel source
   localLinuxImages = {
-    virt = ../../../../../local/linux/arch/arm64/boot/Image;
-    rpi4 = ../../../../../local/linux-rpi4/arch/arm64/boot/Image;
+    virt = ../../../../../../local/linux/arch/arm64/boot/Image;
+    rpi4 = ../../../../../../local/linux-rpi4/arch/arm64/boot/Image;
   };
 
 in {
