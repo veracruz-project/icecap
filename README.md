@@ -32,15 +32,15 @@ We are eager to share and discuss any aspect of IceCap's design and
 implementation with you directly. Please feel free to reach out to project lead
 [Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
-## Quick start
+## Demo
 
 See [./demos/hypervisor-demo/README.md](./demos/hypervisor-demo) for
-instructions on how to get a demo of the IceCap Hypervisor up and running.
+instructions on how to build and run a demo of the IceCap Hypervisor.
 
-## Guided introduction
+## Tutorial
 
-See [./examples/README.md](./examples) for a guided introduction to the IceCap
-Framework.
+See [./examples/README.md](./examples) for a tutorial-style introduction to the
+IceCap Framework.
 
 ## Supported platforms
 
