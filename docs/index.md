@@ -4,7 +4,7 @@
 - [seL4 Summit 2020 presentation](https://nickspinale.com/talks/sel4-summit-2020.html)
 - [Demos](../demos)
 - [Tutorial](../examples)
-- [Hacking guide](./hacking-guide.md)
+- [Hacking notes](./hacking.md)
 - [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
 - [Building without Nix](./building-without-nix.md)
 
