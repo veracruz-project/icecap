@@ -1,4 +1,4 @@
-# Building without Nix
+# IceCap without Nix
 
 Upstream IceCap development, testing, and CI use a Nix-based build system.
 However, care has been taken to ensure that the IceCap source code itself is

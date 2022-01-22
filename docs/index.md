@@ -6,7 +6,7 @@
 - [Tutorial](../examples)
 - [Hacking notes](./hacking.md)
 - [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
-- [Building without Nix](./building-without-nix.md)
+- [IceCap without Nix](./icecap-without-nix.md)
 
 We are eager to share and discuss any aspect of IceCap's design and
 implementation with you directly. Please feel free to reach out to project lead

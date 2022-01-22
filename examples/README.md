@@ -22,7 +22,7 @@ If you want to build IceCap without Docker, the only requirement is
 [Nix](https://nixos.org/manual/nix/stable/) (version `>= 2.4`). If you are not
 using Docker, see [../docs/hacking.md](../docs/hacking.md) for information about
 using our Nix remote cache.  If you want to incorporate IceCap into a build
-system without Nix, see [Building without Nix](../docs/building-without-nix.md).
+system without Nix, see [IceCap without Nix](../docs/icecap-without-nix.md).
 
 First, clone this respository and its submodules:
 
@@ -195,7 +195,7 @@ that Python code.  See
 example.  For details, either trace the Nix code back to
 [../nix/scope/configured/capdl/mk-icedl.nix](../nix/scope/configured/capdl/mk-icedl.nix)
 or take a look at the relevant bits of Makefile in the repository referenced in
-[Building without Nix](../docs/building-without-nix.md).
+[IceCap without Nix](../docs/icecap-without-nix.md).
 
 All `class ExampleComponent` in `cdl.py` does is create the file found at
 `result/example_component_arg.bin` after `nix-build examples/ -A
