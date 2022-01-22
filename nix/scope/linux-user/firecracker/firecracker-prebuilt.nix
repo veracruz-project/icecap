@@ -7,13 +7,13 @@ let
   arch = hostPlatform.uname.processor;
 
   sha256 = {
-    aarch64 = "sha256-RXYiKKqD3ta75TKSwd59BqsdjDVlVXyqSqbOwo9QAIg=";
+    aarch64 = "sha256-75UC+HeVUfUk1HRvTJsOHbHHkgr6me1OtxDF7lahf68=";
   }.${arch};
 
 in
 stdenv.mkDerivation rec {
   pname = "firecracker";
-  version = "0.25.0";
+  version = "0.25.2";
 
   src = fetchurl {
     url = "https://github.com/firecracker-microvm/firecracker/releases/download/v${version}/${pname}-v${version}-${arch}.tgz";
