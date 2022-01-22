@@ -67,7 +67,7 @@ in
     })
 
     {
-      initramfs.extraInitCommands = ''
+      initramfs.extraInitCommands = mkAfter ''
         . /etc/profile
 
         ip tuntap add veth0 mode tap

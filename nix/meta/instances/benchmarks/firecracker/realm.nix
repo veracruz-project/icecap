@@ -1,5 +1,7 @@
 { config, pkgs, lib, ... }:
 
+with lib;
+
 let
   cfg = config.instance;
 
@@ -10,7 +12,7 @@ in {
 
     net.interfaces.eth0.static = "${cfg.misc.net.realmAddr}/24";
 
-    initramfs.extraInitCommands = ''
+    initramfs.extraInitCommands = mkAfter ''
       echo "nameserver 1.1.1.1" > /etc/resolv.conf
       ip route add default via ${cfg.misc.net.hostAddr} dev ${virtualIface}
 

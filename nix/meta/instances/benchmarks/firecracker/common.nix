@@ -16,7 +16,7 @@ in {
         copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
       '';
 
-      initramfs.extraInitCommands = mkAfter ''
+      initramfs.extraInitCommands = ''
       '';
 
       initramfs.profile = ''
