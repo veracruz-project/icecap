@@ -44,7 +44,7 @@ rec {
 
     localPathWithBranchOf = repo: branch:
       let
-        withoutBranch = ../../../local + "/${repo}";
+        withoutBranch = localPathOf repo;
         withBranch = withoutBranch + "+${branch}";
       in if builtins.pathExists withBranch then withBranch else withoutBranch;
 
@@ -83,8 +83,6 @@ rec {
           # HACK
           hack = {
             inherit url rev;
-            ref = ref_;
-            rawRef = "icecap/keep/${builtins.substring 0 32 rev}";
           };
         }
     ));

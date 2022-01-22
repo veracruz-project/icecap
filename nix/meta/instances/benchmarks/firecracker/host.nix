@@ -15,8 +15,8 @@ let
   # firecrackerPkg = pkgs.icecap.firecracker;
   # firecrackerPkg = localFirecracker;
 
-  # localFirecrackerPath = ../../../../../local/firecracker/target/aarch64-unknown-linux-musl/debug/firecracker;
-  # localFirecrackerPath = ../../../../../local/firecracker/target/aarch64-unknown-linux-gnu/debug/firecracker;
+  # localFirecrackerPath = pkgs.icecap.icecapSrc.localPathOf "firecracker/target/aarch64-unknown-linux-musl/debug/firecracker";
+  # localFirecrackerPath = pkgs.icecap.icecapSrc.localPathOf "firecracker/target/aarch64-unknown-linux-gnu/debug/firecracker";
 
   localFirecracker = pkgs.runCommand "firecracker-local" {} ''
     install -D -T ${localFirecrackerPath} $out/bin/firecracker
