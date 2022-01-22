@@ -2,10 +2,7 @@
 
 with lib;
 
-with import ./common.nix;
-
 let
-
   cfg = config.instance;
 
   physicalIface = {
@@ -35,24 +32,14 @@ in
   };
 
   config = lib.mkMerge [
-
     {
-      net.interfaces.lo.static = "127.0.0.1";
+      instance.rngHack = true;
 
-      initramfs.extraInitCommands = ''
-        mkdir -p /bin
-        ln -s $(which sh) /bin/sh
-      '';
+      net.interfaces.lo.static = "127.0.0.1";
 
       initramfs.extraUtilsCommands = ''
         copy_bin_and_libs ${firecrackerPkg}/bin/firecracker
-        copy_bin_and_libs ${pkgs.icecap.firectl}/bin/firectl
-        copy_bin_and_libs ${pkgs.iproute}/bin/ip
         copy_bin_and_libs ${pkgs.nftables}/bin/nft
-        copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
-        copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
-        copy_bin_and_libs ${pkgs.curl.bin}/bin/curl
-        cp -pdv ${pkgs.glibc}/lib/libnss_dns*.so* $out/lib
       '';
     }
 
@@ -69,15 +56,10 @@ in
     })
 
     (mkIf (cfg.plat == "rpi4") {
+      instance.platSpecific.rpi4.setScalingGovernor = true;
+
       initramfs.extraInitCommands = ''
-        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-          echo $f
-          echo performance > $f
-        done
-
-        echo "waiting 2 seconds for mmc..."
         sleep 2
-
         mkdir -p /mnt
         mount -o ro /dev/mmcblk0p1 /mnt
         ln -s /mnt/$script /script
@@ -89,7 +71,7 @@ in
         . /etc/profile
 
         ip tuntap add veth0 mode tap
-        ip address add ${hostAddr}/24 dev veth0
+        ip address add ${cfg.misc.net.hostAddr}/24 dev veth0
         ip link set veth0 up
 
         # for _ in $(seq 2); do

@@ -23,6 +23,8 @@ in {
 
   config = mkMerge [
     {
+      instance.rngHack = true;
+
       initramfs.extraUtilsCommands = ''
         copy_bin_and_libs ${pkgs.iperf3}/bin/iperf3
         copy_bin_and_libs ${pkgs.sysbench}/bin/sysbench
@@ -39,6 +41,10 @@ in {
 
         # sysctl -w net.core.netdev_budget_usecs=2000 # default
         # sysctl -w net.core.netdev_budget_usecs=20000
+
+        # HACK
+        rm /dev/*random
+        ln -s /dev/zero /dev/urandom
       '';
 
       initramfs.profile = ''

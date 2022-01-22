@@ -5,6 +5,8 @@
 , devPkgs, linuxPkgs
 , platUtils
 
+, commonModules
+
 , configured
 }:
 
@@ -32,6 +34,8 @@ lib.fix (self: with self; {
     initramfs = userland.config.build.initramfs;
     userland = nixosLite.eval {
       modules = [
+        commonModules
+        commonModulesForInstance
         ./host.nix
         {
           instance.plat = icecapPlat;
@@ -51,9 +55,17 @@ lib.fix (self: with self; {
     initramfs = userland.config.build.initramfs;
     userland = nixosLite.eval {
       modules = [
+        commonModules
+        commonModulesForInstance
         ./realm.nix
       ];
     };
+  };
+
+  commonModulesForInstance = {
+    imports = [
+      ./common.nix
+    ];
   };
 
   commonBootargs = [

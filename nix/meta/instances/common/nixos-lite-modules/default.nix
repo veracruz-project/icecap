@@ -28,6 +28,16 @@ in {
       default = {};
       type = lib.types.attrs;
     };
+
+    rngHack = mkOption {
+      type = lib.types.bool;
+      default = false;
+    };
+
+    platSpecific.rpi4.setScalingGovernor = mkOption {
+      type = lib.types.bool;
+      default = false;
+    };
   };
 
   config = mkMerge [
@@ -43,11 +53,15 @@ in {
       '';
 
       initramfs.extraInitCommands = ''
-        # HACK
-        seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
-
         mkdir -p /bin
         ln -s $(which sh) /bin/sh
+
+      '' + optionalString cfg.rngHack ''
+        # HACK
+        # seq 0xfffffff | gzip | head -c $(cat /proc/sys/kernel/random/poolsize) > /dev/urandom
+
+        rm /dev/*random
+        ln -s /dev/zero /dev/urandom
       '';
     }
 
@@ -107,11 +121,8 @@ in {
       })
 
       (mkIf (cfg.host.plat == "rpi4") {
+        instance.platSpecific.rpi4.setScalingGovernor = true;
         initramfs.extraInitCommands = ''
-          for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-            echo performance > $f
-          done
-
           sleep 2 # HACK
           mkdir -p /mnt
           mount -o ro /dev/mmcblk0p1 /mnt
@@ -131,6 +142,13 @@ in {
       '';
     })
 
+    (mkIf cfg.platSpecific.rpi4.setScalingGovernor {
+      initramfs.extraInitCommands = ''
+        for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          echo performance > $f
+        done
+      '';
+    })
   ];
 
 }
