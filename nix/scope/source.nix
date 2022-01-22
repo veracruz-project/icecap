@@ -1,4 +1,4 @@
-{ lib, linux-ng, uboot-ng, makeOverridable' }:
+{ lib, linuxHelpers, makeOverridable' }:
 
 rec {
 
@@ -109,7 +109,7 @@ rec {
       rev = "81032a274e4bdf55aa1e065106f25e61e5758a1d";
     };
 
-    linux.unified = linux-ng.doSource {
+    linux.unified = linuxHelpers.linux.prepareSource {
       version = "5.15.0";
       extraVersion = "-rc2";
       src = (icecapSrc.repo {
@@ -118,7 +118,7 @@ rec {
       }).store;
     };
 
-    linux.rpi4 = linux-ng.doSource {
+    linux.rpi4 = linuxHelpers.linux.prepareSource {
       version = "5.15.0";
       extraVersion = "-rc2";
       src = (icecapSrc.repo {
@@ -127,7 +127,7 @@ rec {
       }).store;
     };
 
-    u-boot.host.unified = uboot-ng.doSource {
+    u-boot.host.unified = linuxHelpers.uBoot.prepareSource {
       version = "2019.07";
       src = (icecapSrc.repo {
         repo = "u-boot";
@@ -135,7 +135,7 @@ rec {
       }).store;
     };
 
-    u-boot.firmware.rpi4 = with uboot-ng; doSource {
+    u-boot.firmware.rpi4 = linuxHelpers.uBoot.prepareSource {
       version = "2019.07";
       src = (icecapSrc.repo {
         repo = "u-boot";

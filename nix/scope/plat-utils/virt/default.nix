@@ -1,13 +1,14 @@
 { lib, runCommand, writeScript, dtc
+, linuxHelpers
+, dtbHelpers
 , devPkgs
-, dtb-helpers
 }:
 
 let
   numCores = 4;
   memorySize = 1024 * 3; # TODO make configurable
 
-  exe = "${devPkgs.qemu-aarch64}/bin/qemu-system-aarch64";
+  exe = "${devPkgs.linuxHelpers.qemu-aarch64}/bin/qemu-system-aarch64";
   exeDtb = exe;
   exeRun = exe;
 
@@ -57,7 +58,7 @@ let
     ${exeDtb} ${join (frontendArgsWith ",dumpdtb=$out" ++ dummyBackendArgs)}
   '';
 
-  dts = with dtb-helpers; decompileWithName "virt.dts" dtb;
+  dts = with dtbHelpers; decompileWithName "virt.dts" dtb;
 
   cmdPrefix = { extraNetDevArgs ? "" }: "${exeRun} ${join (frontendArgs ++ backendArgs { inherit extraNetDevArgs; })}";
 

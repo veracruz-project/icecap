@@ -1,10 +1,10 @@
 { runCommand
+, linuxHelpers
 , icecapSrc, icecapExternalSrc
-, linux-ng
 , diffutils
 }:
 
-with linux-ng;
+with linuxHelpers.linux;
 
 let
 
@@ -40,7 +40,7 @@ let
   '';
 
 in
-doKernel rec {
+buildKernel rec {
   inherit source config;
   modules = false; # TODO
   dtbs = true;

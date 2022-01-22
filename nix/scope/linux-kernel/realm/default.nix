@@ -1,8 +1,8 @@
 { icecapSrc, icecapExternalSrc
-, linux-ng
+, linuxHelpers
 }:
 
-with linux-ng;
+with linuxHelpers.linux;
 
 let
 
@@ -17,7 +17,7 @@ let
   };
 
 in
-doKernel rec {
+buildKernel rec {
   inherit source config;
   modules = false;
   dtbs = false;

@@ -1,6 +1,6 @@
 { lib, runCommand
 , callPackage
-, dtb-helpers
+, dtbHelpers
 , linuxPkgs
 , deviceTree, platUtils, cpioUtils, elfUtils
 , icecapPlat
@@ -105,7 +105,7 @@ in lib.fix (self: with self; {
   allDebugLinks = debugLinksOf allDebugFiles;
 
   host-dtb = "${cdl}/links/host_vm.dtb";
-  host-dts = dtb-helpers.decompileForce host-dtb;
+  host-dts = dtbHelpers.decompileForce host-dtb;
 
   mkDefaultPayload = args: uBoot.mkDefaultPayload ({ dtb = host-dtb; } // args);
 

@@ -8,7 +8,7 @@ let
 
   uBootSource = icecapExternalSrc.u-boot.firmware.rpi4;
 
-  preConfig = linuxPkgs.uboot-ng.makeConfig {
+  preConfig = linuxPkgs.linuxHelpers.uBoot.makeConfig {
     source = uBootSource;
     target = "rpi_4_defconfig";
   };
@@ -30,7 +30,7 @@ let
 
   bootcmd = "load ${scriptPartition} ${scriptAddr} ${scriptName}; source ${scriptAddr}";
 
-  uBoot = linuxPkgs.uboot-ng.doKernel rec {
+  uBoot = linuxPkgs.linuxHelpers.uBoot.build rec {
     source = uBootSource;
     inherit config;
   };
@@ -45,7 +45,7 @@ let
 
   bootPartitionLinks = { image ? null, payload ? {}, extraBootPartitionCommands ? "", script ? defaultScript }:
     let
-      scriptUimg = linuxPkgs.uboot-ng-mkimage {
+      scriptUimg = linuxPkgs.linuxHelpers.uBoot.mkImage {
         type = "script";
         data = script;
       };

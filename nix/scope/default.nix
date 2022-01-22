@@ -1,4 +1,4 @@
-{ lib, hostPlatform, callPackage, icecapTopLevel }:
+{ lib, hostPlatform, callPackage, icecapTopLevel, linuxHelpers }:
 
 let
   superCallPackage = callPackage;
@@ -95,5 +95,7 @@ superCallPackage ./ocaml {} self //
   cmakeUtils = callPackage ./nix-utils/cmake-utils.nix {};
 
   inherit (nixUtils) callWith makeOverridable';
+
+  inherit (linuxHelpers) dtbHelpers raspios raspberry-pi-firmare;
 
 })

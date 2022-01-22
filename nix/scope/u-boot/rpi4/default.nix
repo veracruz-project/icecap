@@ -1,9 +1,9 @@
 { lib, writeText, runCommand
 , icecapSrc, icecapExternalSrc
-, uboot-ng, uboot-ng-mkimage
+, linuxHelpers
 }:
 
-with uboot-ng;
+with linuxHelpers.uBoot;
 
 let
 
@@ -34,7 +34,7 @@ let
       kernelAddr = "0x10080000";
       initramfsAddr = "0x18000000";
       dtbAddr = "0x12000000";
-      script = uboot-ng-mkimage {
+      script = linuxHelpers.uBoot.mkImage {
         type = "script";
         data = writeText "script.txt" ''
           load mmc 0:1 ${kernelAddr} payload/Image
@@ -53,7 +53,7 @@ let
     };
 
 in
-doKernel rec {
+build rec {
   inherit source config;
   passthru = {
     inherit mkDefaultPayload;

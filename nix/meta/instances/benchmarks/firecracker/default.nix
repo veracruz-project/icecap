@@ -1,7 +1,7 @@
 { lib, writeScript, writeText, linkFarm
 , closureInfo
 
-, dtb-helpers
+, dtbHelpers
 , devPkgs, linuxPkgs
 , platUtils
 
@@ -150,10 +150,10 @@ lib.fix (self: with self; {
   };
 
   dt = rec {
-    s = lib.mapAttrs (lib.const dtb-helpers.decompile) b;
+    s = lib.mapAttrs (lib.const dtbHelpers.decompile) b;
     b = {
       old = "${linuxPkgs.icecap.linuxKernel.host.rpi4.dtbs}/broadcom/bcm2711-rpi-4-b.dtb";
-      new = with dtb-helpers; compile (catFiles [ s.old ./rpi4.dtsa ]);
+      new = with dtbHelpers; compile (catFiles [ s.old ./rpi4.dtsa ]);
     };
   };
 

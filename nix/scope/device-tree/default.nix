@@ -1,4 +1,4 @@
-{ lib, icecapSrc, byIceCapPlat, platUtils, dtb-helpers, raspios, linuxPkgs }:
+{ lib, icecapSrc, byIceCapPlat, platUtils, dtbHelpers, raspios, linuxPkgs }:
 
 let
   outerOrig = {
@@ -9,17 +9,17 @@ let
 in
 {
   host = byIceCapPlat (plat: rec {
-    dtb = with dtb-helpers; compile (catFiles [
+    dtb = with dtbHelpers; compile (catFiles [
       orig.dts
       (icecapSrc.relative "support/hypervisor/host/common/host.dtsa")
       (icecapSrc.relative "support/hypervisor/host/${plat}/host.dtsa")
     ]);
     orig = {
       dtb = outerOrig.${plat};
-      dts = dtb-helpers.decompile orig.dtb;
+      dts = dtbHelpers.decompile orig.dtb;
     };
   });
-  realm = byIceCapPlat (plat: with dtb-helpers; compile (catFiles [
+  realm = byIceCapPlat (plat: with dtbHelpers; compile (catFiles [
     (icecapSrc.relative "support/hypervisor/realm/device-tree/base.dts")
     (icecapSrc.relative "support/hypervisor/realm/device-tree/${plat}.dtsa")
   ]));
