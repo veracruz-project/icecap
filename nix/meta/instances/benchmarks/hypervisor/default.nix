@@ -10,6 +10,8 @@ mkInstance { benchmark = withUtilization; } (self: with self;
 let
   inherit (configured) icecapPlat mkLinuxRealm;
 
+  autostart = true;
+
 in {
 
   payload = composition.mkDefaultPayload {
@@ -66,7 +68,7 @@ in {
     imports = [
       ./common.nix
       {
-        instance.autostart.enable = true;
+        instance.autostart.enable = autostart;
         instance.utlization.enable = withUtilization;
       }
     ];
