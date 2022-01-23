@@ -57,4 +57,9 @@ populate-cache:
 	test -n "$(REMOTE)"
 	drv=$$(nix-instantiate .. -A meta.everything.cached) && \
 		nix-store --realise $$drv && \
-		nix-copy-closure --include-outputs --to "$(REMOTE)" $$drv
+		closure="$$(nix-store --query --requisites --include-outputs $$drv)" && \
+		nix-copy-closure --use-substitutes --include-outputs --to "$(REMOTE)" $$closure
+		# NOTE
+		# 	Should just be the following, but nix-copy-closure
+		# 	--include-outputs doesn't work as expected.
+		# nix-copy-closure --use-substitutes --include-outputs --to "$(REMOTE)" $$drv
