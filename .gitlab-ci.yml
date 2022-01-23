@@ -1,0 +1,7 @@
+check:
+  tags: [ nix ]
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - make -C hack/ci
+  when: manual
