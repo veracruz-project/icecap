@@ -63,3 +63,7 @@ check-generated-sources:
 .PHONY: update-generated-sources
 update-generated-sources:
 	script=$$(nix-build -A meta.generatedSources.update --no-out-link) && $$script
+
+.PHONY: run-automated-tests
+run-automated-tests:
+	script=$$(nix-build -A meta.automatedTests.runAll --no-out-link) && $$script

@@ -17,6 +17,8 @@ rec {
   instances = call ./instances {};
   inherit (instances) tests benchmarks hacking;
 
+  automatedTests = call ./automated-tests {};
+
   generatedSources = call ./generated-sources.nix {};
   generatedDocs = call ./generated-docs {};
   adHocBuildTests = call ./ad-hoc-build-tests {};
