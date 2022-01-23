@@ -14,18 +14,19 @@ rustfmt:
 rustfmt-check:
 	cd ../src/rust && nix-shell --pure --run 'make fmt-check'
 
-check_generic_formatting_ignore_flags = \
-	-path ./.git -prune -o \
-	-path ./nixpkgs -prune -o \
-	-path ./nix/nix-linux -prune -o \
-	-path ./docs/images -prune -o \
-	-path '*.patch' -o \
-	-path ./tmp -prune -o \
-	-path ./src/rust/target -prune
+check_generic_formatting_ignore_patterns = \
+	-e '^docs/images' \
+	-e '.patch$$'
 
 .PHONY: check-generic-formatting
 check-generic-formatting:
-	cd .. && find . ! \( $(check_generic_formatting_ignore_flags) \) -type f | \
+	cd .. && git ls-files | \
+		grep -v $(check_generic_formatting_ignore_patterns) | \
+		( \
+			while read path; do \
+				[ -f "$$path" ] && echo $$path; \
+			done \
+		) | \
 		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-generic-formatting.py
 
 ### Avoiding cache misses ###
