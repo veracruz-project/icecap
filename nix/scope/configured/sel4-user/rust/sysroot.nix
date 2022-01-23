@@ -29,6 +29,7 @@ let
     rust = icecapSrc.repo {
       repo = "rust";
       rev = "564dac541463c35b1e2028e759f49f21e1374ddf"; # branch: icecap-sysroot
+      sha256 = "sha256-/iZoSXDzcMc2L/gyGuTKzp4l/7CJT9RlWWz5XK0abzo=";
       submodules = true;
     };
 

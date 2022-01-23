@@ -39,10 +39,11 @@ in {
     binaries = [ "rustfmt" ];
   };
 
-  rustSource = builtins.fetchGit {
+  rustSource = icecapSrc.fetchGitWrapper {
     url = "https://github.com/rust-lang/rust.git";
     ref = "master";
     rev = "b03ccace573bb91e27625c190a0f7807045a1012";
+    sha256 = "sha256-azRbK0ywNp4zhDy7hmxs2/eTBSgzmvERjP+xyTKhmns=";
     submodules = true;
   };
 

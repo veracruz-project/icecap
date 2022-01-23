@@ -1,4 +1,4 @@
-{ lib, linuxHelpers, makeOverridable' }:
+{ lib, fetchgit, linuxHelpers, makeOverridable' }:
 
 rec {
 
@@ -51,15 +51,24 @@ rec {
 
     repo = lib.fix (self: makeOverridable' (
 
-      { repo, ref ? null, rev, submodules ? false, local ? false, localGit ? false, innerSuffix ? "", outerSuffix ? "" } @ args:
+      { repo, ref ? null, rev, submodules ? false
+      , sha256 ? null
+      , local ? false, localGit ? false
+      , innerSuffix ? "", outerSuffix ? ""
+      } @ args:
 
         let
           url = if localGit then localPathOf repo else gitUrlOf repo;
           ref_ = if ref != null then ref else keepRefOf rev;
 
-          remoteBase = builtins.fetchGit {
+          remoteBase = if localGit != false || sha256 == null then builtins.fetchGit {
             inherit url rev submodules;
             ref = ref_;
+          } else fetchgit {
+            inherit url;
+            rev = assert ref == null; ref_; # use keep ref to enforce its existence
+            fetchSubmodules = submodules;
+            inherit sha256;
           };
 
           remoteIntermediate = "${remoteBase}/${innerSuffix}";
@@ -87,6 +96,15 @@ rec {
         }
     ));
 
+    fetchGitWrapper = { url, ref ? null, rev, submodules ? false , sha256 ? null }:
+      assert ref == null -> sha256 != null;
+      if sha256 == null then builtins.fetchGit {
+        inherit url ref rev submodules;
+      } else fetchgit {
+        inherit url rev sha256;
+        fetchSubmodules = submodules;
+      };
+
   };
 
   icecapExternalSrc = {
@@ -113,6 +131,7 @@ rec {
       src = (icecapSrc.repo {
         repo = "linux";
         rev = "cfd8cbf6367b4c74c9544c4c41efb2c1681166d9"; # branch icecap
+        sha256 = "sha256-9mio0hUxTotlgQghBfW4etuq9u7b8MkHbwSIeRC8y7g=";
       }).store;
     };
 
@@ -122,6 +141,7 @@ rec {
       src = (icecapSrc.repo {
         repo = "linux";
         rev = "b532b351b477faeb9d2074ebd9247e8eaeb86a85"; # branch: icecap-rpi4
+        sha256 = "sha256-SOmPXTKfDY2d6QtN8lTxWWBzfeQMjcQ4tNgmT5pr4CQ=";
       }).store;
     };
 
