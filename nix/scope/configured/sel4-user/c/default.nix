@@ -77,6 +77,10 @@ let
 
   mkLibs = isRoot: lib.fix (self: with self; {
 
+    compiler-some-libc = linkFarm "compiler-some-libc" [
+      { name = "include"; path = "${stdenv.cc.cc}/lib/gcc/aarch64-none-elf/9.3.0/include"; }
+    ];
+
     icecap-runtime = mkBasic {
       name = "icecap-runtime";
       extra.ICECAP_RUNTIME_CONFIG_IN = writeText "config_in.h" (''
@@ -97,6 +101,7 @@ let
       name = "icecap-some-libc";
       inputs = [
         icecap-utils
+        compiler-some-libc
       ];
     };
 

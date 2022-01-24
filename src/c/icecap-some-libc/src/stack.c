@@ -1,4 +1,4 @@
-#include <stddef.h>
+#include <stdint.h>
 
 // TODO init at boot
 #define STACK_CHK_GUARD 0x595e9fbd94fda766

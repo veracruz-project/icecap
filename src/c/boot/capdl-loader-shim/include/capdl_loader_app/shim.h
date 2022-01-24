@@ -18,3 +18,5 @@
 #define UNUSED __attribute__((__unused__))
 
 #define PAGE_SIZE_4K 4096
+
+typedef signed long ssize_t;
