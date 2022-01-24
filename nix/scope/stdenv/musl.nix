@@ -1,12 +1,13 @@
-{ stdenv }:
+{ stdenv, icecapSrc }:
 
 stdenv.mkDerivation rec {
   name = "musl";
 
-  src = builtins.fetchGit {
+  src = icecapSrc.fetchGitWrapper {
     url = "https://github.com/sel4/musllibc";
     ref = "sel4";
     rev = "a0a3af0e3a54fb3985352b4a3160503ecc8c260c";
+    sha256 = "sha256-TPG2TC9HGRvSQuce7jpOZ4dV9s0AFhHm4GtiheoIXgY=";
   };
 
   hardeningDisable = [ "all" ]; # TODO
