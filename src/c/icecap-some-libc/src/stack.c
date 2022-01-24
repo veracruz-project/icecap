@@ -1,8 +1,6 @@
 #include <icecap-runtime.h>
 #include <stdint.h>
 
-// TODO should this be in icecap-runtime?
-
 // TODO init at boot
 #define STACK_CHK_GUARD 0x595e9fbd94fda766
 
