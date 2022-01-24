@@ -1,5 +1,5 @@
 check-x86_64:
-  tags: [ nix-x86_64 ]
+  tags: [ nix-x86_64-linux ]
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
@@ -7,7 +7,7 @@ check-x86_64:
   when: manual
 
 check-aarch64:
-  tags: [ nix-aarch64 ]
+  tags: [ nix-aarch64-linux ]
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
