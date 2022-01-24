@@ -30,7 +30,7 @@
     ] ++ (with configured.userC.nonRootLibs; [
       { name = "libicecap-runtime"; path = icecap-runtime; }
       { name = "libicecap-utils"; path = icecap-utils; }
-      { name = "libicecap-pure"; path = icecap-pure; }
+      { name = "libicecap-some-libc"; path = icecap-some-libc; }
     ])));
 
   build-tools = pkgs.dev.buildEnv {

@@ -36,7 +36,7 @@ userC.mkRoot rec {
   propagatedBuildInputs = with userC.rootLibs; [
     libsel4
     icecap-runtime
-    icecap-pure
+    icecap-some-libc
     icecap-utils
     capdl-loader-core
   ];

@@ -93,8 +93,8 @@ let
       ];
     };
 
-    icecap-pure = mkBasic {
-      name = "icecap-pure";
+    icecap-some-libc = mkBasic {
+      name = "icecap-some-libc";
       inputs = [
         icecap-utils
       ];
@@ -127,7 +127,7 @@ let
       path = "boot/${name}";
       inputs = [
         icecap-utils
-        icecap-pure
+        icecap-some-libc
       ];
     };
 
@@ -136,7 +136,7 @@ let
       path = "boot/${name}";
       inputs = [
         icecap-runtime
-        icecap-pure
+        icecap-some-libc
         icecap-utils
         cpio
         capdl-loader-shim

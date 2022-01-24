@@ -13,7 +13,7 @@ in {
 
     extraLastLayer = attrs: {
       buildInputs = (attrs.buildInputs or []) ++ [
-        userC.nonRootLibs.icecap-pure # TODO
+        userC.nonRootLibs.icecap-some-libc # TODO
         userC.nonRootLibs.icecap-mirage-glue
         musl
         mirageLibrary
