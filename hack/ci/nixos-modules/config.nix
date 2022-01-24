@@ -87,12 +87,9 @@ in {
 
       services.nix-serve = {
        enable = true;
+       openFirewall = true;
        secretKeyFile = cfg.nix-serve.secretKeyFile;
      };
-
-     networking.firewall.allowedTCPPorts = [
-       config.services.nix-serve.port
-     ];
    })
  ];
 }
