@@ -70,7 +70,9 @@ in {
       ./common.nix
       {
         instance.autostart.enable = autostart;
-        instance.autostart.cpu = autostart;
+        # instance.autostart.cpu = autostart;
+        # instance.autostart.cpu = true;
+        instance.autostart.cpu = false;
         instance.utlization.enable = withUtilization;
       }
     ];

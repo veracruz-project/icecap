@@ -23,7 +23,7 @@ in {
       initramfs.profile = ''
         auto() {
           ${lib.optionalString cfg.autostart.cpu ''
-            for _ in $(seq 2); do
+            for _ in $(seq 4); do
               cpu_bound
               sleep 5
             done
