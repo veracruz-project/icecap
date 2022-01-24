@@ -18,10 +18,10 @@ in {
 
       . /etc/profile
 
-      # for _ in $(seq 2); do
-      #   realm_cpu
-      #   sleep 5
-      # done
+      for _ in $(seq 2); do
+        realm_cpu
+        sleep 5
+      done
 
       start_iperf_client &
     '';

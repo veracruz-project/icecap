@@ -74,10 +74,10 @@ in
         ip address add ${cfg.misc.net.hostAddr}/24 dev veth0
         ip link set veth0 up
 
-        # for _ in $(seq 2); do
-        #   host__cpu
-        #   sleep 10
-        # done
+        for _ in $(seq 2); do
+          host_cpu
+          sleep 10
+        done
 
         export iperf_affinity=0x1
         # taskset $iperf_affinity \
