@@ -38,7 +38,7 @@ let
       env = crateUtils.collectEnv allImplCrates;
     };
 
-    inherit (lib.mapAttrs (_: patch: patch.src) globalCrates._patches)
+    inherit (lib.mapAttrs (_: patch: patch.srcSplit) globalCrates._patches)
       dlmalloc libc;
   };
 

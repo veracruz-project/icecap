@@ -16,29 +16,15 @@ let
     '';
   };
 
-  gitDep = patch:
-    let
-      dotGit = fetchgit {
-        url = patch.src.hack.url;
-        rev = patch.src.hack.rev;
-        sha256 = patch.dotGitSha256;
-        leaveDotGit = true;
-        deepClone = false;
-        postFetch = ''
-          mv $out/.git tmp
-          rm -r $out
-          mv tmp $out
-        '';
-      };
-    in ''
-      d=$CARGO_HOME/git/db/${patch.cacheTag}
-      ln -s ${dotGit} $d
-      d=$CARGO_HOME/git/checkouts/${patch.cacheTag}/${builtins.substring 0 7 patch.src.hack.rev}
-      mkdir -p $d
-      ln -s ${patch.src}/* $d
-      ln -s ${dotGit} $d/.git
-      touch $d/.cargo-ok
-    '';
+  gitDep = { srcWithDotGit, rev, cacheTag, ... }: ''
+    d=$CARGO_HOME/git/db/${cacheTag}
+    ln -s ${srcWithDotGit}/.git $d
+    d=$CARGO_HOME/git/checkouts/${cacheTag}/${builtins.substring 0 7 rev}
+    mkdir -p $d
+    ln -s ${srcWithDotGit}/* $d
+    ln -s ${srcWithDotGit}/.git $d
+    touch $d/.cargo-ok
+  '';
 
   patches = globalCrates._patches;
 

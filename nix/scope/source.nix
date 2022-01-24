@@ -163,28 +163,38 @@ rec {
 
     crates.git =
       let
-        mk = { repo, rev, cacheTag, dotGitSha256 }: rec {
-          src = icecapSrc.repo {
-            inherit repo rev;
-          };
-          inherit cacheTag dotGitSha256;
-          dep = {
-            git = src.hack.url;
-            rev = src.hack.rev;
-          };
+        mk = { repo, rev, sha256 ? null, sha256WithDotGit, cacheTag }:
+          let
+            url = icecapSrc.gitUrlOf repo;
+          in {
+            srcWithDotGit = fetchgit {
+              inherit url;
+              rev = icecapSrc.keepRefOf rev;
+              sha256 = sha256WithDotGit;
+              leaveDotGit = true;
+              deepClone = false;
+            };
+            srcSplit = icecapSrc.repo {
+              inherit repo rev sha256;
+            };
+            inherit rev cacheTag;
+            dep = {
+              git = url;
+              inherit rev;
+            };
         };
       in {
         dlmalloc = mk {
           repo = "rust-dlmalloc";
           rev = "f6759cfed44dc4135eaa43c8c26599357749af39"; # branch: icecap
           cacheTag = "rust-dlmalloc-e8402a3cfb2bf152";
-          dotGitSha256 = "sha256-0K4E9XqmQV4J0UaHEarLf4pOHvOhg6vxTlZeleRTlBo=";
+          sha256WithDotGit = "sha256-gcpNxRBHHv9m0RZbIWGXO+PqCUJa2y3Xlk73KjXt3OI=";
         };
         libc = mk {
           repo = "rust-libc";
           rev = "bcb2c71ab1377db89ca6bca3e234b8f9ea20c012"; # branch: icecap
           cacheTag = "rust-libc-TODO"; # TODO
-          dotGitSha256 = "sha256-zUL33cMy9yWpdKvr9ss1R0KEAjhhiu7+B0q/OB6DcJA=";
+          sha256WithDotGit = "sha256-mQNTbPO1BKQLfdeX1MoTuBSIzDT0TQl9kxw1xWdeXIU=";
         };
       };
 
