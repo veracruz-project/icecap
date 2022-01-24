@@ -4,7 +4,7 @@ rec {
   cases = {
     hypervisor = automateQemuBasic {
       script = "${meta.instances.tests.hypervisor.virt.run}/run";
-      timeout = 300;
+      timeout = if pkgs.dev.hostPlatform.isAarch64 then 600 else 300;
     };
   };
 
