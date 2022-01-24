@@ -10,7 +10,8 @@ mkInstance { benchmark = withUtilization; } (self: with self;
 let
   inherit (configured) icecapPlat mkLinuxRealm;
 
-  autostart = true;
+  # autostart = true;
+  autostart = false;
 
 in {
 
@@ -69,6 +70,7 @@ in {
       ./common.nix
       {
         instance.autostart.enable = autostart;
+        instance.autostart.cpu = autostart;
         instance.utlization.enable = withUtilization;
       }
     ];
