@@ -100,6 +100,7 @@ let
     icecap-some-libc = mkBasic {
       name = "icecap-some-libc";
       inputs = [
+        icecap-runtime
         icecap-utils
         compiler-some-libc
       ];
