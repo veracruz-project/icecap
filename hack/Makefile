@@ -51,11 +51,15 @@ deep-clean:
 ### Remote cache maintenance ###
 
 # NOTE
-# Must provide `REMOTE=<remote, e.g. ssh host>`
+# - required: `REMOTE=<remote, e.g. ssh host>`
+# - optional: `ROOT=<attribute path>`
+
+ROOT ?= meta.everything.cached
+
 .PHONY: populate-cache
 populate-cache:
 	test -n "$(REMOTE)"
-	drv=$$(nix-instantiate .. -A meta.everything.cached) && \
+	drv=$$(nix-instantiate .. -A $(ROOT)) && \
 		nix-store --realise $$drv && \
 		closure="$$(nix-store --query --requisites --include-outputs $$drv)" && \
 		nix-copy-closure --use-substitutes --include-outputs --to "$(REMOTE)" $$closure
