@@ -37,12 +37,12 @@ rec {
       coproc $script < /dev/null
       result=$( \
         timeout $timeout_ bash -c \
-          'head -n1 <(bash -c "tee >(cat >&2)" | grep -E -a --line-buffered --only-matching "PASS|FAIL")' \
+          'head -n1 <(bash -c "tee >(cat >&2)" | grep -E -a --line-buffered --only-matching "TEST_(PASS|FAIL)")' \
           <&''${COPROC[0]} \
       )
       kill $COPROC_PID
 
       echo "result: '$result'"
-      [ "$result" == "PASS" ]
+      [ "$result" == "TEST_PASS" ]
     '';
 }

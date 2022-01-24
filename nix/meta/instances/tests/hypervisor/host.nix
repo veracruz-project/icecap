@@ -46,7 +46,7 @@ in {
             run_iperf_server > /dev/null
           done
 
-          echo PASS
+          echo TEST_PASS
         }
 
         start_realm() {
