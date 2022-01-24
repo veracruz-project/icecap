@@ -78,7 +78,7 @@ let
   mkLibs = isRoot: lib.fix (self: with self; {
 
     compiler-some-libc = linkFarm "compiler-some-libc" [
-      { name = "include"; path = "${stdenv.cc.cc}/lib/gcc/aarch64-none-elf/9.3.0/include"; }
+      { name = "include"; path = "${stdenv.cc.cc}/lib/gcc/${stdenv.cc.cc.targetConfig}/${stdenv.cc.cc.version}/include"; }
     ];
 
     icecap-runtime = mkBasic {
