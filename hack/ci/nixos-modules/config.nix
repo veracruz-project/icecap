@@ -33,6 +33,11 @@ in {
       default = pkgs.nix;
     };
 
+    icecap.ci.gitlab-runner.tagList = lib.mkOption {
+      type = lib.types.unspecified;
+      default = [ "nix" ];
+    };
+
     icecap.ci.nix-serve.enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -77,7 +82,7 @@ in {
               NIX_SSL_CERT_FILE = "${env}/etc/ssl/certs/ca-bundle.crt";
               NIX_BUILD_SHELL = "bash";
             };
-            tagList = [ "nix" ];
+            tagList = cfg.gitlab-runner.tagList;
           };
         };
       };

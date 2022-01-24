@@ -1,5 +1,13 @@
-check:
-  tags: [ nix ]
+check-x86_64:
+  tags: [ nix-x86_64 ]
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - make -C hack/ci
+  when: manual
+
+check-aarch64:
+  tags: [ nix-aarch64 ]
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
