@@ -25,7 +25,7 @@ in {
 
       initramfs.profile = ''
         auto() {
-          for i in $(seq 3); do
+          for i in $(seq 2); do
             start_realm &
             echo short > /dev/icecap_channel_realm_0
             response=$(head -n 1 < /dev/icecap_channel_realm_0)
@@ -42,7 +42,7 @@ in {
 
           head -n 3 < /dev/icecap_channel_realm_0
 
-          for i in $(seq 3); do
+          for i in $(seq 2); do
             run_iperf_server > /dev/null
           done
 
