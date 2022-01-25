@@ -35,7 +35,7 @@ It has the following structure:
 */
 
 let
-  lib = import ../nixpkgs/lib;
+  lib = import ../../nixpkgs/lib;
 
   makeOverridableWith = f: g: x: (g x) // {
     override = x': makeOverridableWith f g (f x' x);
@@ -76,7 +76,7 @@ let
     let
       concreteArgs = args self;
       pkgs = lib.mapAttrs (_: crossSystem:
-        import ../nixpkgs (concreteArgs.nixpkgsArgsFor crossSystem)
+        import ../../nixpkgs (concreteArgs.nixpkgsArgsFor crossSystem)
       ) crossSystems;
     in {
       inherit lib pkgs;

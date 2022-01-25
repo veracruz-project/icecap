@@ -31,7 +31,7 @@ rec {
     relativeSplit = relativeSplitWithName null;
     relativeWithName = name: suffix: (relativeSplitWithName name suffix).store;
     relativeSplitWithName = name: suffix: absoluteSplitWithName name (relativeRaw suffix);
-    relativeRaw = suffix: ../../src + "/${suffix}";
+    relativeRaw = suffix: ../../../src + "/${suffix}";
 
     splitTrivially = store: { inherit store; env = store; };
     extend = suffix: lib.mapAttrs (_: v: "${v}${suffix}");
@@ -40,7 +40,7 @@ rec {
     gitUrlOf = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";
     keepRefOf = rev: "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";
 
-    localPathOf = repo: ../../../local + "/${repo}";
+    localPathOf = repo: ../../../../local + "/${repo}";
 
     localPathWithBranchOf = repo: branch:
       let
