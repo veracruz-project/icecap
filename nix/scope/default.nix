@@ -1,4 +1,4 @@
-{ lib, hostPlatform, callPackage, icecapTopLevel, linuxHelpers }:
+{ lib, hostPlatform, callPackage, icecapTopLevel, linuxHelpers, splicePackages }:
 
 let
   superCallPackage = callPackage;
@@ -16,7 +16,6 @@ lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") icecapTopLevel.pkgs //
 # To avoid clutter, distribute scope accross multiple files.
 # We opt for a flat scope rather than creating sub-scopes to avoid deeper splicing.
 superCallPackage ./rust {} self //
-superCallPackage ./ocaml {} self //
 
 (with self; {
 
@@ -98,4 +97,30 @@ superCallPackage ./ocaml {} self //
 
   inherit (linuxHelpers) dtbHelpers raspios raspberry-pi-firmare;
 
+  ocamlScope =
+    let
+      superOtherSplices = otherSplices;
+    in
+    let
+      otherSplices = with superOtherSplices; {
+        selfBuildBuild = selfBuildBuild.ocamlScope;
+        selfBuildHost = selfBuildHost.ocamlScope;
+        selfBuildTarget = selfBuildTarget.ocamlScope;
+        selfHostHost = selfHostHost.ocamlScope;
+        selfTargetTarget = selfTargetTarget.ocamlScope or {};
+      };
+    in
+      lib.makeScopeWithSplicing
+        splicePackages
+        newScope
+        otherSplices
+        (_: {})
+        (_: {})
+        (self: callPackage ./ocaml {} self // {
+          __dontRecurseWhenSplicing = true; # recursing breaks attribute sets whose keys depend on the offset
+          inherit superOtherSplices otherSplices; # for convenience
+        })
+      ;
+
+  inherit (ocamlScope) icecap-ocaml-runtime;
 })

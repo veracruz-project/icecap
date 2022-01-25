@@ -1,5 +1,6 @@
 { lib, writeText, runCommand, linkFarm
 , buildPlatform, hostPlatform, targetPlatform
+, stdenvMirage
 }:
 
 self:
@@ -7,10 +8,10 @@ self:
 let
   callPackage = self.newScope (lib.optionalAttrs (hostPlatform.config == "aarch64-none-elf") {
     # TODO abstract
-    stdenv = self.stdenvMirage;
+    stdenv = stdenvMirage;
   });
 
-  targetCC = self.otherSplices.selfTargetTarget.stdenvMirage.cc;
+  targetCC = self.superOtherSplices.selfTargetTarget.stdenvMirage.cc;
 
   inherit (self) otherSplices;
   inherit (self) ocaml ocamlBuildBuild;

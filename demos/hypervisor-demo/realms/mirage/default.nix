@@ -19,5 +19,5 @@ in rec {
     });
   };
 
-  mirageLibrary = configured.callPackage ./mirage.nix {};
+  mirageLibrary = pkgs.none.icecap.ocamlScope.callPackage ./mirage.nix {};
 }
