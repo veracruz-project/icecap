@@ -41,6 +41,18 @@ impl BcmSystemTimerDevice {
     fn ptr(&self) -> *const BcmSystemTimerRegisterBlock {
         self.base_addr as *const _
     }
+
+    fn get_count_split(&self) -> (u32, u32) {
+        let hi_0 = self.counter_hi.get();
+        let lo_0 = self.counter_lo.get();
+        let hi = self.counter_hi.get();
+        let lo = if hi_0 == hi {
+            lo_0
+        } else {
+            self.counter_lo.get()
+        };
+        (hi, lo)
+    }
 }
 
 impl Deref for BcmSystemTimerDevice {
@@ -59,47 +71,44 @@ impl TimerDevice for BcmSystemTimerDevice {
     fn set_enable(&self, _enabled: bool) {}
 
     fn get_count(&self) -> u64 {
-        let hi_0 = self.counter_hi.get();
-        let lo_0 = self.counter_lo.get();
-        let hi = self.counter_hi.get();
-        let lo = if hi_0 == hi {
-            lo_0
-        } else {
-            self.counter_lo.get()
-        };
-        (hi as u64) << 32 | (lo as u64)
+        let (hi, lo) = self.get_count_split();
+        join_reg(hi, lo)
     }
 
     // TODO
     fn set_compare(&self, compare: u64) -> bool {
-        let compare_hi = (compare >> 32) as u32;
-        let compare_lo = (compare & 0xffffffff) as u32;
+        let (compare_hi, compare_lo) = split_reg(compare);
         {
             // This device has 32-bit registers and a 1 MHz counter so it is not
             // possible to schedule an interrupt in more than about 70 minutes.
-            let hi_0 = self.counter_hi.get();
-            let lo_0 = self.counter_lo.get();
-            let hi = self.counter_hi.get();
-            let lo = if hi_0 == hi { lo_0 } else { 0 };
+            let (hi, lo) = self.get_count_split();
             if !((compare_hi == hi && compare_lo > lo) || (compare_hi == hi + 1 && compare_lo < lo))
             {
                 debug_println!(
-                    "set_compare: 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
-                    compare,
-                    hi_0,
-                    lo_0,
+                    "set_compare: 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
+                    compare_hi,
+                    compare_lo,
                     hi,
                     lo
                 );
             }
         }
         self.compare[self.match_ix].set(compare_lo);
-        let count = self.get_count();
-        let count_lo = (count & 0xffffffff) as u32;
+        let count_lo = self.counter_lo.get();
         return compare_lo >= count_lo;
     }
 
     fn clear_interrupt(&self) {
         self.ctrl.set(1 << self.match_ix);
     }
+}
+
+fn split_reg(whole: u64) -> (u32, u32) {
+    let hi = (whole >> 32) as u32;
+    let lo = (whole & ((1 << 32) - 1)) as u32;
+    (hi, lo)
+}
+
+fn join_reg(hi: u32, lo: u32) -> u64 {
+    (hi as u64) << 32 | (lo as u64)
 }
