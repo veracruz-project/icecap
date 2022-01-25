@@ -9,9 +9,9 @@ rec {
   everything = call ./everything.nix {};
 
   # At top-level for discoverability
-  examples = import ../../../examples;
+  examples = import ../../examples;
   demos = {
-    hypervisor-demo = import ../../../demos/hypervisor-demo;
+    hypervisor-demo = import ../../demos/hypervisor-demo;
   };
 
   instances = call ./instances {};
