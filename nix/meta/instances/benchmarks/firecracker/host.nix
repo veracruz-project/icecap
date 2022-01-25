@@ -76,7 +76,7 @@ in
 
         # for _ in $(seq 4); do
         #   host_cpu
-        #   sleep 10
+        #   sleep 5
         # done
 
         export iperf_affinity=0x1
