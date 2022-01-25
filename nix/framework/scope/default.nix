@@ -43,8 +43,6 @@ superCallPackage ./rust {} self //
 
   platUtils = byIceCapPlat (plat: callPackage (./plat-utils + "/${plat}") {});
 
-  deviceTree = callPackage ./device-tree {};
-
   linuxOnly = assert hostPlatform.system == "aarch64-linux"; lib.id;
 
   uBoot = linuxOnly {
@@ -53,18 +51,12 @@ superCallPackage ./rust {} self //
 
   linuxKernel = linuxOnly {
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
-    realm = callPackage ./linux-kernel/realm {};
+    guest = callPackage ./linux-kernel/guest {};
   };
 
   nixosLite = callPackage ./linux-user/nixos-lite {};
 
-  icecap-host = callPackage ./linux-user/icecap-host.nix {};
   crosvm-9p-server = callPackage ./linux-user/crosvm-9p-server.nix {};
-
-  firecracker = callPackage ./linux-user/firecracker/firecracker.nix {};
-  firecracker-prebuilt = callPackage ./linux-user/firecracker/firecracker-prebuilt.nix {};
-  firectl = callPackage ./linux-user/firecracker/firectl.nix {};
-  libfdt = callPackage ./linux-user/firecracker/libfdt {};
 
   capdl-tool = callPackage ./dev/capdl-tool.nix {};
   sel4-manual = callPackage ./dev/sel4-manual.nix {};
