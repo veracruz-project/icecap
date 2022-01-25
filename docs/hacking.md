@@ -91,6 +91,12 @@ TODO
 TODO
 ```
 
+### Using local checkouts of dependencies
+
+```
+TODO
+```
+
 ### Modifying `defconfig`s
 
 ```
@@ -98,6 +104,12 @@ TODO
 ```
 
 ### Working with the Raspberry Pi 4
+
+```
+TODO
+```
+
+### Infrastructure: CI and caches
 
 ```
 TODO
