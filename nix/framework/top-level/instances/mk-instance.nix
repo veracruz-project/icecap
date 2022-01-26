@@ -22,7 +22,7 @@ f: lib.fix (self:
     icecapPlatArgs = {};
 
     run = pkgs.none.icecap.platUtils.${icecapPlat}.bundle {
-      firmware = composition.image;
+      inherit (composition) image;
       inherit payload;
       platArgs = icecapPlatArgs.${icecapPlat} or {};
       extraLinks = {

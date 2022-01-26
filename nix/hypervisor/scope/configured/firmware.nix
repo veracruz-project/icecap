@@ -1,17 +1,12 @@
 { compose, makeOverridable'
-, icecapSrc
-, lib, runCommand
+, lib
 , callPackage
 , dtbHelpers
 , linuxPkgs
-, deviceTree, platUtils, cpioUtils, elfUtils
+, deviceTree, platUtils
 , icecapPlat
-, mkIceDL, mkCapDLLoader
-, kernel, elfloader, hypervisorComponents
-
-, icecap-append-devices
-, icecap-serialize-builtin-config
-, icecap-serialize-event-server-out-index
+, mkHypervisorIceDL
+, hypervisorComponents
 }:
 
 let
@@ -20,14 +15,12 @@ in
 
 makeOverridable' compose (rec {
 
-  cdl = (mkIceDL {
-    command = "python3 -m icecap_hypervisor.cli firmware $CONFIG -o $OUT_DIR";
+  cdl = mkHypervisorIceDL {
+    subcommand = "firmware";
     config = {
       num_cores = platUtils.${icecapPlat}.numCores;
       num_realms = 2;
       default_affinity = 1;
-
-      hack_realm_affinity = 1;
 
       components = {
         idle.image = hypervisorComponents.idle.split;
@@ -45,13 +38,7 @@ makeOverridable' compose (rec {
         host_vm.dtb = deviceTree.host.${icecapPlat}.dtb;
       };
     };
-  }).overrideAttrs (attrs: {
-    nativeBuildInputs = attrs.nativeBuildInputs ++ [
-      icecap-append-devices
-      icecap-serialize-builtin-config
-      icecap-serialize-event-server-out-index
-    ];
-  });
+  };
 
   u-boot = "${uBoot}/u-boot.bin";
 

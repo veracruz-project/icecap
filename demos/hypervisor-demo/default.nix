@@ -24,7 +24,7 @@ in rec {
   };
 
   run = platUtils.${icecapPlat}.bundle {
-    firmware = icecapFirmware.image;
+    inherit (icecapFirmware) image;
     payload = icecapFirmware.mkDefaultPayload {
       kernel = pkgs.linux.icecap.linuxKernel.host.${icecapPlat}.kernel;
       initramfs = hostUser.config.build.initramfs;

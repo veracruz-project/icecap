@@ -1,14 +1,4 @@
-{ compose, makeOverridable'
-, icecapSrc
-, lib, runCommand
-, callPackage
-, dtbHelpers
-, linuxPkgs
-, deviceTree, platUtils, cpioUtils, elfUtils
-, icecapPlat
-, mkIceDL, mkCapDLLoader
-, kernel, elfloader, hypervisorComponents
-
+{ mkIceDL
 , icecap-append-devices
 , icecap-serialize-builtin-config
 , icecap-serialize-event-server-out-index

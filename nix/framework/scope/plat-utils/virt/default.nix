@@ -107,7 +107,7 @@ let
   };
 
   bundle =
-    { firmware, payload ? {}
+    { image, payload ? {}
     , extraLinks ? {}
     , platArgs ? {}
     }:
@@ -125,7 +125,7 @@ let
                 else basicScript;
             in
               script {
-                kernel = firmware;
+                kernel = image;
                 inherit (elaboratedPlatArgs) extraNetDevArgs extraQemuArgs;
               };
         } // extraLinks;

@@ -75,7 +75,7 @@ let
     '';
 
   bundle =
-    { firmware, payload ? {}
+    { image, payload ? {}
     , extraLinks ? {}
     , platArgs ? {}
     }:
@@ -87,8 +87,7 @@ let
       ) platArgs;
 
       boot = bootPartitionLinks {
-        image = firmware;
-        inherit payload;
+        inherit image payload;
         inherit (elaboratedPlatArgs) extraBootPartitionCommands;
       };
 

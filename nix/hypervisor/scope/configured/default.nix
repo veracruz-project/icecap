@@ -1,4 +1,4 @@
-{ makeOverridable' }:
+{ }:
 
 self: super: with self;
 

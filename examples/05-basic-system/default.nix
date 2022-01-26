@@ -16,7 +16,7 @@ let
 in rec {
 
   run = platUtils.${configured.icecapPlat}.bundle {
-    firmware = composition.image;
+    inherit (composition) image;
   };
 
   composition = configured.compose {
