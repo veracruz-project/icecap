@@ -94,8 +94,8 @@ impl TimerDevice for BcmSystemTimerDevice {
             }
         }
         self.compare[self.match_ix].set(compare_lo);
-        let count_lo = self.counter_lo.get();
-        return compare_lo >= count_lo;
+        let count = self.get_count();
+        return compare >= count;
     }
 
     fn clear_interrupt(&self) {
