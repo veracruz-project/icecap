@@ -1,10 +1,12 @@
-{ lib, pkgs, instances, automatedTests, adHocBuildTests, generatedDocs }:
+{ lib, pkgs, mkEverything, instances, automatedTests, adHocBuildTests, generatedDocs }:
 
 let
   inherit (pkgs) dev none linux musl;
 
   forEachIn = lib.flip lib.concatMap;
   forEachConfigured = f: lib.mapAttrsToList (lib.const f) pkgs.none.icecap.configured;
+
+in mkEverything {
 
   cached = [
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
@@ -14,9 +16,7 @@ let
     automatedTests.runAll
   ];
 
-  pure = [
-    cached
-
+  extraPure = [
     (forEachConfigured (configured: [
       configured.sysroot-rs
     ]))
@@ -34,19 +34,4 @@ let
     adHocBuildTests.allList
     generatedDocs.html
   ];
-
-  all = [
-    pure
-    impure
-  ];
-
-  mk = name: drvs: pkgs.dev.writeText name (toString (lib.flatten drvs));
-
-in {
-
-  cached = mk "everything-cached" cached;
-  pure = mk "everything-pure" pure;
-  impure = mk "everything-impure" impure;
-  all = mk "everything" all;
-
 }

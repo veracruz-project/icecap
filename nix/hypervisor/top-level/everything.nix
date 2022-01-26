@@ -1,10 +1,12 @@
-{ lib, pkgs, tcbSize, instances, automatedTests }:
+{ lib, pkgs, framework, tcbSize, instances, automatedTests }:
 
 let
   inherit (pkgs) dev none linux musl;
 
   forEachIn = lib.flip lib.concatMap;
   forEachConfigured = f: lib.mapAttrsToList (lib.const f) pkgs.none.icecap.configured;
+
+in framework.mkEverything {
 
   cached = [
     (forEachConfigured (configured: [
@@ -24,9 +26,7 @@ let
     automatedTests.runAll
   ];
 
-  pure = [
-    cached
-
+  extraPure = [
     (forEachIn [ linux musl ] (host: [
       host.icecap.icecap-host
       host.icecap.firecracker
@@ -38,21 +38,4 @@ let
       instances.hacking.example # NOTE okay to remove this during periods when it's broken
     ])
   ];
-
-  impure = [
-  ];
-
-  all = [
-    pure
-  ];
-
-  mk = name: drvs: pkgs.dev.writeText name (toString (lib.flatten drvs));
-
-in {
-
-  cached = mk "everything-cached" cached;
-  pure = mk "everything-pure" pure;
-  impure = mk "everything-impure" impure;
-  all = mk "everything" all;
-
 }

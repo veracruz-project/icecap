@@ -17,4 +17,19 @@ in {
   adHocBuildTests = call ./ad-hoc-build-tests {};
   rustAggregate = call ./rust-aggregate {};
 
+  mkEverything =
+    { cached ? []
+    , extraPure ? []
+    , impure ? []
+    }:
+    let
+      mk = name: drvs: pkgs.dev.writeText name (toString (lib.flatten drvs));
+    in {
+      cached = mk "everything-cached" cached;
+      extraPure = mk "everything-pure" extraPure;
+      pure = mk "everything-pure" (cached ++ extraPure);
+      impure = mk "everything-impure" impure;
+      all = mk "everything" (cached ++ extraPure ++ impure);
+    };
+
 }
