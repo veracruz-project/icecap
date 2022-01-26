@@ -1,10 +1,9 @@
 /*
 
-This is the top-level IceCap attribute set, referred to as topLevel.
-It has the following structure:
+This is the top-level IceCap Framework attribute set, referred to as `framework`,
+or `icecapFramework in` busier scopes. It has the following structure:
 
 {
-
   # A Nixpkgs attribute set for each target system, each augmented with the overlay at `./overlay`.
   # This overlay adds the `.icecap` attribute which holds a scope containing the IceCap expressions.
   # This scope is expressed in `./scope`. For more a description of each target system, see
@@ -27,6 +26,8 @@ It has the following structure:
   override :: ((TopLevel -> Args) -> (TopLevel -> Args)) -> TopLevel
   override = f: ...;
 
+  # Less important attributes, found in `./top-level`
+  ...
 }
 
 */
@@ -52,13 +53,13 @@ let
       none = guard "aarch64-none-elf";
     };
 
-  baseArgs = selfTopLevel: {
+  baseArgs = selfFramework: {
     config = {};
     nixpkgsArgsFor = crossSystem: {
       inherit crossSystem;
       overlays = [
         (_self: _super: {
-          icecapTopLevel = selfTopLevel;
+          icecapFramework = selfFramework;
         })
         (import ./nix-linux/overlay.nix)
         (import ./overlay)

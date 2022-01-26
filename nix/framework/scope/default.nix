@@ -1,4 +1,4 @@
-{ lib, hostPlatform, callPackage, icecapTopLevel, linuxHelpers, splicePackages }:
+{ lib, hostPlatform, callPackage, icecapFramework, linuxHelpers, splicePackages }:
 
 let
   superCallPackage = callPackage;
@@ -11,10 +11,9 @@ let
 in
 
 # Add nonePkgs, devPkgs, etc. to scope.
-lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") icecapTopLevel.pkgs //
+lib.mapAttrs' (k: lib.nameValuePair "${k}Pkgs") icecapFramework.pkgs //
 
 # To avoid clutter, distribute scope accross multiple files.
-# We opt for a flat scope rather than creating sub-scopes to avoid deeper splicing.
 superCallPackage ./rust {} self //
 
 (with self; {
@@ -86,8 +85,10 @@ superCallPackage ./rust {} self //
 
   inherit (nixUtils) callWith makeOverridable';
 
+  # Re-export for convenience
   inherit (linuxHelpers) dtbHelpers raspios raspberry-pi-firmare;
 
+  # Relegate ocaml to sub-scope
   ocamlScope =
     let
       superOtherSplices = otherSplices;

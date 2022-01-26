@@ -15,23 +15,17 @@ let
   pure = [
     cached
 
-    (forEachIn [ linux musl ] (host: [
+    (forEachConfigured (configured: [
+      configured.sysroot-rs
+    ]))
+
+    (forEachIn [ dev ] (host: [
+      host.icecap.bindgen
     ]))
 
     (forEachIn [ dev linux musl ] (host: [
       host.icecap.crosvm-9p-server
     ]))
-
-    (forEachIn [ dev ] (host: [
-      dev.icecap.bindgen
-    ]))
-
-    (forEachConfigured (configured: [
-      configured.sysroot-rs
-    ]))
-
-    (map (lib.mapAttrsToList (_: plat: plat.run)) [
-    ])
   ];
 
   impure = [
