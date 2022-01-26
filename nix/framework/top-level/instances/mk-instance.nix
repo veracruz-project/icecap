@@ -18,7 +18,6 @@ f: lib.fix (self:
 
     composition = null;
     payload = {};
-    allDebugFiles = true;
     extraLinks = {};
     icecapPlatArgs = {};
 
@@ -26,10 +25,10 @@ f: lib.fix (self:
       firmware = composition.image;
       inherit payload;
       platArgs = icecapPlatArgs.${icecapPlat} or {};
-      extraLinks = lib.mapAttrs' (k: lib.nameValuePair "debug/${k}") ({
-          icecap-show-backtrace = "${pkgs.dev.icecap.icecap-show-backtrace}/bin/icecap-show-backtrace";
-        } // composition.debugFiles // lib.optionalAttrs allDebugFiles composition.cdlDebugFiles
-      ) // extraLinks;
+      extraLinks = {
+        composition = composition.display;
+        "debug/icecap-show-backtrace" = "${pkgs.dev.icecap.icecap-show-backtrace}/bin/icecap-show-backtrace";
+      } // extraLinks;
     };
 
   } // attrs

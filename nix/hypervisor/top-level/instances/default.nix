@@ -1,20 +1,23 @@
-{ lib, pkgs }:
+{ lib, pkgs, framework }:
 
 let
-
-  mkInstance = import ./mk-instance.nix {
-    inherit lib pkgs;
-  };
-
   commonModules = import ./common/nixos-lite-modules;
 
   callInstance = path: args: lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
     pkgs.none.icecap.newScope {
       inherit commonModules;
       inherit configured;
-      mkInstance = icecapConfigOverride: mkInstance {
-        configured = configured.override' icecapConfigOverride;
-      };
+      mkInstance = icecapConfigOverride:
+        let
+          configured' = configured.override' icecapConfigOverride;
+        in 
+        let
+          configured = configured';
+        in f: framework.instances.mkInstance {
+          inherit configured;
+        } (self: {
+         composition = configured.icecapFirmware;
+        });
     } path args
   );
 

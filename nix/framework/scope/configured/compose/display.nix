@@ -26,7 +26,7 @@ in linkFarm "icecap-hypervisor-firmware" (lib.flatten [
     (link "kernel.dtb" components.kernel.dtb)
     (sub "components" (lib.flatten [
       (lib.mapAttrsToList showSplit cdlImages)
-      (link "host.u-boot.bin" components.u-boot)
+      # (link "host.u-boot.bin" components.u-boot)
     ]))
     (sub "capdl-specification" (lib.flatten [
       (link "icecap.cdl" "${components.cdl}/icecap.cdl")

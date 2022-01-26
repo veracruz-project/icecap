@@ -8,13 +8,15 @@ rec {
     # };
   };
 
-  runAll =
+  runAll = mkRunAll cases;
+
+  mkRunAll = cases':
     with pkgs.dev;
     writeScript "run-all" ''
       #!${bash}/bin/bash
       set -e
 
-      ${lib.concatStrings (lib.flip lib.mapAttrsToList cases (name: autoScript: ''
+      ${lib.concatStrings (lib.flip lib.mapAttrsToList cases' (name: autoScript: ''
         echo "<<< running case: ${name} >>>"
         ${autoScript}
       ''))}

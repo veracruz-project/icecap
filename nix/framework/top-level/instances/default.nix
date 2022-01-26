@@ -20,7 +20,5 @@ in {
     backtrace = callInstance ./tests/backtrace {};
   };
 
-  _helpers = {
-    inherit mkInstance callInstance;
-  };
+  inherit mkInstance callInstance;
 }

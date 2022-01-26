@@ -1,4 +1,4 @@
-{ lib, pkgs, instances, adHocBuildTests, generatedDocs }:
+{ lib, pkgs, instances, automatedTests, adHocBuildTests, generatedDocs }:
 
 let
   inherit (pkgs) dev none linux musl;
@@ -10,6 +10,8 @@ let
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
       instances.tests.backtrace
     ])
+
+    automatedTests.runAll
   ];
 
   pure = [

@@ -1,4 +1,4 @@
-{ lib, pkgs, tcbSize, instances }:
+{ lib, pkgs, tcbSize, instances, automatedTests }:
 
 let
   inherit (pkgs) dev none linux musl;
@@ -20,6 +20,8 @@ let
       instances.benchmarks.hypervisor-with-utilization
       instances.benchmarks.firecracker
     ])
+
+    automatedTests.runAll
   ];
 
   pure = [
