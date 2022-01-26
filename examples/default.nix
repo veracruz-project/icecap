@@ -1,7 +1,12 @@
-let
-  icecap = import ../.;
+{ framework ? import ../nix/framework
+, hypervisor ? import ../nix/hypervisor {}
+}:
 
-  inherit (icecap) lib pkgs;
+let
+  # HACK
+  framework = hypervisor.framework;
+
+  inherit (framework) lib pkgs;
 
   examples = {
     minimal-root-task = ./01-minimal-root-task;

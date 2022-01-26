@@ -1,6 +1,7 @@
+{ hypervisor ? import ../../nix/hypervisor {} }:
+
 let
-  icecap = import ../../.;
-  inherit (icecap) lib pkgs;
+  inherit (hypervisor.framework) lib pkgs;
 in
 
 lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:

@@ -1,4 +1,4 @@
-{ framework ? ../framework }:
+{ framework ? import ../framework }:
 
 let
   inherit (framework) lib;

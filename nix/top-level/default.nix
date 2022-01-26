@@ -5,9 +5,13 @@ let
 
 in {
 
-  examples = import ../../examples;
+  examples = import ../../examples {
+    inherit framework hypervisor;
+  };
   demos = {
-    hypervisor-demo = import ../../demos/hypervisor-demo;
+    hypervisor-demo = import ../../demos/hypervisor-demo {
+      inherit hypervisor;
+    };
   };
 
   everything =
