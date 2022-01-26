@@ -7,6 +7,8 @@ let
     inherit framework;
   };
 
+  collectRun = attrs: map (x: x.run) (lib.collect (x: x ? run) attrs);
+
   applied = {
     framework = lib.mapAttrsRecursive (_: f: f { inherit framework; }) unapplied.framework;
     hypervisor = lib.mapAttrsRecursive (_: f: f { inherit hypervisor; }) unapplied.hypervisor;
@@ -40,6 +42,9 @@ let
 in rec {
   inherit framework hypervisor;
 
+  examples = applied.framework.examples // applied.hypervisor.examples;
+  demos = applied.framework.demos // applied.hypervisor.demos;
+
   everything =
     let
       inherit (framework) lib mkEverything;
@@ -47,22 +52,19 @@ in rec {
       cached = [
         framework.everything.cached
         hypervisor.everything.cached
-        (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) demos)
-        (lib.mapAttrsToList (_: example: example.run) examples)
+        (collectRun applied)
       ];
       extraPure = [
         framework.everything.extraPure
         hypervisor.everything.extraPure
+        testStandAlone
       ];
       impure = [
         framework.everything.impure
       ];
     };
 
-  examples = applied.framework.examples // applied.hypervisor.examples;
-  demos = applied.framework.demos // applied.hypervisor.demos;
-
   testStandAlone = framework.pkgs.dev.writeText "test-stand-alone"
-    (toString (map (example: example.run) (lib.collect (example: example ? run) appliedStandAlone)));
+    (toString (collectRun appliedStandAlone));
 
 }
