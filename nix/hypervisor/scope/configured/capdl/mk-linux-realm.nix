@@ -1,13 +1,17 @@
 { deviceTree, hypervisorComponents
 , mkIceDL, mkDynDLSpec
 , icecapPlat
+
+, icecap-append-devices
+, icecap-serialize-builtin-config
+, icecap-serialize-event-server-out-index
 }:
 
 { kernel, initramfs ? null, bootargs ? [] }:
 
 let
   ddl = mkIceDL {
-    action = "linux-realm";
+    action.whole = "bash -c 'python3 -m icecap_hypervisor.cli linux-realm $CONFIG -o $OUT_DIR'";
     config = {
       realm_id = 0;
       num_cores = 1;
@@ -19,7 +23,14 @@ let
         realm_vm.initrd = initramfs;
         realm_vm.dtb = deviceTree.realm.${icecapPlat};
       };
+      # TODO
+      hack_realm_affinity = 1;
     };
+    extraNativeBuildInputs = [
+      icecap-append-devices
+      icecap-serialize-builtin-config
+      icecap-serialize-event-server-out-index
+    ];
   };
 
 in

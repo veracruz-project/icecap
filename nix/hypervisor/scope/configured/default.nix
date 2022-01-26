@@ -4,7 +4,7 @@ self: super: with self;
 
 {
 
-  icecapFirmware = makeOverridable' compose {};
+  icecapFirmware = callPackage ./compose {};
 
   hypervisorComponents = callPackage ./sel4-user/rust/hypervisor-components.nix {};
 

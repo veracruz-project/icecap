@@ -6,24 +6,19 @@
 , icecapPlat
 , object-sizes
 
-, icecap-append-devices
 , icecap-serialize-runtime-config
-, icecap-serialize-builtin-config
-, icecap-serialize-event-server-out-index
 , dyndl-serialize-spec
 }:
 
 { config
 , action
+, extraNativeBuildInputs ? []
 }:
 
 let
   augmentedConfig = config // {
     plat = icecapPlat;
     object_sizes = object-sizes;
-
-    # HACK
-    hack_realm_affinity = 1;
   };
 
   augmentedConfigJSON = writeText "config.json" (builtins.toJSON augmentedConfig);
@@ -34,29 +29,19 @@ let
   f = attr:
 
     let
-      cmd =
-        if lib.isString action
-        then {
-          firmware = "python3 -m icecap_hypervisor.cli firmware ${augmentedConfigJSON} -o $out";
-          linux-realm = "python3 -m icecap_hypervisor.cli linux-realm ${augmentedConfigJSON} -o $out";
-          mirage-realm = "python3 -m icecap_hypervisor.cli mirage-realm ${augmentedConfigJSON} -o $out";
-        }.${action}
-        else "CONFIG=${augmentedConfigJSON} OUT_DIR=${{ env = "."; store = "$out"; }.${attr}} python3 ${action.script.${attr}}";
+      cmd = "CONFIG=${augmentedConfigJSON} OUT_DIR=${{ env = "."; store = "$out"; }.${attr}} ${action.whole or "python3 ${action.script.${attr}}"}";
 
     in
     runCommand "manifest" {
 
       nativeBuildInputs = [
-        icecap-append-devices
         icecap-serialize-runtime-config
-        icecap-serialize-builtin-config
-        icecap-serialize-event-server-out-index
         dyndl-serialize-spec
       ] ++ (with python3Packages; [
         future six
         aenum orderedset sortedcontainers
         pyyaml pyelftools pyfdt
-      ]);
+      ]) ++ extraNativeBuildInputs;
 
       PYTHONPATH_ = lib.concatMapStringsSep ":" (x: x.${attr}) [ icedlSrc capdlSrc ];
 

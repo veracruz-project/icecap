@@ -1,16 +1,10 @@
 { lib, runCommand
 , callPackage
-, dtbHelpers
-, linuxPkgs
-, deviceTree, platUtils, cpioUtils, elfUtils
+, platUtils, cpioUtils, elfUtils
 , icecapPlat
 , mkIceDL, mkCapDLLoader
-, kernel, elfloader, hypervisorComponents
+, kernel, elfloader
 }:
-
-let
-  uBoot = linuxPkgs.icecap.uBoot.host.${icecapPlat};
-in
 
 args:
 
@@ -35,35 +29,12 @@ let
     };
 
     cdl = mkIceDL {
-      inherit (self) action config;
+      inherit (self) action config extraNativeBuildInputs;
     };
 
-    action = "firmware";
+    extraNativeBuildInputs = [];
 
-    config = {
-
-      num_cores = platUtils.${icecapPlat}.numCores;
-      num_realms = 2;
-      default_affinity = 1;
-
-      components = {
-        idle.image = hypervisorComponents.idle.split;
-        fault_handler.image = hypervisorComponents.fault-handler.split;
-        timer_server.image = hypervisorComponents.timer-server.split;
-        serial_server.image = hypervisorComponents.serial-server.split;
-        event_server.image = hypervisorComponents.event-server.split;
-        benchmark_server.image = hypervisorComponents.benchmark-server.split;
-
-        resource_server.image = hypervisorComponents.resource-server.split;
-        resource_server.heap_size = 128 * 1048576; # HACK
-
-        host_vmm.image = hypervisorComponents.host-vmm.split;
-        host_vm.kernel = self.u-boot;
-        host_vm.dtb = deviceTree.host.${icecapPlat}.dtb;
-      };
-    };
-
-    u-boot = "${uBoot}/u-boot.bin";
+    extra = _self: {};
 
   } // args);
 
@@ -104,12 +75,7 @@ in lib.fix (self: with self; {
   allDebugFiles = debugFilesOf (cdlImages // images);
   allDebugLinks = debugLinksOf allDebugFiles;
 
-  host-dtb = "${cdl}/links/host_vm.dtb";
-  host-dts = dtbHelpers.decompileForce host-dtb;
-
-  mkDefaultPayload = args: uBoot.mkDefaultPayload ({ dtb = host-dtb; } // args);
-
   display = callPackage ./display.nix {
     composition = self;
   };
-})
+} // components.extra self)
