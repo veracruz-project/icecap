@@ -1,62 +1,62 @@
 {
 
-  icecap-sel4 = ./crates/base/icecap-sel4;
-  icecap-sel4-sys = ./crates/base/icecap-sel4/sys;
-  icecap-sel4-derive = ./crates/base/icecap-sel4/derive;
-  icecap-runtime = ./crates/base/icecap-runtime;
-  icecap-sync = ./crates/base/icecap-sync;
-  icecap-rpc = ./crates/base/icecap-rpc;
-  icecap-rpc-sel4 = ./crates/base/icecap-rpc/sel4;
-  icecap-ring-buffer = ./crates/base/icecap-ring-buffer;
-  icecap-failure = ./crates/base/icecap-failure;
-  icecap-failure-derive = ./crates/base/icecap-failure/derive;
-  icecap-logger = ./crates/base/icecap-logger;
-  icecap-start = ./crates/base/icecap-start;
-  icecap-start-generic = ./crates/base/icecap-start/generic;
-  icecap-core = ./crates/base/icecap-core;
-  icecap-std = ./crates/base/icecap-std;
+  icecap-sel4 = ./crates/framework/base/icecap-sel4;
+  icecap-sel4-sys = ./crates/framework/base/icecap-sel4/sys;
+  icecap-sel4-derive = ./crates/framework/base/icecap-sel4/derive;
+  icecap-runtime = ./crates/framework/base/icecap-runtime;
+  icecap-sync = ./crates/framework/base/icecap-sync;
+  icecap-rpc = ./crates/framework/base/icecap-rpc;
+  icecap-rpc-sel4 = ./crates/framework/base/icecap-rpc/sel4;
+  icecap-ring-buffer = ./crates/framework/base/icecap-ring-buffer;
+  icecap-failure = ./crates/framework/base/icecap-failure;
+  icecap-failure-derive = ./crates/framework/base/icecap-failure/derive;
+  icecap-logger = ./crates/framework/base/icecap-logger;
+  icecap-start = ./crates/framework/base/icecap-start;
+  icecap-start-generic = ./crates/framework/base/icecap-start/generic;
+  icecap-core = ./crates/framework/base/icecap-core;
+  icecap-std = ./crates/framework/base/icecap-std;
 
-  icecap-unwind = ./crates/base/icecap-unwind;
-  icecap-backtrace = ./crates/base/icecap-backtrace;
-  icecap-backtrace-types = ./crates/base/icecap-backtrace/types;
-  icecap-backtrace-collect = ./crates/base/icecap-backtrace/collect;
-  icecap-show-backtrace = ./crates/base/icecap-backtrace/cli/icecap-show-backtrace;
+  icecap-unwind = ./crates/framework/base/icecap-unwind;
+  icecap-backtrace = ./crates/framework/base/icecap-backtrace;
+  icecap-backtrace-types = ./crates/framework/base/icecap-backtrace/types;
+  icecap-backtrace-collect = ./crates/framework/base/icecap-backtrace/collect;
+  icecap-show-backtrace = ./crates/framework/base/icecap-backtrace/cli/icecap-show-backtrace;
 
-  icecap-config = ./crates/base/icecap-config;
-  icecap-config-sys = ./crates/base/icecap-config/sys;
-  icecap-config-cli-core = ./crates/base/icecap-config/cli/core;
+  icecap-config = ./crates/framework/base/icecap-config;
+  icecap-config-sys = ./crates/framework/base/icecap-config/sys;
+  icecap-config-cli-core = ./crates/framework/base/icecap-config/cli/core;
 
-  icecap-runtime-config = ./crates/base/icecap-runtime/config;
-  icecap-serialize-runtime-config = ./crates/base/icecap-runtime/config/cli/icecap-serialize-runtime-config;
+  icecap-runtime-config = ./crates/framework/base/icecap-runtime/config;
+  icecap-serialize-runtime-config = ./crates/framework/base/icecap-runtime/config/cli/icecap-serialize-runtime-config;
 
-  icecap-fdt = ./crates/base/icecap-fdt;
+  icecap-fdt = ./crates/framework/base/icecap-fdt;
 
-  icecap-plat = ./crates/base/icecap-plat;
+  icecap-plat = ./crates/framework/base/icecap-plat;
 
-  icecap-driver-interfaces = ./crates/drivers/icecap-driver-interfaces;
-  icecap-bcm-system-timer-driver = ./crates/drivers/devices/bcm-system-timer;
-  icecap-bcm2835-aux-uart-driver = ./crates/drivers/devices/bcm2835-aux-uart;
-  icecap-pl011-driver = ./crates/drivers/devices/pl011;
-  icecap-virt-timer-driver = ./crates/drivers/devices/virt-timer;
+  icecap-driver-interfaces = ./crates/framework/drivers/icecap-driver-interfaces;
+  icecap-bcm-system-timer-driver = ./crates/framework/drivers/devices/bcm-system-timer;
+  icecap-bcm2835-aux-uart-driver = ./crates/framework/drivers/devices/bcm2835-aux-uart;
+  icecap-pl011-driver = ./crates/framework/drivers/devices/pl011;
+  icecap-virt-timer-driver = ./crates/framework/drivers/devices/virt-timer;
 
-  absurdity = ./crates/helpers/absurdity;
-  biterate = ./crates/helpers/biterate;
-  finite-set = ./crates/helpers/finite-set;
-  finite-set-derive = ./crates/helpers/finite-set/derive;
-  generated-module-hack = ./crates/helpers/generated-module-hack;
-  numeric-literal-env-hack = ./crates/helpers/numeric-literal-env-hack;
-
-
-  icecap-std-external = ./crates/std-support/icecap-std-external;
-  icecap-std-impl = ./crates/std-support/icecap-std-impl;
+  absurdity = ./crates/framework/helpers/absurdity;
+  biterate = ./crates/framework/helpers/biterate;
+  finite-set = ./crates/framework/helpers/finite-set;
+  finite-set-derive = ./crates/framework/helpers/finite-set/derive;
+  generated-module-hack = ./crates/framework/helpers/generated-module-hack;
+  numeric-literal-env-hack = ./crates/framework/helpers/numeric-literal-env-hack;
 
 
-  dyndl-realize = ./crates/dyndl/realize;
-  dyndl-realize-simple = ./crates/dyndl/realize/simple;
-  dyndl-realize-simple-config = ./crates/dyndl/realize/simple/config;
-  dyndl-types = ./crates/dyndl/types;
-  dyndl-types-derive = ./crates/dyndl/types/derive;
-  dyndl-serialize-spec = ./crates/dyndl/cli/dyndl-serialize-spec;
+  icecap-std-external = ./crates/framework/std-support/icecap-std-external;
+  icecap-std-impl = ./crates/framework/std-support/icecap-std-impl;
+
+
+  dyndl-realize = ./crates/framework/dyndl/realize;
+  dyndl-realize-simple = ./crates/framework/dyndl/realize/simple;
+  dyndl-realize-simple-config = ./crates/framework/dyndl/realize/simple/config;
+  dyndl-types = ./crates/framework/dyndl/types;
+  dyndl-types-derive = ./crates/framework/dyndl/types/derive;
+  dyndl-serialize-spec = ./crates/framework/dyndl/cli/dyndl-serialize-spec;
 
 
   icecap-vmm = ./crates/hypervisor/icecap-vmm;
@@ -107,9 +107,9 @@
   icecap-linux-syscall = ./crates/hypervisor/components/mirage/icecap-linux-syscall;
 
 
-  crosvm-9p = ./crates/9p/crosvm-9p;
-  crosvm-9p-wire-format-derive = ./crates/9p/crosvm-9p/wire-format-derive;
-  crosvm-9p-server = ./crates/9p/crosvm-9p-server;
-  crosvm-9p-server-cli = ./crates/9p/crosvm-9p-server/cli;
+  crosvm-9p = ./crates/framework/9p/crosvm-9p;
+  crosvm-9p-wire-format-derive = ./crates/framework/9p/crosvm-9p/wire-format-derive;
+  crosvm-9p-server = ./crates/framework/9p/crosvm-9p-server;
+  crosvm-9p-server-cli = ./crates/framework/9p/crosvm-9p-server/cli;
 
 }
