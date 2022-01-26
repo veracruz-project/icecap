@@ -16,8 +16,6 @@ self: with self;
 
   compose = callPackage ./compose {};
 
-  icecapFirmware = makeOverridable' compose {};
-
   # TODO unify with parent scope deviceTree attribute
   deviceTreeConfigured = callPackage ./device-tree {};
 
@@ -36,17 +34,12 @@ self: with self;
   mkCapDLLoader = callPackage ./capdl/mk-capdl-loader.nix {};
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
-  mkRealm = callPackage ./capdl/mk-realm.nix {};
-  mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
-  mkMirageRealm = callPackage ./capdl/mk-mirage-realm.nix {};
 
   userC = callPackage ./sel4-user/c {};
 
   inherit (callPackage ./sel4-user/ocaml {}) mkMirageBinary;
 
   buildIceCapComponent = callPackage ./sel4-user/rust/build-icecap-component.nix {};
-
-  hypervisorComponents = callPackage ./sel4-user/rust/hypervisor-components.nix {};
 
   # TODO generalize or leave up to downstream projects
   sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
