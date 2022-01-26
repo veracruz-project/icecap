@@ -4,9 +4,9 @@ self: super: with self;
 
 {
 
-  icecapFirmware = callPackage ./compose {};
+  icecapFirmware = callPackage ./firmware.nix {};
 
-  hypervisorComponents = callPackage ./sel4-user/rust/hypervisor-components.nix {};
+  hypervisorComponents = callPackage ./hypervisor-components.nix {};
 
   mkRealm = callPackage ./capdl/mk-realm.nix {};
   mkLinuxRealm = callPackage ./capdl/mk-linux-realm.nix {};
