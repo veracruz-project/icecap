@@ -1,11 +1,12 @@
 let
   topLevel = import ../..;
+  framework = topLevel.framework;
 
-  inherit (topLevel.pkgs) dev;
+  inherit (framework.pkgs) dev;
 
   plat = "virt";
 
-  configured = topLevel.pkgs.none.icecap.configured.${plat};
+  configured = framework.pkgs.none.icecap.configured.${plat};
 in
 
 dev.mkShell {
