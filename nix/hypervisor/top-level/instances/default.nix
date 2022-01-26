@@ -14,7 +14,7 @@ let
           configured = configured';
         } (self: {
          composition = configured'.icecapFirmware;
-        });
+        } // f self);
     } path args
   );
 
