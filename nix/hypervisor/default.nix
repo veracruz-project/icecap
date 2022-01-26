@@ -3,17 +3,17 @@
 let
   inherit (framework) lib;
 
-  frameworkWithOverrides = framework.override (superArgs: selfTopLevel:
+  frameworkWithOverrides = framework.override (superArgs: selfFramework:
     let
-      concreteSuperArgs = superArgs selfTopLevel;
+      concreteSuperArgs = superArgs selfFramework;
     in
       concreteSuperArgs // {
         nixpkgsArgsFor = crossSystem:
           let
-            nixpkgsArgsSuper = concreteSuperArgs.nixpkgsArgsFor crossSystem;
+            superNixpkgsArgs = concreteSuperArgs.nixpkgsArgsFor crossSystem;
           in
-            nixpkgsArgsSuper // {
-              overlays = nixpkgsArgsSuper.overlays ++ [
+            superNixpkgsArgs // {
+              overlays = superNixpkgsArgs.overlays ++ [
                 (import ./overlay)
               ];
             };
