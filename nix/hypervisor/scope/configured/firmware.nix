@@ -55,7 +55,7 @@ makeOverridable' compose (rec {
 
   extra = self: {
 
-    host-dtb = "${self.components.cdl}/links/host_vm.dtb";
+    host-dtb = "${self.attrs.cdl}/links/host_vm.dtb";
     host-dts = dtbHelpers.decompileForce self.host-dtb;
 
     mkDefaultPayload = args: uBoot.mkDefaultPayload ({ dtb = self.host-dtb; } // args);

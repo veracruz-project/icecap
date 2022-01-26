@@ -17,22 +17,21 @@ let
     { name = "${name}.debug.elf"; path = full; }
   ];
 
-in linkFarm "icecap-hypervisor-firmware" (lib.flatten [
-  (link "icecap.elf" image)
+in linkFarm "system" (lib.flatten [
+  (link "image.elf" image)
   (sub "breakdown" (lib.flatten [
-    (showSplit "elfloader" images.loader)
-    (showSplit "kernel" images.kernel)
-    (showSplit "root-task" images.app)
-    (link "kernel.dtb" components.kernel.dtb)
+    (showSplit "elfloader" bootImages.loader)
+    (showSplit "kernel" bootImages.kernel)
+    (showSplit "root-task" bootImages.app)
+    (link "kernel.dtb" attrs.kernel.dtb)
     (sub "components" (lib.flatten [
       (lib.mapAttrsToList showSplit cdlImages)
-      # (link "host.u-boot.bin" components.u-boot)
     ]))
     (sub "capdl-specification" (lib.flatten [
-      (link "icecap.cdl" "${components.cdl}/icecap.cdl")
-      (link "icecap.spec.c" "${components.app.spec}/spec.c")
-      (link "frame-fill" "${components.cdl}/links")
-      (link "workspace" components.cdl)
+      (link "icecap.cdl" "${attrs.cdl}/icecap.cdl")
+      (link "icecap.spec.c" "${attrs.app.spec}/spec.c")
+      (link "frame-fill" "${attrs.cdl}/links")
+      (link "workspace" attrs.cdl)
     ]))
   ]))
 ])

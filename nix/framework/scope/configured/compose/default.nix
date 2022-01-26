@@ -10,7 +10,7 @@ args:
 
 let
 
-  components = lib.fix (self: {
+  attrs = lib.fix (self: {
 
     loader-elf = elfUtils.split "${self.loader}/boot/elfloader";
 
@@ -32,50 +32,30 @@ let
       inherit (self) action config extraNativeBuildInputs;
     };
 
-    extraNativeBuildInputs = [];
-
     extra = _self: {};
+    extraNativeBuildInputs = [];
 
   } // args);
 
-in with components;
-let
-
-  images = {
-    loader = components.loader-elf;
-    kernel = components.kernel.elf;
-    app = components.app-elf;
+  bootImages = {
+    loader = attrs.loader-elf;
+    kernel = attrs.kernel.elf;
+    app = attrs.app-elf;
   };
 
   cdlImages = lib.mapAttrs'
     (k: v: lib.nameValuePair k v.image)
-    (lib.filterAttrs (k: lib.hasAttr "image") components.config.components);
-
-  debugFilesOf = lib.mapAttrs' (k: v: lib.nameValuePair "${k}.elf" v.full);
-
-  debugLinksOf = files: runCommand "links" {} ''
-    mkdir $out
-    ${lib.concatStrings (lib.mapAttrsToList (k: v: ''
-        ln -s ${v} $out/${k}
-    '') files)}
-  '';
+    (lib.filterAttrs (k: lib.hasAttr "image") attrs.config.components);
 
 in lib.fix (self: with self; {
-  inherit components;
-  inherit (components) cdl app loader;
+  inherit attrs;
+  inherit (attrs) cdl;
 
-  image = loader-elf.min;
+  image = attrs.loader-elf.min;
 
-  inherit images cdlImages;
-
-  debugFiles = debugFilesOf images;
-  debugLinks = debugLinksOf debugFiles;
-  cdlDebugFiles = debugFilesOf cdlImages;
-  cdlDebugLinks = debugLinksOf cdlDebugFiles;
-  allDebugFiles = debugFilesOf (cdlImages // images);
-  allDebugLinks = debugLinksOf allDebugFiles;
+  inherit bootImages cdlImages;
 
   display = callPackage ./display.nix {
     composition = self;
   };
-} // components.extra self)
+} // attrs.extra self)

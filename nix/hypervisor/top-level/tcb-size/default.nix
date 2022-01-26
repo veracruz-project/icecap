@@ -1,13 +1,13 @@
 { lib, pkgs }:
 
 let
-  components = pkgs.none.icecap.configured.virt.icecapFirmware.components;
+  attrs = pkgs.none.icecap.configured.virt.icecapFirmware.attrs;
 
   whole = [
-    components.loader-elf.min
+    attrs.loader-elf.min
   ];
 
-  untrusted = with components.config.components; [
+  untrusted = with attrs.config.components; [
     host_vmm.image.min
     host_vm.kernel
     host_vm.dtb
