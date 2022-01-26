@@ -14,11 +14,11 @@ clean:
 
 .PHONY: hypervisor-firmware
 hypervisor-firmware: | $(out)
-	nix-build -A hypervisor.pkgs.none.icecap.configured.$(PLAT).icecapFirmware.display -o $(out)/$@-$(PLAT)
+	nix-build -A hypervisor.framework.pkgs.none.icecap.configured.$(PLAT).icecapFirmware.display -o $(out)/$@-$(PLAT)
 
 .PHONY: html-docs
 html-docs: check-generated-sources | $(out)
-	nix-build -A meta.generatedDocs.html -o $(out)/$@
+	nix-build -A framework.generatedDocs.html -o $(out)/$@
 
 .PHONY: show-tcb-size
 show-hypervisor-tcb-size:

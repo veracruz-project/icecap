@@ -29,6 +29,9 @@ rec {
         framework.everything.extraPure
         hypervisor.everything.extraPure
       ];
+      impure = [
+        framework.everything.impure
+      ];
     };
 
 }
