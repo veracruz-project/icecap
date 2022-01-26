@@ -57,7 +57,6 @@ in rec {
       extraPure = [
         framework.everything.extraPure
         hypervisor.everything.extraPure
-        testStandAlone
       ];
       impure = [
         framework.everything.impure
