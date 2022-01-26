@@ -10,13 +10,10 @@ let
       mkInstance = icecapConfigOverride:
         let
           configured' = configured.override' icecapConfigOverride;
-        in 
-        let
+        in f: framework.instances.mkInstanceWith {
           configured = configured';
-        in f: framework.instances.mkInstance {
-          inherit configured;
         } (self: {
-         composition = configured.icecapFirmware;
+         composition = configured'.icecapFirmware;
         });
     } path args
   );

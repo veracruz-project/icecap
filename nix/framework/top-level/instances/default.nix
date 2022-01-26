@@ -2,14 +2,14 @@
 
 let
 
-  mkInstance = import ./mk-instance.nix {
+  mkInstanceWith = import ./mk-instance.nix {
     inherit lib pkgs;
   };
 
   callInstance = path: args: lib.flip lib.mapAttrs pkgs.none.icecap.configured (_: configured:
     pkgs.none.icecap.newScope {
       inherit configured;
-      mkInstance = icecapConfigOverride: mkInstance {
+      mkInstance = icecapConfigOverride: mkInstanceWith {
         configured = configured.override' icecapConfigOverride;
       };
     } path args
@@ -20,5 +20,5 @@ in {
     backtrace = callInstance ./tests/backtrace {};
   };
 
-  inherit mkInstance callInstance;
+  inherit mkInstanceWith callInstance;
 }
