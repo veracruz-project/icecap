@@ -27,7 +27,7 @@ check-generic-formatting:
 				[ -f "$$path" ] && echo $$path; \
 			done \
 		) | \
-		$$(nix-build -A pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-generic-formatting.py
+		$$(nix-build -A framework.pkgs.dev.python3 --no-out-link)/bin/python3 ./hack/check-generic-formatting.py
 
 ### Avoiding cache misses ###
 

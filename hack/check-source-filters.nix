@@ -13,9 +13,9 @@ in rec {
 
   test =
     let
-      drv = topLevel.meta.everything.all;
+      drv = topLevel.everything.all;
     in
-      assert drv.outPath == (import ../.).meta.everything.all.outPath;
+      assert drv.outPath == (import ../.).everything.all.outPath;
       drv;
 
 }
