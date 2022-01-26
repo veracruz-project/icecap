@@ -56,11 +56,11 @@ builds the system and creates a shell script to emulate it.
 To build the first system, run the following from the root of this repository:
 
 ```
-nix-build examples/ -A minimal-root-task.run
+nix-build examples/01-minimal-root-task -A run
 ```
 
 The Docker image is configured to support tab-completion for Nix attribute
-paths. For example, try `nix-build examples/ -A minimal-root-task.<tab>`.
+paths. For example, try `nix-build examples/01-minimal-root-task -A <tab>`.
 `minimal-root-task.run` corresponds to the attribute found at
 [./01-minimal-root-task/default.nix#L10](./01-minimal-root-task/default.nix#L10).
 
@@ -104,7 +104,7 @@ is an example of a simple root task written in Rust.  It parses and prints the
 Flattened Device Tree passed to it by the kernel via the `bootinfo`.
 
 ```
-nix-build examples/ -A minimal-root-task-with-rust.run && ./result/run
+nix-build examples/02-minimal-root-task-with-rust -A run && ./result/run
 ```
 
 ### Using CapDL
@@ -126,8 +126,8 @@ Build and run the example, then examine the system's CapDL specification, along
 with the files it refers to:
 
 ```
-nix-build examples/ -A minimal-capdl.run && ./result/run
-nix-build examples/ -A minimal-capdl.composition.cdl
+nix-build examples/03-minimal-capdl -A run && ./result/run
+nix-build examples/03-minimal-capdl -A composition.cdl
 cat result/icecap.cdl
 ls result/links/
 ```
@@ -215,8 +215,8 @@ multiple statically declared threads. Build and run the example, and then
 prepare to look at its CapDL specification:
 
 ```
-nix-build examples/ -A minimal-capdl-with-rust.run && ./result/run
-nix-build examples/ -A minimal-capdl-with-rust.composition.cdl
+nix-build examples/04-minimal-capdl-with-rust -A run && ./result/run
+nix-build examples/04-minimal-capdl-with-rust -A composition.cdl
 ls result/
 ```
 
@@ -277,7 +277,7 @@ The next example is a CapDL-based system with multiple components:
   Prints the time every second, and echos keyboard input
 
 ```
-nix-build examples/ -A basic-system.run && ./result/run
+nix-build examples/05-basic-system -A run && ./result/run
 # wait for the example to boot and then type some characters
 ```
 
@@ -300,7 +300,7 @@ Take a look at the CapDL specification for this example, and correlate what you
 see there with code in the Python script:
 
 ```
-nix-build examples/ -A basic-system.composition.cdl
+nix-build examples/05-basic-system -A composition.cdl
 find result/
 cat result/icecap.cdl
 ```
@@ -316,13 +316,13 @@ with a serialized CapDL specificaiton called `subsystem`. It uses the `dyndl-*`
 crates to repeatedly realize and destroy `subsystem`.
 
 ```
-nix-build examples/ -A dynamism.run && ./result/run
+nix-build examples/06-dynamism -A run && ./result/run
 ```
 
 Take a look at `subsystem`'s CapDL specification:
 
 ```
-nix-build examples/ -A dynamism.subsystem
+nix-build examples/06-dynamism -A subsystem
 cat result/icecap.cdl
 ```
 
@@ -352,7 +352,7 @@ demo, see
 [../demos/hypervisor-demo/README.md](../demos/hypervisor-demo/README.md)).
 
 ```
-   [container] nix-build examples/ -A hypervisor.run && ./result/run
+   [container] nix-build examples/07-hypervisor -A run && ./result/run
 
                # ... wait for the host VM to boot to a shell ...
 
@@ -395,7 +395,7 @@ demo, see
 To get a picture of the system, take a look at its CapDL specification:
 
 ```
-nix-build examples/ -A hypervisor.configured.icecapFirmware.cdl
+nix-build examples/07-hypervisor -A configured.icecapFirmware.cdl
 find result/
 cat result/icecap.cdl
 ```
@@ -424,9 +424,9 @@ minimal realm analogous to the `03-minimal-capdl` example, a Linux VM, and a
 MirageOS unikernel:
 
 ```
-nix-build examples/ -A hypervisor.realms.minimal.spec.ddl
-nix-build examples/ -A hypervisor.realms.vm.spec.ddl
-nix-build examples/ -A hypervisor.realms.mirage.spec.ddl
+nix-build examples/07-hypervisor -A realms.minimal.spec.ddl
+nix-build examples/07-hypervisor -A realms.vm.spec.ddl
+nix-build examples/07-hypervisor -A realms.mirage.spec.ddl
 ```
 
 ### Case study: Veracruz
