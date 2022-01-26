@@ -13,7 +13,7 @@ let
   config = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = icecapSrc.relative "support/hypervisor/realm/linux.defconfig";
+    allconfig = icecapSrc.relative "support/framework/guest/minimal/linux.defconfig";
   };
 
 in

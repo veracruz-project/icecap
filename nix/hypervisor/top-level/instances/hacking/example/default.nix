@@ -33,7 +33,7 @@ in {
   '';
 
   spec = mkLinuxRealm {
-    kernel = linuxPkgs.icecap.linuxKernel.realm.kernel;
+    kernel = linuxPkgs.icecap.linuxKernel.realm.minimal.kernel;
     # kernel = linuxPkgs.icecap.linuxKernel.host.${icecapPlat}.kernel; # TODO why is this failing?
     # kernel = localLinuxImages.virt;
     initramfs = realmUser.config.build.initramfs;

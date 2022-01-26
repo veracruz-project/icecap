@@ -52,7 +52,7 @@ superCallPackage ./rust {} self //
 
   linuxKernel = linuxOnly {
     host = byIceCapPlat (plat: callPackage (./linux-kernel/host + "/${plat}") {});
-    guest.minimal = callPackage ./linux-kernel/guest {};
+    guest.minimal = callPackage ./linux-kernel/guest/minimal {};
   };
 
   nixosLite = callPackage ./linux-user/nixos-lite {};

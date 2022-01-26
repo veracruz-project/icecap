@@ -5,7 +5,7 @@ self: super: with self; {
   deviceTree = callPackage ./device-tree.nix {};
 
   linuxKernel = super.linuxKernel // {
-    realm = linuxKernel.guest.minimal;
+    realm.minimal = linuxKernel.guest.minimal;
   };
 
   icecap-host = callPackage ./icecap-host.nix {};

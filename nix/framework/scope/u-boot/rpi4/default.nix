@@ -12,7 +12,7 @@ let
   preConfig = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = icecapSrc.relative "support/hypervisor/host/rpi4/u-boot.defconfig";
+    allconfig = icecapSrc.relative "support/framework/host/rpi4/u-boot.defconfig";
   };
 
   # config = preConfig;

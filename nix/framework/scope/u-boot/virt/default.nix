@@ -12,7 +12,7 @@ let
   preConfig = makeConfig {
     inherit source;
     target = "alldefconfig";
-    allconfig = icecapSrc.relative "support/hypervisor/host/virt/u-boot.defconfig";
+    allconfig = icecapSrc.relative "support/framework/host/virt/u-boot.defconfig";
   };
 
   # config = preConfig;
