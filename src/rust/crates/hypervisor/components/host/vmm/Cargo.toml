@@ -8,12 +8,12 @@ edition = "2018"
 
 [dependencies]
 cfg-if = "*"
-biterate = { path = "../../../../helpers/biterate" }
-finite-set = { path = "../../../../helpers/finite-set" }
+biterate = { path = "../../../../framework/helpers/biterate" }
+finite-set = { path = "../../../../framework/helpers/finite-set" }
 icecap-benchmark-server-types = { path = "../../benchmark-server/types" }
 icecap-event-server-types = { path = "../../event-server/types" }
 icecap-host-vmm-config = { path = "./config" }
 icecap-host-vmm-types = { path = "./types" }
 icecap-resource-server-types = { path = "../../resource-server/types" }
-icecap-std = { path = "../../../../framework/icecap-std" }
+icecap-std = { path = "../../../../framework/base/icecap-std" }
 icecap-vmm = { path = "../../../icecap-vmm" }

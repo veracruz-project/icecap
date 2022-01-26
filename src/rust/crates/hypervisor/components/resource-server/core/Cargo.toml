@@ -10,10 +10,10 @@ edition = "2018"
 log = "*"
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-dyndl-realize = { path = "../../../../dyndl/realize" }
-dyndl-types = { path = "../../../../dyndl/types" }
-icecap-core = { path = "../../../../framework/icecap-core" }
+dyndl-realize = { path = "../../../../framework/dyndl/realize" }
+dyndl-types = { path = "../../../../framework/dyndl/types" }
+icecap-core = { path = "../../../../framework/base/icecap-core" }
 icecap-event-server-types = { path = "../../event-server/types" }
-icecap-plat = { path = "../../../../framework/icecap-plat" }
+icecap-plat = { path = "../../../../framework/base/icecap-plat" }
 icecap-resource-server-types = { path = "../types" }
 icecap-timer-server-client = { path = "../../timer-server/client" }

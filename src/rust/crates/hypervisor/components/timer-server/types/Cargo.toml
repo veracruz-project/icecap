@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-icecap-rpc = { path = "../../../../framework/icecap-rpc" }
+icecap-rpc = { path = "../../../../framework/base/icecap-rpc" }

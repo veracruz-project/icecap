@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 log = "*"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-icecap-fdt = { path = "../../framework/icecap-fdt" }
+icecap-fdt = { path = "../../framework/base/icecap-fdt" }

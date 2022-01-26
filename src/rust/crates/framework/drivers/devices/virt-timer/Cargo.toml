@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 tock-registers = "*"
-icecap-core = { path = "../../../framework/icecap-core" }
+icecap-core = { path = "../../../base/icecap-core" }
 icecap-driver-interfaces = { path = "../../icecap-driver-interfaces" }

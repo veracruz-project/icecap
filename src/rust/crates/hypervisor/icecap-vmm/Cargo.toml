@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 log = "*"
-biterate = { path = "../../helpers/biterate" }
-icecap-core = { path = "../../framework/icecap-core" }
+biterate = { path = "../../framework/helpers/biterate" }
+icecap-core = { path = "../../framework/base/icecap-core" }
 icecap-event-server-types = { path = "../components/event-server/types" }
 icecap-vmm-gic = { path = "./gic" }

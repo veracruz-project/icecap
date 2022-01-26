@@ -11,7 +11,7 @@ postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = "*"
 serde_json = "*"
 icecap-benchmark-server-config = { path = "../components/benchmark-server/config" }
-icecap-config-cli-core = { path = "../../framework/icecap-config/cli/core" }
+icecap-config-cli-core = { path = "../../framework/base/icecap-config/cli/core" }
 icecap-event-server-config = { path = "../components/event-server/config" }
 icecap-fault-handler-config = { path = "../components/fault-handler/config" }
 icecap-host-vmm-config = { path = "../components/host/vmm/config" }

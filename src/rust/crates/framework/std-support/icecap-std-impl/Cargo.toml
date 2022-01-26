@@ -13,6 +13,6 @@ rustc-dep-of-std = [ "core", "alloc", "compiler_builtins/rustc-dep-of-std", "ice
 alloc = { version = "1.0.0", optional = true, package = "rustc-std-workspace-alloc" }
 compiler_builtins = { version = "0.1.0", optional = true }
 core = { version = "1.0.0", optional = true, package = "rustc-std-workspace-core" }
-icecap-runtime = { path = "../../framework/icecap-runtime" }
-icecap-sel4 = { path = "../../framework/icecap-sel4" }
-icecap-sync = { path = "../../framework/icecap-sync" }
+icecap-runtime = { path = "../../base/icecap-runtime" }
+icecap-sel4 = { path = "../../base/icecap-sel4" }
+icecap-sync = { path = "../../base/icecap-sync" }

@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 log = "*"
-biterate = { path = "../../../helpers/biterate" }
-icecap-failure = { path = "../../../framework/icecap-failure" }
-icecap-failure-derive = { path = "../../../framework/icecap-failure/derive" }
-icecap-sel4 = { path = "../../../framework/icecap-sel4" }
+biterate = { path = "../../../framework/helpers/biterate" }
+icecap-failure = { path = "../../../framework/base/icecap-failure" }
+icecap-failure-derive = { path = "../../../framework/base/icecap-failure/derive" }
+icecap-sel4 = { path = "../../../framework/base/icecap-sel4" }

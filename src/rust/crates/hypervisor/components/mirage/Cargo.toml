@@ -8,8 +8,8 @@ edition = "2018"
 
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-finite-set = { path = "../../../helpers/finite-set" }
+finite-set = { path = "../../../framework/helpers/finite-set" }
 icecap-event-server-types = { path = "../event-server/types" }
 icecap-linux-syscall = { path = "./icecap-linux-syscall" }
 icecap-mirage-config = { path = "./config" }
-icecap-std = { path = "../../../framework/icecap-std" }
+icecap-std = { path = "../../../framework/base/icecap-std" }

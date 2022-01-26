@@ -10,4 +10,4 @@ edition = "2018"
 log = "*"
 sha2 = { version = "*", default-features = false }
 dyndl-types = { path = "../types" }
-icecap-core = { path = "../../framework/icecap-core" }
+icecap-core = { path = "../../base/icecap-core" }

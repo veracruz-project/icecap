@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 icecap-fault-handler-config = { path = "./config" }
-icecap-std = { path = "../../../framework/icecap-std" }
+icecap-std = { path = "../../../framework/base/icecap-std" }

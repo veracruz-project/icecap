@@ -10,4 +10,4 @@ edition = "2018"
 dyndl-realize = { path = ".." }
 dyndl-realize-simple-config = { path = "./config" }
 dyndl-types = { path = "../../types" }
-icecap-core = { path = "../../../framework/icecap-core" }
+icecap-core = { path = "../../../base/icecap-core" }

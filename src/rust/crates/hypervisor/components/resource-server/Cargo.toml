@@ -9,13 +9,13 @@ edition = "2018"
 [dependencies]
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-dyndl-realize = { path = "../../../dyndl/realize" }
-dyndl-realize-simple = { path = "../../../dyndl/realize/simple" }
-dyndl-realize-simple-config = { path = "../../../dyndl/realize/simple/config" }
-dyndl-types = { path = "../../../dyndl/types" }
+dyndl-realize = { path = "../../../framework/dyndl/realize" }
+dyndl-realize-simple = { path = "../../../framework/dyndl/realize/simple" }
+dyndl-realize-simple-config = { path = "../../../framework/dyndl/realize/simple/config" }
+dyndl-types = { path = "../../../framework/dyndl/types" }
 icecap-event-server-types = { path = "../event-server/types" }
 icecap-resource-server-config = { path = "./config" }
 icecap-resource-server-core = { path = "./core" }
 icecap-resource-server-types = { path = "./types" }
-icecap-std = { path = "../../../framework/icecap-std" }
+icecap-std = { path = "../../../framework/base/icecap-std" }
 icecap-timer-server-client = { path = "../timer-server/client" }

@@ -10,5 +10,5 @@ edition = "2018"
 cfg-if = "*"
 icecap-benchmark-server-config = { path = "./config" }
 icecap-benchmark-server-types = { path = "./types" }
-icecap-plat = { path = "../../../framework/icecap-plat" }
-icecap-std = { path = "../../../framework/icecap-std" }
+icecap-plat = { path = "../../../framework/base/icecap-plat" }
+icecap-std = { path = "../../../framework/base/icecap-std" }

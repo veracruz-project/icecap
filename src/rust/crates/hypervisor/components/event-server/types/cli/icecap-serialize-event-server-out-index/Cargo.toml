@@ -9,5 +9,5 @@ edition = "2018"
 [dependencies]
 serde = "*"
 serde_json = "*"
-finite-set = { path = "../../../../../../helpers/finite-set" }
+finite-set = { path = "../../../../../../framework/helpers/finite-set" }
 icecap-event-server-types = { path = "../.." }

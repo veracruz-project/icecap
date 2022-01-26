@@ -10,7 +10,7 @@ edition = "2018"
 cfg-if = "*"
 libc = "*"
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
-dyndl-types = { path = "../../../../dyndl/types" }
+dyndl-types = { path = "../../../../framework/dyndl/types" }
 icecap-host-vmm-types = { path = "../vmm/types" }
 icecap-resource-server-types = { path = "../../resource-server/types" }
-icecap-rpc = { path = "../../../../framework/icecap-rpc" }
+icecap-rpc = { path = "../../../../framework/base/icecap-rpc" }

@@ -7,4 +7,4 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-core = { path = "../../framework/icecap-core" }
+icecap-core = { path = "../../base/icecap-core" }
