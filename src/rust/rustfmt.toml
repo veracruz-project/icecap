@@ -2,7 +2,7 @@ reorder_modules = false
 
 ignore = [
     # Mostly third-party code, copied into our tree (see corresponding LICENSE files for details)
-    "crates/9p",
-    "crates/framework/icecap-failure",
-    "crates/framework/icecap-unwind",
+    "crates/framework/9p",
+    "crates/framework/base/icecap-failure",
+    "crates/framework/base/icecap-unwind",
 ]
