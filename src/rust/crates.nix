@@ -1,37 +1,37 @@
 {
 
-  icecap-sel4 = ./crates/framework/icecap-sel4;
-  icecap-sel4-sys = ./crates/framework/icecap-sel4/sys;
-  icecap-sel4-derive = ./crates/framework/icecap-sel4/derive;
-  icecap-runtime = ./crates/framework/icecap-runtime;
-  icecap-sync = ./crates/framework/icecap-sync;
-  icecap-rpc = ./crates/framework/icecap-rpc;
-  icecap-rpc-sel4 = ./crates/framework/icecap-rpc/sel4;
-  icecap-ring-buffer = ./crates/framework/icecap-ring-buffer;
-  icecap-failure = ./crates/framework/icecap-failure;
-  icecap-failure-derive = ./crates/framework/icecap-failure/derive;
-  icecap-logger = ./crates/framework/icecap-logger;
-  icecap-start = ./crates/framework/icecap-start;
-  icecap-start-generic = ./crates/framework/icecap-start/generic;
-  icecap-core = ./crates/framework/icecap-core;
-  icecap-std = ./crates/framework/icecap-std;
+  icecap-sel4 = ./crates/base/icecap-sel4;
+  icecap-sel4-sys = ./crates/base/icecap-sel4/sys;
+  icecap-sel4-derive = ./crates/base/icecap-sel4/derive;
+  icecap-runtime = ./crates/base/icecap-runtime;
+  icecap-sync = ./crates/base/icecap-sync;
+  icecap-rpc = ./crates/base/icecap-rpc;
+  icecap-rpc-sel4 = ./crates/base/icecap-rpc/sel4;
+  icecap-ring-buffer = ./crates/base/icecap-ring-buffer;
+  icecap-failure = ./crates/base/icecap-failure;
+  icecap-failure-derive = ./crates/base/icecap-failure/derive;
+  icecap-logger = ./crates/base/icecap-logger;
+  icecap-start = ./crates/base/icecap-start;
+  icecap-start-generic = ./crates/base/icecap-start/generic;
+  icecap-core = ./crates/base/icecap-core;
+  icecap-std = ./crates/base/icecap-std;
 
-  icecap-unwind = ./crates/framework/icecap-unwind;
-  icecap-backtrace = ./crates/framework/icecap-backtrace;
-  icecap-backtrace-types = ./crates/framework/icecap-backtrace/types;
-  icecap-backtrace-collect = ./crates/framework/icecap-backtrace/collect;
-  icecap-show-backtrace = ./crates/framework/icecap-backtrace/cli/icecap-show-backtrace;
+  icecap-unwind = ./crates/base/icecap-unwind;
+  icecap-backtrace = ./crates/base/icecap-backtrace;
+  icecap-backtrace-types = ./crates/base/icecap-backtrace/types;
+  icecap-backtrace-collect = ./crates/base/icecap-backtrace/collect;
+  icecap-show-backtrace = ./crates/base/icecap-backtrace/cli/icecap-show-backtrace;
 
-  icecap-config = ./crates/framework/icecap-config;
-  icecap-config-sys = ./crates/framework/icecap-config/sys;
-  icecap-config-cli-core = ./crates/framework/icecap-config/cli/core;
+  icecap-config = ./crates/base/icecap-config;
+  icecap-config-sys = ./crates/base/icecap-config/sys;
+  icecap-config-cli-core = ./crates/base/icecap-config/cli/core;
 
-  icecap-runtime-config = ./crates/framework/icecap-runtime/config;
-  icecap-serialize-runtime-config = ./crates/framework/icecap-runtime/config/cli/icecap-serialize-runtime-config;
+  icecap-runtime-config = ./crates/base/icecap-runtime/config;
+  icecap-serialize-runtime-config = ./crates/base/icecap-runtime/config/cli/icecap-serialize-runtime-config;
 
-  icecap-fdt = ./crates/framework/icecap-fdt;
+  icecap-fdt = ./crates/base/icecap-fdt;
 
-  icecap-plat = ./crates/framework/icecap-plat;
+  icecap-plat = ./crates/base/icecap-plat;
 
   icecap-driver-interfaces = ./crates/drivers/icecap-driver-interfaces;
   icecap-bcm-system-timer-driver = ./crates/drivers/devices/bcm-system-timer;
