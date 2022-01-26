@@ -1,6 +1,7 @@
 { mkInstance
 , icecapSrc
 , icecapExternalSrc
+, icecap-serialize-builtin-config
 }:
 
 mkInstance { benchmark = true; } (self: with self.configured; with self; {
@@ -14,6 +15,10 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
         benchmark_server.image = hypervisorComponents.benchmark-server.split;
       };
     };
+
+    extraNativeBuildInputs = [
+      icecap-serialize-builtin-config
+    ];
   };
 
   test = buildIceCapComponent {

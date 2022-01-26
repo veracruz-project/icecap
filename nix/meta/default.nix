@@ -1,31 +1,39 @@
-{ lib, config, pkgs, meta, ... } @ topLevel:
+{ framework, hypervisor }:
 
 let
-  call = pkgs.dev.icecap.callWith topLevel;
+  inherit (framework) lib;
 
-in
-rec {
+in rec {
 
-  everything = call ./everything.nix {};
-
-  # At top-level for discoverability
   examples = import ../../examples;
   demos = {
     hypervisor-demo = import ../../demos/hypervisor-demo;
   };
 
-  instances = call ./instances {};
-  inherit (instances) tests benchmarks hacking;
-
-  automatedTests = call ./automated-tests {};
-
-  generatedSources = call ./generated-sources.nix {};
-  generatedDocs = call ./generated-docs {};
-  adHocBuildTests = call ./ad-hoc-build-tests {};
-  rustAggregate = call ./rust-aggregate {};
-
-  tcbSize = call ./tcb-size {};
-
-  display = call ./display.nix {};
+  everything =
+    let
+      combine = attr: [
+        framework.meta.everything.${attr}
+        hypervisor.meta.everything.${attr}
+      ];
+      mk = name: drvs: framework.pkgs.dev.writeText name (toString (lib.flatten drvs));
+    in rec {
+      cached = mk "everything-cached" [
+        (combine "cached")
+        (lib.mapAttrsToList (_: lib.mapAttrsToList (_: plat: plat.run)) demos)
+        (lib.mapAttrsToList (_: example: example.run) examples)
+      ];
+      pure = mk "everything-pure" [
+        cached
+        (combine "pure")
+      ];
+      impure = mk "everything-impure" [
+        (combine "impure")
+      ];
+      all = mk "everything-all" [
+        pure
+        impure
+      ];
+    };
 
 }
