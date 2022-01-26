@@ -1,9 +1,9 @@
-{ lib, pkgs, meta }:
+{ lib, pkgs, instances }:
 
 rec {
   cases = {
     hypervisor = automateQemuBasic {
-      script = "${meta.instances.tests.hypervisor.virt.run}/run";
+      script = "${instances.tests.hypervisor.virt.run}/run";
       timeout = if pkgs.dev.hostPlatform.isAarch64 then 600 else 300;
     };
   };
