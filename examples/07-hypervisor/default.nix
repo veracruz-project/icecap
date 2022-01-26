@@ -1,6 +1,8 @@
-{ lib, pkgs }:
+{ hypervisor ? import ../../nix/hypervisor {} }:
 
 let
+  inherit (hypervisor.framework) lib pkgs;
+
   configured = pkgs.none.icecap.configured.virt;
 
   inherit (pkgs.none.icecap) platUtils;

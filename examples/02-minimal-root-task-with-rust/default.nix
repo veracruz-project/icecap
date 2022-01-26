@@ -1,6 +1,8 @@
-{ lib, pkgs }:
+{ framework ? import ../../nix/framework }:
 
 let
+  inherit (framework) lib pkgs;
+
   configured = pkgs.none.icecap.configured.virt;
 
   inherit (pkgs.none.icecap) icecapSrc platUtils;
