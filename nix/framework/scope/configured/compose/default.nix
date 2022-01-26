@@ -28,12 +28,14 @@ let
       elfs-cpio = cpioUtils.mkFrom "${self.cdl}/links";
     };
 
+    script = null;
+    config = null;
+
     cdl = mkIceDL {
-      inherit (self) action config extraNativeBuildInputs;
+      inherit (self) config script;
     };
 
     extra = _self: {};
-    extraNativeBuildInputs = [];
 
   } // args);
 
@@ -45,7 +47,7 @@ let
 
   cdlImages = lib.mapAttrs'
     (k: v: lib.nameValuePair k v.image)
-    (lib.filterAttrs (k: lib.hasAttr "image") attrs.config.components);
+    (lib.filterAttrs (k: lib.hasAttr "image") attrs.cdl.config.components);
 
 in lib.fix (self: with self; {
   inherit attrs;

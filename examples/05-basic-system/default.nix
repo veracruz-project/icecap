@@ -20,7 +20,7 @@ in rec {
   };
 
   composition = configured.compose {
-    action.script = icecapSrc.extend "/composition.py" (icecapSrc.absoluteSplit ./cdl);
+    script = "${icecapSrc.absolute ./cdl}/composition.py";
     config = {
       components = with components; {
         application.image = application.split;

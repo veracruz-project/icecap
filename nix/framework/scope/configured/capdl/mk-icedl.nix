@@ -11,8 +11,8 @@
 }:
 
 { config
-, action
-, extraNativeBuildInputs ? []
+, script ? null
+, command ? "python3 ${script}"
 }:
 
 let
@@ -24,47 +24,29 @@ let
   augmentedConfigJSON = writeText "config.json" (builtins.toJSON augmentedConfig);
 
   capdlSrc = icecapExternalSrc.capdl.extendInnerSuffix "python-capdl-tool";
-  icedlSrc = icecapSrc.relativeSplit "python";
-
-  f = attr:
-
-    let
-      cmd = "CONFIG=${augmentedConfigJSON} OUT_DIR=${{ env = "."; store = "$out"; }.${attr}} ${action.whole or "python3 ${action.script.${attr}}"}";
-
-    in
-    runCommand "manifest" {
-
-      nativeBuildInputs = [
-        icecap-serialize-runtime-config
-        dyndl-serialize-spec
-      ] ++ (with python3Packages; [
-        future six
-        aenum orderedset sortedcontainers
-        pyyaml pyelftools pyfdt
-      ]) ++ extraNativeBuildInputs;
-
-      PYTHONPATH_ = lib.concatMapStringsSep ":" (x: x.${attr}) [ icedlSrc capdlSrc ];
-
-      setup = ''
-        export PYTHONPATH=$PYTHONPATH_:$PYTHONPATH
-      '';
-
-      passthru = {
-        env = f "env";
-        config = augmentedConfig;
-      };
-
-      shellHook = ''
-        eval "$setup"
-        b() {
-          ${cmd}
-        }
-      '';
-
-    } ''
-      eval "$setup"
-      ${cmd}
-    '';
+  icedlSrc = icecapSrc.relative "python";
 
 in
-  f "store"
+runCommand "manifest" {
+
+  nativeBuildInputs = [
+    icecap-serialize-runtime-config
+    dyndl-serialize-spec
+  ] ++ (with python3Packages; [
+    future six
+    aenum orderedset sortedcontainers
+    pyyaml pyelftools pyfdt
+  ]);
+
+  PYTHONPATH_ = lib.concatStringsSep ":" [ icedlSrc capdlSrc ];
+
+  CONFIG = augmentedConfigJSON;
+
+  passthru = {
+    config = augmentedConfig;
+  };
+} ''
+  export PYTHONPATH=$PYTHONPATH_:$PYTHONPATH
+  export OUT_DIR=$out
+  ${command}
+''

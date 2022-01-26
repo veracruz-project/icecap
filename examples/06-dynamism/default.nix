@@ -18,7 +18,7 @@ in rec {
   };
 
   composition = configured.compose {
-    action.script = icecapSrc.absoluteSplit ./supersystem.py;
+    script = icecapSrc.absolute ./supersystem.py;
     config = {
       components = {
         supercomponent.image = components.supercomponent.split;
@@ -28,7 +28,7 @@ in rec {
   };
 
   subsystem = mkIceDL {
-    action.script = icecapSrc.absoluteSplit ./subsystem.py;
+    script = icecapSrc.absolute ./subsystem.py;
     config = {
       num_cores = 1;
       components = {

@@ -8,7 +8,7 @@ mkInstance { benchmark = true; } (self: with self.configured; with self; {
 
   composition = compose {
     # inherit (self) kernel;
-    action.script = icecapSrc.absoluteSplit ./cdl.py;
+    script = icecapSrc.absolute ./cdl.py;
     config = {
       components = {
         test.image = test.split;

@@ -5,7 +5,7 @@
 mkInstance { debug = true; } (self: with self.configured; with self; {
 
   composition = compose {
-    action.script = icecapSrc.absoluteSplit ./cdl.py;
+    script = icecapSrc.absolute ./cdl.py;
     config = {
       components = {
         test.image = test.split;

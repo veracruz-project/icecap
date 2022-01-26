@@ -12,7 +12,7 @@ in rec {
   };
 
   composition = configured.compose {
-    action.script = icecapSrc.absoluteSplit ./cdl.py;
+    script = icecapSrc.absolute ./cdl.py;
     config = {
       components = {
         example_component.image = elfUtils.split "${example-component}/bin/example-component.elf";

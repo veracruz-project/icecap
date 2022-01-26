@@ -7,7 +7,7 @@ let
     attrs.loader-elf.min
   ];
 
-  untrusted = with attrs.config.components; [
+  untrusted = with attrs.cdl.config.components; [
     host_vmm.image.min
     host_vm.kernel
     host_vm.dtb
