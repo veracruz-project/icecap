@@ -54,7 +54,7 @@ deep-clean:
 # - required: `REMOTE=<remote, e.g. ssh host>`
 # - optional: `ROOT=<attribute path>`
 
-ROOT ?= meta.everything.cached
+ROOT ?= everything.cached
 
 .PHONY: populate-cache
 populate-cache:

@@ -36,6 +36,10 @@ everything-pure:
 everything-cached:
 	nix-build -A everything.cached --no-out-link
 
+.PHONY: everything-with-excess
+everything-with-excess: everything
+	nix-build -A testStandAlone
+
 .PHONY: check-generated-sources
 check-generated-sources:
 	script=$$(nix-build -A framework.generatedSources.check --no-out-link) && $$script
