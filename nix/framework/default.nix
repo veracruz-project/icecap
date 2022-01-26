@@ -5,9 +5,6 @@ It has the following structure:
 
 {
 
-  # Top-level build targets including tests, benchmarks, and demos. See `./meta`.
-  meta = ...;
-
   # A Nixpkgs attribute set for each target system, each augmented with the overlay at `./overlay`.
   # This overlay adds the `.icecap` attribute which holds a scope containing the IceCap expressions.
   # This scope is expressed in `./scope`. For more a description of each target system, see
@@ -43,7 +40,7 @@ let
 
   crossSystems =
     let
-      guard = config: if config == topLevel.pkgs.dev.hostPlatform.config then null else { inherit config; };
+      guard = config: if config == framework.pkgs.dev.hostPlatform.config then null else { inherit config; };
     in {
       # The development system which hosts the build.
       dev = null;
@@ -72,7 +69,7 @@ let
     };
   };
 
-  mkTopLevel = args: lib.fix (self:
+  mkFramework = args: lib.fix (self:
     let
       concreteArgs = args self;
       pkgs = lib.mapAttrs (_: crossSystem:
@@ -81,10 +78,9 @@ let
     in {
       inherit lib pkgs;
       inherit (concreteArgs) config;
-      meta = import ./meta self;
-    });
+    } // import ./top-level self);
 
-  topLevel = makeOverridableWith lib.id mkTopLevel baseArgs;
+  framework = makeOverridableWith lib.id mkFramework baseArgs;
 
 in
-  topLevel
+  framework

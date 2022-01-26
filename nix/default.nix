@@ -1,11 +1,7 @@
 let
   framework = import ./framework;
   hypervisor = import ./hypervisor { inherit framework; };
-in rec {
+in framework.lib.fix (self: {
   inherit framework hypervisor;
-  meta = import ./meta {
-    inherit framework hypervisor;
-  };
-
   inherit (hypervisor.framework) lib pkgs;
-}
+} // import ./top-level self)

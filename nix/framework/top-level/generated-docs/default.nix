@@ -1,4 +1,4 @@
-{ lib, pkgs, meta }:
+{ lib, pkgs, rustAggregate }:
 
 let
  uniqueOn = with lib; f: foldl' (acc: e: if elem (f e) (map f acc) then acc else acc ++ [ e ]) [];
@@ -14,7 +14,7 @@ rec {
   rustdocAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
     doc = true;
     docDeps = true;
-  })) meta.rustAggregate.allAttrs;
+  })) rustAggregate.allAttrs;
 
   rustdocList = uniqueOn (x: x.worldPath) (lib.concatMap lib.attrValues (lib.attrValues rustdocAttrs));
 

@@ -1,9 +1,9 @@
-{ lib, pkgs, meta }:
+{ lib, pkgs, rustAggregate }:
 
 let
   allAttrs = lib.mapAttrs (_: lib.mapAttrs (_: v: v {
     build = true;
-  })) meta.rustAggregate.allAttrs;
+  })) rustAggregate.allAttrs;
 
 in
 rec {

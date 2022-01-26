@@ -1,9 +1,9 @@
-{ lib, config, pkgs, meta, ... } @ topLevel:
+self: with self;
 
 let
-  call = pkgs.dev.icecap.callWith topLevel;
+  call = pkgs.dev.icecap.callWith self;
 
-in rec {
+in {
 
   everything = call ./everything.nix {};
 

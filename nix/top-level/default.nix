@@ -1,9 +1,9 @@
-{ framework, hypervisor }:
+self: with self;
 
 let
   inherit (framework) lib;
 
-in rec {
+in {
 
   examples = import ../../examples;
   demos = {
@@ -13,8 +13,8 @@ in rec {
   everything =
     let
       combine = attr: [
-        framework.meta.everything.${attr}
-        hypervisor.meta.everything.${attr}
+        framework.everything.${attr}
+        hypervisor.everything.${attr}
       ];
       mk = name: drvs: framework.pkgs.dev.writeText name (toString (lib.flatten drvs));
     in rec {

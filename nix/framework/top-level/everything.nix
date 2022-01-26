@@ -1,4 +1,4 @@
-{ lib, pkgs, meta }:
+{ lib, pkgs, instances, adHocBuildTests, generatedDocs }:
 
 let
   inherit (pkgs) dev none linux musl;
@@ -8,7 +8,7 @@ let
 
   cached = [
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
-      meta.instances.tests.backtrace
+      instances.tests.backtrace
     ])
   ];
 
@@ -35,8 +35,8 @@ let
   ];
 
   impure = [
-    meta.adHocBuildTests.allList
-    meta.generatedDocs.html
+    adHocBuildTests.allList
+    generatedDocs.html
   ];
 
   all = [

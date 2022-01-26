@@ -1,12 +1,11 @@
-{ framework, meta } @ hypervisorTopLevel:
+self: with self;
 
 let
-  call = framework.pkgs.dev.icecap.callWith (hypervisorTopLevel // meta // {
+  call = framework.pkgs.dev.icecap.callWith (self // {
     inherit (framework) lib pkgs;
   });
 
-in
-rec {
+in {
 
   everything = call ./everything.nix {};
 

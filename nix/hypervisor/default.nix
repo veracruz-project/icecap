@@ -21,5 +21,4 @@ let
   );
 in lib.fix (self: {
   framework = frameworkWithOverrides;
-  meta = import ./meta self;
-})
+} // import ./top-level self)
