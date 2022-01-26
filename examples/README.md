@@ -81,7 +81,7 @@ The following is the only code compiled into the root task:
 responsible for `_start` up until `icecap_main`, the latter of which is defined
 in the root task's `main.c`. Note that, in the case of the root task,
 `libicecap-runtime` is configured with `#define ICECAP_RUNTIME_ROOT` in
-[../nix/scope/configured/sel4-user/c/default.nix#L85](../nix/scope/configured/sel4-user/c/default.nix#L85).
+[../nix/framework/scope/configured/sel4-user/c/default.nix#L85](../nix/framework/scope/configured/sel4-user/c/default.nix#L85).
 The root task configuration of `libicecap-runtime` is more complicated than the
 configuration for CapDL components, so we will defer our examination of
 `libicecap-runtime` until we introduce CapDL.
@@ -193,7 +193,7 @@ The IceCap Framework's Nix build system takes care of the details of running
 that Python code.  See
 [./03-minimal-capdl/default.nix#L14](./03-minimal-capdl/default.nix#L14) for an
 example.  For details, either trace the Nix code back to
-[../nix/scope/configured/capdl/mk-icedl.nix](../nix/scope/configured/capdl/mk-icedl.nix)
+[../nix/framework/scope/configured/capdl/mk-icedl.nix](../nix/framework/scope/configured/capdl/mk-icedl.nix)
 or take a look at the relevant bits of Makefile in the repository referenced in
 [IceCap without Nix](../docs/icecap-without-nix.md).
 
