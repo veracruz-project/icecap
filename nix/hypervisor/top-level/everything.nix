@@ -13,8 +13,6 @@ in framework.mkEverything {
       configured.icecapFirmware.display
     ]))
 
-    tcbSize
-
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
       instances.tests.hypervisor
       instances.tests.benchmark-server
@@ -24,6 +22,8 @@ in framework.mkEverything {
     ])
 
     automatedTests.runAll
+
+    tcbSize
   ];
 
   extraPure = [

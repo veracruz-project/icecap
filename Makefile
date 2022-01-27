@@ -38,7 +38,7 @@ everything-cached:
 
 .PHONY: everything-with-excess
 everything-with-excess: everything
-	nix-build -A testStandAlone
+	nix-build -A testStandingAlone
 
 .PHONY: check-generated-sources
 check-generated-sources:

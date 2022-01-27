@@ -7,16 +7,7 @@ let
     inherit framework;
   };
 
-  collectRun = attrs: map (x: x.run) (lib.collect (x: x ? run) attrs);
-
-  applied = {
-    framework = lib.mapAttrsRecursive (_: f: f { inherit framework; }) unapplied.framework;
-    hypervisor = lib.mapAttrsRecursive (_: f: f { inherit hypervisor; }) unapplied.hypervisor;
-  };
-
-  appliedStandAlone = lib.mapAttrsRecursive (_: f: f {}) unapplied;
-
-  unapplied = lib.mapAttrsRecursive (_: import) {
+  examplesAndDemos = lib.mapAttrsRecursive (_: import) {
     framework = {
       examples = {
         minimal-root-task = ../examples/01-minimal-root-task;
@@ -39,31 +30,37 @@ let
     };
   };
 
+  examplesAndDemosIntegrated = {
+    framework = lib.mapAttrsRecursive (_: f: f { inherit framework; }) examplesAndDemos.framework;
+    hypervisor = lib.mapAttrsRecursive (_: f: f { inherit hypervisor; }) examplesAndDemos.hypervisor;
+  };
+
+  examplesAndDemosStandingAlone = lib.mapAttrsRecursive (_: f: f {}) examplesAndDemos;
+
+  collectRun = attrs: map (x: x.run) (lib.collect (x: x ? run) attrs);
+
 in rec {
   inherit framework hypervisor;
 
-  examples = applied.framework.examples // applied.hypervisor.examples;
-  demos = applied.framework.demos // applied.hypervisor.demos;
+  examples = examplesAndDemosIntegrated.framework.examples // examplesAndDemosIntegrated.hypervisor.examples;
+  demos = examplesAndDemosIntegrated.framework.demos // examplesAndDemosIntegrated.hypervisor.demos;
 
-  everything =
-    let
-      inherit (framework) lib mkEverything;
-    in mkEverything {
-      cached = [
-        framework.everything.cached
-        hypervisor.everything.cached
-        (collectRun applied)
-      ];
-      extraPure = [
-        framework.everything.extraPure
-        hypervisor.everything.extraPure
-      ];
-      impure = [
-        framework.everything.impure
-      ];
-    };
+  everything = framework.mkEverything {
+    cached = [
+      framework.everything.cached
+      hypervisor.everything.cached
+      (collectRun examplesAndDemosIntegrated)
+    ];
+    extraPure = [
+      framework.everything.extraPure
+      hypervisor.everything.extraPure
+    ];
+    impure = [
+      framework.everything.impure
+    ];
+  };
 
-  testStandAlone = framework.pkgs.dev.writeText "test-stand-alone"
-    (toString (collectRun appliedStandAlone));
+  testStandingAlone = framework.pkgs.dev.writeText "test-standing-alone"
+    (toString (collectRun examplesAndDemosStandingAlone));
 
 }
