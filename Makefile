@@ -18,7 +18,11 @@ hypervisor-firmware: | $(out)
 
 .PHONY: html-docs
 html-docs: check-generated-sources | $(out)
-	nix-build -A framework.generatedDocs.html -o $(out)/$@
+	nix-build -A framework.generatedDocs.external.html -o $(out)/$@
+
+.PHONY: complete-html-docs
+complete-html-docs: check-generated-sources | $(out)
+	nix-build -A framework.generatedDocs.complete.html -o $(out)/$@
 
 .PHONY: show-tcb-size
 show-hypervisor-tcb-size:
@@ -37,8 +41,8 @@ everything-cached:
 	nix-build -A everything.cached --no-out-link
 
 .PHONY: everything-with-excess
-everything-with-excess: everything
-	nix-build -A testStandingAlone
+everything-with-excess:
+	nix-build -A everything.allWithExcess --no-out-link
 
 .PHONY: check-generated-sources
 check-generated-sources:

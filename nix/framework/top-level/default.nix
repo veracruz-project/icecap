@@ -31,9 +31,11 @@ in {
       allWithExcess = all ++ excess;
     in {
       cached = mk "-cached" cached;
-      extraPure = mk "-pure" extraPure;
-      pure = mk "-pure" pure;
+      extraPure = mk "-extra-pure" extraPure;
+      excess = mk "-excess" excess;
       impure = mk "-impure" impure;
+
+      pure = mk "-pure" pure;
       all = mk "" all;
       allWithExcess = mk "-with-excess" allWithExcess;
     };
