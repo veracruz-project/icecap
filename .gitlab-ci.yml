@@ -1,5 +1,5 @@
 check-x86_64:
-  tags: [ nix-x86_64-linux ]
+  tags: [ "nix-x86_64-linux" ]
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
@@ -7,9 +7,23 @@ check-x86_64:
   when: manual
 
 check-aarch64:
-  tags: [ nix-aarch64-linux ]
+  tags: [ "nix-aarch64-linux" ]
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
     - make -C hack/ci
   when: manual
+
+pages:
+  needs: [ "check-x86_64" ]
+  tags: [ "nix-x86_64-linux" ]
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - make -C hack/ci pages
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 day
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
