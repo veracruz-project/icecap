@@ -24,12 +24,10 @@ pub enum Request {
         bulk_data_size: usize,
         offset: usize,
     },
-    FillChunk {
+    FillChunks {
         realm_id: usize,
         bulk_data_offset: usize,
         bulk_data_size: usize,
-        object_index: usize,
-        fill_entry_index: usize,
     },
     RealizeStart {
         realm_id: RealmId,
@@ -45,6 +43,13 @@ pub enum Request {
     HackRun {
         realm_id: RealmId,
     },
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FillChunkHeader {
+    pub object_index: usize,
+    pub fill_entry_index: usize,
+    pub size: usize,
 }
 
 #[derive(Clone, Debug)]

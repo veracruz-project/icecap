@@ -6,7 +6,7 @@ from icecap_framework.utils import BLOCK_SIZE, PAGE_SIZE
 
 HACK_TIMER_BADGE = 0x100 # HACK
 HACK_SUBSCRIPTION_BADGE = 0x101 # HACK
-HACK_HOST_BULK_REGION_SIZE = 2**21
+HACK_HOST_BULK_REGION_SIZE = 2**21 + 2**12 # HACK to allow for 2M frame fill + header
 
 class ResourceServer(SimpleRealizer):
 

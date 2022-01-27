@@ -83,7 +83,7 @@ fn main() -> Result<()> {
 
 fn create(realm_id: usize, spec_path: &str) -> Result<()> {
     let spec = fs::read(spec_path)?;
-    let bulk_transport_chunk_size: usize = 4096 * 64; // TODO make configurable
+    let bulk_transport_chunk_size: usize = (1 << 21) + (1 << 12); // HACK should get from kernel
     let mut host = Host::new().unwrap();
     host.create_realm(realm_id, &spec, bulk_transport_chunk_size)
 }

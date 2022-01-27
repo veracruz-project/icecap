@@ -34,6 +34,7 @@ impl Host {
 
         syscall::realize_start(realm_id);
 
+        let mut acc = vec![];
         let mut offset = 0;
         for (i, obj) in model.objects.iter().enumerate() {
             if let AnyObj::Local(obj) = &obj.object {
@@ -43,17 +44,32 @@ impl Host {
                     _ => None,
                 } {
                     for (j, entry) in fill.iter().enumerate() {
-                        bulk_transport.send_fill(
-                            realm_id,
-                            i,
-                            j,
-                            &fill_content[offset..offset + entry.length],
-                        )?;
+                        let content = &fill_content[offset..offset + entry.length];
+                        let header = postcard::to_allocvec(&icecap_resource_server_types::FillChunkHeader {
+                            object_index: i,
+                            fill_entry_index: j,
+                            size: content.len(),
+                        }).unwrap();
+                        let size = header.len() + content.len();
+                        if acc.len() + size > bulk_transport_chunk_size {
+                            bulk_transport.send_fill(
+                                realm_id,
+                                &acc,
+                            )?;
+                            acc.clear();
+                        }
+                        acc.extend_from_slice(&header);
+                        acc.extend_from_slice(content);
                         offset = offset + entry.length;
                     }
                 }
             }
         }
+        assert!(acc.len() <= bulk_transport_chunk_size);
+        bulk_transport.send_fill(
+            realm_id,
+            &acc,
+        )?;
 
         syscall::realize_finish(realm_id);
         Ok(())

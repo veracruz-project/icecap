@@ -3,7 +3,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use crate::{
-    syscall::{fill_chunk, spec_chunk},
+    syscall::{fill_chunks, spec_chunk},
     Result,
 };
 
@@ -49,12 +49,10 @@ impl BulkTransport {
     pub fn send_fill(
         &mut self,
         realm_id: usize,
-        object_index: usize,
-        fill_index: usize,
         content: &[u8],
     ) -> Result<()> {
         self.send(content)?;
-        fill_chunk(realm_id, 0, content.len(), object_index, fill_index);
+        fill_chunks(realm_id, 0, content.len());
         Ok(())
     }
 }

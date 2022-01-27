@@ -85,19 +85,15 @@ pub fn spec_chunk(realm_id: usize, bulk_data_offset: usize, bulk_data_size: usiz
     })
 }
 
-pub fn fill_chunk(
+pub fn fill_chunks(
     realm_id: usize,
     bulk_data_offset: usize,
     bulk_data_size: usize,
-    object_index: usize,
-    fill_entry_index: usize,
 ) {
-    resource_server_passthru(&Request::FillChunk {
+    resource_server_passthru(&Request::FillChunks {
         realm_id,
         bulk_data_offset,
         bulk_data_size,
-        object_index,
-        fill_entry_index,
     })
 }
 

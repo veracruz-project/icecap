@@ -123,26 +123,30 @@ fn run(
                             resource_server.incorporate_spec_chunk(realm_id, offset, content)?;
                             rpc_server::reply::<()>(&());
                         }
-                        Request::FillChunk {
+                        Request::FillChunks {
                             realm_id,
                             bulk_data_offset,
                             bulk_data_size,
-                            object_index,
-                            fill_entry_index,
                         } => {
                             assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
-                            let content = unsafe {
+                            let mut aggregate_content = unsafe {
                                 core::slice::from_raw_parts(
                                     bulk_region.offset(bulk_data_offset as isize),
                                     bulk_data_size,
                                 )
                             };
-                            rpc_server::reply::<()>(&resource_server.realize_continue(
-                                realm_id,
-                                object_index,
-                                fill_entry_index,
-                                content,
-                            )?)
+                            while aggregate_content.len() > 0 {
+                                let (header, rest) = postcard::take_from_bytes::<FillChunkHeader>(aggregate_content).unwrap();
+                                let (content, rest) = rest.split_at(header.size);
+                                aggregate_content = rest;
+                                resource_server.realize_continue(
+                                    realm_id,
+                                    header.object_index,
+                                    header.fill_entry_index,
+                                    content,
+                                )?;
+                            }
+                            rpc_server::reply::<()>(&())
                         }
                         Request::RealizeStart { realm_id } => {
                             rpc_server::reply::<()>(&resource_server.realize_start(realm_id)?)
