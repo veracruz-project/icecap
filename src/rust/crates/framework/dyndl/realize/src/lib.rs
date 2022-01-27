@@ -217,7 +217,8 @@ impl Realizer {
         let (externs, extern_caps): (Externs, Vec<Unspecified>) = {
             let mut externs = BTreeMap::new();
 
-            let extern_caps: Vec<Unspecified> = partial.model_view
+            let extern_caps: Vec<Unspecified> = partial
+                .model_view
                 .extern_objects
                 .iter()
                 .map(|i| match &partial.model.objects[*i].object {

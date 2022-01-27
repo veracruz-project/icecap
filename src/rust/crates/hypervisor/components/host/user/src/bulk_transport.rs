@@ -46,11 +46,7 @@ impl BulkTransport {
         self.send_spec(realm_id, &spec, chunk_size)
     }
 
-    pub fn send_fill(
-        &mut self,
-        realm_id: usize,
-        content: &[u8],
-    ) -> Result<()> {
+    pub fn send_fill(&mut self, realm_id: usize, content: &[u8]) -> Result<()> {
         self.send(content)?;
         fill_chunks(realm_id, 0, content.len());
         Ok(())

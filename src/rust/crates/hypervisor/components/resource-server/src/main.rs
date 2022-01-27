@@ -136,7 +136,9 @@ fn run(
                                 )
                             };
                             while aggregate_content.len() > 0 {
-                                let (header, rest) = postcard::take_from_bytes::<FillChunkHeader>(aggregate_content).unwrap();
+                                let (header, rest) =
+                                    postcard::take_from_bytes::<FillChunkHeader>(aggregate_content)
+                                        .unwrap();
                                 let (content, rest) = rest.split_at(header.size);
                                 aggregate_content = rest;
                                 resource_server.realize_continue(
