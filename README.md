@@ -1,5 +1,7 @@
 # IceCap
 
+[![pipeline status](https://gitlab.com/arm-research/security/icecap/icecap/badges/main/pipeline.svg)](https://gitlab.com/arm-research/security/icecap/icecap/-/commits/main)
+
 IceCap is a virtualization platform from [Arm
 Research](https://developer.arm.com/solutions/research/research-publications)
 with a minimal trusted computing base that aims to provide guests with
