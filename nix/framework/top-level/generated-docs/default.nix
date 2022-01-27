@@ -3,6 +3,9 @@
 let
   uniqueOn = with lib; f: foldl' (acc: e: if elem (f e) (map f acc) then acc else acc ++ [ e ]) [];
 
+  defaultPlat = "rpi4";
+  defaultLinuxWorld = "musl";
+
   htmlWithConfig = { docArgs, worldFilter }: rec {
 
     html = pkgs.dev.linkFarm "html" [
@@ -55,7 +58,7 @@ let
             <h1>IceCap rustdoc</h1>
             <p>
               Start here:
-              <a href="https://arm-research.gitlab.io/security/icecap/html/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html">
+              <a href="./worlds/${rustdocAttrs.seL4.${defaultPlat}.worldPath}/host/icecap_core/index.html">
                 icecap-core
               </a>
             </p>
@@ -91,8 +94,8 @@ in rec {
       docDeps = true;
     };
     worldFilter = worlds: {
-      seL4.rpi4 = worlds.seL4.rpi4;
-      linux.musl = worlds.linux.musl;
+      seL4.${defaultPlat} = worlds.seL4.${defaultPlat};
+      linux.${defaultLinuxWorld} = worlds.linux.${defaultLinuxWorld};
     };
   };
 }
