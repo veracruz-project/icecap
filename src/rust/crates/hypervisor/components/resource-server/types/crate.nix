@@ -9,4 +9,5 @@ mk {
     serde = serdeMin;
     postcard = postcardCommon;
   };
+  nix.hack.noDoc = true;
 }

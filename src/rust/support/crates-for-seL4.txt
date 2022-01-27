@@ -6,8 +6,8 @@ fault-handler
 host-vmm
 icecap-backtrace
 icecap-backtrace-collect
-icecap-bcm2835-aux-uart-driver
 icecap-bcm-system-timer-driver
+icecap-bcm2835-aux-uart-driver
 icecap-core
 icecap-driver-interfaces
 icecap-failure

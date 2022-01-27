@@ -10,4 +10,5 @@ mkBin {
     serde = "*";
     serde_json = "*";
   };
+  nix.hack.noDoc = true;
 }

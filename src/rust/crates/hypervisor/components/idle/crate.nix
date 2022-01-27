@@ -8,4 +8,5 @@ mkComponent {
   dependencies = {
     cortex-a = "*";
   };
+  nix.hack.noDoc = true;
 }

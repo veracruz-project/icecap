@@ -21,10 +21,6 @@ in mkEverything {
       configured.sysroot-rs
     ]))
 
-    (forEachIn [ dev ] (host: [
-      host.icecap.bindgen
-    ]))
-
     (forEachIn [ dev linux musl ] (host: [
       host.icecap.crosvm-9p-server
     ]))
@@ -32,6 +28,14 @@ in mkEverything {
 
   impure = [
     adHocBuildTests.allList
-    generatedDocs.html
+    generatedDocs.external.html
+  ];
+
+  excess = [
+    generatedDocs.complete.html
+
+    (forEachIn [ dev ] (host: [
+      host.icecap.bindgen
+    ]))
   ];
 }

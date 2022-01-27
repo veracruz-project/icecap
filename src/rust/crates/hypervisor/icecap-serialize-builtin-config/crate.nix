@@ -21,4 +21,5 @@ mkBin {
     serde_json = "*";
     postcard = postcardCommon;
   };
+  nix.hack.noDoc = true;
 }

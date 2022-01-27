@@ -11,4 +11,5 @@ mkComponent {
   dependencies = {
     cfg-if = "*";
   };
+  nix.hack.noDoc = true;
 }

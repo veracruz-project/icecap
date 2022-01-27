@@ -13,6 +13,10 @@ let
       landmark = "crates.nix";
       path = globalCrates._cratesForTxt.seL4;
     };
+    "support/crates-for-docs.txt" = {
+      landmark = "crates.nix";
+      path = globalCrates._cratesForTxt.docs;
+    };
     "Cargo.lock" = {
       landmark = "crates.nix";
       path = generatedCrateManifests.lock;

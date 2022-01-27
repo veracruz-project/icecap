@@ -18,4 +18,5 @@ mkComponent {
     postcard = postcardCommon;
     serde = serdeMin;
   };
+  nix.hack.noDoc = true;
 }

@@ -7,4 +7,5 @@ mkSeL4 {
     icecap-rpc-sel4
     icecap-timer-server-types
   ];
+  nix.hack.noDoc = true;
 }

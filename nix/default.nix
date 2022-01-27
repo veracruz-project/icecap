@@ -58,6 +58,11 @@ in rec {
     impure = [
       framework.everything.impure
     ];
+    excess = [
+      framework.everything.excess
+      hypervisor.everything.excess
+      testStandingAlone
+    ];
   };
 
   testStandingAlone = framework.pkgs.dev.writeText "test-standing-alone"

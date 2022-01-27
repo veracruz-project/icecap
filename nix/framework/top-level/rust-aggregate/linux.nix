@@ -4,7 +4,7 @@
 , stdenv, icecapSrc, fetchCrates
 }:
 
-{ build ? false, release ? false, doc ? false, docDeps ? false }:
+{ build ? false, release ? false, doc ? false, docDeps ? false, docAll ? false }:
 
 let
 
@@ -33,6 +33,7 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
 
   buildPhase = ''
     package_args=$(awk '{print "-p" $$0}' < ${src}/support/crates-for-linux.txt)
+    package_args_fewer_docs=$(comm -1 -2 ${src}/support/crates-for-linux.txt ${src}/support/crates-for-docs.txt | awk '{print "-p" $$0}')
 
   '' + lib.optionalString build ''
     cargo build \
@@ -53,7 +54,7 @@ in stdenv.mkDerivation (crateUtils.baseEnv // {
         --manifest-path ${src}/Cargo.toml \
         --target ${rustTargetName} \
         ${lib.optionalString (!docDeps) "--no-deps"} \
-        $package_args
+        ${if docAll then "$package_args" else "$package_args_fewer_docs"}
 
     mkdir -p $out/doc
     cp -r target/doc $out/doc/build

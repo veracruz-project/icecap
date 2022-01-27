@@ -21,15 +21,21 @@ in {
     { cached ? []
     , extraPure ? []
     , impure ? []
+    , excess ? []
     }:
     let
-      mk = name: drvs: pkgs.dev.writeText name (toString (lib.flatten drvs));
+      mk = suffix: drvs: pkgs.dev.writeText "everything${suffix}" (toString (lib.flatten drvs));
+
+      pure = cached ++ extraPure;
+      all = pure ++ impure;
+      allWithExcess = all ++ excess;
     in {
-      cached = mk "everything-cached" cached;
-      extraPure = mk "everything-pure" extraPure;
-      pure = mk "everything-pure" (cached ++ extraPure);
-      impure = mk "everything-impure" impure;
-      all = mk "everything" (cached ++ extraPure ++ impure);
+      cached = mk "-cached" cached;
+      extraPure = mk "-pure" extraPure;
+      pure = mk "-pure" pure;
+      impure = mk "-impure" impure;
+      all = mk "" all;
+      allWithExcess = mk "-with-excess" allWithExcess;
     };
 
 }

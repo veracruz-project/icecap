@@ -1,4 +1,4 @@
-{ lib, newScope
+{ lib, newScope, writeText
 , icecapSrc, icecapExternalSrc
 , crateUtils
 }:
@@ -13,21 +13,27 @@ let
   callCrate = path:
 
     let
-      mkBase = isBin: isSeL4: exclude: args: crateUtils.mkCrate (lib.recursiveUpdate args {
-        nix.srcPath = icecapSrc.absolute (path + "/src");
-        nix.isBin = isBin;
-        nix.buildScriptHack =
-          if args.nix.buildScriptHack or false
-          then icecapSrc.absoluteSplit (path + "/build.rs")
-          else null;
-        nix.keepFilesHack = lib.forEach (args.nix.keepFilesHack or []) (name: {
-          inherit name;
-          path = icecapSrc.absolute (path + "/${name}");
-        });
-        nix.hack.path = path; # HACK
-        nix.hack.isSeL4 = isSeL4;
-        nix.hack.exclude = exclude;
-      });
+      mkBase = isBin: isSeL4: exclude: args: crateUtils.mkCrate (crateUtils.clobber [
+        args
+        {
+          nix.srcPath = icecapSrc.absolute (path + "/src");
+          nix.isBin = isBin;
+          nix.buildScriptHack =
+            if args.nix.buildScriptHack or false
+            then icecapSrc.absoluteSplit (path + "/build.rs")
+            else null;
+          nix.keepFilesHack = lib.forEach (args.nix.keepFilesHack or []) (name: {
+            inherit name;
+            path = icecapSrc.absolute (path + "/${name}");
+          });
+          nix.hack.path = path; # HACK
+          nix.hack.isSeL4 = isSeL4;
+          nix.hack.exclude = exclude;
+        }
+        (lib.optionalAttrs (!((args.nix ? hack) && (args.nix.hack ? noDoc))) {
+          nix.hack.noDoc = false;
+        })
+      ]);
 
     in newScope {
 
@@ -53,8 +59,9 @@ let
 
   cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
   cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
+  cratesForDocs = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.noDoc && !crate.hack.elaboratedNix.hack.exclude) localCrates;
 
-  mkCratesForTxt = attrs: builtins.toFile "crates.txt" (lib.concatStrings (lib.naturalSort (lib.mapAttrsToList (k: _: "${k}\n") attrs)));
+  mkCratesForTxt = attrs: writeText "crates.txt" (lib.concatStrings (lib.sort (x: y: x < y) (lib.mapAttrsToList (k: _: "${k}\n") attrs)));
 
 in localCrates // rec {
   _localCrates = localCrates;
@@ -62,6 +69,7 @@ in localCrates // rec {
   _cratesFor = {
     seL4 = cratesForSeL4;
     linux = cratesForLinux;
+    docs = cratesForDocs;
   };
   _cratesForTxt = lib.mapAttrs (lib.const mkCratesForTxt) _cratesFor;
 }
