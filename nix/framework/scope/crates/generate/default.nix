@@ -36,14 +36,14 @@ let
       paths = lib.flip lib.mapAttrsRecursive elaboratedNix.local (_: v:
         if !lib.isList v then v else lib.listToAttrs (map (otherCrate: lib.nameValuePair otherCrate.name {
           path = ensureDot (pathBetween
-            (toString elaboratedNix.hack.path)
-            (toString otherCrate.hack.elaboratedNix.hack.path));
+            (toString elaboratedNix.passthru.path)
+            (toString otherCrate.hack.elaboratedNix.passthru.path));
         }) v)
       );
 
       relativePath = pathBetween
         (toString (icecapSrc.relativeRaw "rust"))
-        (toString elaboratedNix.hack.path);
+        (toString elaboratedNix.passthru.path);
 
       base = writeText "Cargo.toml" ''
         [package]

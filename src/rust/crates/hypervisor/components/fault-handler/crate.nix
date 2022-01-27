@@ -6,5 +6,5 @@ mkComponent {
     icecap-std
     icecap-fault-handler-config
   ];
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }

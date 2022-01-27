@@ -13,5 +13,5 @@ mk {
     cfg-if = "*";
     postcard = postcardCommon;
   };
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }

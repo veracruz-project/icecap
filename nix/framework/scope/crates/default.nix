@@ -26,12 +26,12 @@ let
             inherit name;
             path = icecapSrc.absolute (path + "/${name}");
           });
-          nix.hack.path = path; # HACK
-          nix.hack.isSeL4 = isSeL4;
-          nix.hack.exclude = exclude;
+          nix.passthru.path = path; # HACK
+          nix.passthru.isSeL4 = isSeL4;
+          nix.passthru.exclude = exclude;
         }
-        (lib.optionalAttrs (!((args.nix ? hack) && (args.nix.hack ? noDoc))) {
-          nix.hack.noDoc = false;
+        (lib.optionalAttrs (!((args.nix ? passthru) && (args.nix.passthru ? noDoc))) {
+          nix.passthru.noDoc = false;
         })
       ]);
 
@@ -57,9 +57,9 @@ let
   # HACK
   patches = icecapExternalSrc.crates.git;
 
-  cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
-  cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.isSeL4 && !crate.hack.elaboratedNix.hack.exclude) localCrates;
-  cratesForDocs = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.hack.noDoc && !crate.hack.elaboratedNix.hack.exclude) localCrates;
+  cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.passthru.isSeL4 && !crate.hack.elaboratedNix.passthru.exclude) localCrates;
+  cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.isSeL4 && !crate.hack.elaboratedNix.passthru.exclude) localCrates;
+  cratesForDocs = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.noDoc && !crate.hack.elaboratedNix.passthru.exclude) localCrates;
 
   mkCratesForTxt = attrs: writeText "crates.txt" (lib.concatStrings (lib.sort (x: y: x < y) (lib.mapAttrsToList (k: _: "${k}\n") attrs)));
 

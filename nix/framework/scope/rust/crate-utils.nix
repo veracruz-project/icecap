@@ -19,13 +19,13 @@ rec {
         , keepFilesHack ? []
         , isBin ? false
         , local ? {}
-        , hack ? {}, # HACK
+        , passthru ? {}
         }:
         {
           inherit
             name src buildScriptHack keepFilesHack isBin
             local
-            hack; # HACK
+            passthru;
         };
 
     in

@@ -10,5 +10,5 @@ mk {
   dependencies = {
     serde = serdeMin;
   };
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }

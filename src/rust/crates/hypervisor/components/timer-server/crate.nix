@@ -21,5 +21,5 @@ mkComponent {
     cfg-if = "*";
     tock-registers = "*";
   };
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }

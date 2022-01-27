@@ -9,5 +9,5 @@ mkBin {
   dependencies = {
     clap = "*";
   };
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }

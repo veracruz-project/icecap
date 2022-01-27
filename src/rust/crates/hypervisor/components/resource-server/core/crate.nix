@@ -16,5 +16,5 @@ mkSeL4 {
     serde = serdeMin;
     postcard = postcardCommon;
   };
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }

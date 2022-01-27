@@ -10,5 +10,5 @@ mkComponent {
     icecap-vmm
     icecap-event-server-types
   ];
-  nix.hack.noDoc = true;
+  nix.passthru.noDoc = true;
 }
