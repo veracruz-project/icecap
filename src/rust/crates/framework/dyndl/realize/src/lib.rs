@@ -76,6 +76,7 @@ pub struct VirtualCoreTCB {
 
 pub struct PartialSubsystem {
     pub model: Model,
+    pub model_view: ModelView,
     pub cregion: CRegion,
     pub cnode_untyped_id: UntypedId,
     pub local_object_slots: Vec<Slot>,
@@ -160,8 +161,11 @@ impl Realizer {
             .allocator
             .create_objects(&mut cregion, &local_object_blueprints)?;
 
+        let model_view = ModelView::new(&model);
+
         Ok(PartialSubsystem {
             model,
+            model_view,
             cregion,
             cnode_untyped_id,
             local_object_slots,
@@ -176,12 +180,11 @@ impl Realizer {
         fill_entry_index: usize,
         untrusted_content: &[u8],
     ) -> Fallible<()> {
-        let view = ModelView::new(&partial.model);
         let obj = &partial.model.objects[obj_id];
         if let AnyObj::Local(obj) = &obj.object {
             let cptr_with_depth = partial
                 .cregion
-                .cptr_with_depth(partial.local_object_slots[view.reverse[obj_id]]);
+                .cptr_with_depth(partial.local_object_slots[partial.model_view.reverse[obj_id]]);
             match obj {
                 Obj::SmallPage(frame) => {
                     self.initialization_resources.fill_frame(
@@ -210,13 +213,11 @@ impl Realizer {
     }
 
     pub fn realize_finish(&mut self, mut partial: PartialSubsystem) -> Fallible<Subsystem> {
-        let view = ModelView::new(&partial.model);
-
         // initialize objects
         let (externs, extern_caps): (Externs, Vec<Unspecified>) = {
             let mut externs = BTreeMap::new();
 
-            let extern_caps: Vec<Unspecified> = view
+            let extern_caps: Vec<Unspecified> = partial.model_view
                 .extern_objects
                 .iter()
                 .map(|i| match &partial.model.objects[*i].object {
@@ -243,9 +244,9 @@ impl Realizer {
             .map(|(i, obj)| match &obj.object {
                 AnyObj::Local(_) => partial
                     .cregion
-                    .cptr_with_depth(partial.local_object_slots[view.reverse[i]])
+                    .cptr_with_depth(partial.local_object_slots[partial.model_view.reverse[i]])
                     .local_cptr::<Unspecified>(),
-                AnyObj::Extern(_) => extern_caps[view.reverse[i]],
+                AnyObj::Extern(_) => extern_caps[partial.model_view.reverse[i]],
             })
             .collect();
 
