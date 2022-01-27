@@ -4,10 +4,6 @@ self: super: with self; {
 
   deviceTree = callPackage ./device-tree.nix {};
 
-  linuxKernel = super.linuxKernel // {
-    realm.minimal = linuxKernel.guest.minimal;
-  };
-
   icecap-host = callPackage ./icecap-host.nix {};
 
   icecap-append-devices = mkTool globalCrates.icecap-append-devices;
@@ -18,5 +14,10 @@ self: super: with self; {
   firecracker-prebuilt = callPackage ./firecracker/firecracker-prebuilt.nix {};
   firectl = callPackage ./firecracker/firectl.nix {};
   libfdt = callPackage ./firecracker/libfdt {};
+
+  # HACK
+  linuxKernel = super.linuxKernel // {
+    realm.minimal = linuxKernel.guest.minimal;
+  };
 
 }
