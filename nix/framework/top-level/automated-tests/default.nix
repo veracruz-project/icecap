@@ -38,6 +38,7 @@ rec {
         timeout $timeout_ bash -c \
           'head -n1 <(bash -c "tee >(cat >&2)" | grep -E -a --line-buffered --only-matching "TEST_(PASS|FAIL)")' \
           <&''${COPROC[0]} \
+          || true
       )
       kill $COPROC_PID
 
