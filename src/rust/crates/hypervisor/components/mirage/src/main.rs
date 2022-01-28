@@ -42,7 +42,7 @@ fn main(config: Config) -> Fallible<()> {
                 index: index.to_nat(),
             })
         });
-        RingBuffer::realize_resume(
+        RingBuffer::resume_from_config(
             &config.net_rb,
             RingBufferKicksConfig {
                 read: kick.clone(),

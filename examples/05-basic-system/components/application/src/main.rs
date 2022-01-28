@@ -40,7 +40,7 @@ struct State {
 
 fn main(config: Config) -> Fallible<()> {
     let mut state = State {
-        serial_client: BufferedRingBuffer::new(RingBuffer::realize_unmanaged(
+        serial_client: BufferedRingBuffer::new(RingBuffer::unmanaged_from_config(
             &config.serial_server_ring_buffer,
         )),
         timer_client: RPCClient::<Request>::new(config.timer_server_ep),

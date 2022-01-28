@@ -39,12 +39,12 @@ pub fn main(config: Config) -> Fallible<()> {
     };
 
     let mut clients = vec![];
-    clients.push(RingBuffer::realize(
+    clients.push(RingBuffer::from_config(
         &config.host_client.ring_buffer,
         mk_kicks(events::SerialServerRingBuffer::Host),
     ));
     for (i, realm) in config.realm_clients.iter().enumerate() {
-        clients.push(RingBuffer::realize(
+        clients.push(RingBuffer::from_config(
             &realm.ring_buffer,
             mk_kicks(events::SerialServerRingBuffer::Realm(events::RealmId(i))),
         ));

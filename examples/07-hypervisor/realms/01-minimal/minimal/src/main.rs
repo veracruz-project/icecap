@@ -18,7 +18,7 @@ pub struct Config {
 }
 
 fn main(config: Config) -> Fallible<()> {
-    let mut con = RingBuffer::realize_resume_unmanaged(&config.con);
+    let mut con = RingBuffer::resume_unmanaged_from_config(&config.con);
     con.write(b"Hello, World!");
     con.notify_write();
     Ok(())
