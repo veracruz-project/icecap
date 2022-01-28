@@ -17,6 +17,7 @@ use icecap_mirage_config::Config;
 use icecap_std::{
     config::RingBufferKicksConfig,
     prelude::*,
+    ring_buffer::*,
     ring_buffer::{BufferedPacketRingBuffer, PacketRingBuffer},
     rpc_sel4::RPCClient,
     sel4::sys::c_types::*,

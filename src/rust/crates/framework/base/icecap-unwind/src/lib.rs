@@ -4,10 +4,10 @@
 #[macro_use]
 extern crate alloc;
 
+use core::ops::Range;
+
 mod arch;
 mod sys;
-
-use core::ops::Range;
 
 pub use arch::{
     Unwinder, StackFrames, StackFrame,

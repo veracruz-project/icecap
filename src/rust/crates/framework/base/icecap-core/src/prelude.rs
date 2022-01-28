@@ -7,12 +7,6 @@ pub use crate::{
     sel4::{
         self, prelude::*,
     },
-    ring_buffer::{
-        RingBuffer,
-        PacketRingBuffer,
-        BufferedRingBuffer,
-        BufferedPacketRingBuffer,
-    },
     failure::{
         Fail, Error, Fallible, bail, ensure, format_err,
     },

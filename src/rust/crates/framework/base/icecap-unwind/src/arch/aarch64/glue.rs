@@ -6,7 +6,7 @@ extern "C" {
     pub fn unwind_trampoline(payload: *mut UnwindPayload);
 }
 
-// HACK observed cargo building target-specific for all targets
+// HACK have observed cargo building target-specific for all targets
 #[cfg(target_arch = "aarch64")]
 global_asm! {
 r#"

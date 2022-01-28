@@ -8,7 +8,7 @@ mkSeL4 {
     icecap-sel4
   ];
   dependencies = {
-    log = "*";
     cfg-if = "*";
+    log = "*";
   };
 }

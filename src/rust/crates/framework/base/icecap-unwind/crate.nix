@@ -6,8 +6,8 @@ mkSeL4 {
     icecap-runtime
   ];
   dependencies = {
-    fallible-iterator = { version = "*"; default-features = false; features = [ "alloc" ]; };
-    gimli = { version = "0.20.0"; default-features = false; features = [ "read" ]; };
     log = "*";
+    gimli = { version = "0.20.0"; default-features = false; features = [ "read" ]; };
+    fallible-iterator = { version = "*"; default-features = false; features = [ "alloc" ]; };
   };
 }

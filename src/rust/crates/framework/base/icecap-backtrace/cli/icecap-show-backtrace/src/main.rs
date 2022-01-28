@@ -1,14 +1,14 @@
+use std::fs::File;
+
 use addr2line::Context;
 use clap::{App, Arg};
 use fallible_iterator::FallibleIterator;
 use gimli::read::Reader;
 use memmap::Mmap;
-use std::fs::File;
-// use rustc_demangle::demangle;
 
 use icecap_backtrace_types::RawBacktrace;
 
-// NOTE many minor TODO's here
+// TODO handle inlining better (see TODOs scattered throughout this file)
 
 fn main() {
     let matches = App::new("")
@@ -30,6 +30,7 @@ fn show_backtrace<R: Reader>(ctx: Context<R>, bt: RawBacktrace) -> Result<(), gi
     }
     for (i, frame) in bt.stack_frames.iter().enumerate() {
         let mut first = true;
+        // TODO
         // let mut seen = false;
         // let initial_location = ctx.find_location(frame.initial_address)?;
         ctx.find_frames(frame.initial_address)?
@@ -51,6 +52,7 @@ fn show_backtrace<R: Reader>(ctx: Context<R>, bt: RawBacktrace) -> Result<(), gi
                 // }
                 match inner_frame.function {
                     Some(f) => {
+                        // TODO
                         // let raw_name = f.raw_name()?;
                         // let demangled = demangle(&raw_name);
                         let demangled = f.demangle()?;
@@ -59,6 +61,7 @@ fn show_backtrace<R: Reader>(ctx: Context<R>, bt: RawBacktrace) -> Result<(), gi
                     None => print!("<unknown>"),
                 }
                 print!("\n");
+                // TODO
                 // if let Some(loc) = inner_frame.location {
                 //     println!("      {:18}       at {}", "", fmt_location(loc));
                 // }
@@ -68,6 +71,7 @@ fn show_backtrace<R: Reader>(ctx: Context<R>, bt: RawBacktrace) -> Result<(), gi
         if let Some(loc) = ctx.find_location(frame.callsite_address)? {
             println!("      {:18}       at {}", "", fmt_location(loc));
         }
+        // TODO
         // if !seen {
         //     print!("      ");
         //     print!("warning: initial location missing: {}", initial_location);

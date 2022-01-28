@@ -4,22 +4,7 @@ extern crate alloc;
 
 use icecap_failure::Fallible;
 use icecap_sel4::debug_println;
-pub use icecap_start::config;
-
-// TODO postcard can't deserialize serde_json::Value
-//     // As a binary format, Pinecone does not encode identifiers
-//     fn deserialize_identifier<V>(self, _visitor: V) -> Result<V::Value>
-//     ...
-//         Err(Error::WontImplement)
-
-// pub fn run_generic_main<T: config::Config>(f: impl Fn(T) -> Fallible<()>, config: *const u8, config_size: usize) {
-//     run_main(|v| {
-//         match serde_json::from_value(v) {
-//             Ok(config) => f(config),
-//             Err(err) => bail!("failed to deserialize generic config: {}", err),
-//         }
-//     }, config, config_size)
-// }
+use icecap_start::config;
 
 pub fn run_generic_main<T: config::Config>(
     f: impl Fn(T) -> Fallible<()>,

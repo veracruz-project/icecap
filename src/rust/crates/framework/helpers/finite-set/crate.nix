@@ -5,6 +5,4 @@ mk {
   nix.local.dependencies = with localCrates; [
     finite-set-derive
   ];
-  dependencies = {
-  };
 }

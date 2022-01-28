@@ -1020,7 +1020,6 @@ dependencies = [
  "icecap-failure",
  "icecap-runtime",
  "icecap-sel4",
- "log",
  "postcard",
  "serde",
 ]

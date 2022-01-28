@@ -5,7 +5,7 @@ use core::ops::{Deref, DerefMut};
 
 use crate::types::{Node, Value};
 
-// TODO is this the right way to have string keys?
+// TODO is this a good way to support string keys?
 
 pub const DEFAULT_ADDRESS_CELLS: u32 = 2;
 pub const DEFAULT_SIZE_CELLS: u32 = 1;

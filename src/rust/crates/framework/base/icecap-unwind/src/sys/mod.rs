@@ -1,7 +1,5 @@
 #[cfg(target_os = "icecap")]
-pub mod icecap;
+mod icecap;
 
 #[cfg(target_os = "icecap")]
-pub(crate) use icecap::{
-    find_cfi_sections,
-};
+pub(crate) use icecap::find_cfi_sections;

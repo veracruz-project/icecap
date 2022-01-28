@@ -40,5 +40,5 @@ static GLOBAL_ALLOCATOR: IceCapAllocator = IceCapAllocator;
 #[alloc_error_handler]
 fn alloc_error_handler(layout: core::alloc::Layout) -> ! {
     sel4::debug_println!("alloc error with layout: {:?}", layout);
-    runtime::exit()
+    runtime::stop_component()
 }

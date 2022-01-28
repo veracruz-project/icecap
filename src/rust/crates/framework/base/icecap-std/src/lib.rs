@@ -8,6 +8,7 @@ extern crate alloc;
 mod allocator;
 mod panic;
 
+#[doc(hidden)]
 #[path = "fmt.rs"]
 pub mod _fmt;
 

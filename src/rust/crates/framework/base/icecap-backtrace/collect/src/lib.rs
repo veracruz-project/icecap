@@ -4,6 +4,8 @@
 #[macro_use]
 extern crate alloc;
 
+pub use imp::{collect_raw_backtrace, SKIP};
+
 cfg_if::cfg_if! {
     if #[cfg(all(target_os = "icecap", icecap_debug))] {
         mod imp {
@@ -12,12 +14,12 @@ cfg_if::cfg_if! {
             use icecap_backtrace_types::RawStackFrame;
             use icecap_unwind::{Unwinder, DwarfUnwinder};
 
-            pub const SKIP: usize = 4;
             // NOTE skip:
-            //     unwind::Unwinder::trace
-            //     collect_raw_backtrace
-            //     Backtrace::raw
-            //     Backtrace::new_skip
+            //   - unwind::Unwinder::trace
+            //   - collect_raw_backtrace
+            //   - Backtrace::raw
+            //   - Backtrace::new_skip
+            pub const SKIP: usize = 4;
 
             pub fn collect_raw_backtrace() -> (Vec<RawStackFrame>, Option<String>) {
                 log::warn!("collecting backtrace");
@@ -31,7 +33,7 @@ cfg_if::cfg_if! {
                         });
                         Ok(())
                     }).err().map(|err| {
-                        error = Some(String::from(err.description()));
+                        error = Some(err.description().to_owned());
                     });
                 });
                 (stack_frames, error)
@@ -39,7 +41,6 @@ cfg_if::cfg_if! {
         }
     } else {
         mod imp {
-
             use alloc::prelude::v1::*;
             use icecap_backtrace_types::RawStackFrame;
 
@@ -53,5 +54,3 @@ cfg_if::cfg_if! {
         }
     }
 }
-
-pub use imp::{collect_raw_backtrace, SKIP};

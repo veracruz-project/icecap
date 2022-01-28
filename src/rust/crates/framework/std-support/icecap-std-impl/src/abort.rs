@@ -1,3 +1,3 @@
 pub unsafe fn abort() -> ! {
-    crate::runtime::exit()
+    crate::runtime::stop_component()
 }

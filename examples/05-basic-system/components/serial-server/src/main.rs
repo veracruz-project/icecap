@@ -10,6 +10,7 @@ use icecap_pl011_driver::Pl011Device;
 use icecap_start_generic::declare_generic_main;
 use icecap_std::config::*;
 use icecap_std::prelude::*;
+use icecap_std::ring_buffer::{BufferedRingBuffer, RingBuffer};
 
 declare_generic_main!(main);
 

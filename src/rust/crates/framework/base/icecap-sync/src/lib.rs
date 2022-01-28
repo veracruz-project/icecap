@@ -8,4 +8,7 @@ pub use mutex::{
 };
 
 // for macro
-pub use icecap_sel4::{LocalCPtr, Notification};
+#[doc(hidden)]
+pub mod _macro_helpers {
+    pub use icecap_sel4::{LocalCPtr, Notification};
+}

@@ -33,4 +33,5 @@ mkSeL4 {
       "icecap-sync/rustc-dep-of-std"
     ];
   };
+  nix.passthru.noDoc = true;
 }

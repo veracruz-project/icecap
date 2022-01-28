@@ -1,6 +1,7 @@
 use core::result;
 
-// TODO unify this module with others like it
+// TODO
+// Replace with external no_std crate. There must be one with an API like this.
 
 pub type Result<T> = result::Result<T, Error>;
 

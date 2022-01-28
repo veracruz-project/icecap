@@ -8,7 +8,6 @@ mkSeL4 {
     icecap-runtime
   ];
   dependencies = {
-    log = "*"; # TODO
     serde = serdeMin;
     postcard = postcardCommon;
   };

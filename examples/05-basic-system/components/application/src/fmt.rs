@@ -1,6 +1,6 @@
 use core::fmt;
 
-use icecap_std::prelude::*;
+use icecap_std::ring_buffer::*;
 
 #[macro_export]
 macro_rules! out {

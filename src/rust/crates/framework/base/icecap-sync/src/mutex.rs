@@ -124,13 +124,13 @@ macro_rules! unsafe_static_mutex {
         pub struct $name;
 
         impl $crate::MutexNotification for $name {
-            fn get(&self) -> $crate::Notification {
+            fn get(&self) -> $crate::_macro_helpers::Notification {
                 extern "C" {
                     static $extern: u64;
                 }
                 let raw = unsafe { $extern };
                 assert_ne!(raw, 0); // HACK
-                $crate::LocalCPtr::from_raw(raw)
+                $crate::_macro_helpers::LocalCPtr::from_raw(raw)
             }
         }
     };

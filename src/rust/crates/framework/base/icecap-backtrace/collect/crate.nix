@@ -6,8 +6,8 @@ mkSeL4 {
     icecap-backtrace-types
   ];
   dependencies = {
-    log = "*";
     cfg-if = "*";
+    log = "*";
   };
   nix.local.target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies = with localCrates; [
     icecap-unwind

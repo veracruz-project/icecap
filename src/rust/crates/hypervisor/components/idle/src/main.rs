@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use cortex_a::asm::*;
+use cortex_a::asm::wfi;
 
 use icecap_std::prelude::*;
 

@@ -42,7 +42,6 @@ icecap-show-backtrace
 icecap-start
 icecap-start-generic
 icecap-std
-icecap-std-impl
 icecap-sync
 icecap-unwind
 icecap-virt-timer-driver

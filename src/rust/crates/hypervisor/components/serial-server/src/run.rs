@@ -3,6 +3,7 @@ use core::fmt::Write;
 
 use icecap_driver_interfaces::SerialDevice;
 use icecap_std::prelude::*;
+use icecap_std::ring_buffer::{BufferedRingBuffer, RingBuffer};
 use icecap_std::rpc_sel4::{rpc_server, RPCClient};
 use icecap_timer_server_client::*;
 

@@ -1,6 +1,5 @@
 use core::fmt;
 use core::ops::{Index, IndexMut};
-use gimli;
 
 #[derive(Default, Clone, PartialEq, Eq)]
 pub struct Registers {

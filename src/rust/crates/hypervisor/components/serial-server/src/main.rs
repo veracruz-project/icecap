@@ -17,6 +17,7 @@ use icecap_event_server_types::events;
 use icecap_serial_server_config::Config;
 use icecap_std::config::RingBufferKicksConfig;
 use icecap_std::prelude::*;
+use icecap_std::ring_buffer::RingBuffer;
 use icecap_std::rpc_sel4::RPCClient;
 use icecap_timer_server_client::*;
 

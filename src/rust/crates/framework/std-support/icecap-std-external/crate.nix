@@ -8,4 +8,5 @@ mkExclude {
   dependencies = {
     log = "*";
   };
+  nix.passthru.noDoc = true;
 }

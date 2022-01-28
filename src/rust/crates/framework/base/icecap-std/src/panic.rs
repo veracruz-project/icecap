@@ -23,6 +23,6 @@ extern "C" fn panic_handler(info: &PanicInfo) -> ! {
     println!("");
 
     loop {
-        runtime::exit()
+        runtime::stop_component()
     }
 }

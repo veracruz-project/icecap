@@ -24,6 +24,7 @@ pub mod benchmark;
 
 pub mod prelude;
 
+#[doc(hidden)]
 #[path = "fmt.rs"]
 pub mod _fmt;
 
