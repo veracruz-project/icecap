@@ -95,9 +95,9 @@ By writing seL4 components in Rust, we benefit not only from Rust's memory safe
 and advanced language features, but also the Rust library ecosystem. The IceCap
 Framework includes a collection of crates for creating seL4 components.  Check
 out the [rendered
-rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/) for the
+rustdoc](https://arm-research.gitlab.io/security/icecap/icecap/rustdoc/) for the
 IceCap crates.  The
-[icecap-core](https://arm-research.gitlab.io/security/icecap/html/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html)
+[icecap-core](https://arm-research.gitlab.io/security/icecap/icecap/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html)
 crate is a good entrypoint.
 [./02-minimal-root-task-with-rust/root-task/src/main.rs](./02-minimal-root-task-with-rust/root-task/src/main.rs)
 is an example of a simple root task written in Rust.  It parses and prints the

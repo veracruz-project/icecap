@@ -5,7 +5,8 @@
 - [Demos](../demos)
 - [Tutorial](../examples)
 - [Hacking notes](./hacking.md)
-- [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/html/rustdoc/)
+- [Rendered rustdoc](https://arm-research.gitlab.io/security/icecap/icecap/rustdoc/)
+- [Rendered seL4 manual](https://arm-research.gitlab.io/security/icecap/icecap/sel4-manual.pdf)
 - [IceCap without Nix](./icecap-without-nix.md)
 - [Hypervisor status](./hypervisor-status.md)
 
