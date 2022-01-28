@@ -5,15 +5,10 @@
 
 extern crate alloc;
 
+pub use icecap_core::*;
+
 mod allocator;
 mod panic;
 
-#[doc(hidden)]
-#[path = "fmt.rs"]
-pub mod _fmt;
-
-pub use icecap_core::*;
-
+pub mod fmt;
 pub mod prelude;
-
-pub use _fmt::{flush_print, set_print};

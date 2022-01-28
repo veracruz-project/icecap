@@ -23,7 +23,10 @@ impl RingBuffer {
         )
     }
 
-    pub fn resume_from_config(config: &RingBufferConfig, kicks: RingBufferKicksConfig<Kick>) -> Self {
+    pub fn resume_from_config(
+        config: &RingBufferConfig,
+        kicks: RingBufferKicksConfig<Kick>,
+    ) -> Self {
         Self::resume(
             RingBufferSide::from_config(&config.read, kicks.read),
             RingBufferSide::from_config(&config.write, kicks.write),

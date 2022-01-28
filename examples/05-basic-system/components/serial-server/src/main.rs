@@ -34,7 +34,9 @@ fn main(config: Config) -> Fallible<()> {
     dev.init();
     config.irq_handler.ack()?;
 
-    let mut rb = BufferedRingBuffer::new(RingBuffer::unmanaged_from_config(&config.client_ring_buffer));
+    let mut rb = BufferedRingBuffer::new(RingBuffer::unmanaged_from_config(
+        &config.client_ring_buffer,
+    ));
     rb.ring_buffer().enable_notify_read();
     rb.ring_buffer().enable_notify_write();
 

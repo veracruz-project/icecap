@@ -1,77 +1,58 @@
 use alloc::boxed::Box;
 use core::fmt;
 
+use icecap_core::failure::Fallible;
 use icecap_core::ring_buffer::BufferedRingBuffer;
 use icecap_core::sel4::debug_put_char;
 use icecap_core::sync::{unsafe_static_mutex, GenericMutex};
 
 unsafe_static_mutex!(Lock, icecap_runtime_print_lock);
 
-static GLOBAL_WRITER: GenericMutex<Lock, Option<Box<IceCapConWriter>>> =
+static GLOBAL_PRINT: GenericMutex<Lock, Option<Box<dyn Print + Send>>> =
     GenericMutex::new(Lock, None);
 
-struct IceCapDebugWriter;
+pub trait Print {
+    // HACK workaround for https://doc.rust-lang.org/reference/items/traits.html#object-safety (see 'PrintWrapper')
+    fn write_str(&mut self, s: &str) -> fmt::Result;
 
-impl fmt::Write for IceCapDebugWriter {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        for &c in s.as_bytes() {
-            debug_put_char(c)
-        }
+    fn flush(&mut self) -> Fallible<()> {
         Ok(())
     }
 }
 
-struct IceCapConWriter {
-    ring_buffer: BufferedRingBuffer,
+pub fn set_print(print: Box<dyn Print + Send>) {
+    let mut global_print = GLOBAL_PRINT.lock();
+    *global_print = Some(print);
 }
 
-impl IceCapConWriter {
-    fn new(ring_buffer: BufferedRingBuffer) -> Self {
-        Self { ring_buffer }
+pub fn flush_print() -> Fallible<()> {
+    let mut global_print = GLOBAL_PRINT.lock();
+    if let Some(print) = &mut *global_print {
+        print.flush()?;
     }
+    Ok(())
 }
 
-impl fmt::Write for IceCapConWriter {
+// HACK workaround for https://doc.rust-lang.org/reference/items/traits.html#object-safety
+struct PrintWrapper<'a>(&'a mut Box<dyn Print + Send>);
+
+impl<'a> fmt::Write for PrintWrapper<'a> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.ring_buffer.tx(s.as_bytes());
-        Ok(())
+        self.0.write_str(s)
     }
 }
 
-pub fn set_print(ring_buffer: BufferedRingBuffer) {
-    let mut global_writer = GLOBAL_WRITER.lock();
-    *global_writer = Some(Box::new(IceCapConWriter::new(ring_buffer)));
-}
-
-pub fn flush_print() {
-    let mut global_writer = GLOBAL_WRITER.lock();
-    if let Some(writer) = &mut *global_writer {
-        writer.ring_buffer.flush_tx();
-    }
-}
-
-fn print_to(global_writer: &mut Option<Box<IceCapConWriter>>, args: fmt::Arguments) {
-    match global_writer {
-        None => {
-            let mut writer = IceCapDebugWriter {};
-            fmt::write(&mut writer, args)
-        }
-        Some(b) => {
-            let writer: &mut IceCapConWriter = b;
-            fmt::write(writer, args)
-        }
-    }
-    .unwrap_or_else(|err| panic!("{:?}", err))
-}
-
+#[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
-    let mut global_writer = GLOBAL_WRITER.lock();
-    print_to(&mut global_writer, args)
+    let mut global_print = GLOBAL_PRINT.lock();
+    if let Some(print) = &mut *global_print {
+        fmt::write(&mut PrintWrapper(print), args).unwrap();
+    }
 }
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::_fmt::_print(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::fmt::_print(format_args!($($arg)*)));
 }
 
 #[macro_export]
@@ -80,8 +61,43 @@ macro_rules! println {
     ($($arg:tt)*) => ({
         // NOTE
         // If feature(format_args_nl) is evel stabilized, replace with:
-        // $crate::_fmt::_print(format_args_nl!($($arg)*));
+        // $crate::fmt::_print(format_args_nl!($($arg)*));
         $crate::print!($($arg)*);
         $crate::print!("\n");
     })
+}
+
+// // //
+
+struct DebugPrint;
+
+impl Print for DebugPrint {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        for &c in s.as_bytes() {
+            debug_put_char(c)
+        }
+        Ok(())
+    }
+}
+
+struct BufferedRingBufferPrint {
+    ring_buffer: BufferedRingBuffer,
+}
+
+impl BufferedRingBufferPrint {
+    fn new(ring_buffer: BufferedRingBuffer) -> Self {
+        Self { ring_buffer }
+    }
+}
+
+impl Print for BufferedRingBufferPrint {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.ring_buffer.tx(s.as_bytes());
+        Ok(())
+    }
+
+    fn flush(&mut self) -> Fallible<()> {
+        self.ring_buffer.flush_tx();
+        Ok(())
+    }
 }
