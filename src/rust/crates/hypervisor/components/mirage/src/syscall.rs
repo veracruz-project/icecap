@@ -4,7 +4,8 @@ use core::mem::MaybeUninit;
 use core::ops::Range;
 use core::ptr;
 
-use icecap_linux_syscall::*;
+use icecap_linux_syscall_types::*;
+use icecap_linux_syscall_musl::*;
 use icecap_std::prelude::*;
 
 const OCAML_HEAP_SIZE: usize = 2097152; // 2MB

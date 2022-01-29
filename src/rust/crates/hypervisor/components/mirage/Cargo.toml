@@ -10,6 +10,7 @@ edition = "2018"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 finite-set = { path = "../../../framework/helpers/finite-set" }
 icecap-event-server-types = { path = "../event-server/types" }
+icecap-linux-syscall-musl = { path = "../../../framework/linux-syscall/musl" }
+icecap-linux-syscall-types = { path = "../../../framework/linux-syscall/types" }
 icecap-mirage-config = { path = "./config" }
-icecap-mirage-syscall-types = { path = "../../../framework/mirage/syscall-types" }
 icecap-std = { path = "../../../framework/base/icecap-std" }

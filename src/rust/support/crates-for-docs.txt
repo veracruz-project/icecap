@@ -25,8 +25,9 @@ icecap-driver-interfaces
 icecap-failure
 icecap-failure-derive
 icecap-fdt
+icecap-linux-syscall-musl
+icecap-linux-syscall-types
 icecap-logger
-icecap-mirage-syscall-types
 icecap-pl011-driver
 icecap-plat
 icecap-ring-buffer

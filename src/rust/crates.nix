@@ -59,7 +59,8 @@
 
   icecap-vmm-gic = ./crates/framework/vmm/gic;
 
-  icecap-mirage-syscall-types = ./crates/framework/mirage/syscall-types;
+  icecap-linux-syscall-types = ./crates/framework/linux-syscall/types;
+  icecap-linux-syscall-musl = ./crates/framework/linux-syscall/musl;
 
   icecap-serialize-generic-component-config = ./crates/framework/generic-components/icecap-serialize-generic-component-config;
 
