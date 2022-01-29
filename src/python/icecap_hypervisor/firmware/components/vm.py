@@ -29,7 +29,7 @@ class Addrs:
             elif plat == 'rpi4':
                 self.ram_base    = 0x10000000
                 self.ram_size    = 0x10000000
-                self.kernel_addr = 0x10080000
+                self.kernel_addr = 0x10080000 # NOTE newer version of linux specify an offset of 0. we should read the image header instead of assuming
                 self.dtb_addr    = 0x18f00000 # TODO find out why u-boot was clobbering fdt in lower memory
                 self.initrd_addr = 0x19000000
         else:
