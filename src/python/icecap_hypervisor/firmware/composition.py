@@ -69,7 +69,7 @@ class FirmwareComposition(BaseComposition):
             self.host_vm.map_net(
                 host_realm_net_objs,
                 { 'Managed': {
-                    'index': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': [i, { 'Net': None }] }}),
+                    'message': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': [i, { 'Net': None }] }}),
                     'endpoints': self.host_vm.event_server_out_endpoints,
                     },
                 },
@@ -86,7 +86,7 @@ class FirmwareComposition(BaseComposition):
                 'icecap_channel_realm_{}'.format(i),
                 host_realm_channel_objs,
                 { 'Managed': {
-                    'index': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': [i, { 'Channel': None }] }}),
+                    'message': self.serialize_event_server_out('host', { 'RingBuffer': { 'Realm': [i, { 'Channel': None }] }}),
                     'endpoints': self.host_vm.event_server_out_endpoints,
                     },
                 },

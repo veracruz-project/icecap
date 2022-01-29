@@ -84,7 +84,7 @@ class LinuxRealmComposition(BaseRealmComposition):
         self.realm_vm.map_net(
             net,
             { 'Managed': {
-                'index': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': { 'Net': None } }}),
+                'message': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': { 'Net': None } }}),
                 'endpoints': self.realm_vm.event_server_out_endpoints,
                 },
             },
@@ -96,7 +96,7 @@ class LinuxRealmComposition(BaseRealmComposition):
             'icecap_channel_host',
             channel,
             { 'Managed': {
-                'index': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': { 'Channel': None } }}),
+                'message': self.serialize_event_server_out('realm', { 'RingBuffer': { 'Host': { 'Channel': None } }}),
                 'endpoints': self.realm_vm.event_server_out_endpoints,
                 },
             },

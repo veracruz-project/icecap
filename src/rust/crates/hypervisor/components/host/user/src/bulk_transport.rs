@@ -7,7 +7,7 @@ use crate::{
     Result,
 };
 
-const BULK_TRANSPORT_PATH: &str = "/dev/resource_server";
+const BULK_TRANSPORT_PATH: &str = "/dev/icecap_resource_server";
 
 pub struct BulkTransport(File);
 

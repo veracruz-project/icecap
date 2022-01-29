@@ -22,7 +22,7 @@ pub struct RingBufferSide {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Kick {
     Raw { notification: u64 },
-    Managed { endpoints: Vec<u64>, index: u64 },
+    Managed { endpoints: Vec<u64>, message: u64 },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,12 +66,12 @@ impl RingBuffer {
         );
         match &self.kick {
             Kick::Raw { notification } => {
-                node.set_property("kick-type", "raw");
+                node.set_property("kick-type", "unmanaged");
                 node.set_property("kick-notification", notification);
             }
-            Kick::Managed { endpoints, index } => {
+            Kick::Managed { endpoints, message } => {
                 node.set_property("kick-type", "managed");
-                node.set_property("kick-index", index);
+                node.set_property("kick-message", message);
                 node.set_property_cells(
                     "kick-endpoints",
                     spec,

@@ -130,8 +130,8 @@ rec {
       extraVersion = "-rc2";
       src = (icecapSrc.repo {
         repo = "linux";
-        rev = "cfd8cbf6367b4c74c9544c4c41efb2c1681166d9"; # branch icecap
-        sha256 = "sha256-9mio0hUxTotlgQghBfW4etuq9u7b8MkHbwSIeRC8y7g=";
+        rev = "e07825c12c90781c79a5f1a71235df5cc7a46b8d"; # branch icecap
+        sha256 = "sha256-brkU3EZUsJqKKrMVUXfFL9qrwCceX5V+03JPlpAbI30=";
       }).store;
     };
 
@@ -140,8 +140,8 @@ rec {
       extraVersion = "-rc2";
       src = (icecapSrc.repo {
         repo = "linux";
-        rev = "b532b351b477faeb9d2074ebd9247e8eaeb86a85"; # branch: icecap-rpi4
-        sha256 = "sha256-SOmPXTKfDY2d6QtN8lTxWWBzfeQMjcQ4tNgmT5pr4CQ=";
+        rev = "ca056d991d96846967fb76e93fc020e41b9cea42"; # branch: icecap-rpi4
+        sha256 = "sha256-MH18Hi8a5ntnCaIiDX5X29buxUlJv0P4c8qbfkoTapY=";
       }).store;
     };
 

@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::path::Path;
 use std::os::unix::io::AsRawFd;
 
 use icecap_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
@@ -14,7 +15,10 @@ cfg_if::cfg_if! {
 }
 
 const ICECAP_VMM_PASSTHRU: u32 = 0xc0403300;
-const ICECAP_VMM_YIELD_TO: u32 = 0xc0103301;
+const ICECAP_RESOURCE_SERVER_YIELD_TO: u32 = 0xc0103301;
+
+const ICECAP_VMM_IOCTL_PATH: &'static str = "/sys/kernel/debug/icecap_vmm";
+const ICECAP_RESOURCE_SERVER_IOCTL_PATH: &'static str = "/dev/icecap_resource_server";
 
 #[repr(C)]
 struct Passthru {
@@ -28,18 +32,20 @@ struct YieldTo {
     virtual_node: u64,
 }
 
-fn ioctl<T>(request: u32, ptr: *mut T) {
-    let f = File::open("/sys/kernel/debug/icecap_vmm").unwrap();
+fn ioctl<T>(path: impl AsRef<Path>, request: u32, ptr: *mut T) {
+    let f = File::open(path).unwrap();
     let ret = unsafe { libc::ioctl(f.as_raw_fd(), request as Ioctl, ptr) };
     assert_eq!(ret, 0);
 }
 
+
+
 fn ioctl_passthru(passthru: &mut Passthru) {
-    ioctl(ICECAP_VMM_PASSTHRU, passthru as *mut Passthru)
+    ioctl(ICECAP_VMM_IOCTL_PATH, ICECAP_VMM_PASSTHRU, passthru as *mut Passthru)
 }
 
 fn ioctl_yield_to(yield_to: &mut YieldTo) {
-    ioctl(ICECAP_VMM_YIELD_TO, yield_to as *mut YieldTo)
+    ioctl(ICECAP_RESOURCE_SERVER_IOCTL_PATH, ICECAP_RESOURCE_SERVER_YIELD_TO, yield_to as *mut YieldTo)
 }
 
 //
