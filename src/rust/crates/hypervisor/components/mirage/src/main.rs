@@ -22,11 +22,9 @@ use icecap_std::{
     rpc,
     sel4::sys::c_types::*,
 };
-use icecap_mirage_core::run_ocaml;
+use icecap_mirage_core::ocaml;
 
-mod c;
 mod syscall;
-mod ocaml;
 mod time_hack;
 
 declare_main!(main);
@@ -74,7 +72,7 @@ fn main(config: Config) -> Fallible<()> {
     let arg = config.passthru;
 
     println!("mirage enter");
-    let ret = run_ocaml(&arg);
+    let ret = ocaml::run_main(&arg);
     println!("mirage exit: {:?}", ret);
 
     Ok(())
@@ -163,13 +161,9 @@ extern "C" fn impl_net_iface_tx(id: NetIfaceId, buf: *const u8, n: usize) {
 extern "C" fn impl_net_iface_rx(id: NetIfaceId) -> usize {
     with(|s| {
         s.net_iface_rx(id, |n, f| {
-            let mut handle = 0;
-            let mut buf = core::ptr::null_mut();
-            unsafe {
-                c::costub_alloc(n, &mut handle, &mut buf);
-            }
-            f(unsafe { core::slice::from_raw_parts_mut(buf, n) });
-            handle
+            let bytes = ocaml::alloc(n);
+            f(bytes.as_mut_slice());
+            bytes.handle
         })
     })
 }
