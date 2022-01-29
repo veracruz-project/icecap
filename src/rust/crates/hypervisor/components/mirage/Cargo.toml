@@ -13,4 +13,5 @@ icecap-event-server-types = { path = "../event-server/types" }
 icecap-linux-syscall-musl = { path = "../../../framework/linux-syscall/musl" }
 icecap-linux-syscall-types = { path = "../../../framework/linux-syscall/types" }
 icecap-mirage-config = { path = "./config" }
+icecap-mirage-core = { path = "../../../framework/mirage/core" }
 icecap-std = { path = "../../../framework/base/icecap-std" }

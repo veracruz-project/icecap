@@ -1,8 +1,15 @@
-use icecap_std::sel4::sys::c_types::*;
+use icecap_core::sel4::sys::c_types;
 
-use crate::c;
+mod c {
+    use super::c_types;
+    extern "C" {
+        pub fn costub_startup();
+        pub fn costub_alloc(size: usize, handle: *mut usize, buf: *mut *mut u8);
+        pub fn costub_run_main(handle: usize) -> c_types::c_int;
+    }
+}
 
-pub fn run(arg: &[u8]) -> c_int {
+pub fn run_ocaml(arg: &[u8]) -> c_types::c_int {
     unsafe {
         c::costub_startup();
     }

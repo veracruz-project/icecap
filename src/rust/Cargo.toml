@@ -61,6 +61,7 @@ members = [
     "crates/framework/helpers/numeric-literal-env-hack",
     "crates/framework/linux-syscall/musl",
     "crates/framework/linux-syscall/types",
+    "crates/framework/mirage/core",
     "crates/framework/std-support/icecap-std-external",
     "crates/framework/std-support/icecap-std-impl",
     "crates/framework/vmm/gic",

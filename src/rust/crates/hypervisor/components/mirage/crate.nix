@@ -9,6 +9,7 @@ mkExcludeBin {
     icecap-std
     icecap-mirage-config
     icecap-event-server-types
+    icecap-mirage-core
   ];
   dependencies = {
     serde = serdeMin;

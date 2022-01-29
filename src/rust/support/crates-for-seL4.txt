@@ -14,6 +14,7 @@ icecap-failure
 icecap-generic-timer-server
 icecap-generic-timer-server-client
 icecap-logger
+icecap-mirage-core
 icecap-pl011-driver
 icecap-plat
 icecap-resource-server-core

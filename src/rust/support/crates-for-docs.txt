@@ -28,6 +28,7 @@ icecap-fdt
 icecap-linux-syscall-musl
 icecap-linux-syscall-types
 icecap-logger
+icecap-mirage-core
 icecap-pl011-driver
 icecap-plat
 icecap-ring-buffer

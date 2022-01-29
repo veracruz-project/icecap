@@ -850,6 +850,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "icecap-mirage-core"
+version = "0.1.0"
+dependencies = [
+ "icecap-core",
+ "icecap-linux-syscall-musl",
+ "icecap-linux-syscall-types",
+]
+
+[[package]]
 name = "icecap-pl011-driver"
 version = "0.1.0"
 dependencies = [
@@ -1268,6 +1277,7 @@ dependencies = [
  "icecap-linux-syscall-musl",
  "icecap-linux-syscall-types",
  "icecap-mirage-config",
+ "icecap-mirage-core",
  "icecap-std",
  "serde",
 ]

@@ -22,6 +22,7 @@ use icecap_std::{
     rpc,
     sel4::sys::c_types::*,
 };
+use icecap_mirage_core::run_ocaml;
 
 mod c;
 mod syscall;
@@ -73,7 +74,7 @@ fn main(config: Config) -> Fallible<()> {
     let arg = config.passthru;
 
     println!("mirage enter");
-    let ret = ocaml::run(&arg);
+    let ret = run_ocaml(&arg);
     println!("mirage exit: {:?}", ret);
 
     Ok(())
