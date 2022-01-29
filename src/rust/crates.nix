@@ -1,5 +1,5 @@
 {
-  # framework
+  ### framework ###
 
   icecap-sel4 = ./crates/framework/base/icecap-sel4;
   icecap-sel4-sys = ./crates/framework/base/icecap-sel4/sys;
@@ -41,6 +41,16 @@
   icecap-pl011-driver = ./crates/framework/drivers/devices/pl011;
   icecap-virt-timer-driver = ./crates/framework/drivers/devices/virt-timer;
 
+  icecap-vmm-gic = ./crates/framework/vmm/gic;
+  icecap-vmm-psci = ./crates/framework/vmm/psci;
+
+  icecap-mirage-core = ./crates/framework/mirage/core;
+ 
+  icecap-linux-syscall-types = ./crates/framework/linux-syscall/types;
+  icecap-linux-syscall-musl = ./crates/framework/linux-syscall/musl;
+
+  # helpers
+
   absurdity = ./crates/framework/helpers/absurdity;
   biterate = ./crates/framework/helpers/biterate;
   finite-set = ./crates/framework/helpers/finite-set;
@@ -48,8 +58,12 @@
   generated-module-hack = ./crates/framework/helpers/generated-module-hack;
   numeric-literal-env-hack = ./crates/framework/helpers/numeric-literal-env-hack;
 
+  # std support
+
   icecap-std-external = ./crates/framework/std-support/icecap-std-external;
   icecap-std-impl = ./crates/framework/std-support/icecap-std-impl;
+
+  # dyndl
 
   dyndl-realize = ./crates/framework/dyndl/realize;
   dyndl-realize-simple = ./crates/framework/dyndl/realize/simple;
@@ -58,13 +72,7 @@
   dyndl-types-derive = ./crates/framework/dyndl/types/derive;
   dyndl-serialize-spec = ./crates/framework/dyndl/cli/dyndl-serialize-spec;
 
-  icecap-vmm-gic = ./crates/framework/vmm/gic;
-  icecap-vmm-psci = ./crates/framework/vmm/psci;
-
-  icecap-mirage-core = ./crates/framework/mirage/core;
-
-  icecap-linux-syscall-types = ./crates/framework/linux-syscall/types;
-  icecap-linux-syscall-musl = ./crates/framework/linux-syscall/musl;
+  # generic components
 
   icecap-serialize-generic-component-config = ./crates/framework/generic-components/icecap-serialize-generic-component-config;
 
@@ -74,41 +82,24 @@
   icecap-generic-timer-server-config = ./crates/framework/generic-components/timer-server/config;
   icecap-generic-serial-server-core = ./crates/framework/generic-components/serial-server/core;
 
+  # 9p
+
   crosvm-9p = ./crates/framework/9p/crosvm-9p;
   crosvm-9p-wire-format-derive = ./crates/framework/9p/crosvm-9p/wire-format-derive;
   crosvm-9p-server = ./crates/framework/9p/crosvm-9p-server;
   crosvm-9p-server-cli = ./crates/framework/9p/crosvm-9p-server/cli;
 
-  # hypervisor
 
-  hypervisor-vmm-core = ./crates/hypervisor/components/vmm/core;
-  hypervisor-fdt-append-devices = ./crates/hypervisor/build-tools/hypervisor-fdt-append-devices;
-  hypervisor-serialize-component-config = ./crates/hypervisor/build-tools/hypervisor-serialize-component-config;
-
-  icecap-host = ./crates/hypervisor/host-tools/icecap-host;
-  icecap-host-core = ./crates/hypervisor/host-tools/icecap-host/core;
-
-  hypervisor-host-vmm = ./crates/hypervisor/components/vmm/host;
-  hypervisor-host-vmm-types = ./crates/hypervisor/components/vmm/host/types;
-  hypervisor-host-vmm-config = ./crates/hypervisor/components/vmm/host/config;
-
-  hypervisor-realm-vmm = ./crates/hypervisor/components/vmm/realm;
-  hypervisor-realm-vmm-config = ./crates/hypervisor/components/vmm/realm/config;
+  ### hypervisor ###
 
   hypervisor-resource-server = ./crates/hypervisor/components/resource-server;
   hypervisor-resource-server-types = ./crates/hypervisor/components/resource-server/types;
   hypervisor-resource-server-core = ./crates/hypervisor/components/resource-server/core;
   hypervisor-resource-server-config = ./crates/hypervisor/components/resource-server/config;
 
-  hypervisor-idle = ./crates/hypervisor/components/idle;
-
-  hypervisor-fault-handler = ./crates/hypervisor/components/fault-handler;
-  hypervisor-fault-handler-config = ./crates/hypervisor/components/fault-handler/config;
-
   hypervisor-event-server = ./crates/hypervisor/components/event-server;
   hypervisor-event-server-types = ./crates/hypervisor/components/event-server/types;
   hypervisor-event-server-config = ./crates/hypervisor/components/event-server/config;
-  hypervisor-serialize-event-server-out-index = ./crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index;
 
   hypervisor-serial-server = ./crates/hypervisor/components/serial-server;
   hypervisor-serial-server-config = ./crates/hypervisor/components/serial-server/config;
@@ -117,7 +108,27 @@
   hypervisor-benchmark-server-types = ./crates/hypervisor/components/benchmark-server/types;
   hypervisor-benchmark-server-config = ./crates/hypervisor/components/benchmark-server/config;
 
+  hypervisor-fault-handler = ./crates/hypervisor/components/fault-handler;
+  hypervisor-fault-handler-config = ./crates/hypervisor/components/fault-handler/config;
+
+  hypervisor-idle = ./crates/hypervisor/components/idle;
+
+  hypervisor-vmm-core = ./crates/hypervisor/components/vmm/core;
+  hypervisor-host-vmm = ./crates/hypervisor/components/vmm/host;
+  hypervisor-host-vmm-types = ./crates/hypervisor/components/vmm/host/types;
+  hypervisor-host-vmm-config = ./crates/hypervisor/components/vmm/host/config;
+  hypervisor-realm-vmm = ./crates/hypervisor/components/vmm/realm;
+  hypervisor-realm-vmm-config = ./crates/hypervisor/components/vmm/realm/config;
+
   hypervisor-mirage = ./crates/hypervisor/components/mirage;
   hypervisor-mirage-config = ./crates/hypervisor/components/mirage/config;
+
+  # NOTE named with "icecap-" for aesthetics
+  icecap-host = ./crates/hypervisor/host-tools/icecap-host;
+  icecap-host-core = ./crates/hypervisor/host-tools/icecap-host/core;
+
+  hypervisor-fdt-append-devices = ./crates/hypervisor/build-tools/hypervisor-fdt-append-devices;
+  hypervisor-serialize-component-config = ./crates/hypervisor/build-tools/hypervisor-serialize-component-config;
+  hypervisor-serialize-event-server-out-index = ./crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index;
 
 }
