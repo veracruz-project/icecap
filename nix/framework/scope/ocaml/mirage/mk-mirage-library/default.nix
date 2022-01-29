@@ -5,7 +5,7 @@
 { main }:
 
 buildOpamPackage rec {
-  pname = "x";
+  pname = "mirage-main";
   version = "0.1";
   phases = [ "configurePhase" "buildPhase" "installPhase" ];
 

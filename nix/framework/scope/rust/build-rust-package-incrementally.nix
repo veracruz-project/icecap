@@ -103,7 +103,7 @@ let
       dummies = subtractLists layer allCrates;
       src = crateUtils.collectDummies layer dummies;
 
-      manifestDir = linkFarm "x" [
+      manifestDir = linkFarm "manifest-dir-with-dummies" [
         { name = "Cargo.toml"; path = workspace; }
         { name = "src"; path = src; }
         { name = "Cargo.lock"; path = lock; }
@@ -162,14 +162,14 @@ in let
     extraManifestEnv
   ]);
 
-  manifestDir = linkFarm "x" [
+  manifestDir = linkFarm "manifest-dir" [
     { name = "Cargo.toml"; path = workspace; }
     { name = "src"; path = src; }
     { name = "Cargo.lock"; path = lock; }
     { name = ".cargo/config"; path = cargoConfigFor allCrates; }
   ];
 
-  manifestDirEnv = linkFarm "x" [
+  manifestDirEnv = linkFarm "manifest-dir-env" [
     { name = "Cargo.toml"; path = workspaceEnv; }
     { name = "src"; path = srcEnv; }
     { name = "Cargo.lock"; path = lock; }
