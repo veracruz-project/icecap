@@ -1161,6 +1161,7 @@ dependencies = [
  "icecap-core",
  "icecap-event-server-types",
  "icecap-vmm-gic",
+ "icecap-vmm-psci",
  "log",
 ]
 
@@ -1173,6 +1174,13 @@ dependencies = [
  "icecap-failure-derive",
  "icecap-sel4",
  "log",
+]
+
+[[package]]
+name = "icecap-vmm-psci"
+version = "0.1.0"
+dependencies = [
+ "icecap-sel4",
 ]
 
 [[package]]

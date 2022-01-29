@@ -11,8 +11,7 @@ use icecap_core::{
 };
 use icecap_event_server_types as event_server;
 use icecap_vmm_gic::*;
-
-use crate::psci;
+use icecap_vmm_psci as psci;
 
 const SYS_PSCI: Word = 0;
 const SYS_PUTCHAR: Word = 1337;

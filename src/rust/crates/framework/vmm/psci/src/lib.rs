@@ -1,3 +1,10 @@
+#![no_std]
+
+// TODO enrich
+//  - request and response enums
+//  - parsing from icecap_sel4::TCB
+//  - etc.
+
 pub const VERSION: i32 = 0x0001_0001;
 
 pub const FID_PSCI_VERSION: u32 = 0x8400_0000;

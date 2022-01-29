@@ -12,3 +12,4 @@ biterate = { path = "../../framework/helpers/biterate" }
 icecap-core = { path = "../../framework/base/icecap-core" }
 icecap-event-server-types = { path = "../components/event-server/types" }
 icecap-vmm-gic = { path = "../../framework/vmm/gic" }
+icecap-vmm-psci = { path = "../../framework/vmm/psci" }

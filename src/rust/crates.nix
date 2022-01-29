@@ -58,6 +58,7 @@
   dyndl-serialize-spec = ./crates/framework/dyndl/cli/dyndl-serialize-spec;
 
   icecap-vmm-gic = ./crates/framework/vmm/gic;
+  icecap-vmm-psci = ./crates/framework/vmm/psci;
 
   icecap-mirage-core = ./crates/framework/mirage/core;
 

@@ -6,6 +6,7 @@ mkSeL4 {
     biterate
     icecap-core
     icecap-vmm-gic
+    icecap-vmm-psci
     icecap-event-server-types
   ];
   dependencies = {

@@ -32,6 +32,7 @@ icecap-unwind
 icecap-virt-timer-driver
 icecap-vmm
 icecap-vmm-gic
+icecap-vmm-psci
 idle
 realm-vmm
 resource-server

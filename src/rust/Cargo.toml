@@ -65,6 +65,7 @@ members = [
     "crates/framework/std-support/icecap-std-external",
     "crates/framework/std-support/icecap-std-impl",
     "crates/framework/vmm/gic",
+    "crates/framework/vmm/psci",
     "crates/hypervisor/components/benchmark-server",
     "crates/hypervisor/components/benchmark-server/config",
     "crates/hypervisor/components/benchmark-server/types",
