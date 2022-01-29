@@ -81,8 +81,8 @@
   # hypervisor
 
   icecap-vmm = ./crates/hypervisor/icecap-vmm;
-  icecap-fdt-bindings = ./crates/hypervisor/icecap-fdt-bindings;
-  icecap-append-devices = ./crates/hypervisor/icecap-fdt-bindings/cli/icecap-append-devices;
+  hypervisor-fdt-bindings = ./crates/hypervisor/hypervisor-fdt-bindings;
+  hypervisor-fdt-append-devices = ./crates/hypervisor/hypervisor-fdt-bindings/cli/hypervisor-fdt-append-devices;
   hypervisor-serialize-component-config = ./crates/hypervisor/hypervisor-serialize-component-config;
 
   icecap-host = ./crates/hypervisor/components/host/user/cli;

@@ -1,10 +1,10 @@
 { mkLinuxBin, localCrates }:
 
 mkLinuxBin {
-  nix.name = "icecap-append-devices";
+  nix.name = "hypervisor-fdt-append-devices";
   nix.local.dependencies = with localCrates; [
     icecap-fdt
-    icecap-fdt-bindings
+    hypervisor-fdt-bindings
   ];
   dependencies = {
     serde = "*";

@@ -1,5 +1,5 @@
 { mkIceDL
-, icecap-append-devices
+, hypervisor-fdt-append-devices
 , hypervisor-serialize-component-config
 , icecap-serialize-event-server-out-index
 }:
@@ -16,7 +16,7 @@
   inherit command;
 }))).overrideAttrs (attrs: {
   nativeBuildInputs = attrs.nativeBuildInputs ++ [
-    icecap-append-devices
+    hypervisor-fdt-append-devices
     hypervisor-serialize-component-config
     icecap-serialize-event-server-out-index
   ];

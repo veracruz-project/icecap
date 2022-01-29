@@ -566,6 +566,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
+name = "hypervisor-fdt-append-devices"
+version = "0.1.0"
+dependencies = [
+ "hypervisor-fdt-bindings",
+ "icecap-fdt",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "hypervisor-fdt-bindings"
+version = "0.1.0"
+dependencies = [
+ "icecap-fdt",
+ "log",
+ "serde",
+]
+
+[[package]]
 name = "hypervisor-serialize-component-config"
 version = "0.1.0"
 dependencies = [
@@ -579,16 +598,6 @@ dependencies = [
  "icecap-resource-server-config",
  "icecap-serial-server-config",
  "postcard",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "icecap-append-devices"
-version = "0.1.0"
-dependencies = [
- "icecap-fdt",
- "icecap-fdt-bindings",
  "serde",
  "serde_json",
 ]
@@ -757,15 +766,6 @@ name = "icecap-fdt"
 version = "0.1.0"
 dependencies = [
  "log",
-]
-
-[[package]]
-name = "icecap-fdt-bindings"
-version = "0.1.0"
-dependencies = [
- "icecap-fdt",
- "log",
- "serde",
 ]
 
 [[package]]

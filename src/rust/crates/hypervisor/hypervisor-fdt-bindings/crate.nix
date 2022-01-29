@@ -1,7 +1,7 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  nix.name = "icecap-fdt-bindings";
+  nix.name = "hypervisor-fdt-bindings";
   nix.local.dependencies = with localCrates; [
     icecap-fdt
   ];

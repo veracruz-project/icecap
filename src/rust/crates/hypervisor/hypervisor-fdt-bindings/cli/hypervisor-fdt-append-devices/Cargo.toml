@@ -2,12 +2,12 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-append-devices"
+name = "hypervisor-fdt-append-devices"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 serde = "*"
 serde_json = "*"
+hypervisor-fdt-bindings = { path = "../.." }
 icecap-fdt = { path = "../../../../framework/base/icecap-fdt" }
-icecap-fdt-bindings = { path = "../.." }

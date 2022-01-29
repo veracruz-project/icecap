@@ -6,7 +6,7 @@ self: super: with self; {
 
   icecap-host = callPackage ./icecap-host.nix {};
 
-  icecap-append-devices = mkTool globalCrates.icecap-append-devices;
+  hypervisor-fdt-append-devices = mkTool globalCrates.hypervisor-fdt-append-devices;
   hypervisor-serialize-component-config = mkTool globalCrates.hypervisor-serialize-component-config;
   icecap-serialize-event-server-out-index = mkTool globalCrates.icecap-serialize-event-server-out-index;
 
