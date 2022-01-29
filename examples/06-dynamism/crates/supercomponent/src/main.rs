@@ -9,7 +9,7 @@ use core::ops::Range;
 use serde::{Deserialize, Serialize};
 
 use dyndl_realize_simple::{fill_frames_simple, initialize_simple_realizer_from_config};
-use dyndl_realize_simple_config::ConfigRealizer;
+use dyndl_realize_simple_config::RealizerConfig;
 use dyndl_types::Model;
 use icecap_start_generic::declare_generic_main;
 use icecap_std::prelude::*;
@@ -18,7 +18,7 @@ declare_generic_main!(main);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
-    realizer: ConfigRealizer,
+    realizer: RealizerConfig,
     subsystem_spec: Range<usize>,
     nfn: Notification,
 }
@@ -33,7 +33,7 @@ fn main(config: Config) -> Fallible<()> {
         )
     };
 
-    let (subsystem_spec, frame_fill): (Model, &[u8]) =
+    let (subsystem_spec, fill_blob): (Model, &[u8]) =
         postcard::take_from_bytes(&subsystem_spec_raw).unwrap();
 
     let mut realizer = initialize_simple_realizer_from_config(&config.realizer)?;
@@ -42,7 +42,7 @@ fn main(config: Config) -> Fallible<()> {
         debug_println!("Realizing subsystem");
         let subsystem = {
             let partial_subsystem = realizer.realize_start(subsystem_spec.clone())?;
-            fill_frames_simple(&mut realizer, &partial_subsystem, frame_fill)?;
+            fill_frames_simple(&mut realizer, &partial_subsystem, fill_blob)?;
             realizer.realize_finish(partial_subsystem)?
         };
 
