@@ -25,6 +25,9 @@ icecap-driver-interfaces
 icecap-failure
 icecap-failure-derive
 icecap-fdt
+icecap-generic-timer-server
+icecap-generic-timer-server-config
+icecap-generic-timer-server-types
 icecap-linux-syscall-musl
 icecap-linux-syscall-types
 icecap-logger

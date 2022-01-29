@@ -21,5 +21,4 @@ mkSeL4Bin {
     cfg-if = "*";
     tock-registers = "*";
   };
-  nix.passthru.excludeFromDocs = true;
 }
