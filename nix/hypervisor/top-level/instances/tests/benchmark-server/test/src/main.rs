@@ -9,7 +9,7 @@ use serde::{Serialize, Deserialize};
 use icecap_std::prelude::*;
 use icecap_std::rpc;
 use icecap_start_generic::declare_generic_main;
-use icecap_benchmark_server_types as benchmark_server;
+use hypervisor_benchmark_server_types as benchmark_server;
 
 declare_generic_main!(main);
 
