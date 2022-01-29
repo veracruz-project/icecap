@@ -48,7 +48,7 @@ members = [
     "crates/framework/dyndl/realize/simple/config",
     "crates/framework/dyndl/types",
     "crates/framework/dyndl/types/derive",
-    "crates/framework/generic-components/serialize-generic-component-config",
+    "crates/framework/generic-components/icecap-serialize-generic-component-config",
     "crates/framework/generic-components/timer-server",
     "crates/framework/generic-components/timer-server/client",
     "crates/framework/generic-components/timer-server/config",

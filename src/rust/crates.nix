@@ -59,7 +59,7 @@
   dyndl-serialize-spec = ./crates/framework/dyndl/cli/dyndl-serialize-spec;
 
 
-  icecap-serialize-generic-component-config = ./crates/framework/generic-components/serialize-generic-component-config;
+  icecap-serialize-generic-component-config = ./crates/framework/generic-components/icecap-serialize-generic-component-config;
 
   icecap-generic-timer-server = ./crates/framework/generic-components/timer-server;
   icecap-generic-timer-server-types = ./crates/framework/generic-components/timer-server/types;
