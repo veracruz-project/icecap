@@ -72,7 +72,6 @@ members = [
     "crates/hypervisor/benchmark-server/config",
     "crates/hypervisor/benchmark-server/types",
     "crates/hypervisor/build-tools/hypervisor-fdt-append-devices",
-    "crates/hypervisor/build-tools/hypervisor-fdt-append-devices/hypervisor-fdt-bindings",
     "crates/hypervisor/build-tools/hypervisor-serialize-component-config",
     "crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index",
     "crates/hypervisor/event-server",

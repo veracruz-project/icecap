@@ -4,9 +4,12 @@ use std::io::{self, Read, Write};
 
 use serde::{Deserialize, Serialize};
 
-use hypervisor_fdt_bindings::ResourceServer;
 use icecap_fdt::DeviceTree;
 use icecap_fdt_bindings::{Chosen, Device, RingBuffer};
+
+mod bindings;
+
+use bindings::ResourceServer;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Input {

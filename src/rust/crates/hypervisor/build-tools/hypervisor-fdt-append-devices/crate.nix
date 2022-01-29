@@ -5,7 +5,6 @@ mkLinuxBin {
   nix.local.dependencies = with localCrates; [
     icecap-fdt
     icecap-fdt-bindings
-    hypervisor-fdt-bindings
   ];
   dependencies = {
     serde = "*";

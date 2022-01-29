@@ -8,7 +8,6 @@ event-server
 fault-handler
 finite-set
 host-vmm
-hypervisor-fdt-bindings
 hypervisor-vmm-core
 icecap-backtrace
 icecap-backtrace-collect

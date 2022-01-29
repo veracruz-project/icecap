@@ -9,6 +9,5 @@ edition = "2018"
 [dependencies]
 serde = "*"
 serde_json = "*"
-hypervisor-fdt-bindings = { path = "./hypervisor-fdt-bindings" }
 icecap-fdt = { path = "../../../framework/base/icecap-fdt" }
 icecap-fdt-bindings = { path = "../../../framework/base/icecap-fdt/bindings" }

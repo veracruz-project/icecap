@@ -82,7 +82,6 @@
   # hypervisor
 
   hypervisor-vmm-core = ./crates/hypervisor/vmm/core;
-  hypervisor-fdt-bindings = ./crates/hypervisor/build-tools/hypervisor-fdt-append-devices/hypervisor-fdt-bindings;
   hypervisor-fdt-append-devices = ./crates/hypervisor/build-tools/hypervisor-fdt-append-devices;
   hypervisor-serialize-component-config = ./crates/hypervisor/build-tools/hypervisor-serialize-component-config;
 
