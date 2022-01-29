@@ -2,7 +2,7 @@ use alloc::vec::Vec;
 
 use crate::{Parameter, ParameterValue};
 
-pub trait ReadCall {
+pub trait Receiving {
     fn read_value(&mut self) -> ParameterValue;
 
     fn remaining(&self) -> usize;
@@ -12,7 +12,7 @@ pub trait ReadCall {
     }
 }
 
-pub trait WriteCall {
+pub trait Sending {
     fn write_value(&mut self, value: ParameterValue);
 
     fn write<T: Parameter>(&mut self, value: T) {
@@ -30,7 +30,7 @@ pub(crate) struct SliceReader<'a> {
     pub(crate) unread: &'a [ParameterValue],
 }
 
-impl ReadCall for SliceReader<'_> {
+impl Receiving for SliceReader<'_> {
     fn read_value(&mut self) -> ParameterValue {
         let v = self.unread[0];
         self.unread = &self.unread[1..];
@@ -42,7 +42,7 @@ impl ReadCall for SliceReader<'_> {
     }
 }
 
-impl WriteCall for Vec<ParameterValue> {
+impl Sending for Vec<ParameterValue> {
     fn write_value(&mut self, value: ParameterValue) {
         self.push(value)
     }

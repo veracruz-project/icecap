@@ -78,12 +78,12 @@ pub enum YieldBackCondition {
 // }
 
 impl RPC for Yield {
-    fn send(&self, _call: &mut impl WriteCall) {
+    fn send(&self, _call: &mut impl Sending) {
         // TODO
         unimplemented!()
     }
 
-    fn recv(call: &mut impl ReadCall) -> Self {
+    fn recv(call: &mut impl Receiving) -> Self {
         fn get_field(reg: u64, i: i32) -> usize {
             const WIDTH: i32 = 16;
             const MASK: u64 = (1 << WIDTH) - 1;
@@ -114,7 +114,7 @@ const RESUME_HOST_CONDITION_TAG_TIMEOUT: u64 = 1;
 const RESUME_HOST_CONDITION_TAG_HOST_EVENT: u64 = 2;
 
 impl RPC for ResumeHostCondition {
-    fn send(&self, call: &mut impl WriteCall) {
+    fn send(&self, call: &mut impl Sending) {
         match self {
             Self::Timeout => {
                 call.write_value(RESUME_HOST_CONDITION_TAG_TIMEOUT);
@@ -128,7 +128,7 @@ impl RPC for ResumeHostCondition {
         }
     }
 
-    fn recv(_call: &mut impl ReadCall) -> Self {
+    fn recv(_call: &mut impl Receiving) -> Self {
         // TODO
         unimplemented!()
     }

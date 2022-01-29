@@ -3,9 +3,9 @@
 extern crate alloc;
 
 mod parameter;
-mod call;
+mod transit;
 mod rpc;
 
-pub use call::{ReadCall, WriteCall};
+pub use transit::{Receiving, Sending};
 pub use parameter::{Parameter, ParameterValue};
 pub use rpc::RPC;
