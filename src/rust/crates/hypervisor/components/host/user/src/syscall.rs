@@ -1,6 +1,6 @@
 use std::fs::File;
-use std::path::Path;
 use std::os::unix::io::AsRawFd;
+use std::path::Path;
 
 use icecap_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
 use icecap_resource_server_types::Request;
@@ -38,14 +38,20 @@ fn ioctl<T>(path: impl AsRef<Path>, request: u32, ptr: *mut T) {
     assert_eq!(ret, 0);
 }
 
-
-
 fn ioctl_passthru(passthru: &mut Passthru) {
-    ioctl(ICECAP_VMM_IOCTL_PATH, ICECAP_VMM_PASSTHRU, passthru as *mut Passthru)
+    ioctl(
+        ICECAP_VMM_IOCTL_PATH,
+        ICECAP_VMM_PASSTHRU,
+        passthru as *mut Passthru,
+    )
 }
 
 fn ioctl_yield_to(yield_to: &mut YieldTo) {
-    ioctl(ICECAP_RESOURCE_SERVER_IOCTL_PATH, ICECAP_RESOURCE_SERVER_YIELD_TO, yield_to as *mut YieldTo)
+    ioctl(
+        ICECAP_RESOURCE_SERVER_IOCTL_PATH,
+        ICECAP_RESOURCE_SERVER_YIELD_TO,
+        yield_to as *mut YieldTo,
+    )
 }
 
 //

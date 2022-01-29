@@ -11,6 +11,6 @@ mod guest;
 mod utils;
 
 pub use chosen::Chosen;
-pub use icecap::{Channel, Con, Device, Net, RingBuffer, RingBufferSide};
 pub use guest::GuestConfig;
+pub use icecap::{Channel, Con, Device, Net, RingBuffer, RingBufferSide};
 pub use utils::mk_range;

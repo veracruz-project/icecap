@@ -4,12 +4,12 @@
 extern crate alloc;
 
 use finite_set::Finite;
+use hypervisor_vmm_core::*;
 use icecap_host_vmm_config::*;
 use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
 use icecap_std::prelude::*;
 use icecap_std::rpc::{self, RPC};
 use icecap_std::sel4::fault::*;
-use hypervisor_vmm_core::*;
 
 #[allow(unused_imports)]
 use icecap_benchmark_server_types as benchmark_server;
