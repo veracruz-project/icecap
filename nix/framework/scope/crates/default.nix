@@ -26,7 +26,7 @@ let
             inherit name;
             path = icecapSrc.absolute (path + "/${name}");
           });
-          nix.passthru.path = path; # HACK
+          nix.passthru.path = path;
           nix.passthru.isSeL4 = isSeL4;
           nix.passthru.exclude = exclude;
         }
