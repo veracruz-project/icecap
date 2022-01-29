@@ -38,7 +38,7 @@ impl ResourceServer {
 
     pub fn apply_with_default_name(&self, dt: &mut DeviceTree) {
         self.apply(
-            &format!("hypervisor_resource_server@{:x}", self.bulk_region.start),
+            &format!("icecap_resource_server@{:x}", self.bulk_region.start),
             dt,
         )
     }
