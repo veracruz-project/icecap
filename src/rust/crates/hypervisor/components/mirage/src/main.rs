@@ -5,7 +5,6 @@
 #![feature(llvm_asm)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
-#![allow(unreachable_code)]
 
 extern crate alloc;
 
@@ -16,12 +15,8 @@ use hypervisor_event_server_types::{
 use hypervisor_mirage_config::Config;
 use icecap_mirage_core::ocaml;
 use icecap_std::{
-    config::RingBufferKicksConfig,
-    prelude::*,
-    ring_buffer::*,
-    ring_buffer::{BufferedPacketRingBuffer, PacketRingBuffer},
-    rpc,
-    sel4::sys::c_types::*,
+    config::RingBufferKicksConfig, prelude::*, ring_buffer::*, rpc, sel4::sys::c_types::c_int,
+    sync::*,
 };
 
 mod syscall;
@@ -29,8 +24,24 @@ mod time_hack;
 
 declare_main!(main);
 
+static GLOBAL_STATE: DeferredMutex<Option<State>> =
+    GenericMutex::new(DeferredMutexNotification::new(), None);
+
+type NetIfaceId = usize;
+
+pub struct State {
+    event: Notification,
+    event_server_bitfield: EventServerBitfield,
+    net_ifaces: Vec<BufferedPacketRingBuffer>,
+}
+
 fn main(config: Config) -> Fallible<()> {
-    let net_rb = {
+    GLOBAL_STATE.set(config.lock);
+
+    let event_server_bitfield = unsafe { EventServerBitfield::new(config.event_server_bitfield) };
+    event_server_bitfield.clear_ignore_all();
+
+    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new({
         let event_server = rpc::Client::<EventServerRequest>::new(config.event_server_endpoint);
         let index = {
             use events::*;
@@ -48,13 +59,8 @@ fn main(config: Config) -> Fallible<()> {
                 write: kick,
             },
         )
-    };
+    }));
 
-    let event_server_bitfield = unsafe { EventServerBitfield::new(config.event_server_bitfield) };
-
-    event_server_bitfield.clear_ignore_all();
-
-    let net = BufferedPacketRingBuffer::new(PacketRingBuffer::new(net_rb));
     net.packet_ring_buffer().enable_notify_read();
     net.packet_ring_buffer().enable_notify_write();
 
@@ -63,9 +69,10 @@ fn main(config: Config) -> Fallible<()> {
         event_server_bitfield,
         net_ifaces: vec![net],
     };
-    unsafe {
-        GLOBAL_STATE = Some(state);
-    };
+    {
+        let mut global_state = GLOBAL_STATE.lock();
+        *global_state = Some(state);
+    }
 
     syscall::init();
 
@@ -78,23 +85,12 @@ fn main(config: Config) -> Fallible<()> {
     Ok(())
 }
 
-static mut GLOBAL_STATE: Option<State> = None;
-
 fn with<T, F: FnOnce(&mut State) -> T>(f: F) -> T {
-    unsafe {
-        let s = &mut GLOBAL_STATE.as_mut().unwrap();
-        let r = f(s);
-        s.callback();
-        r
-    }
-}
-
-type NetIfaceId = usize;
-
-pub struct State {
-    event: Notification,
-    event_server_bitfield: EventServerBitfield,
-    net_ifaces: Vec<BufferedPacketRingBuffer>,
+    let mut state = GLOBAL_STATE.lock();
+    let state = state.as_mut().unwrap();
+    let ret = f(state);
+    state.callback();
+    ret
 }
 
 impl State {

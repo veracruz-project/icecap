@@ -35,6 +35,8 @@ class Mirage(ElfComponent):
         # con_kick = self.composition.extern(ObjectType.seL4_NotificationObject, 'realm_{}_serial_server_kick'.format(self.composition.realm_id()))
 
         self._arg = {
+            'lock': self.cspace().alloc(self.alloc(ObjectType.seL4_NotificationObject, 'lock'), read=True, write=True),
+
             'event': self.cspace().alloc(event, read=True),
             'event_server_endpoint': self.cspace().alloc(event_server_endpoint, write=True, grantreply=True),
             'event_server_bitfield': self.map_region([(event_server_bitfield, PAGE_SIZE_BITS)], read=True, write=True),

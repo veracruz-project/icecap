@@ -10,6 +10,8 @@ use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    pub lock: Notification,
+
     pub event: Notification,
     pub event_server_endpoint: Endpoint,
     pub event_server_bitfield: usize,
