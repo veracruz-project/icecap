@@ -2,7 +2,7 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-resource-server-types"
+name = "hypervisor-resource-server-types"
 version = "0.1.0"
 edition = "2018"
 

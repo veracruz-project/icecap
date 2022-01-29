@@ -2,8 +2,8 @@ use std::fs::File;
 use std::os::unix::io::AsRawFd;
 use std::path::Path;
 
-use icecap_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
-use icecap_resource_server_types::Request;
+use hypervisor_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
+use hypervisor_resource_server_types::Request;
 use icecap_rpc_types::*;
 
 cfg_if::cfg_if! {
@@ -18,7 +18,7 @@ const ICECAP_VMM_PASSTHRU: u32 = 0xc0403300;
 const ICECAP_RESOURCE_SERVER_YIELD_TO: u32 = 0xc0103301;
 
 const ICECAP_VMM_IOCTL_PATH: &'static str = "/sys/kernel/debug/icecap_vmm";
-const ICECAP_RESOURCE_SERVER_IOCTL_PATH: &'static str = "/dev/icecap_resource_server";
+const ICECAP_RESOURCE_SERVER_IOCTL_PATH: &'static str = "/dev/hypervisor_resource_server";
 
 #[repr(C)]
 struct Passthru {

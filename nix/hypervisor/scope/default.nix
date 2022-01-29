@@ -8,7 +8,7 @@ self: super: with self; {
 
   hypervisor-fdt-append-devices = mkTool globalCrates.hypervisor-fdt-append-devices;
   hypervisor-serialize-component-config = mkTool globalCrates.hypervisor-serialize-component-config;
-  icecap-serialize-event-server-out-index = mkTool globalCrates.icecap-serialize-event-server-out-index;
+  hypervisor-serialize-event-server-out-index = mkTool globalCrates.hypervisor-serialize-event-server-out-index;
 
   firecracker = callPackage ./firecracker/firecracker.nix {};
   firecracker-prebuilt = callPackage ./firecracker/firecracker-prebuilt.nix {};

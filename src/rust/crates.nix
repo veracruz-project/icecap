@@ -86,38 +86,38 @@
   hypervisor-serialize-component-config = ./crates/hypervisor/build-tools/hypervisor-serialize-component-config;
 
   icecap-host = ./crates/hypervisor/host-tools/icecap-host;
-  icecap-host-user = ./crates/hypervisor/host-tools/icecap-host/core;
+  icecap-host-core = ./crates/hypervisor/host-tools/icecap-host/core;
 
-  host-vmm = ./crates/hypervisor/vmm/host;
-  icecap-host-vmm-types = ./crates/hypervisor/vmm/host/types;
-  icecap-host-vmm-config = ./crates/hypervisor/vmm/host/config;
+  hypervisor-host-vmm = ./crates/hypervisor/vmm/host;
+  hypervisor-host-vmm-types = ./crates/hypervisor/vmm/host/types;
+  hypervisor-host-vmm-config = ./crates/hypervisor/vmm/host/config;
 
-  realm-vmm = ./crates/hypervisor/vmm/realm;
-  icecap-realm-vmm-config = ./crates/hypervisor/vmm/realm/config;
+  hypervisor-realm-vmm = ./crates/hypervisor/vmm/realm;
+  hypervisor-realm-vmm-config = ./crates/hypervisor/vmm/realm/config;
 
-  resource-server = ./crates/hypervisor/resource-server;
-  icecap-resource-server-types = ./crates/hypervisor/resource-server/types;
-  icecap-resource-server-core = ./crates/hypervisor/resource-server/core;
-  icecap-resource-server-config = ./crates/hypervisor/resource-server/config;
+  hypervisor-resource-server = ./crates/hypervisor/resource-server;
+  hypervisor-resource-server-types = ./crates/hypervisor/resource-server/types;
+  hypervisor-resource-server-core = ./crates/hypervisor/resource-server/core;
+  hypervisor-resource-server-config = ./crates/hypervisor/resource-server/config;
 
-  idle = ./crates/hypervisor/idle;
+  hypervisor-idle = ./crates/hypervisor/idle;
 
-  fault-handler = ./crates/hypervisor/fault-handler;
-  icecap-fault-handler-config = ./crates/hypervisor/fault-handler/config;
+  hypervisor-fault-handler = ./crates/hypervisor/fault-handler;
+  hypervisor-fault-handler-config = ./crates/hypervisor/fault-handler/config;
 
-  event-server = ./crates/hypervisor/event-server;
-  icecap-event-server-types = ./crates/hypervisor/event-server/types;
-  icecap-event-server-config = ./crates/hypervisor/event-server/config;
-  icecap-serialize-event-server-out-index = ./crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index;
+  hypervisor-event-server = ./crates/hypervisor/event-server;
+  hypervisor-event-server-types = ./crates/hypervisor/event-server/types;
+  hypervisor-event-server-config = ./crates/hypervisor/event-server/config;
+  hypervisor-serialize-event-server-out-index = ./crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index;
 
-  serial-server = ./crates/hypervisor/serial-server;
-  icecap-serial-server-config = ./crates/hypervisor/serial-server/config;
+  hypervisor-serial-server = ./crates/hypervisor/serial-server;
+  hypervisor-serial-server-config = ./crates/hypervisor/serial-server/config;
 
-  benchmark-server = ./crates/hypervisor/benchmark-server;
-  icecap-benchmark-server-types = ./crates/hypervisor/benchmark-server/types;
-  icecap-benchmark-server-config = ./crates/hypervisor/benchmark-server/config;
+  hypervisor-benchmark-server = ./crates/hypervisor/benchmark-server;
+  hypervisor-benchmark-server-types = ./crates/hypervisor/benchmark-server/types;
+  hypervisor-benchmark-server-config = ./crates/hypervisor/benchmark-server/config;
 
-  mirage = ./crates/hypervisor/mirage;
-  icecap-mirage-config = ./crates/hypervisor/mirage/config;
+  hypervisor-mirage = ./crates/hypervisor/mirage;
+  hypervisor-mirage-config = ./crates/hypervisor/mirage/config;
 
 }

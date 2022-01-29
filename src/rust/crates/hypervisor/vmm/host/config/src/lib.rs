@@ -8,7 +8,7 @@ use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 
 use icecap_config::*;
-use icecap_event_server_types::events::HostIn;
+use hypervisor_event_server_types::events::HostIn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

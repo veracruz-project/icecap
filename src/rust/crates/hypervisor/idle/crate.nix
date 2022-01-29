@@ -1,7 +1,7 @@
 { mkSeL4Bin, localCrates }:
 
 mkSeL4Bin {
-  nix.name = "idle";
+  nix.name = "hypervisor-idle";
   nix.local.dependencies = with localCrates; [
     icecap-std
   ];

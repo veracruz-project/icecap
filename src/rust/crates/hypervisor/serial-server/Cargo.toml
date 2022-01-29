@@ -2,7 +2,7 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "serial-server"
+name = "hypervisor-serial-server"
 version = "0.1.0"
 edition = "2018"
 
@@ -11,11 +11,11 @@ cfg-if = "*"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 tock-registers = "*"
 finite-set = { path = "../../framework/helpers/finite-set" }
+hypervisor-event-server-types = { path = "../event-server/types" }
+hypervisor-serial-server-config = { path = "./config" }
 icecap-bcm2835-aux-uart-driver = { path = "../../framework/drivers/devices/bcm2835-aux-uart" }
 icecap-driver-interfaces = { path = "../../framework/drivers/icecap-driver-interfaces" }
-icecap-event-server-types = { path = "../event-server/types" }
 icecap-generic-serial-server-core = { path = "../../framework/generic-components/serial-server/core" }
 icecap-generic-timer-server-client = { path = "../../framework/generic-components/timer-server/client" }
 icecap-pl011-driver = { path = "../../framework/drivers/devices/pl011" }
-icecap-serial-server-config = { path = "./config" }
 icecap-std = { path = "../../framework/base/icecap-std" }

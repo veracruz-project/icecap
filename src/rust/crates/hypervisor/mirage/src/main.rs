@@ -10,10 +10,10 @@
 extern crate alloc;
 
 use finite_set::Finite;
-use icecap_event_server_types::{
+use hypervisor_event_server_types::{
     calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
 };
-use icecap_mirage_config::Config;
+use hypervisor_mirage_config::Config;
 use icecap_mirage_core::ocaml;
 use icecap_std::{
     config::RingBufferKicksConfig,

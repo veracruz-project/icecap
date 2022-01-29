@@ -8,7 +8,7 @@ use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 
 use icecap_config::*;
-use icecap_event_server_types::events::{RealmIn, RealmOut};
+use hypervisor_event_server_types::events::{RealmIn, RealmOut};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

@@ -147,5 +147,5 @@ class BaseComposition:
     # TODO move
     def serialize_event_server_out(self, role, index):
         index = json.dumps(index)
-        p = subprocess.run(["icecap-serialize-event-server-out-index", role, index], check=True, stdout=subprocess.PIPE)
+        p = subprocess.run(["hypervisor-serialize-event-server-out-index", role, index], check=True, stdout=subprocess.PIPE)
         return int(p.stdout)

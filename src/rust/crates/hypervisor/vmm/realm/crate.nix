@@ -1,14 +1,14 @@
 { mkSeL4Bin, localCrates }:
 
 mkSeL4Bin {
-  nix.name = "realm-vmm";
+  nix.name = "hypervisor-realm-vmm";
   nix.local.dependencies = with localCrates; [
     biterate
     finite-set
-    icecap-realm-vmm-config
+    hypervisor-realm-vmm-config
     icecap-std
     hypervisor-vmm-core
-    icecap-event-server-types
+    hypervisor-event-server-types
   ];
   nix.passthru.excludeFromDocs = true;
 }

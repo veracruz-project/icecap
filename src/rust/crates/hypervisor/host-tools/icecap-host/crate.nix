@@ -3,8 +3,8 @@
 mkLinuxBin {
   nix.name = "icecap-host";
   nix.local.dependencies = with localCrates; [
-    icecap-host-user
-    icecap-host-vmm-types
+    icecap-host-core
+    hypervisor-host-vmm-types
   ];
   dependencies = {
     clap = "*";

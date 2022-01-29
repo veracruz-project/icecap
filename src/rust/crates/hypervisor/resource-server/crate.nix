@@ -1,13 +1,13 @@
 { mkSeL4Bin, localCrates, serdeMin, postcardCommon }:
 
 mkSeL4Bin {
-  nix.name = "resource-server";
+  nix.name = "hypervisor-resource-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
-    icecap-event-server-types
-    icecap-resource-server-types
-    icecap-resource-server-config
-    icecap-resource-server-core
+    hypervisor-event-server-types
+    hypervisor-resource-server-types
+    hypervisor-resource-server-config
+    hypervisor-resource-server-core
     icecap-generic-timer-server-client
     dyndl-types
     dyndl-realize

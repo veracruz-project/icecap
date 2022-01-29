@@ -6,10 +6,10 @@ extern crate alloc;
 declare_main!(main);
 
 use finite_set::Finite;
-use icecap_event_server_types::calls::Client as EventServerRequest;
-use icecap_event_server_types::events;
+use hypervisor_event_server_types::calls::Client as EventServerRequest;
+use hypervisor_event_server_types::events;
 use icecap_generic_timer_server_client::*;
-use icecap_serial_server_config::Config;
+use hypervisor_serial_server_config::Config;
 use icecap_std::config::RingBufferKicksConfig;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::RingBuffer;

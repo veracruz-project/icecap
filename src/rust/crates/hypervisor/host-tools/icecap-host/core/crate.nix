@@ -1,11 +1,11 @@
 { mkLinux, localCrates, postcardCommon }:
 
 mkLinux {
-  nix.name = "icecap-host-user";
+  nix.name = "icecap-host-core";
   nix.local.dependencies = with localCrates; [
     dyndl-types
-    icecap-host-vmm-types
-    icecap-resource-server-types
+    hypervisor-host-vmm-types
+    hypervisor-resource-server-types
     icecap-rpc-types
   ];
   dependencies = {

@@ -2,8 +2,8 @@ use alloc::{collections::BTreeMap, vec::Vec};
 use core::cell::RefCell;
 
 use finite_set::Finite;
-use icecap_event_server_config::ClientNodeConfig;
-use icecap_event_server_types::*;
+use hypervisor_event_server_config::ClientNodeConfig;
+use hypervisor_event_server_types::*;
 use icecap_std::prelude::*;
 
 use super::*;

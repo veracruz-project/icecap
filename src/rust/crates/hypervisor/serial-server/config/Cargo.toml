@@ -2,11 +2,11 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-serial-server-config"
+name = "hypervisor-serial-server-config"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
+hypervisor-event-server-types = { path = "../../event-server/types" }
 icecap-config = { path = "../../../framework/base/icecap-config" }
-icecap-event-server-types = { path = "../../event-server/types" }

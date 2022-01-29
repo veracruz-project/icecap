@@ -2,13 +2,13 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "benchmark-server"
+name = "hypervisor-benchmark-server"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 cfg-if = "*"
-icecap-benchmark-server-config = { path = "./config" }
-icecap-benchmark-server-types = { path = "./types" }
+hypervisor-benchmark-server-config = { path = "./config" }
+hypervisor-benchmark-server-types = { path = "./types" }
 icecap-plat = { path = "../../framework/base/icecap-plat" }
 icecap-std = { path = "../../framework/base/icecap-std" }

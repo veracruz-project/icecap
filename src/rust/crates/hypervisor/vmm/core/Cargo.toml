@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 log = "*"
 biterate = { path = "../../../framework/helpers/biterate" }
+hypervisor-event-server-types = { path = "../../event-server/types" }
 icecap-core = { path = "../../../framework/base/icecap-core" }
-icecap-event-server-types = { path = "../../event-server/types" }
 icecap-vmm-gic = { path = "../../../framework/vmm/gic" }
 icecap-vmm-psci = { path = "../../../framework/vmm/psci" }

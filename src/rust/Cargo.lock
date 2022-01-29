@@ -93,17 +93,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "benchmark-server"
-version = "0.1.0"
-dependencies = [
- "cfg-if 1.0.0",
- "icecap-benchmark-server-config",
- "icecap-benchmark-server-types",
- "icecap-plat",
- "icecap-std",
-]
-
-[[package]]
 name = "bindgen"
 version = "0.59.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -404,30 +393,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "event-server"
-version = "0.1.0"
-dependencies = [
- "biterate",
- "finite-set",
- "icecap-event-server-config",
- "icecap-event-server-types",
- "icecap-plat",
- "icecap-std",
-]
-
-[[package]]
 name = "fallible-iterator"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
-
-[[package]]
-name = "fault-handler"
-version = "0.1.0"
-dependencies = [
- "icecap-fault-handler-config",
- "icecap-std",
-]
 
 [[package]]
 name = "finite-set"
@@ -544,26 +513,82 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
-name = "host-vmm"
-version = "0.1.0"
-dependencies = [
- "biterate",
- "cfg-if 1.0.0",
- "finite-set",
- "hypervisor-vmm-core",
- "icecap-benchmark-server-types",
- "icecap-event-server-types",
- "icecap-host-vmm-config",
- "icecap-host-vmm-types",
- "icecap-resource-server-types",
- "icecap-std",
-]
-
-[[package]]
 name = "humantime"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
+
+[[package]]
+name = "hypervisor-benchmark-server"
+version = "0.1.0"
+dependencies = [
+ "cfg-if 1.0.0",
+ "hypervisor-benchmark-server-config",
+ "hypervisor-benchmark-server-types",
+ "icecap-plat",
+ "icecap-std",
+]
+
+[[package]]
+name = "hypervisor-benchmark-server-config"
+version = "0.1.0"
+dependencies = [
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-benchmark-server-types"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-event-server"
+version = "0.1.0"
+dependencies = [
+ "biterate",
+ "finite-set",
+ "hypervisor-event-server-config",
+ "hypervisor-event-server-types",
+ "icecap-plat",
+ "icecap-std",
+]
+
+[[package]]
+name = "hypervisor-event-server-config"
+version = "0.1.0"
+dependencies = [
+ "hypervisor-event-server-types",
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-event-server-types"
+version = "0.1.0"
+dependencies = [
+ "biterate",
+ "finite-set",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-fault-handler"
+version = "0.1.0"
+dependencies = [
+ "hypervisor-fault-handler-config",
+ "icecap-std",
+]
+
+[[package]]
+name = "hypervisor-fault-handler-config"
+version = "0.1.0"
+dependencies = [
+ "icecap-config",
+ "serde",
+]
 
 [[package]]
 name = "hypervisor-fdt-append-devices"
@@ -576,19 +601,192 @@ dependencies = [
 ]
 
 [[package]]
+name = "hypervisor-host-vmm"
+version = "0.1.0"
+dependencies = [
+ "biterate",
+ "cfg-if 1.0.0",
+ "finite-set",
+ "hypervisor-benchmark-server-types",
+ "hypervisor-event-server-types",
+ "hypervisor-host-vmm-config",
+ "hypervisor-host-vmm-types",
+ "hypervisor-resource-server-types",
+ "hypervisor-vmm-core",
+ "icecap-std",
+]
+
+[[package]]
+name = "hypervisor-host-vmm-config"
+version = "0.1.0"
+dependencies = [
+ "hypervisor-event-server-types",
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-host-vmm-types"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-idle"
+version = "0.1.0"
+dependencies = [
+ "cortex-a",
+ "icecap-std",
+]
+
+[[package]]
+name = "hypervisor-mirage"
+version = "0.1.0"
+dependencies = [
+ "finite-set",
+ "hypervisor-event-server-types",
+ "hypervisor-mirage-config",
+ "icecap-linux-syscall-musl",
+ "icecap-linux-syscall-types",
+ "icecap-mirage-core",
+ "icecap-std",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-mirage-config"
+version = "0.1.0"
+dependencies = [
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-realm-vmm"
+version = "0.1.0"
+dependencies = [
+ "biterate",
+ "finite-set",
+ "hypervisor-event-server-types",
+ "hypervisor-realm-vmm-config",
+ "hypervisor-vmm-core",
+ "icecap-std",
+]
+
+[[package]]
+name = "hypervisor-realm-vmm-config"
+version = "0.1.0"
+dependencies = [
+ "hypervisor-event-server-types",
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-resource-server"
+version = "0.1.0"
+dependencies = [
+ "dyndl-realize",
+ "dyndl-realize-simple",
+ "dyndl-realize-simple-config",
+ "dyndl-types",
+ "hypervisor-event-server-types",
+ "hypervisor-resource-server-config",
+ "hypervisor-resource-server-core",
+ "hypervisor-resource-server-types",
+ "icecap-generic-timer-server-client",
+ "icecap-std",
+ "postcard",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-resource-server-config"
+version = "0.1.0"
+dependencies = [
+ "dyndl-realize-simple-config",
+ "dyndl-types",
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-resource-server-core"
+version = "0.1.0"
+dependencies = [
+ "dyndl-realize",
+ "dyndl-types",
+ "hypervisor-event-server-types",
+ "hypervisor-resource-server-types",
+ "icecap-core",
+ "icecap-generic-timer-server-client",
+ "icecap-plat",
+ "log",
+ "postcard",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-resource-server-types"
+version = "0.1.0"
+dependencies = [
+ "icecap-rpc-types",
+ "postcard",
+ "serde",
+]
+
+[[package]]
+name = "hypervisor-serial-server"
+version = "0.1.0"
+dependencies = [
+ "cfg-if 1.0.0",
+ "finite-set",
+ "hypervisor-event-server-types",
+ "hypervisor-serial-server-config",
+ "icecap-bcm2835-aux-uart-driver",
+ "icecap-driver-interfaces",
+ "icecap-generic-serial-server-core",
+ "icecap-generic-timer-server-client",
+ "icecap-pl011-driver",
+ "icecap-std",
+ "serde",
+ "tock-registers",
+]
+
+[[package]]
+name = "hypervisor-serial-server-config"
+version = "0.1.0"
+dependencies = [
+ "hypervisor-event-server-types",
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
 name = "hypervisor-serialize-component-config"
 version = "0.1.0"
 dependencies = [
- "icecap-benchmark-server-config",
+ "hypervisor-benchmark-server-config",
+ "hypervisor-event-server-config",
+ "hypervisor-fault-handler-config",
+ "hypervisor-host-vmm-config",
+ "hypervisor-mirage-config",
+ "hypervisor-realm-vmm-config",
+ "hypervisor-resource-server-config",
+ "hypervisor-serial-server-config",
  "icecap-config-cli-core",
- "icecap-event-server-config",
- "icecap-fault-handler-config",
- "icecap-host-vmm-config",
- "icecap-mirage-config",
- "icecap-realm-vmm-config",
- "icecap-resource-server-config",
- "icecap-serial-server-config",
  "postcard",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "hypervisor-serialize-event-server-out-index"
+version = "0.1.0"
+dependencies = [
+ "finite-set",
+ "hypervisor-event-server-types",
  "serde",
  "serde_json",
 ]
@@ -598,8 +796,8 @@ name = "hypervisor-vmm-core"
 version = "0.1.0"
 dependencies = [
  "biterate",
+ "hypervisor-event-server-types",
  "icecap-core",
- "icecap-event-server-types",
  "icecap-vmm-gic",
  "icecap-vmm-psci",
  "log",
@@ -654,21 +852,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "icecap-benchmark-server-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "serde",
-]
-
-[[package]]
-name = "icecap-benchmark-server-types"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "icecap-config"
 version = "0.1.0"
 dependencies = [
@@ -718,24 +901,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "icecap-event-server-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "icecap-event-server-types",
- "serde",
-]
-
-[[package]]
-name = "icecap-event-server-types"
-version = "0.1.0"
-dependencies = [
- "biterate",
- "finite-set",
- "serde",
-]
-
-[[package]]
 name = "icecap-failure"
 version = "0.1.0"
 dependencies = [
@@ -754,14 +919,6 @@ dependencies = [
  "quote 1.0.10",
  "syn 1.0.82",
  "synstructure",
-]
-
-[[package]]
-name = "icecap-fault-handler-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "serde",
 ]
 
 [[package]]
@@ -836,37 +993,21 @@ name = "icecap-host"
 version = "0.1.0"
 dependencies = [
  "clap",
- "icecap-host-user",
- "icecap-host-vmm-types",
+ "hypervisor-host-vmm-types",
+ "icecap-host-core",
 ]
 
 [[package]]
-name = "icecap-host-user"
+name = "icecap-host-core"
 version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
  "dyndl-types",
- "icecap-host-vmm-types",
- "icecap-resource-server-types",
+ "hypervisor-host-vmm-types",
+ "hypervisor-resource-server-types",
  "icecap-rpc-types",
  "libc",
  "postcard",
-]
-
-[[package]]
-name = "icecap-host-vmm-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "icecap-event-server-types",
- "serde",
-]
-
-[[package]]
-name = "icecap-host-vmm-types"
-version = "0.1.0"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -882,14 +1023,6 @@ name = "icecap-logger"
 version = "0.1.0"
 dependencies = [
  "log",
-]
-
-[[package]]
-name = "icecap-mirage-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "serde",
 ]
 
 [[package]]
@@ -916,50 +1049,6 @@ version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
  "icecap-sel4",
-]
-
-[[package]]
-name = "icecap-realm-vmm-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "icecap-event-server-types",
- "serde",
-]
-
-[[package]]
-name = "icecap-resource-server-config"
-version = "0.1.0"
-dependencies = [
- "dyndl-realize-simple-config",
- "dyndl-types",
- "icecap-config",
- "serde",
-]
-
-[[package]]
-name = "icecap-resource-server-core"
-version = "0.1.0"
-dependencies = [
- "dyndl-realize",
- "dyndl-types",
- "icecap-core",
- "icecap-event-server-types",
- "icecap-generic-timer-server-client",
- "icecap-plat",
- "icecap-resource-server-types",
- "log",
- "postcard",
- "serde",
-]
-
-[[package]]
-name = "icecap-resource-server-types"
-version = "0.1.0"
-dependencies = [
- "icecap-rpc-types",
- "postcard",
- "serde",
 ]
 
 [[package]]
@@ -1034,25 +1123,6 @@ dependencies = [
  "bindgen",
  "compiler_builtins",
  "rustc-std-workspace-core",
-]
-
-[[package]]
-name = "icecap-serial-server-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "icecap-event-server-types",
- "serde",
-]
-
-[[package]]
-name = "icecap-serialize-event-server-out-index"
-version = "0.1.0"
-dependencies = [
- "finite-set",
- "icecap-event-server-types",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -1197,14 +1267,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "idle"
-version = "0.1.0"
-dependencies = [
- "cortex-a",
- "icecap-std",
-]
-
-[[package]]
 name = "indexmap"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1287,20 +1349,6 @@ checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
 dependencies = [
  "adler",
  "autocfg",
-]
-
-[[package]]
-name = "mirage"
-version = "0.1.0"
-dependencies = [
- "finite-set",
- "icecap-event-server-types",
- "icecap-linux-syscall-musl",
- "icecap-linux-syscall-types",
- "icecap-mirage-config",
- "icecap-mirage-core",
- "icecap-std",
- "serde",
 ]
 
 [[package]]
@@ -1479,18 +1527,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "realm-vmm"
-version = "0.1.0"
-dependencies = [
- "biterate",
- "finite-set",
- "hypervisor-vmm-core",
- "icecap-event-server-types",
- "icecap-realm-vmm-config",
- "icecap-std",
-]
-
-[[package]]
 name = "regex"
 version = "1.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1506,24 +1542,6 @@ name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
-
-[[package]]
-name = "resource-server"
-version = "0.1.0"
-dependencies = [
- "dyndl-realize",
- "dyndl-realize-simple",
- "dyndl-realize-simple-config",
- "dyndl-types",
- "icecap-event-server-types",
- "icecap-generic-timer-server-client",
- "icecap-resource-server-config",
- "icecap-resource-server-core",
- "icecap-resource-server-types",
- "icecap-std",
- "postcard",
- "serde",
-]
 
 [[package]]
 name = "rustc-demangle"
@@ -1604,24 +1622,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "serial-server"
-version = "0.1.0"
-dependencies = [
- "cfg-if 1.0.0",
- "finite-set",
- "icecap-bcm2835-aux-uart-driver",
- "icecap-driver-interfaces",
- "icecap-event-server-types",
- "icecap-generic-serial-server-core",
- "icecap-generic-timer-server-client",
- "icecap-pl011-driver",
- "icecap-serial-server-config",
- "icecap-std",
- "serde",
- "tock-registers",
 ]
 
 [[package]]

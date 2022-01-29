@@ -2,14 +2,14 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "realm-vmm"
+name = "hypervisor-realm-vmm"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 biterate = { path = "../../../framework/helpers/biterate" }
 finite-set = { path = "../../../framework/helpers/finite-set" }
+hypervisor-event-server-types = { path = "../../event-server/types" }
+hypervisor-realm-vmm-config = { path = "./config" }
 hypervisor-vmm-core = { path = "../core" }
-icecap-event-server-types = { path = "../../event-server/types" }
-icecap-realm-vmm-config = { path = "./config" }
 icecap-std = { path = "../../../framework/base/icecap-std" }

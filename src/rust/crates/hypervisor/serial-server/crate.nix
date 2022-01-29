@@ -1,13 +1,13 @@
 { mkSeL4Bin, localCrates, serdeMin }:
 
 mkSeL4Bin {
-  nix.name = "serial-server";
+  nix.name = "hypervisor-serial-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
-    icecap-serial-server-config
+    hypervisor-serial-server-config
     icecap-generic-timer-server-client
     icecap-generic-serial-server-core
-    icecap-event-server-types
+    hypervisor-event-server-types
     icecap-driver-interfaces
     finite-set
 

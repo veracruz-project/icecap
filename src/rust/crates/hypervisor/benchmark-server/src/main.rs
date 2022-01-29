@@ -3,8 +3,8 @@
 #![feature(drain_filter)]
 #![feature(never_type)]
 
-use icecap_benchmark_server_config::*;
-use icecap_benchmark_server_types::*;
+use hypervisor_benchmark_server_config::*;
+use hypervisor_benchmark_server_types::*;
 use icecap_std::prelude::*;
 use icecap_std::rpc;
 

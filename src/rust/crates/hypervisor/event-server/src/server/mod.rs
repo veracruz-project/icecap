@@ -2,7 +2,7 @@ use alloc::{collections::BTreeMap, sync::Arc, vec::Vec};
 use core::cell::RefCell;
 
 use biterate::biterate;
-use icecap_event_server_types::*;
+use hypervisor_event_server_types::*;
 use icecap_std::{prelude::*, sync::Mutex};
 
 mod impls;

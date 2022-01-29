@@ -9,7 +9,7 @@ use icecap_core::{
     sel4::fault::*,
     sync::{ExplicitMutexNotification, Mutex},
 };
-use icecap_event_server_types as event_server;
+use hypervisor_event_server_types as event_server;
 use icecap_vmm_gic::*;
 use icecap_vmm_psci as psci;
 

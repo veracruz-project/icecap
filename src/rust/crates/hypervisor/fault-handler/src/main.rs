@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use icecap_fault_handler_config::{Config, Thread};
+use hypervisor_fault_handler_config::{Config, Thread};
 use icecap_std::prelude::*;
 use icecap_std::sel4::Fault;
 

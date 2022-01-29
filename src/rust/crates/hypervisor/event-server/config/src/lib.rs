@@ -6,7 +6,7 @@ use alloc::collections::BTreeMap;
 use alloc::vec::Vec;
 
 use icecap_config::*;
-use icecap_event_server_types::*;
+use hypervisor_event_server_types::*;
 
 use serde::{Deserialize, Serialize};
 

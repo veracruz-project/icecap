@@ -1,9 +1,9 @@
 { mkLinuxBin, localCrates }:
 
 mkLinuxBin {
-  nix.name = "icecap-serialize-event-server-out-index";
+  nix.name = "hypervisor-serialize-event-server-out-index";
   nix.local.dependencies = with localCrates; [
-    icecap-event-server-types
+    hypervisor-event-server-types
     finite-set
   ];
   dependencies = {

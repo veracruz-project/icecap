@@ -1,12 +1,12 @@
 { mkSeL4Bin, localCrates }:
 
 mkSeL4Bin {
-  nix.name = "benchmark-server";
+  nix.name = "hypervisor-benchmark-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
     icecap-plat
-    icecap-benchmark-server-types
-    icecap-benchmark-server-config
+    hypervisor-benchmark-server-types
+    hypervisor-benchmark-server-config
   ];
   dependencies = {
     cfg-if = "*";

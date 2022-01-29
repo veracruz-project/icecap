@@ -1,7 +1,7 @@
 { mk, serdeMin, localCrates }:
 
 mk {
-  nix.name = "icecap-host-vmm-types";
+  nix.name = "hypervisor-host-vmm-types";
   dependencies = {
     serde = serdeMin;
   };

@@ -2,7 +2,7 @@ use std::error::Error;
 use std::result;
 
 use dyndl_types::*;
-use icecap_host_vmm_types::{DirectRequest, DirectResponse};
+use hypervisor_host_vmm_types::{DirectRequest, DirectResponse};
 
 mod bulk_transport;
 pub mod syscall;
@@ -46,7 +46,7 @@ impl Host {
                     for (j, entry) in fill.iter().enumerate() {
                         let content = &fill_content[offset..offset + entry.length];
                         let header =
-                            postcard::to_allocvec(&icecap_resource_server_types::FillChunkHeader {
+                            postcard::to_allocvec(&hypervisor_resource_server_types::FillChunkHeader {
                                 object_index: i,
                                 fill_entry_index: j,
                                 size: content.len(),

@@ -7,7 +7,7 @@ mkSeL4 {
     icecap-core
     icecap-vmm-gic
     icecap-vmm-psci
-    icecap-event-server-types
+    hypervisor-event-server-types
   ];
   dependencies = {
     log = "*";

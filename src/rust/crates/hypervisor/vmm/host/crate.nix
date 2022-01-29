@@ -1,17 +1,17 @@
 { mkSeL4Bin, localCrates }:
 
 mkSeL4Bin {
-  nix.name = "host-vmm";
+  nix.name = "hypervisor-host-vmm";
   nix.local.dependencies = with localCrates; [
     biterate
     finite-set
-    icecap-host-vmm-config
+    hypervisor-host-vmm-config
     icecap-std
     hypervisor-vmm-core
-    icecap-event-server-types
-    icecap-resource-server-types
-    icecap-benchmark-server-types
-    icecap-host-vmm-types
+    hypervisor-event-server-types
+    hypervisor-resource-server-types
+    hypervisor-benchmark-server-types
+    hypervisor-host-vmm-types
   ];
   dependencies = {
     cfg-if = "*";

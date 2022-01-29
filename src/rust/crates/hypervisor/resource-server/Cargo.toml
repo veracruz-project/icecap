@@ -2,7 +2,7 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "resource-server"
+name = "hypervisor-resource-server"
 version = "0.1.0"
 edition = "2018"
 
@@ -13,9 +13,9 @@ dyndl-realize = { path = "../../framework/dyndl/realize" }
 dyndl-realize-simple = { path = "../../framework/dyndl/realize/simple" }
 dyndl-realize-simple-config = { path = "../../framework/dyndl/realize/simple/config" }
 dyndl-types = { path = "../../framework/dyndl/types" }
-icecap-event-server-types = { path = "../event-server/types" }
+hypervisor-event-server-types = { path = "../event-server/types" }
+hypervisor-resource-server-config = { path = "./config" }
+hypervisor-resource-server-core = { path = "./core" }
+hypervisor-resource-server-types = { path = "./types" }
 icecap-generic-timer-server-client = { path = "../../framework/generic-components/timer-server/client" }
-icecap-resource-server-config = { path = "./config" }
-icecap-resource-server-core = { path = "./core" }
-icecap-resource-server-types = { path = "./types" }
 icecap-std = { path = "../../framework/base/icecap-std" }

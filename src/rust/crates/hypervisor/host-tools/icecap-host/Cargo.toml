@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 clap = "*"
-icecap-host-user = { path = "./core" }
-icecap-host-vmm-types = { path = "../../vmm/host/types" }
+hypervisor-host-vmm-types = { path = "../../vmm/host/types" }
+icecap-host-core = { path = "./core" }

@@ -20,19 +20,19 @@ pub fn main() -> Result<(), io::Error> {
     let arg = args.next().unwrap();
     assert!(args.next().is_none());
 
-    let module = format!("icecap_{}_config", arg.replace("-", "_"));
+    let module = format!("hypervisor_{}_config", arg.replace("-", "_"));
 
     gen!(
         module.as_str(),
         [
-            icecap_fault_handler_config,
-            icecap_serial_server_config,
-            icecap_host_vmm_config,
-            icecap_realm_vmm_config,
-            icecap_resource_server_config,
-            icecap_event_server_config,
-            icecap_benchmark_server_config,
-            icecap_mirage_config,
+            hypervisor_fault_handler_config,
+            hypervisor_serial_server_config,
+            hypervisor_host_vmm_config,
+            hypervisor_realm_vmm_config,
+            hypervisor_resource_server_config,
+            hypervisor_event_server_config,
+            hypervisor_benchmark_server_config,
+            hypervisor_mirage_config,
         ]
     )?;
 

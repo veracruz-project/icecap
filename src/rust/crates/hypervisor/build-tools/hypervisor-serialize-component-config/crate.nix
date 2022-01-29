@@ -5,14 +5,14 @@ mkLinuxBin {
   nix.local.dependencies = with localCrates; [
     icecap-config-cli-core
 
-    icecap-fault-handler-config
-    icecap-serial-server-config
-    icecap-host-vmm-config
-    icecap-realm-vmm-config
-    icecap-resource-server-config
-    icecap-event-server-config
-    icecap-benchmark-server-config
-    icecap-mirage-config
+    hypervisor-fault-handler-config
+    hypervisor-serial-server-config
+    hypervisor-host-vmm-config
+    hypervisor-realm-vmm-config
+    hypervisor-resource-server-config
+    hypervisor-event-server-config
+    hypervisor-benchmark-server-config
+    hypervisor-mirage-config
   ];
   dependencies = {
     serde = "*";

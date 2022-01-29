@@ -1,7 +1,7 @@
 { mkIceDL
 , hypervisor-fdt-append-devices
 , hypervisor-serialize-component-config
-, icecap-serialize-event-server-out-index
+, hypervisor-serialize-event-server-out-index
 }:
 
 { config, subcommand ? null, script ? null, command ? "python3 -m icecap_hypervisor.cli ${subcommand} $CONFIG -o $OUT_DIR" }:
@@ -18,6 +18,6 @@
   nativeBuildInputs = attrs.nativeBuildInputs ++ [
     hypervisor-fdt-append-devices
     hypervisor-serialize-component-config
-    icecap-serialize-event-server-out-index
+    hypervisor-serialize-event-server-out-index
   ];
 })

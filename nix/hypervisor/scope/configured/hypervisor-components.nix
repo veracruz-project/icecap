@@ -4,8 +4,8 @@
 }:
 
 let
-  mk = crateName: _: buildIceCapComponent {
-    rootCrate = globalCrates.${crateName};
+  mk = name: _: buildIceCapComponent {
+    rootCrate = globalCrates."hypervisor-${name}";
   };
 
 in

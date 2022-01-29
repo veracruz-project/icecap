@@ -7,8 +7,8 @@ extern crate alloc;
 
 use alloc::sync::Arc;
 
-use icecap_event_server_config::*;
-use icecap_event_server_types::*;
+use hypervisor_event_server_config::*;
+use hypervisor_event_server_types::*;
 use icecap_std::prelude::*;
 use icecap_std::rpc;
 use icecap_std::sync::*;

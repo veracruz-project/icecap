@@ -1,7 +1,7 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  nix.name = "icecap-resource-server-config";
+  nix.name = "hypervisor-resource-server-config";
   nix.local.dependencies = with localCrates; [
     icecap-config
     dyndl-types

@@ -1,7 +1,7 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  nix.name = "icecap-fault-handler-config";
+  nix.name = "hypervisor-fault-handler-config";
   nix.local.dependencies = with localCrates; [
     icecap-config
   ];

@@ -5,7 +5,7 @@ extern crate alloc;
 
 use finite_set::Finite;
 use hypervisor_vmm_core::*;
-use icecap_realm_vmm_config::*;
+use hypervisor_realm_vmm_config::*;
 use icecap_std::prelude::*;
 use icecap_std::sel4::fault::*;
 

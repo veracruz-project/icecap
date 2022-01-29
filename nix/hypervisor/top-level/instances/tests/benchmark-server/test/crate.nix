@@ -7,7 +7,7 @@ crateUtils.mkCrate {
   nix.local.dependencies = with globalCrates; [
     icecap-std
     icecap-start-generic
-    icecap-benchmark-server-types
+    hypervisor-benchmark-server-types
   ];
   dependencies = {
     serde = { version = "*"; default-features = false; features = [ "alloc" "derive" ]; };

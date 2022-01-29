@@ -1,10 +1,10 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  nix.name = "icecap-serial-server-config";
+  nix.name = "hypervisor-serial-server-config";
   nix.local.dependencies = with localCrates; [
     icecap-config
-    icecap-event-server-types
+    hypervisor-event-server-types
   ];
   dependencies = {
     serde = serdeMin;

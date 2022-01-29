@@ -1,14 +1,14 @@
 { mkSeL4Bin, localCrates, serdeMin, stdenv }:
 
 mkSeL4Bin {
-  nix.name = "mirage";
+  nix.name = "hypervisor-mirage";
   nix.local.dependencies = with localCrates; [
     finite-set
     icecap-linux-syscall-types
     icecap-linux-syscall-musl
     icecap-std
-    icecap-mirage-config
-    icecap-event-server-types
+    hypervisor-mirage-config
+    hypervisor-event-server-types
     icecap-mirage-core
   ];
   dependencies = {
@@ -17,7 +17,7 @@ mkSeL4Bin {
   # nix.buildScript = {
   #   NOTE this doesn't work because of circular dependencies. rustc deduplicates these.
   #   rustc-link-lib = [
-  #     "icecap-mirage-glue" "mirage" "sel4asmrun" "c" "gcc"
+  #     "hypervisor-mirage-glue" "hypervisor-mirage" "sel4asmrun" "c" "gcc"
   #   ];
   # };
   nix.passthru.excludeFromBuild = true;

@@ -1,7 +1,7 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  nix.name = "icecap-mirage-config";
+  nix.name = "hypervisor-mirage-config";
   nix.local.dependencies = with localCrates; [
     icecap-config
   ];

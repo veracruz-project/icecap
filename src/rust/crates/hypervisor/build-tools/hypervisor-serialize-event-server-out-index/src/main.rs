@@ -1,7 +1,7 @@
 use std::env;
 
 use finite_set::*;
-use icecap_event_server_types::*;
+use hypervisor_event_server_types::*;
 
 fn main() -> Result<(), std::io::Error> {
     let args: Vec<String> = env::args().collect();
