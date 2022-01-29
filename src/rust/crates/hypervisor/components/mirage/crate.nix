@@ -1,6 +1,6 @@
-{ mk, localCrates, serdeMin, stdenv }:
+{ mkSeL4Bin, localCrates, serdeMin, stdenv }:
 
-mk {
+mkSeL4Bin {
   nix.name = "mirage";
   nix.local.dependencies = with localCrates; [
     finite-set
