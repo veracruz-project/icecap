@@ -6,7 +6,7 @@
 
 let
 
-  pathBetween = here: there: import (runCommand "x.nix" {
+  pathBetween = here: there: import (runCommand "path-between.nix" {
     nativeBuildInputs = [ python3 ];
   } ''
     python3 -c 'from os.path import relpath; print("\"{}\"".format(relpath("${there}", "${here}")))' > $out
