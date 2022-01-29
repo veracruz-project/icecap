@@ -2,7 +2,6 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn;
 
 #[proc_macro_derive(IsCap)]
 pub fn cap_derive(input: TokenStream) -> TokenStream {

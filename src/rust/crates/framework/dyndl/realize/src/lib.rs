@@ -109,8 +109,6 @@ impl Realizer {
     pub fn realize_start(&mut self, model: Model) -> Fallible<PartialSubsystem> {
         let view = ModelView::new(&model);
 
-        // allocate
-
         let cnode_slots_size_bits = {
             let mut num_frame_mappings: usize = 0;
             for i in view.local_objects.iter() {
@@ -213,10 +211,8 @@ impl Realizer {
     }
 
     pub fn realize_finish(&mut self, mut partial: PartialSubsystem) -> Fallible<Subsystem> {
-        // initialize objects
         let (externs, extern_caps): (Externs, Vec<Unspecified>) = {
             let mut externs = BTreeMap::new();
-
             let extern_caps: Vec<Unspecified> = partial
                 .model_view
                 .extern_objects
@@ -233,7 +229,6 @@ impl Realizer {
                     _ => panic!(),
                 })
                 .collect();
-
             (externs, extern_caps)
         };
 

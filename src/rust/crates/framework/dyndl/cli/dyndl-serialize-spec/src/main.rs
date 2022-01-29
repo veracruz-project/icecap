@@ -12,18 +12,18 @@ use dyndl_types::*;
 fn main() -> Result<(), io::Error> {
     let dir = env::args().nth(1).unwrap();
     let dir = Path::new(&dir);
-    let output: CapDLToolOutput = serde_json::from_reader(io::stdin())?;
-    let objects = output.objects;
-    let num_nodes = count_nodes(&objects); // HACK
+    let capdl_tool_output: CapDLToolOutput = serde_json::from_reader(io::stdin())?;
+    let objects = capdl_tool_output.objects;
+    let num_nodes = count_nodes(&objects);
     let mut model = Model { num_nodes, objects };
-    let suffix = add_fill(&mut model, &dir)?;
+    let fill_blob = add_fill(&mut model, &dir)?;
     io::stdout().write_all(&postcard::to_allocvec(&model).unwrap())?;
-    io::stdout().write_all(&suffix)?;
+    io::stdout().write_all(&fill_blob)?;
     Ok(())
 }
 
 fn add_fill(model: &mut Model, dir: &Path) -> Result<Vec<u8>, io::Error> {
-    let mut suffix = vec![];
+    let mut fill_blob = vec![];
     for obj in &mut model.objects {
         if let AnyObj::Local(obj) = &mut obj.object {
             if let Some(fill) = match obj {
@@ -43,12 +43,12 @@ fn add_fill(model: &mut Model, dir: &Path) -> Result<Vec<u8>, io::Error> {
                         hasher.finalize()
                     };
                     entry.content = digest.as_slice().to_vec();
-                    suffix.extend(&content);
+                    fill_blob.extend(&content);
                 }
             }
         }
     }
-    Ok(suffix)
+    Ok(fill_blob)
 }
 
 fn count_nodes(objects: &Objects) -> usize {
@@ -62,5 +62,5 @@ fn count_nodes(objects: &Objects) -> usize {
             }
         })
         .max()
-        .map_or(0, |affinity| affinity + 1)
+        .map_or(0, |max_affinity| max_affinity + 1)
 }

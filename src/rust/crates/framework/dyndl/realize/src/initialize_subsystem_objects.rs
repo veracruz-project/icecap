@@ -17,7 +17,6 @@ pub struct SubsystemObjectInitializationResources {
 }
 
 impl SubsystemObjectInitializationResources {
-    // TODO take digest and check after copying to frame
     pub fn fill_frame<T: Frame>(
         &self,
         frame: T,
@@ -213,8 +212,6 @@ impl<'a> Initialize<'a> {
     }
 
     fn init_tcb(&self, tcb: TCB, obj: &obj::TCB) -> Fallible<()> {
-        // TODO limit or scale prio and max_prio to protect non-realm components
-
         let fault_ep = CPtr::from_raw(obj.fault_ep);
         let cspace = self.cap(obj.cspace.obj);
         let cspace_root_data = CNodeCapData::new(obj.cspace.guard, obj.cspace.guard_size);
@@ -244,7 +241,6 @@ impl<'a> Initialize<'a> {
             obj.max_prio as u64,
             obj.prio as u64,
         )?;
-        // schedule(tcb, None)?;
 
         let mut regs = UserContext::default();
         *regs.pc_mut() = obj.ip;
@@ -259,8 +255,6 @@ impl<'a> Initialize<'a> {
             *regs.gpr_mut(1) = obj.gprs[1];
         }
         tcb.write_all_registers(false, &mut regs)?;
-
-        // TODO resume according to obj.resume once MCS or approx
 
         Ok(())
     }

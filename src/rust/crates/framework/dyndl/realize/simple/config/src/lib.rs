@@ -12,18 +12,18 @@ use dyndl_types::ExternObj;
 use icecap_config::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ConfigRealizer {
-    pub initialization_resources: ConfigSubsystemObjectInitializationResources,
+pub struct RealizerConfig {
+    pub initialization_resources: SubsystemObjectInitializationResourcesConfig,
     pub small_page: SmallPage,
     pub large_page: LargePage,
 
-    pub allocator_cregion: ConfigCRegion,
+    pub allocator_cregion: CRegionConfig,
     pub untyped: Vec<DynamicUntyped>,
-    pub externs: ConfigExterns,
+    pub externs: ExternsConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ConfigSubsystemObjectInitializationResources {
+pub struct SubsystemObjectInitializationResourcesConfig {
     pub pgd: PGD,
     pub asid_pool: ASIDPool,
     pub tcb_authority: TCB,
@@ -32,24 +32,24 @@ pub struct ConfigSubsystemObjectInitializationResources {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ConfigCRegion {
-    pub root: ConfigRelativeCPtr,
+pub struct CRegionConfig {
+    pub root: RelativeCPtrConfig,
     pub guard: u64,
     pub guard_size: u64,
     pub slots_size_bits: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ConfigRelativeCPtr {
+pub struct RelativeCPtrConfig {
     pub root: CNode,
     pub cptr: CPtr,
     pub depth: usize,
 }
 
-pub type ConfigExterns = BTreeMap<String, ConfigExtern>;
+pub type ExternsConfig = BTreeMap<String, ExternsConfigEntry>;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ConfigExtern {
+pub struct ExternsConfigEntry {
     pub ty: ExternObj,
     pub cptr: u64,
 }

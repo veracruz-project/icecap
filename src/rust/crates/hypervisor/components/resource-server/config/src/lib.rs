@@ -13,7 +13,7 @@ use icecap_config::*;
 pub struct Config {
     pub lock: Notification,
 
-    pub realizer: ConfigRealizer,
+    pub realizer: RealizerConfig,
 
     pub host_bulk_region_start: usize,
     pub host_bulk_region_size: usize,
