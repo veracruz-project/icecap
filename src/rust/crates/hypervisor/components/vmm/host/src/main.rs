@@ -4,9 +4,9 @@
 extern crate alloc;
 
 use finite_set::Finite;
-use hypervisor_vmm_core::*;
 use hypervisor_host_vmm_config::*;
 use hypervisor_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
+use hypervisor_vmm_core::*;
 use icecap_std::prelude::*;
 use icecap_std::rpc::{self, RPC};
 use icecap_std::sel4::fault::*;

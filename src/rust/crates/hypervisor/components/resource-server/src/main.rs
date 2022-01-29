@@ -5,10 +5,10 @@
 extern crate alloc;
 
 use dyndl_realize_simple::initialize_simple_realizer_from_config;
-use icecap_generic_timer_server_client::*;
 use hypervisor_resource_server_config::*;
 use hypervisor_resource_server_core::*;
 use hypervisor_resource_server_types::*;
+use icecap_generic_timer_server_client::*;
 use icecap_std::{prelude::*, rpc, sync::*};
 
 use hypervisor_event_server_types;

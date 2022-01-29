@@ -2,8 +2,8 @@ use std::fs;
 
 use clap::{App, Arg, SubCommand};
 
-use icecap_host_core::*;
 use hypervisor_host_vmm_types::DirectRequest;
+use icecap_host_core::*;
 
 fn main() -> Result<()> {
     let matches = App::new("")

@@ -45,13 +45,14 @@ impl Host {
                 } {
                     for (j, entry) in fill.iter().enumerate() {
                         let content = &fill_content[offset..offset + entry.length];
-                        let header =
-                            postcard::to_allocvec(&hypervisor_resource_server_types::FillChunkHeader {
+                        let header = postcard::to_allocvec(
+                            &hypervisor_resource_server_types::FillChunkHeader {
                                 object_index: i,
                                 fill_entry_index: j,
                                 size: content.len(),
-                            })
-                            .unwrap();
+                            },
+                        )
+                        .unwrap();
                         let size = header.len() + content.len();
                         if acc.len() + size > bulk_transport_chunk_size {
                             bulk_transport.send_fill(realm_id, &acc)?;

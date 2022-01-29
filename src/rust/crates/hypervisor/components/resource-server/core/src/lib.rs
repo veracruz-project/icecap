@@ -8,11 +8,11 @@ use alloc::prelude::v1::*;
 
 use dyndl_realize::*;
 use dyndl_types::*;
+use hypervisor_event_server_types as event_server;
+use hypervisor_resource_server_types::*;
 use icecap_core::prelude::*;
 use icecap_core::rpc;
-use hypervisor_event_server_types as event_server;
 use icecap_generic_timer_server_client::TimerClient;
-use hypervisor_resource_server_types::*;
 
 mod cpu;
 

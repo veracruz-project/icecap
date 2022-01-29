@@ -5,8 +5,8 @@ extern crate alloc;
 use alloc::collections::BTreeMap;
 use alloc::vec::Vec;
 
-use icecap_config::*;
 use hypervisor_event_server_types::*;
+use icecap_config::*;
 
 use serde::{Deserialize, Serialize};
 
