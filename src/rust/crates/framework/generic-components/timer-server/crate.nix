@@ -1,6 +1,6 @@
-{ mkComponent, localCrates }:
+{ mkSeL4Bin, localCrates }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "icecap-generic-timer-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
@@ -21,5 +21,5 @@ mkComponent {
     cfg-if = "*";
     tock-registers = "*";
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

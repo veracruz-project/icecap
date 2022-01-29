@@ -1,6 +1,6 @@
-{ mkComponent, localCrates }:
+{ mkSeL4Bin, localCrates }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "realm-vmm";
   nix.local.dependencies = with localCrates; [
     biterate
@@ -10,5 +10,5 @@ mkComponent {
     icecap-vmm
     icecap-event-server-types
   ];
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

@@ -9,5 +9,5 @@ mk {
     log = "*";
     serde = serdeMin;
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

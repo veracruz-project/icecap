@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkLinuxBin, localCrates }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "icecap-serialize-runtime-config";
   nix.local.dependencies = with localCrates; [
     icecap-runtime-config

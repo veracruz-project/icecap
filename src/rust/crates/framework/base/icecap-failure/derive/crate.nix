@@ -1,6 +1,6 @@
-{ mk }:
+{ mkLinux }:
 
-mk {
+mkLinux {
   nix.name = "icecap-failure-derive";
   lib.proc-macro = true;
   dependencies = {

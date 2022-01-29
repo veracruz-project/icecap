@@ -1,6 +1,6 @@
-{ mkExcludeBin, localCrates, serdeMin, stdenv }:
+{ mk, localCrates, serdeMin, stdenv }:
 
-mkExcludeBin {
+mk {
   nix.name = "mirage";
   nix.local.dependencies = with localCrates; [
     finite-set
@@ -20,4 +20,5 @@ mkExcludeBin {
   #     "icecap-mirage-glue" "mirage" "sel4asmrun" "c" "gcc"
   #   ];
   # };
+  nix.passthru.excludeFromBuild = true;
 }

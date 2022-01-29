@@ -1,6 +1,6 @@
-{ mkBin, localCrates, postcardCommon }:
+{ mkLinuxBin, localCrates, postcardCommon }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "dyndl-serialize-spec";
   nix.local.dependencies = with localCrates; [
     dyndl-types

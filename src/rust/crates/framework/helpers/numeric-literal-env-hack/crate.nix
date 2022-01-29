@@ -1,6 +1,6 @@
-{ mk }:
+{ mkLinux }:
 
-mk {
+mkLinux {
   nix.name = "numeric-literal-env-hack";
   lib.proc-macro = true;
   dependencies = {

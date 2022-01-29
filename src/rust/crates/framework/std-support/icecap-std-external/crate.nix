@@ -1,6 +1,6 @@
-{ mkExclude, localCrates }:
+{ mk, localCrates }:
 
-mkExclude {
+mk {
   nix.name = "icecap-std-external";
   nix.local.dependencies = with localCrates; [
     icecap-core
@@ -8,5 +8,5 @@ mkExclude {
   dependencies = {
     log = "*";
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromBuild = true;
 }

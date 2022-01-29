@@ -1,6 +1,6 @@
-{ mk, localCrates }:
+{ mkLinux }:
 
-mk {
+mkLinux {
   nix.name = "finite-set-derive";
   lib.proc-macro = true;
   dependencies = {

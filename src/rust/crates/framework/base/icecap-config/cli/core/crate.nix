@@ -1,6 +1,6 @@
-{ mk, postcardCommon }:
+{ mkLinux, postcardCommon }:
 
-mk {
+mkLinux {
   nix.name = "icecap-config-cli-core";
   dependencies = {
     serde = "*";

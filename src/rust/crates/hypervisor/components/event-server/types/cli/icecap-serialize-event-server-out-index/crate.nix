@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkLinuxBin, localCrates }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "icecap-serialize-event-server-out-index";
   nix.local.dependencies = with localCrates; [
     icecap-event-server-types
@@ -10,5 +10,5 @@ mkBin {
     serde = "*";
     serde_json = "*";
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

@@ -1,6 +1,6 @@
-{ mkBin, localCrates, postcardCommon }:
+{ mkLinuxBin, localCrates, postcardCommon }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "icecap-show-backtrace";
   nix.local.dependencies = with localCrates; [
     icecap-backtrace-types

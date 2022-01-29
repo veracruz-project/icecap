@@ -9,5 +9,5 @@ mk {
   dependencies = {
     serde = serdeMin;
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkLinuxBin, localCrates }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "crosvm-9p-server-cli";
   nix.local.dependencies = with localCrates; [
     crosvm-9p-server

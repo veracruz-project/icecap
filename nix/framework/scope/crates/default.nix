@@ -13,14 +13,13 @@ let
   callCrate = path:
 
     let
-      mkBase = isBin: isSeL4: exclude: args:
+      mkBase = preArgs: args:
         let
           passthru = args.nix.passthru or {};
         in
           crateUtils.mkCrate (crateUtils.clobber [
             {
               nix.srcPath = icecapSrc.absolute (path + "/src");
-              nix.isBin = isBin;
               nix.buildScript =
                 if (passthru.buildScriptPath or null) != null
                 then icecapSrc.absoluteSplit (path + "/${passthru.buildScriptPath}")
@@ -30,12 +29,15 @@ let
                 path = (icecapSrc.absoluteSplit (path + "/${name}")).${k};
               }));
               nix.passthru.path = path;
-              nix.passthru.isSeL4 = isSeL4;
-              nix.passthru.exclude = exclude;
             }
-            (lib.optionalAttrs (!(passthru ? noDoc)) {
-              nix.passthru.noDoc = false;
-            })
+            {
+              # defaults
+              nix.passthru.requiresSeL4 = false;
+              nix.passthru.requiresLinux = false;
+              nix.passthru.excludeFromDocs = false;
+              nix.passthru.excludeFromBuild = false;
+            }
+            preArgs
             args
           ]);
 
@@ -43,12 +45,12 @@ let
 
       inherit localCrates;
 
-      mk = mkBase false false false;
-      mkBin = mkBase true false false;
-      mkSeL4 = mkBase false true false;
-      mkComponent = mkBase true true false;
-      mkExclude = mkBase false false true;
-      mkExcludeBin = mkBase true false true;
+      mk = mkBase {};
+      mkBin = mkBase { nix.isBin = true; };
+      mkSeL4 = mkBase { nix.passthru.requiresSeL4 = true; };
+      mkLinux = mkBase { nix.passthru.requiresLinux = true; };
+      mkSeL4Bin = mkBase { nix.isBin = true; nix.passthru.requiresSeL4 = true; };
+      mkLinuxBin = mkBase { nix.isBin = true; nix.passthru.requiresLinux = true; };
 
       inherit patches;
 
@@ -61,9 +63,9 @@ let
   # HACK
   patches = icecapExternalSrc.crates.git;
 
-  cratesForSeL4 = lib.filterAttrs (_: crate: crate.hack.elaboratedNix.passthru.isSeL4 && !crate.hack.elaboratedNix.passthru.exclude) localCrates;
-  cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.isSeL4 && !crate.hack.elaboratedNix.passthru.exclude) localCrates;
-  cratesForDocs = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.noDoc && !crate.hack.elaboratedNix.passthru.exclude) localCrates;
+  cratesForSeL4 = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.requiresLinux && !crate.hack.elaboratedNix.passthru.excludeFromBuild) localCrates;
+  cratesForLinux = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.requiresSeL4 && !crate.hack.elaboratedNix.passthru.excludeFromBuild) localCrates;
+  cratesForDocs = lib.filterAttrs (_: crate: !crate.hack.elaboratedNix.passthru.excludeFromDocs && !crate.hack.elaboratedNix.passthru.excludeFromBuild) localCrates;
 
   mkCratesForTxt = attrs: writeText "crates.txt" (lib.concatStrings (lib.sort (x: y: x < y) (lib.mapAttrsToList (k: _: "${k}\n") attrs)));
 

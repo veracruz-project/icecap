@@ -1,6 +1,6 @@
-{ mkComponent, localCrates }:
+{ mkSeL4Bin, localCrates }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "event-server";
   nix.local.dependencies = with localCrates; [
     biterate
@@ -10,5 +10,5 @@ mkComponent {
     icecap-event-server-types
     icecap-event-server-config
   ];
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

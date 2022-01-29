@@ -1,6 +1,6 @@
-{ mkComponent, localCrates, serdeMin, postcardCommon }:
+{ mkSeL4Bin, localCrates, serdeMin, postcardCommon }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "resource-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
@@ -18,5 +18,5 @@ mkComponent {
     postcard = postcardCommon;
     serde = serdeMin;
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

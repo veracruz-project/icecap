@@ -1,6 +1,6 @@
-{ mkComponent, localCrates }:
+{ mkSeL4Bin, localCrates }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "benchmark-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
@@ -11,5 +11,5 @@ mkComponent {
   dependencies = {
     cfg-if = "*";
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

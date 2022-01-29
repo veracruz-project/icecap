@@ -1,6 +1,6 @@
-{ mk }:
+{ mkLinux }:
 
-mk {
+mkLinux {
   nix.name = "crosvm-9p-wire-format-derive";
   lib.proc-macro = true;
   dependencies = {

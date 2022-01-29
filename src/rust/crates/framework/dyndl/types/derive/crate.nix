@@ -1,6 +1,6 @@
-{ mk }:
+{ mkLinux }:
 
-mk {
+mkLinux {
   nix.name = "dyndl-types-derive";
   lib.proc-macro = true;
   dependencies = {

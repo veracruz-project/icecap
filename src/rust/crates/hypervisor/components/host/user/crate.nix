@@ -1,6 +1,6 @@
-{ mk, localCrates, postcardCommon }:
+{ mkLinux, localCrates, postcardCommon }:
 
-mk {
+mkLinux {
   nix.name = "icecap-host-user";
   nix.local.dependencies = with localCrates; [
     dyndl-types
@@ -13,5 +13,5 @@ mk {
     cfg-if = "*";
     postcard = postcardCommon;
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

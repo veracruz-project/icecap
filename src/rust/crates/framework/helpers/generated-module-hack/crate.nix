@@ -1,6 +1,6 @@
-{ mk }:
+{ mkLinux }:
 
-mk {
+mkLinux {
   nix.name = "generated-module-hack";
   lib.proc-macro = true;
   dependencies = {

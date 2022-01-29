@@ -1,6 +1,6 @@
-{ mk, localCrates }:
+{ mkLinux, localCrates }:
 
-mk {
+mkLinux {
   nix.name = "crosvm-9p";
   nix.local.dependencies = with localCrates; [
     crosvm-9p-wire-format-derive

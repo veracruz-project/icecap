@@ -7,5 +7,5 @@ mkSeL4 {
     icecap-rpc
     icecap-generic-timer-server-types
   ];
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

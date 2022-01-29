@@ -1,6 +1,6 @@
-{ mkComponent, localCrates }:
+{ mkSeL4Bin, localCrates }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "host-vmm";
   nix.local.dependencies = with localCrates; [
     biterate
@@ -16,5 +16,5 @@ mkComponent {
   dependencies = {
     cfg-if = "*";
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

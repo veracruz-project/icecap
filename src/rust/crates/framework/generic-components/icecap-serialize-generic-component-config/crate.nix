@@ -1,6 +1,6 @@
-{ mkBin, localCrates, postcardCommon }:
+{ mkLinuxBin, localCrates, postcardCommon }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "icecap-serialize-generic-component-config";
   nix.local.dependencies = with localCrates; [
     icecap-config-cli-core
@@ -13,5 +13,5 @@ mkBin {
     serde_json = "*";
     postcard = postcardCommon;
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

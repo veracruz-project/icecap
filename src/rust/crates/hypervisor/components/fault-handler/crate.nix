@@ -1,10 +1,10 @@
-{ mkComponent, localCrates }:
+{ mkSeL4Bin, localCrates }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "fault-handler";
   nix.local.dependencies = with localCrates; [
     icecap-std
     icecap-fault-handler-config
   ];
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

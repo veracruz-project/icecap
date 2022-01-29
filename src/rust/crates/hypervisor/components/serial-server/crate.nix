@@ -1,6 +1,6 @@
-{ mkComponent, localCrates, serdeMin }:
+{ mkSeL4Bin, localCrates, serdeMin }:
 
-mkComponent {
+mkSeL4Bin {
   nix.name = "serial-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
@@ -19,5 +19,5 @@ mkComponent {
     tock-registers = "*";
     serde = serdeMin;
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }

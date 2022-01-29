@@ -1,6 +1,6 @@
-{ mkBin, localCrates }:
+{ mkLinuxBin, localCrates }:
 
-mkBin {
+mkLinuxBin {
   nix.name = "icecap-host";
   nix.local.dependencies = with localCrates; [
     icecap-host-user
@@ -9,5 +9,5 @@ mkBin {
   dependencies = {
     clap = "*";
   };
-  nix.passthru.noDoc = true;
+  nix.passthru.excludeFromDocs = true;
 }
