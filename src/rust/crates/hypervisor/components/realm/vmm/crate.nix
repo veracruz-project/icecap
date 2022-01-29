@@ -7,7 +7,7 @@ mkSeL4Bin {
     finite-set
     icecap-realm-vmm-config
     icecap-std
-    icecap-vmm
+    hypervisor-vmm-core
     icecap-event-server-types
   ];
   nix.passthru.excludeFromDocs = true;

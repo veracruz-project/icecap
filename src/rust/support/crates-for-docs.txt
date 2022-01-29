@@ -12,6 +12,7 @@ dyndl-types-derive
 finite-set
 finite-set-derive
 generated-module-hack
+hypervisor-vmm-core
 icecap-backtrace
 icecap-backtrace-collect
 icecap-backtrace-types
@@ -51,7 +52,6 @@ icecap-std
 icecap-sync
 icecap-unwind
 icecap-virt-timer-driver
-icecap-vmm
 icecap-vmm-gic
 icecap-vmm-psci
 numeric-literal-env-hack

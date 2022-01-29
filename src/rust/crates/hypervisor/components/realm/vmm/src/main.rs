@@ -7,7 +7,7 @@ use finite_set::Finite;
 use icecap_realm_vmm_config::*;
 use icecap_std::prelude::*;
 use icecap_std::sel4::fault::*;
-use icecap_vmm::*;
+use hypervisor_vmm_core::*;
 
 declare_main!(main);
 

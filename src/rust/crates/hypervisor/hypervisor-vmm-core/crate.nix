@@ -1,7 +1,7 @@
 { mkSeL4, localCrates }:
 
 mkSeL4 {
-  nix.name = "icecap-vmm";
+  nix.name = "hypervisor-vmm-core";
   nix.local.dependencies = with localCrates; [
     biterate
     icecap-core

@@ -80,7 +80,7 @@
 
   # hypervisor
 
-  icecap-vmm = ./crates/hypervisor/icecap-vmm;
+  hypervisor-vmm-core = ./crates/hypervisor/hypervisor-vmm-core;
   hypervisor-fdt-bindings = ./crates/hypervisor/hypervisor-fdt-bindings;
   hypervisor-fdt-append-devices = ./crates/hypervisor/hypervisor-fdt-bindings/cli/hypervisor-fdt-append-devices;
   hypervisor-serialize-component-config = ./crates/hypervisor/hypervisor-serialize-component-config;

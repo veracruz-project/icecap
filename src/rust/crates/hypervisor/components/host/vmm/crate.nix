@@ -7,7 +7,7 @@ mkSeL4Bin {
     finite-set
     icecap-host-vmm-config
     icecap-std
-    icecap-vmm
+    hypervisor-vmm-core
     icecap-event-server-types
     icecap-resource-server-types
     icecap-benchmark-server-types

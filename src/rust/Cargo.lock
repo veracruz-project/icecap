@@ -550,13 +550,13 @@ dependencies = [
  "biterate",
  "cfg-if 1.0.0",
  "finite-set",
+ "hypervisor-vmm-core",
  "icecap-benchmark-server-types",
  "icecap-event-server-types",
  "icecap-host-vmm-config",
  "icecap-host-vmm-types",
  "icecap-resource-server-types",
  "icecap-std",
- "icecap-vmm",
 ]
 
 [[package]]
@@ -600,6 +600,18 @@ dependencies = [
  "postcard",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "hypervisor-vmm-core"
+version = "0.1.0"
+dependencies = [
+ "biterate",
+ "icecap-core",
+ "icecap-event-server-types",
+ "icecap-vmm-gic",
+ "icecap-vmm-psci",
+ "log",
 ]
 
 [[package]]
@@ -1167,18 +1179,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "icecap-vmm"
-version = "0.1.0"
-dependencies = [
- "biterate",
- "icecap-core",
- "icecap-event-server-types",
- "icecap-vmm-gic",
- "icecap-vmm-psci",
- "log",
-]
-
-[[package]]
 name = "icecap-vmm-gic"
 version = "0.1.0"
 dependencies = [
@@ -1484,10 +1484,10 @@ version = "0.1.0"
 dependencies = [
  "biterate",
  "finite-set",
+ "hypervisor-vmm-core",
  "icecap-event-server-types",
  "icecap-realm-vmm-config",
  "icecap-std",
- "icecap-vmm",
 ]
 
 [[package]]

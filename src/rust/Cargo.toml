@@ -95,7 +95,7 @@ members = [
     "crates/hypervisor/hypervisor-fdt-bindings",
     "crates/hypervisor/hypervisor-fdt-bindings/cli/hypervisor-fdt-append-devices",
     "crates/hypervisor/hypervisor-serialize-component-config",
-    "crates/hypervisor/icecap-vmm",
+    "crates/hypervisor/hypervisor-vmm-core",
 ]
 
 [profile.release]

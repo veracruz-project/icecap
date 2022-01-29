@@ -9,6 +9,7 @@ fault-handler
 finite-set
 host-vmm
 hypervisor-fdt-bindings
+hypervisor-vmm-core
 icecap-backtrace
 icecap-backtrace-collect
 icecap-backtrace-types
@@ -58,7 +59,6 @@ icecap-std-impl
 icecap-sync
 icecap-unwind
 icecap-virt-timer-driver
-icecap-vmm
 icecap-vmm-gic
 icecap-vmm-psci
 idle
