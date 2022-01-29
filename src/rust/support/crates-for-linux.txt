@@ -10,6 +10,7 @@ dyndl-types-derive
 finite-set
 finite-set-derive
 generated-module-hack
+hypervisor-serialize-component-config
 icecap-append-devices
 icecap-backtrace-types
 icecap-benchmark-server-config
@@ -39,7 +40,6 @@ icecap-rpc-types
 icecap-runtime-config
 icecap-sel4-derive
 icecap-serial-server-config
-icecap-serialize-builtin-config
 icecap-serialize-event-server-out-index
 icecap-serialize-generic-component-config
 icecap-serialize-runtime-config

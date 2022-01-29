@@ -56,7 +56,7 @@ class EventServer(ElfComponent):
             }
 
     def serialize_arg(self):
-        return ('icecap-serialize-builtin-config', 'event-server')
+        return ('hypervisor-serialize-component-config', 'event-server')
 
     def arg_json(self):
         return self._arg

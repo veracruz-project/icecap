@@ -407,7 +407,7 @@ class VMM(ElfComponent):
             ty = 'host-vmm'
         else:
             ty = 'realm-vmm'
-        return ('icecap-serialize-builtin-config', ty)
+        return ('hypervisor-serialize-component-config', ty)
 
     def arg_json(self):
         return self._arg

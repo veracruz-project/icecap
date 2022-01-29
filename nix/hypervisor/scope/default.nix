@@ -7,7 +7,7 @@ self: super: with self; {
   icecap-host = callPackage ./icecap-host.nix {};
 
   icecap-append-devices = mkTool globalCrates.icecap-append-devices;
-  icecap-serialize-builtin-config = mkTool globalCrates.icecap-serialize-builtin-config;
+  hypervisor-serialize-component-config = mkTool globalCrates.hypervisor-serialize-component-config;
   icecap-serialize-event-server-out-index = mkTool globalCrates.icecap-serialize-event-server-out-index;
 
   firecracker = callPackage ./firecracker/firecracker.nix {};

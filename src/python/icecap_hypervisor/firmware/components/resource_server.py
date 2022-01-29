@@ -73,7 +73,7 @@ class ResourceServer(SimpleRealizer):
             yield (host.cspace().alloc(ep, badge=0, write=True, grantreply=True), host.vm.cspace().alloc(ep, badge=1, write=True, grantreply=True))
 
     def serialize_arg(self):
-        return ('icecap-serialize-builtin-config', 'resource-server')
+        return ('hypervisor-serialize-component-config', 'resource-server')
 
     def arg_json(self):
         return self._arg

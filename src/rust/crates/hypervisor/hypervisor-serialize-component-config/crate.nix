@@ -1,7 +1,7 @@
 { mkLinuxBin, localCrates, postcardCommon }:
 
 mkLinuxBin {
-  nix.name = "icecap-serialize-builtin-config";
+  nix.name = "hypervisor-serialize-component-config";
   nix.local.dependencies = with localCrates; [
     icecap-config-cli-core
 
@@ -14,7 +14,6 @@ mkLinuxBin {
     icecap-benchmark-server-config
     icecap-mirage-config
   ];
-
   dependencies = {
     serde = "*";
     serde_json = "*";

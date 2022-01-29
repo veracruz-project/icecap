@@ -1,6 +1,6 @@
 { mkIceDL
 , icecap-append-devices
-, icecap-serialize-builtin-config
+, hypervisor-serialize-component-config
 , icecap-serialize-event-server-out-index
 }:
 
@@ -17,7 +17,7 @@
 }))).overrideAttrs (attrs: {
   nativeBuildInputs = attrs.nativeBuildInputs ++ [
     icecap-append-devices
-    icecap-serialize-builtin-config
+    hypervisor-serialize-component-config
     icecap-serialize-event-server-out-index
   ];
 })

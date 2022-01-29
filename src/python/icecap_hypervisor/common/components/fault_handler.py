@@ -21,7 +21,7 @@ class FaultHandler(ElfComponent):
             }
 
     def serialize_arg(self):
-        return ('icecap-serialize-builtin-config', 'fault-handler')
+        return ('hypervisor-serialize-component-config', 'fault-handler')
 
     def arg_json(self):
         return {
