@@ -77,7 +77,7 @@ rec {
         inherit (elaboratedNix) name;
         store = mkLink elaboratedNix.extraLinks.store (mk elaboratedNix.src.store (elaboratedNix.buildScript.store or null));
         env = mkLink elaboratedNix.extraLinks.env (mk elaboratedNix.src.env (elaboratedNix.buildScript.env or null));
-        dummy = mkLink elaboratedNix.extraLinks.store (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
+        dummy = mkLink elaboratedNix.extraLinks.store (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) dummyBuildScript);
         localDependencies = flatten elaboratedNix.local;
 
         closure = {
@@ -102,28 +102,32 @@ rec {
   dummySrcBin = linkFarm "dummy-src" [
     (rec {
       name = "main.rs";
-      path = writeText name ''
-        #![cfg_attr(target_os = "icecap", no_std)]
-        #![cfg_attr(target_os = "icecap", no_main)]
-        #![cfg_attr(target_os = "icecap", feature(lang_items))]
-
-        #[cfg(target_os = "icecap")]
-        #[panic_handler]
-        extern fn panic_handler(_: &core::panic::PanicInfo) -> ! {
-          todo!()
-        }
-
-        #[cfg(target_os = "icecap")]
-        #[lang = "eh_personality"]
-        extern fn eh_personality() {
-        }
-
-        #[cfg(not(target_os = "icecap"))]
-        fn main() {
-        }
-      '';
+      path = dummyMain name;
     })
   ];
+
+  dummyBuildScript = dummyMain "build.rs";
+
+  dummyMain = name: writeText name ''
+    #![cfg_attr(target_os = "icecap", no_std)]
+    #![cfg_attr(target_os = "icecap", no_main)]
+    #![cfg_attr(target_os = "icecap", feature(lang_items))]
+
+    #[cfg(target_os = "icecap")]
+    #[panic_handler]
+    extern fn panic_handler(_: &core::panic::PanicInfo) -> ! {
+      todo!()
+    }
+
+    #[cfg(target_os = "icecap")]
+    #[lang = "eh_personality"]
+    extern fn eh_personality() {
+    }
+
+    #[cfg(not(target_os = "icecap"))]
+    fn main() {
+    }
+  '';
 
   mkLink = extra: manifest: linkFarm "crate" ([
     { name = "Cargo.toml"; path = manifest; }
