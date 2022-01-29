@@ -60,7 +60,7 @@ macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ({
         // NOTE
-        // If feature(format_args_nl) is evel stabilized, replace with:
+        // If feature(format_args_nl) is ever stabilized, replace with:
         // $crate::fmt::_print(format_args_nl!($($arg)*));
         $crate::print!($($arg)*);
         $crate::print!("\n");

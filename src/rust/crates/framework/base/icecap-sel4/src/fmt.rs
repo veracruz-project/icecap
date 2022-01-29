@@ -29,7 +29,7 @@ macro_rules! debug_println {
     () => ($crate::debug_print!("\n"));
     ($($arg:tt)*) => ({
         // NOTE
-        // If feature(format_args_nl) is evel stabilized, replace with:
+        // If feature(format_args_nl) is ever stabilized, replace with:
         // $crate::_fmt::_debug_print(format_args_nl!($($arg)*));
         $crate::debug_print!($($arg)*);
         $crate::debug_print!("\n");

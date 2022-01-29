@@ -1,6 +1,5 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn;
 
 #[proc_macro_derive(LocalCPtr)]
 pub fn local_cptr_derive(input: TokenStream) -> TokenStream {
