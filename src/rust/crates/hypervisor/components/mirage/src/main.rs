@@ -17,6 +17,7 @@ use icecap_mirage_core::ocaml;
 use icecap_std::{
     config::RingBufferKicksConfig, prelude::*, ring_buffer::*, rpc, sel4::sys::c_types::c_int,
     sync::*,
+    fmt::set_print_debug,
 };
 
 mod syscall;
@@ -36,6 +37,8 @@ pub struct State {
 }
 
 fn main(config: Config) -> Fallible<()> {
+    set_print_debug();
+
     GLOBAL_STATE.set(config.lock);
 
     let event_server_bitfield = unsafe { EventServerBitfield::new(config.event_server_bitfield) };

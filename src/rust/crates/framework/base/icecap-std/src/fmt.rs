@@ -11,6 +11,10 @@ unsafe_static_mutex!(Lock, icecap_runtime_print_lock);
 static GLOBAL_PRINT: GenericMutex<Lock, Option<Box<dyn Print + Send>>> =
     GenericMutex::new(Lock, None);
 
+// TODO which of the following is a more appropriate default?
+//  - 'None'
+//  - 'Some(Box::new(DebugPrint))'
+
 pub trait Print {
     // HACK workaround for https://doc.rust-lang.org/reference/items/traits.html#object-safety (see 'PrintWrapper')
     fn write_str(&mut self, s: &str) -> fmt::Result;
@@ -23,6 +27,10 @@ pub trait Print {
 pub fn set_print(print: Box<dyn Print + Send>) {
     let mut global_print = GLOBAL_PRINT.lock();
     *global_print = Some(print);
+}
+
+pub fn set_print_debug() {
+    set_print(Box::new(DebugPrint))
 }
 
 pub fn flush_print() -> Fallible<()> {
