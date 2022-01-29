@@ -7,7 +7,7 @@ extern crate alloc;
 use serde::{Serialize, Deserialize};
 
 use icecap_std::prelude::*;
-use icecap_std::rpc_sel4::*;
+use icecap_std::rpc;
 use icecap_start_generic::declare_generic_main;
 use icecap_benchmark_server_types as benchmark_server;
 
@@ -32,7 +32,7 @@ fn main(config: Config) -> Fallible<()> {
     let start = read_cntvct_el0();
     debug_println!("start = {}", start);
 
-    let client = RPCClient::new(ep);
+    let client = rpc::Client::new(ep);
 
     client
         .call::<benchmark_server::Response>(&benchmark_server::Request::Start)

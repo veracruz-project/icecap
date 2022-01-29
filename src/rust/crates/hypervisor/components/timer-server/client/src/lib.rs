@@ -4,7 +4,7 @@ use icecap_rpc as rpc;
 use icecap_sel4::*;
 use icecap_timer_server_types::{Result as TimerServerResult, *};
 
-#[derive(Clone)] // HACK
+#[derive(Clone)]
 pub struct TimerClient {
     ep: rpc::Client<Request>,
 }
