@@ -9,7 +9,9 @@ use alloc::sync::Arc;
 
 use icecap_event_server_config::*;
 use icecap_event_server_types::*;
-use icecap_std::{prelude::*, rpc_sel4::*, sync::*};
+use icecap_std::prelude::*;
+use icecap_std::rpc;
+use icecap_std::sync::*;
 
 mod server;
 
@@ -86,7 +88,7 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                 reply(MessageInfo::empty());
             }
             BADGE_TYPE_CLIENT => {
-                let req = rpc_server::recv::<calls::Client>(&info);
+                let req = rpc::server::recv::<calls::Client>(&info);
                 let mut server = server.lock();
                 let client_badge = &badges.client_badges[badge_value as usize];
                 let client = match client_badge {
@@ -96,51 +98,51 @@ fn run(server: &Mutex<EventServer>, endpoint: Endpoint, badges: &Badges) -> Fall
                     ClientId::Realm(rid) => server.realms.get_mut(&rid).unwrap(),
                 };
                 match req {
-                    calls::Client::Signal { index } => rpc_server::reply(&client.signal(index)?),
-                    calls::Client::SEV { nid } => rpc_server::reply(&client.sev(nid)?),
-                    calls::Client::Poll { nid } => rpc_server::reply(&client.poll(nid)?),
+                    calls::Client::Signal { index } => rpc::server::reply(&client.signal(index)?),
+                    calls::Client::SEV { nid } => rpc::server::reply(&client.sev(nid)?),
+                    calls::Client::Poll { nid } => rpc::server::reply(&client.poll(nid)?),
                     calls::Client::End { nid, index } => {
-                        rpc_server::reply(&client.end(nid, index)?)
+                        rpc::server::reply(&client.end(nid, index)?)
                     }
                     calls::Client::Configure { nid, index, action } => {
-                        rpc_server::reply(&client.configure(nid, index, action)?)
+                        rpc::server::reply(&client.configure(nid, index, action)?)
                     }
                     calls::Client::Move {
                         src_nid,
                         src_index,
                         dst_nid,
                         dst_index,
-                    } => rpc_server::reply(&client.move_(src_nid, src_index, dst_nid, dst_index)?),
+                    } => rpc::server::reply(&client.move_(src_nid, src_index, dst_nid, dst_index)?),
                 }
             }
             BADGE_TYPE_CONTROL => {
                 if badge_value == badges.resource_server_badge {
-                    let req = rpc_server::recv::<calls::ResourceServer>(&info);
+                    let req = rpc::server::recv::<calls::ResourceServer>(&info);
                     let mut server = server.lock();
                     match req {
                         calls::ResourceServer::Subscribe { nid, host_nid } => {
-                            rpc_server::reply(&server.resource_server_subscribe(nid, host_nid)?)
+                            rpc::server::reply(&server.resource_server_subscribe(nid, host_nid)?)
                         }
                         calls::ResourceServer::Unsubscribe { nid, host_nid } => {
-                            rpc_server::reply(&server.resource_server_unsubscribe(nid, host_nid)?)
+                            rpc::server::reply(&server.resource_server_unsubscribe(nid, host_nid)?)
                         }
                         calls::ResourceServer::CreateRealm {
                             realm_id,
                             num_nodes,
-                        } => rpc_server::reply(&server.create_realm(realm_id, num_nodes)?),
+                        } => rpc::server::reply(&server.create_realm(realm_id, num_nodes)?),
                         calls::ResourceServer::DestroyRealm { realm_id } => {
-                            rpc_server::reply(&server.destroy_realm(realm_id)?)
+                            rpc::server::reply(&server.destroy_realm(realm_id)?)
                         }
                     }
                 } else if badge_value == badges.host_badge {
-                    let req = rpc_server::recv::<calls::Host>(&info);
+                    let req = rpc::server::recv::<calls::Host>(&info);
                     let mut server = server.lock();
                     match req {
                         calls::Host::Subscribe {
                             nid,
                             realm_id,
                             realm_nid,
-                        } => rpc_server::reply(&server.host_subscribe(nid, realm_id, realm_nid)?),
+                        } => rpc::server::reply(&server.host_subscribe(nid, realm_id, realm_nid)?),
                     }
                 } else {
                     panic!()

@@ -32,7 +32,7 @@ icecap-mirage-config
 icecap-realm-vmm-config
 icecap-resource-server-config
 icecap-resource-server-types
-icecap-rpc
+icecap-rpc-types
 icecap-runtime-config
 icecap-sel4-derive
 icecap-serial-server-config

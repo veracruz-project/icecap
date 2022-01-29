@@ -1,18 +1,18 @@
 #![no_std]
 
-use icecap_rpc_sel4::*;
+use icecap_rpc as rpc;
 use icecap_sel4::*;
 use icecap_timer_server_types::{Result as TimerServerResult, *};
 
 #[derive(Clone)] // HACK
 pub struct TimerClient {
-    ep: RPCClient<Request>,
+    ep: rpc::Client<Request>,
 }
 
 impl TimerClient {
     pub fn new(ep: Endpoint) -> Self {
         Self {
-            ep: RPCClient::new(ep),
+            ep: rpc::Client::new(ep),
         }
     }
 

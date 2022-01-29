@@ -11,7 +11,7 @@ use icecap_start_generic::declare_generic_main;
 use icecap_std::config::*;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::*;
-use icecap_std::rpc_sel4::RPCClient;
+use icecap_std::rpc;
 
 use timer_server_types::{Nanoseconds, Request, NS_IN_S};
 
@@ -35,7 +35,7 @@ struct Badges {
 
 struct State {
     serial_client: BufferedRingBuffer,
-    timer_client: RPCClient<Request>,
+    timer_client: rpc::Client<Request>,
 }
 
 fn main(config: Config) -> Fallible<()> {
@@ -43,7 +43,7 @@ fn main(config: Config) -> Fallible<()> {
         serial_client: BufferedRingBuffer::new(RingBuffer::unmanaged_from_config(
             &config.serial_server_ring_buffer,
         )),
-        timer_client: RPCClient::<Request>::new(config.timer_server_ep),
+        timer_client: rpc::Client::<Request>::new(config.timer_server_ep),
     };
 
     state.init();

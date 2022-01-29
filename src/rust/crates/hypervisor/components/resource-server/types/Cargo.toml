@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-icecap-rpc = { path = "../../../../framework/base/icecap-rpc" }
+icecap-rpc-types = { path = "../../../../framework/base/icecap-rpc/types" }

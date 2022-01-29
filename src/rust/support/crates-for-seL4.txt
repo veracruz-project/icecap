@@ -16,7 +16,7 @@ icecap-pl011-driver
 icecap-plat
 icecap-resource-server-core
 icecap-ring-buffer
-icecap-rpc-sel4
+icecap-rpc
 icecap-runtime
 icecap-sel4
 icecap-sel4-sys

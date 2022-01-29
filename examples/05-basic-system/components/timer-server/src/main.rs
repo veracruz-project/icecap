@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use icecap_driver_interfaces::TimerDevice;
 use icecap_start_generic::declare_generic_main;
-use icecap_std::{prelude::*, rpc_sel4::rpc_server};
+use icecap_std::{prelude::*, rpc};
 use icecap_virt_timer_driver::VirtTimerDevice;
 
 use timer_server_types::{Request, NS_IN_S};
@@ -57,19 +57,19 @@ fn main(config: Config) -> Fallible<()> {
             config.irq_handler.ack()?;
         }
         if badge & config.badges.client != 0 {
-            match rpc_server::recv::<Request>(&info) {
+            match rpc::server::recv::<Request>(&info) {
                 Request::SetTimeout(ns) => {
                     let ticks = ns_to_ticks(ns);
                     let compare = ticks + dev.get_count();
                     compare_state = Some(compare);
                     dev.set_compare(compare);
                     dev.set_enable(true);
-                    rpc_server::reply(&());
+                    rpc::server::reply(&());
                 }
                 Request::GetTime => {
                     let ticks = dev.get_count();
                     let response = ticks_to_ns(ticks);
-                    rpc_server::reply(&response);
+                    rpc::server::reply(&response);
                 }
             }
         }

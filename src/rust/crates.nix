@@ -6,7 +6,7 @@
   icecap-runtime = ./crates/framework/base/icecap-runtime;
   icecap-sync = ./crates/framework/base/icecap-sync;
   icecap-rpc = ./crates/framework/base/icecap-rpc;
-  icecap-rpc-sel4 = ./crates/framework/base/icecap-rpc/sel4;
+  icecap-rpc-types = ./crates/framework/base/icecap-rpc/types;
   icecap-ring-buffer = ./crates/framework/base/icecap-ring-buffer;
   icecap-failure = ./crates/framework/base/icecap-failure;
   icecap-failure-derive = ./crates/framework/base/icecap-failure/derive;

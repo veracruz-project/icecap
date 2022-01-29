@@ -8,7 +8,7 @@ use dyndl_realize_simple::initialize_simple_realizer_from_config;
 use icecap_resource_server_config::*;
 use icecap_resource_server_core::*;
 use icecap_resource_server_types::*;
-use icecap_std::{prelude::*, rpc_sel4::*, sync::*};
+use icecap_std::{prelude::*, rpc, sync::*};
 use icecap_timer_server_client::*;
 
 use icecap_event_server_types;
@@ -35,7 +35,7 @@ fn main(config: Config) -> Fallible<()> {
             .map(|local| NodeLocal {
                 reply_slot: local.reply_slot,
                 timer_server_client: TimerClient::new(local.timer_server_client),
-                event_server_control: RPCClient::<EventServerRequest>::new(
+                event_server_control: rpc::Client::<EventServerRequest>::new(
                     local.event_server_control,
                 ),
             })
@@ -100,12 +100,12 @@ fn run(
                 BADGE_HOST_CONTROL =>
                 {
                     #[allow(unused_variables)]
-                    match rpc_server::recv(&info) {
+                    match rpc::server::recv(&info) {
                         Request::Declare {
                             realm_id,
                             spec_size,
                         } => {
-                            rpc_server::reply::<()>(&resource_server.declare(realm_id, spec_size)?)
+                            rpc::server::reply::<()>(&resource_server.declare(realm_id, spec_size)?)
                         }
                         Request::SpecChunk {
                             realm_id,
@@ -121,7 +121,7 @@ fn run(
                                 )
                             };
                             resource_server.incorporate_spec_chunk(realm_id, offset, content)?;
-                            rpc_server::reply::<()>(&());
+                            rpc::server::reply::<()>(&());
                         }
                         Request::FillChunks {
                             realm_id,
@@ -148,19 +148,19 @@ fn run(
                                     content,
                                 )?;
                             }
-                            rpc_server::reply::<()>(&())
+                            rpc::server::reply::<()>(&())
                         }
                         Request::RealizeStart { realm_id } => {
-                            rpc_server::reply::<()>(&resource_server.realize_start(realm_id)?)
+                            rpc::server::reply::<()>(&resource_server.realize_start(realm_id)?)
                         }
-                        Request::RealizeFinish { realm_id } => rpc_server::reply::<()>(
+                        Request::RealizeFinish { realm_id } => rpc::server::reply::<()>(
                             &resource_server.realize_finish(node_index, realm_id)?,
                         ),
-                        Request::Destroy { realm_id } => {
-                            rpc_server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
-                        }
+                        Request::Destroy { realm_id } => rpc::server::reply::<()>(
+                            &resource_server.destroy(node_index, realm_id)?,
+                        ),
                         Request::HackRun { realm_id } => {
-                            rpc_server::reply::<()>(&resource_server.hack_run(realm_id)?)
+                            rpc::server::reply::<()>(&resource_server.hack_run(realm_id)?)
                         }
                     }
                 }
@@ -170,7 +170,7 @@ fn run(
                         realm_id,
                         virtual_node,
                         timeout,
-                    } = rpc_server::recv(&info);
+                    } = rpc::server::recv(&info);
                     resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
                 }
                 BADGE_HOST_EVENT => {

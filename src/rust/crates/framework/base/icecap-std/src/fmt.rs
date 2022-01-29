@@ -69,7 +69,7 @@ macro_rules! println {
 
 // // //
 
-struct DebugPrint;
+pub struct DebugPrint;
 
 impl Print for DebugPrint {
     fn write_str(&mut self, s: &str) -> fmt::Result {
@@ -80,12 +80,12 @@ impl Print for DebugPrint {
     }
 }
 
-struct BufferedRingBufferPrint {
+pub struct BufferedRingBufferPrint {
     ring_buffer: BufferedRingBuffer,
 }
 
 impl BufferedRingBufferPrint {
-    fn new(ring_buffer: BufferedRingBuffer) -> Self {
+    pub fn new(ring_buffer: BufferedRingBuffer) -> Self {
         Self { ring_buffer }
     }
 }

@@ -3,7 +3,7 @@
 mk {
   nix.name = "icecap-resource-server-types";
   nix.local.dependencies = with localCrates; [
-    icecap-rpc
+    icecap-rpc-types
   ];
   dependencies = {
     serde = serdeMin;

@@ -13,4 +13,4 @@ postcard = { version = "*", default-features = false, features = [ "alloc",] }
 dyndl-types = { path = "../../../../framework/dyndl/types" }
 icecap-host-vmm-types = { path = "../vmm/types" }
 icecap-resource-server-types = { path = "../../resource-server/types" }
-icecap-rpc = { path = "../../../../framework/base/icecap-rpc" }
+icecap-rpc-types = { path = "../../../../framework/base/icecap-rpc/types" }

@@ -19,7 +19,7 @@ use icecap_std::{
     prelude::*,
     ring_buffer::*,
     ring_buffer::{BufferedPacketRingBuffer, PacketRingBuffer},
-    rpc_sel4::RPCClient,
+    rpc,
     sel4::sys::c_types::*,
 };
 
@@ -32,7 +32,7 @@ declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
     let net_rb = {
-        let event_server = RPCClient::<EventServerRequest>::new(config.event_server_endpoint);
+        let event_server = rpc::Client::<EventServerRequest>::new(config.event_server_endpoint);
         let index = {
             use events::*;
             RealmOut::RingBuffer(RealmRingBufferOut::Host(RealmRingBufferId::Net))

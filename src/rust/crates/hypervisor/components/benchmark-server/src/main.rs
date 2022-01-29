@@ -6,7 +6,7 @@
 use icecap_benchmark_server_config::*;
 use icecap_benchmark_server_types::*;
 use icecap_std::prelude::*;
-use icecap_std::rpc_sel4::*;
+use icecap_std::rpc;
 
 declare_main!(main);
 
@@ -15,9 +15,9 @@ pub fn main(config: Config) -> Fallible<()> {
     let tcb = config.self_tcb;
     loop {
         let (info, _badge) = ep.recv();
-        let request = rpc_server::recv::<Request>(&info);
+        let request = rpc::server::recv::<Request>(&info);
         let response = handle(tcb, &request)?;
-        rpc_server::reply(&response);
+        rpc::server::reply(&response);
     }
 }
 

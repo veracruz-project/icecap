@@ -31,7 +31,7 @@ icecap-pl011-driver
 icecap-plat
 icecap-ring-buffer
 icecap-rpc
-icecap-rpc-sel4
+icecap-rpc-types
 icecap-runtime
 icecap-runtime-config
 icecap-sel4

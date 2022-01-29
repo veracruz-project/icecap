@@ -9,7 +9,7 @@ use alloc::prelude::v1::*;
 use dyndl_realize::*;
 use dyndl_types::*;
 use icecap_core::prelude::*;
-use icecap_core::rpc_sel4::*;
+use icecap_core::rpc;
 use icecap_event_server_types as event_server;
 use icecap_resource_server_types::*;
 use icecap_timer_server_client::TimerClient;
@@ -34,7 +34,7 @@ pub struct ResourceServer {
 pub struct NodeLocal {
     pub reply_slot: Endpoint,
     pub timer_server_client: TimerClient,
-    pub event_server_control: RPCClient<event_server::calls::ResourceServer>,
+    pub event_server_control: rpc::Client<event_server::calls::ResourceServer>,
 }
 
 struct Realm {
@@ -315,7 +315,7 @@ impl ResourceServer {
         condition: ResumeHostCondition,
     ) -> Fallible<()> {
         // debug_println!("resuming with {:?}", condition);
-        RPCClient::<ResumeHostCondition>::new(self.node_local[physical_node].reply_slot)
+        rpc::Client::<ResumeHostCondition>::new(self.node_local[physical_node].reply_slot)
             .send(&condition);
         Ok(())
     }

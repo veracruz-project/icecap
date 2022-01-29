@@ -8,7 +8,7 @@ extern crate alloc;
 use alloc::sync::Arc;
 
 use icecap_driver_interfaces::TimerDevice;
-use icecap_std::{prelude::*, rpc_sel4::*, sync::*};
+use icecap_std::{prelude::*, rpc, sync::*};
 use icecap_timer_server_config::Config;
 use icecap_timer_server_types::Request;
 
@@ -66,19 +66,19 @@ pub fn run(
                 }
                 _ => {
                     let cid: usize = badge as usize - CLIENT_BADGE_START as usize;
-                    reply(match rpc_server::recv(&recv_info) {
-                        Request::Completed => panic!(), // rpc_server::prepare(server.completed(cid)),
+                    reply(match rpc::server::recv(&recv_info) {
+                        Request::Completed => panic!(), // rpc::server::prepare(server.completed(cid)),
                         Request::Periodic { tid, ns } => {
-                            rpc_server::prepare(&server.periodic(cid, tid, ns as i64))
+                            rpc::server::prepare(&server.periodic(cid, tid, ns as i64))
                         }
                         Request::OneshotAbsolute { tid, ns } => {
-                            rpc_server::prepare(&server.oneshot_absolute(cid, tid, ns as i64))
+                            rpc::server::prepare(&server.oneshot_absolute(cid, tid, ns as i64))
                         }
                         Request::OneshotRelative { tid, ns } => {
-                            rpc_server::prepare(&server.oneshot_relative(cid, tid, ns as i64))
+                            rpc::server::prepare(&server.oneshot_relative(cid, tid, ns as i64))
                         }
-                        Request::Stop { tid } => rpc_server::prepare(&server.stop(cid, tid)),
-                        Request::Time => rpc_server::prepare(&(server.time(cid) as u64)),
+                        Request::Stop { tid } => rpc::server::prepare(&server.stop(cid, tid)),
+                        Request::Time => rpc::server::prepare(&(server.time(cid) as u64)),
                     })
                 }
             }

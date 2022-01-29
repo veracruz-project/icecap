@@ -3,7 +3,7 @@ use std::os::unix::io::AsRawFd;
 
 use icecap_host_vmm_types::{sys_id as host_vmm_sys_id, DirectRequest, DirectResponse};
 use icecap_resource_server_types::Request;
-use icecap_rpc::*;
+use icecap_rpc_types::*;
 
 cfg_if::cfg_if! {
     if #[cfg(target_env = "gnu")] {

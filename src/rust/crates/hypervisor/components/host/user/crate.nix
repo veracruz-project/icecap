@@ -6,7 +6,7 @@ mk {
     dyndl-types
     icecap-host-vmm-types
     icecap-resource-server-types
-    icecap-rpc
+    icecap-rpc-types
   ];
   dependencies = {
     libc = "*";

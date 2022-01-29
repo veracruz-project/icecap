@@ -25,7 +25,7 @@ members = [
     "crates/framework/base/icecap-plat",
     "crates/framework/base/icecap-ring-buffer",
     "crates/framework/base/icecap-rpc",
-    "crates/framework/base/icecap-rpc/sel4",
+    "crates/framework/base/icecap-rpc/types",
     "crates/framework/base/icecap-runtime",
     "crates/framework/base/icecap-runtime/config",
     "crates/framework/base/icecap-runtime/config/cli/icecap-serialize-runtime-config",

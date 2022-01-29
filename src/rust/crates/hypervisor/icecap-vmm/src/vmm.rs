@@ -4,7 +4,7 @@ use alloc::vec::Vec;
 
 use icecap_core::{
     prelude::*,
-    rpc_sel4::RPCClient,
+    rpc,
     runtime::Thread,
     sel4::fault::*,
     sync::{ExplicitMutexNotification, Mutex},
@@ -62,7 +62,7 @@ pub struct VMMNode<E> {
     pub cnode: CNode,
     pub fault_reply_slot: Endpoint,
 
-    pub event_server_client: RPCClient<event_server::calls::Client>,
+    pub event_server_client: rpc::Client<event_server::calls::Client>,
     pub event_server_bitfield: event_server::Bitfield,
 
     pub gic_dist_paddr: usize,
@@ -77,7 +77,7 @@ pub struct VMMNode<E> {
 
 pub struct VMMGICCallbacks {
     vcpus: Vec<VCPU>,
-    event_server_client: Vec<RPCClient<event_server::calls::Client>>,
+    event_server_client: Vec<rpc::Client<event_server::calls::Client>>,
     irq_map: IRQMap,
 }
 
@@ -97,7 +97,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 vcpus: self.nodes.iter().map(|node| node.vcpu).collect(),
                 event_server_client: event_server_client_ep
                     .iter()
-                    .map(|ep| RPCClient::<event_server::calls::Client>::new(*ep))
+                    .map(|ep| rpc::Client::<event_server::calls::Client>::new(*ep))
                     .collect(),
             },
         );
@@ -117,7 +117,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
                 cnode: self.cnode,
                 fault_reply_slot: node_config.fault_reply_slot,
 
-                event_server_client: RPCClient::<event_server::calls::Client>::new(
+                event_server_client: rpc::Client::<event_server::calls::Client>::new(
                     event_server_client_ep[i],
                 ),
                 event_server_bitfield: unsafe {

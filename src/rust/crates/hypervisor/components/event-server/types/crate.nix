@@ -5,7 +5,6 @@ mk {
   nix.local.dependencies = with localCrates; [
     biterate
     finite-set
-    icecap-rpc
   ];
   dependencies = {
     serde = serdeMin;

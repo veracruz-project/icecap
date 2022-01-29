@@ -4,7 +4,7 @@ use core::fmt::Write;
 use icecap_driver_interfaces::SerialDevice;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::{BufferedRingBuffer, RingBuffer};
-use icecap_std::rpc_sel4::{rpc_server, RPCClient};
+use icecap_std::rpc;
 use icecap_timer_server_client::*;
 
 use crate::{
@@ -89,7 +89,7 @@ impl<T: SerialDevice> SerialServer<T> {
             let (info, _) = event_ep.recv();
             cspace.relative(reply_ep).save_caller().unwrap();
 
-            match rpc_server::recv::<Event>(&info) {
+            match rpc::server::recv::<Event>(&info) {
                 Event::Interrupt => {
                     self.dev.handle_interrupt();
                     loop {
@@ -110,7 +110,7 @@ impl<T: SerialDevice> SerialServer<T> {
                 }
             }
 
-            RPCClient::<()>::new(reply_ep).send(&());
+            rpc::Client::<()>::new(reply_ep).send(&());
         }
     }
 

@@ -7,7 +7,7 @@ use finite_set::Finite;
 use icecap_host_vmm_config::*;
 use icecap_host_vmm_types::{sys_id, DirectRequest, DirectResponse};
 use icecap_std::prelude::*;
-use icecap_std::rpc_sel4::*;
+use icecap_std::rpc::{self, RPC};
 use icecap_std::sel4::fault::*;
 use icecap_vmm::*;
 
@@ -118,8 +118,11 @@ impl Extension {
         fault: &UnknownSyscall,
     ) -> Fallible<()> {
         Self::userspace_syscall(node, fault, |node, values| {
-            let recv_info = node.extension.resource_server_ep.call(proxy::up(values));
-            let resp = proxy::down(&recv_info);
+            let recv_info = node
+                .extension
+                .resource_server_ep
+                .call(rpc::proxy::up(values));
+            let resp = rpc::proxy::down(&recv_info);
             Ok(resp)
         })
     }
@@ -137,12 +140,12 @@ impl Extension {
             fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
                 match request {
                     DirectRequest::BenchmarkUtilisationStart => {
-                        RPCClient::new(node.extension.benchmark_server_ep)
+                        rpc::Client::new(node.extension.benchmark_server_ep)
                             .call::<benchmark_server::Response>(&benchmark_server::Request::Start)
                             .unwrap();
                     }
                     DirectRequest::BenchmarkUtilisationFinish => {
-                        RPCClient::new(node.extension.benchmark_server_ep)
+                        rpc::Client::new(node.extension.benchmark_server_ep)
                             .call::<benchmark_server::Response>(&benchmark_server::Request::Finish)
                             .unwrap();
                     }

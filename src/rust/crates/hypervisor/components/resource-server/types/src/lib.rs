@@ -4,7 +4,7 @@ extern crate alloc;
 
 use serde::{Deserialize, Serialize};
 
-use icecap_rpc::*;
+use icecap_rpc_types::*;
 
 pub type RealmId = usize;
 

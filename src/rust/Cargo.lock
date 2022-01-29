@@ -635,7 +635,6 @@ dependencies = [
 name = "icecap-benchmark-server-types"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc",
  "serde",
 ]
 
@@ -675,7 +674,6 @@ dependencies = [
  "icecap-logger",
  "icecap-ring-buffer",
  "icecap-rpc",
- "icecap-rpc-sel4",
  "icecap-runtime",
  "icecap-sel4",
  "icecap-start",
@@ -704,7 +702,6 @@ version = "0.1.0"
 dependencies = [
  "biterate",
  "finite-set",
- "icecap-rpc",
  "serde",
 ]
 
@@ -770,7 +767,7 @@ dependencies = [
  "dyndl-types",
  "icecap-host-vmm-types",
  "icecap-resource-server-types",
- "icecap-rpc",
+ "icecap-rpc-types",
  "libc",
  "postcard",
 ]
@@ -788,7 +785,6 @@ dependencies = [
 name = "icecap-host-vmm-types"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc",
  "serde",
 ]
 
@@ -867,7 +863,7 @@ dependencies = [
 name = "icecap-resource-server-types"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc",
+ "icecap-rpc-types",
  "postcard",
  "serde",
 ]
@@ -886,16 +882,16 @@ dependencies = [
 name = "icecap-rpc"
 version = "0.1.0"
 dependencies = [
- "postcard",
- "serde",
+ "icecap-rpc-types",
+ "icecap-sel4",
 ]
 
 [[package]]
-name = "icecap-rpc-sel4"
+name = "icecap-rpc-types"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc",
- "icecap-sel4",
+ "postcard",
+ "serde",
 ]
 
 [[package]]
@@ -1081,7 +1077,7 @@ dependencies = [
 name = "icecap-timer-server-client"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc-sel4",
+ "icecap-rpc",
  "icecap-sel4",
  "icecap-timer-server-types",
 ]
@@ -1098,7 +1094,6 @@ dependencies = [
 name = "icecap-timer-server-types"
 version = "0.1.0"
 dependencies = [
- "icecap-rpc",
  "serde",
 ]
 

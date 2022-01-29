@@ -8,7 +8,6 @@ mkSeL4 {
     icecap-sync
     icecap-ring-buffer
     icecap-rpc
-    icecap-rpc-sel4
     icecap-backtrace
     icecap-failure
     icecap-logger

@@ -10,4 +10,3 @@ edition = "2018"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 biterate = { path = "../../../../framework/helpers/biterate" }
 finite-set = { path = "../../../../framework/helpers/finite-set" }
-icecap-rpc = { path = "../../../../framework/base/icecap-rpc" }

@@ -2,10 +2,10 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-rpc-sel4"
+name = "icecap-rpc-types"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-icecap-rpc = { path = ".." }
-icecap-sel4 = { path = "../../icecap-sel4" }
+postcard = { version = "*", default-features = false, features = [ "alloc",] }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }

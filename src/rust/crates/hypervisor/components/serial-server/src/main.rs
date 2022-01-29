@@ -18,7 +18,7 @@ use icecap_serial_server_config::Config;
 use icecap_std::config::RingBufferKicksConfig;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::RingBuffer;
-use icecap_std::rpc_sel4::RPCClient;
+use icecap_std::rpc;
 use icecap_timer_server_client::*;
 
 use event::Event;
@@ -27,7 +27,7 @@ use run::{run, ClientId};
 pub fn main(config: Config) -> Fallible<()> {
     let timer = TimerClient::new(config.timer_ep_write);
 
-    let event_server = RPCClient::<EventServerRequest>::new(config.event_server);
+    let event_server = rpc::Client::<EventServerRequest>::new(config.event_server);
     let mk_signal = move |index: events::SerialServerOut| -> icecap_std::ring_buffer::Kick {
         let event_server = event_server.clone();
         let index = index.to_nat();
@@ -62,13 +62,13 @@ pub fn main(config: Config) -> Fallible<()> {
     config.irq_thread.start(move || loop {
         irq_handler.ack().unwrap();
         irq_nfn.wait();
-        RPCClient::<Event>::new(event_ep).call::<()>(&Event::Interrupt);
+        rpc::Client::<Event>::new(event_ep).call::<()>(&Event::Interrupt);
     });
 
     let timer_wait = config.timer_wait;
     config.timer_thread.start(move || loop {
         timer_wait.wait();
-        RPCClient::<Event>::new(event_ep).call::<()>(&Event::Timeout);
+        rpc::Client::<Event>::new(event_ep).call::<()>(&Event::Timeout);
     });
 
     for (i, client) in core::iter::once(&config.host_client)
@@ -78,7 +78,7 @@ pub fn main(config: Config) -> Fallible<()> {
         let nfn = client.wait;
         client.thread.start(move || loop {
             nfn.wait();
-            RPCClient::<Event>::new(event_ep).call::<()>(&Event::Con(i as ClientId));
+            rpc::Client::<Event>::new(event_ep).call::<()>(&Event::Con(i as ClientId));
         });
     }
 

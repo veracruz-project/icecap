@@ -12,7 +12,6 @@ pub use icecap_runtime as runtime;
 pub use icecap_sync as sync;
 pub use icecap_ring_buffer as ring_buffer;
 pub use icecap_rpc as rpc;
-pub use icecap_rpc_sel4 as rpc_sel4;
 pub use icecap_backtrace as backtrace;
 pub use icecap_failure as failure;
 pub use icecap_logger as logger;
