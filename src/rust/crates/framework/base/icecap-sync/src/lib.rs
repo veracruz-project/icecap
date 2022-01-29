@@ -1,10 +1,11 @@
 #![no_std]
+#![feature(never_type)]
 
 mod mutex;
 
 pub use mutex::{
-    ExplicitMutexNotification, GenericMutex, GenericMutexGuard, Mutex, MutexGuard,
-    MutexNotification,
+    DeferredMutex, DeferredMutexGuard, DeferredMutexNotification, ExplicitMutexNotification,
+    GenericMutex, GenericMutexGuard, Mutex, MutexGuard, MutexNotification,
 };
 
 // for macro

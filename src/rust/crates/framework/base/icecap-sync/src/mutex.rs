@@ -1,11 +1,16 @@
 use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
-use core::sync::atomic::{fence, AtomicIsize, Ordering};
+use core::sync::atomic::{fence, AtomicIsize, AtomicU64, Ordering};
 
-use icecap_sel4::Notification;
+use icecap_sel4::{LocalCPtr, Notification};
 
 pub trait MutexNotification {
+    type SetInput;
+    type SetOutput;
+
     fn get(&self) -> Notification;
+
+    fn set(&self, input: Self::SetInput) -> Self::SetOutput;
 }
 
 struct RawGenericMutex<N> {
@@ -73,6 +78,10 @@ impl<N: MutexNotification, T> GenericMutex<N, T> {
         self.raw.lock();
         unsafe { self.guard() }
     }
+
+    pub fn set(&self, input: N::SetInput) -> N::SetOutput {
+        self.raw.notification.set(input)
+    }
 }
 
 impl<'a, N: MutexNotification, T: ?Sized + 'a> GenericMutexGuard<'a, N, T> {
@@ -101,6 +110,9 @@ impl<'a, N: MutexNotification, T: ?Sized + 'a> Drop for GenericMutexGuard<'a, N,
     }
 }
 
+pub type Mutex<T> = GenericMutex<ExplicitMutexNotification, T>;
+pub type MutexGuard<'a, T> = GenericMutexGuard<'a, ExplicitMutexNotification, T>;
+
 pub struct ExplicitMutexNotification(Notification);
 
 impl ExplicitMutexNotification {
@@ -110,13 +122,43 @@ impl ExplicitMutexNotification {
 }
 
 impl MutexNotification for ExplicitMutexNotification {
+    type SetInput = !;
+    type SetOutput = !;
+
     fn get(&self) -> Notification {
         self.0
     }
+
+    fn set(&self, input: Self::SetInput) -> Self::SetOutput {
+        input
+    }
 }
 
-pub type Mutex<T> = GenericMutex<ExplicitMutexNotification, T>;
-pub type MutexGuard<'a, T> = GenericMutexGuard<'a, ExplicitMutexNotification, T>;
+pub type DeferredMutex<T> = GenericMutex<DeferredMutexNotification, T>;
+pub type DeferredMutexGuard<'a, T> = GenericMutexGuard<'a, DeferredMutexNotification, T>;
+
+pub struct DeferredMutexNotification(AtomicU64);
+
+impl DeferredMutexNotification {
+    pub const fn new() -> Self {
+        Self(AtomicU64::new(0))
+    }
+}
+
+impl MutexNotification for DeferredMutexNotification {
+    type SetInput = Notification;
+    type SetOutput = ();
+
+    fn get(&self) -> Notification {
+        let cap = self.0.load(Ordering::SeqCst);
+        assert_ne!(cap, 0);
+        Notification::from_raw(cap)
+    }
+
+    fn set(&self, input: Self::SetInput) -> Self::SetOutput {
+        self.0.store(input.raw(), Ordering::SeqCst)
+    }
+}
 
 #[macro_export]
 macro_rules! unsafe_static_mutex {
@@ -124,6 +166,9 @@ macro_rules! unsafe_static_mutex {
         pub struct $name;
 
         impl $crate::MutexNotification for $name {
+            type SetInput = !;
+            type SetOutput = !;
+
             fn get(&self) -> $crate::_macro_helpers::Notification {
                 extern "C" {
                     static $extern: u64;
@@ -131,6 +176,10 @@ macro_rules! unsafe_static_mutex {
                 let raw = unsafe { $extern };
                 assert_ne!(raw, 0); // HACK
                 $crate::_macro_helpers::LocalCPtr::from_raw(raw)
+            }
+
+            fn set(&self, input: Self::SetInput) -> Self::SetOutput {
+                input
             }
         }
     };

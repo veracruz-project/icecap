@@ -1,6 +1,7 @@
 #![no_std]
 #![feature(alloc_error_handler)]
 #![feature(lang_items)]
+#![feature(never_type)]
 #![feature(panic_info_message)]
 
 extern crate alloc;
