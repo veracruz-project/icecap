@@ -10,4 +10,4 @@ edition = "2018"
 serde = "*"
 serde_json = "*"
 finite-set = { path = "../../../framework/helpers/finite-set" }
-hypervisor-event-server-types = { path = "../../event-server/types" }
+hypervisor-event-server-types = { path = "../../components/event-server/types" }

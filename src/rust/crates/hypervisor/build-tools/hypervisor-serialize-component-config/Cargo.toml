@@ -10,12 +10,12 @@ edition = "2018"
 postcard = { version = "*", default-features = false, features = [ "alloc",] }
 serde = "*"
 serde_json = "*"
-hypervisor-benchmark-server-config = { path = "../../benchmark-server/config" }
-hypervisor-event-server-config = { path = "../../event-server/config" }
-hypervisor-fault-handler-config = { path = "../../fault-handler/config" }
-hypervisor-host-vmm-config = { path = "../../vmm/host/config" }
-hypervisor-mirage-config = { path = "../../mirage/config" }
-hypervisor-realm-vmm-config = { path = "../../vmm/realm/config" }
-hypervisor-resource-server-config = { path = "../../resource-server/config" }
-hypervisor-serial-server-config = { path = "../../serial-server/config" }
+hypervisor-benchmark-server-config = { path = "../../components/benchmark-server/config" }
+hypervisor-event-server-config = { path = "../../components/event-server/config" }
+hypervisor-fault-handler-config = { path = "../../components/fault-handler/config" }
+hypervisor-host-vmm-config = { path = "../../components/vmm/host/config" }
+hypervisor-mirage-config = { path = "../../components/mirage/config" }
+hypervisor-realm-vmm-config = { path = "../../components/vmm/realm/config" }
+hypervisor-resource-server-config = { path = "../../components/resource-server/config" }
+hypervisor-serial-server-config = { path = "../../components/serial-server/config" }
 icecap-config-cli-core = { path = "../../../framework/base/icecap-config/cli/core" }

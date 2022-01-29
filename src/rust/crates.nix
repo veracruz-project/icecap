@@ -81,43 +81,43 @@
 
   # hypervisor
 
-  hypervisor-vmm-core = ./crates/hypervisor/vmm/core;
+  hypervisor-vmm-core = ./crates/hypervisor/components/vmm/core;
   hypervisor-fdt-append-devices = ./crates/hypervisor/build-tools/hypervisor-fdt-append-devices;
   hypervisor-serialize-component-config = ./crates/hypervisor/build-tools/hypervisor-serialize-component-config;
 
   icecap-host = ./crates/hypervisor/host-tools/icecap-host;
   icecap-host-core = ./crates/hypervisor/host-tools/icecap-host/core;
 
-  hypervisor-host-vmm = ./crates/hypervisor/vmm/host;
-  hypervisor-host-vmm-types = ./crates/hypervisor/vmm/host/types;
-  hypervisor-host-vmm-config = ./crates/hypervisor/vmm/host/config;
+  hypervisor-host-vmm = ./crates/hypervisor/components/vmm/host;
+  hypervisor-host-vmm-types = ./crates/hypervisor/components/vmm/host/types;
+  hypervisor-host-vmm-config = ./crates/hypervisor/components/vmm/host/config;
 
-  hypervisor-realm-vmm = ./crates/hypervisor/vmm/realm;
-  hypervisor-realm-vmm-config = ./crates/hypervisor/vmm/realm/config;
+  hypervisor-realm-vmm = ./crates/hypervisor/components/vmm/realm;
+  hypervisor-realm-vmm-config = ./crates/hypervisor/components/vmm/realm/config;
 
-  hypervisor-resource-server = ./crates/hypervisor/resource-server;
-  hypervisor-resource-server-types = ./crates/hypervisor/resource-server/types;
-  hypervisor-resource-server-core = ./crates/hypervisor/resource-server/core;
-  hypervisor-resource-server-config = ./crates/hypervisor/resource-server/config;
+  hypervisor-resource-server = ./crates/hypervisor/components/resource-server;
+  hypervisor-resource-server-types = ./crates/hypervisor/components/resource-server/types;
+  hypervisor-resource-server-core = ./crates/hypervisor/components/resource-server/core;
+  hypervisor-resource-server-config = ./crates/hypervisor/components/resource-server/config;
 
-  hypervisor-idle = ./crates/hypervisor/idle;
+  hypervisor-idle = ./crates/hypervisor/components/idle;
 
-  hypervisor-fault-handler = ./crates/hypervisor/fault-handler;
-  hypervisor-fault-handler-config = ./crates/hypervisor/fault-handler/config;
+  hypervisor-fault-handler = ./crates/hypervisor/components/fault-handler;
+  hypervisor-fault-handler-config = ./crates/hypervisor/components/fault-handler/config;
 
-  hypervisor-event-server = ./crates/hypervisor/event-server;
-  hypervisor-event-server-types = ./crates/hypervisor/event-server/types;
-  hypervisor-event-server-config = ./crates/hypervisor/event-server/config;
+  hypervisor-event-server = ./crates/hypervisor/components/event-server;
+  hypervisor-event-server-types = ./crates/hypervisor/components/event-server/types;
+  hypervisor-event-server-config = ./crates/hypervisor/components/event-server/config;
   hypervisor-serialize-event-server-out-index = ./crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index;
 
-  hypervisor-serial-server = ./crates/hypervisor/serial-server;
-  hypervisor-serial-server-config = ./crates/hypervisor/serial-server/config;
+  hypervisor-serial-server = ./crates/hypervisor/components/serial-server;
+  hypervisor-serial-server-config = ./crates/hypervisor/components/serial-server/config;
 
-  hypervisor-benchmark-server = ./crates/hypervisor/benchmark-server;
-  hypervisor-benchmark-server-types = ./crates/hypervisor/benchmark-server/types;
-  hypervisor-benchmark-server-config = ./crates/hypervisor/benchmark-server/config;
+  hypervisor-benchmark-server = ./crates/hypervisor/components/benchmark-server;
+  hypervisor-benchmark-server-types = ./crates/hypervisor/components/benchmark-server/types;
+  hypervisor-benchmark-server-config = ./crates/hypervisor/components/benchmark-server/config;
 
-  hypervisor-mirage = ./crates/hypervisor/mirage;
-  hypervisor-mirage-config = ./crates/hypervisor/mirage/config;
+  hypervisor-mirage = ./crates/hypervisor/components/mirage;
+  hypervisor-mirage-config = ./crates/hypervisor/components/mirage/config;
 
 }

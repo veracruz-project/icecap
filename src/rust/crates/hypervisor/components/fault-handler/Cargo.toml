@@ -2,11 +2,10 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-host"
+name = "hypervisor-fault-handler"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-clap = "*"
-hypervisor-host-vmm-types = { path = "../../components/vmm/host/types" }
-icecap-host-core = { path = "./core" }
+hypervisor-fault-handler-config = { path = "./config" }
+icecap-std = { path = "../../../framework/base/icecap-std" }
