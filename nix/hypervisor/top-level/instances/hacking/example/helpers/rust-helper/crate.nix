@@ -3,5 +3,5 @@
 crateUtils.mkCrate {
   nix.name = "rust-helper";
   nix.isBin = true;
-  nix.srcPath = icecapSrc.absolute ./src;
+  nix.srcPath = ./src;
 }

@@ -2,7 +2,7 @@
 
 crateUtils.mkCrate {
   nix.name = "example-component-config";
-  nix.srcPath = icecapSrc.absolute ./src;
+  nix.srcPath = ./src;
   nix.local.dependencies = with globalCrates; [
     icecap-config
   ];

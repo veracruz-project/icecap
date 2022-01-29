@@ -18,7 +18,7 @@ in {
         musl
         mirageLibrary
       ];
-      passthru = attrs.passthru // {
+      passthru = (attrs.passthru or {}) // {
         inherit crate mirageLibrary;
       };
 

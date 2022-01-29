@@ -3,7 +3,7 @@
 crateUtils.mkCrate {
   nix.name = "supercomponent";
   nix.isBin = true;
-  nix.srcPath = icecapSrc.absolute ./src;
+  nix.srcPath = ./src;
   nix.local.dependencies = with globalCrates; [
     icecap-std
     icecap-start-generic

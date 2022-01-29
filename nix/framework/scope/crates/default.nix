@@ -19,7 +19,7 @@ let
         in
           crateUtils.mkCrate (crateUtils.clobber [
             {
-              nix.srcPath = icecapSrc.absolute (path + "/src");
+              nix.srcPath = path + "/src";
               nix.buildScript =
                 if (passthru.buildScriptPath or null) != null
                 then icecapSrc.absoluteSplit (path + "/${passthru.buildScriptPath}")
