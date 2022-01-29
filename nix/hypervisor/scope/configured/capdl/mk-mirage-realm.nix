@@ -1,13 +1,17 @@
 { deviceTree, hypervisorComponents
 , mkHypervisorIceDL, mkDynDLSpec, mkMirageBinary
 , icecapPlat
+, globalCrates
 , elfUtils
 }:
 
 { mirageLibrary, passthru }:
 
 let
-  mirageBinary = mkMirageBinary mirageLibrary;
+  mirageBinary = mkMirageBinary {
+    inherit mirageLibrary;
+    crate = globalCrates.hypervisor-mirage;
+  };
 
   ddl = mkHypervisorIceDL {
     subcommand = "mirage-realm";
@@ -15,7 +19,7 @@ let
       realm_id = 0;
       num_cores = 1;
       components = {
-        mirage.image = elfUtils.split "${mirageBinary}/bin/mirage.elf";
+        mirage.image = elfUtils.split "${mirageBinary}/bin/${mirageBinary.crate.name}.elf";
         mirage.passthru = passthru;
       };
     };

@@ -7,9 +7,9 @@ let
   rustTargetNameForEnv = lib.toUpper (lib.replaceStrings ["-"] ["_"] rustTargetName);
 
 in {
-  mkMirageBinary = mirageLibrary: buildIceCapComponent {
+  mkMirageBinary = { crate, mirageLibrary }: buildIceCapComponent {
 
-    rootCrate = globalCrates.hypervisor-mirage; # HACK
+    rootCrate = crate;
 
     extraLastLayer = attrs: {
       buildInputs = (attrs.buildInputs or []) ++ [
@@ -19,7 +19,7 @@ in {
         mirageLibrary
       ];
       passthru = attrs.passthru // {
-        inherit mirageLibrary;
+        inherit crate mirageLibrary;
       };
 
       # HACK
