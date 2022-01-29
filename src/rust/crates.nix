@@ -31,6 +31,7 @@
   icecap-serialize-runtime-config = ./crates/framework/base/icecap-runtime/config/cli/icecap-serialize-runtime-config;
 
   icecap-fdt = ./crates/framework/base/icecap-fdt;
+  icecap-fdt-bindings = ./crates/framework/base/icecap-fdt/bindings;
 
   icecap-plat = ./crates/framework/base/icecap-plat;
 

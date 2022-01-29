@@ -120,43 +120,10 @@ impl Channel<RingBuffer> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ResourceServer {
-    pub bulk_region: Range<usize>,
-    pub endpoints: Vec<u64>,
-}
-
-impl ResourceServer {
-    pub fn apply(&self, name: &str, dt: &mut DeviceTree) {
-        use Cells::*;
-        let spec = dt.root.get_size_spec();
-        let mut node = Node::new();
-        node.set_compatible("icecap,resource-server");
-        // node.set_property_iter("interrupts", &[
-        //     0, self.irq, 1,
-        // ]);
-        node.set_property_cells(
-            "reg",
-            spec,
-            vec![
-                Address(self.bulk_region.start),
-                Size(self.bulk_region.len()),
-            ],
-        );
-        node.set_property_cells(
-            "endpoints",
-            spec,
-            self.endpoints.iter().map(|endpoint| Raw64(*endpoint)),
-        );
-        dt.root.set_child(name, node);
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Device<T> {
     Channel(Channel<T>),
     Net(Net<T>),
     Con(Con<T>),
-    ResourceServer(ResourceServer),
 }
 
 impl Device<RingBuffer> {
@@ -172,10 +139,6 @@ impl Device<RingBuffer> {
             ),
             Device::Net(dev) => dev.apply(
                 &format!("icecap_net@{:x}", dev.ring_buffer.read.ctrl.start),
-                dt,
-            ),
-            Device::ResourceServer(dev) => dev.apply(
-                &format!("icecap_resource_server@{:x}", dev.bulk_region.start),
                 dt,
             ),
         }
@@ -210,13 +173,6 @@ impl<T> Device<T> {
                 mtu,
                 mac_address,
                 irq,
-            }),
-            Device::ResourceServer(ResourceServer {
-                bulk_region,
-                endpoints,
-            }) => Device::ResourceServer(ResourceServer {
-                bulk_region,
-                endpoints,
             }),
         })
     }

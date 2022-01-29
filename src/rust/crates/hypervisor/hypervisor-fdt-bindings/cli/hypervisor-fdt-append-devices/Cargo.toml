@@ -11,3 +11,4 @@ serde = "*"
 serde_json = "*"
 hypervisor-fdt-bindings = { path = "../.." }
 icecap-fdt = { path = "../../../../framework/base/icecap-fdt" }
+icecap-fdt-bindings = { path = "../../../../framework/base/icecap-fdt/bindings" }

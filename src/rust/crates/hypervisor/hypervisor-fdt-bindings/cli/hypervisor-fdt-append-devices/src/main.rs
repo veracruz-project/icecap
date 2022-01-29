@@ -5,12 +5,14 @@ use std::io::{self, Read, Write};
 use serde::{Deserialize, Serialize};
 
 use icecap_fdt::DeviceTree;
-use hypervisor_fdt_bindings::{Chosen, Device, RingBuffer};
+use icecap_fdt_bindings::{Chosen, Device, RingBuffer};
+use hypervisor_fdt_bindings::ResourceServer;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Input {
     chosen: Option<Chosen>,
     devices: Vec<Device<RingBuffer>>,
+    resource_server: Option<ResourceServer>,
     num_cpus: usize,
 }
 
@@ -28,6 +30,9 @@ fn main() -> Result<(), std::io::Error> {
     }
     for device in input.devices {
         device.apply(&mut dt);
+    }
+    if let Some(resource_server) = input.resource_server {
+        resource_server.apply_with_default_name(&mut dt);
     }
 
     let cpus = dt.root.get_child_mut("cpus").unwrap();

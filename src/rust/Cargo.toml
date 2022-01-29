@@ -21,6 +21,7 @@ members = [
     "crates/framework/base/icecap-failure",
     "crates/framework/base/icecap-failure/derive",
     "crates/framework/base/icecap-fdt",
+    "crates/framework/base/icecap-fdt/bindings",
     "crates/framework/base/icecap-logger",
     "crates/framework/base/icecap-plat",
     "crates/framework/base/icecap-ring-buffer",

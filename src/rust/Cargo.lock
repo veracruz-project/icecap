@@ -571,6 +571,7 @@ version = "0.1.0"
 dependencies = [
  "hypervisor-fdt-bindings",
  "icecap-fdt",
+ "icecap-fdt-bindings",
  "serde",
  "serde_json",
 ]
@@ -580,6 +581,7 @@ name = "hypervisor-fdt-bindings"
 version = "0.1.0"
 dependencies = [
  "icecap-fdt",
+ "icecap-fdt-bindings",
  "log",
  "serde",
 ]
@@ -778,6 +780,15 @@ name = "icecap-fdt"
 version = "0.1.0"
 dependencies = [
  "log",
+]
+
+[[package]]
+name = "icecap-fdt-bindings"
+version = "0.1.0"
+dependencies = [
+ "icecap-fdt",
+ "log",
+ "serde",
 ]
 
 [[package]]

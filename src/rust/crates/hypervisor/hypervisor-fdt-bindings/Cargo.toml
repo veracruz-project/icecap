@@ -10,3 +10,4 @@ edition = "2018"
 log = "*"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
 icecap-fdt = { path = "../../framework/base/icecap-fdt" }
+icecap-fdt-bindings = { path = "../../framework/base/icecap-fdt/bindings" }

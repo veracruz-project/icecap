@@ -91,7 +91,7 @@ class VM(BaseComponent):
 
         self.is_host = is_host
 
-        self.devices = []
+        self.fdt_devices = []
         self.nodes = []
 
         self.addrs = self.get_addrs()
@@ -148,17 +148,18 @@ class VM(BaseComponent):
         self.vmm = self.composition.component(VMM, vmm_name, vm=self, is_host=is_host)
 
         if self.is_host:
-            self.devices.append({
-                'ResourceServer': {
-                    'bulk_region': self.map_region(self.composition.resource_server.host_bulk_region_frames, write=True),
-                    'endpoints': self.resource_server_endpoints,
-                    }
-                })
+            self.fdt_resource_server = {
+                'bulk_region': self.map_region(self.composition.resource_server.host_bulk_region_frames, write=True),
+                'endpoints': self.resource_server_endpoints,
+                }
+        else:
+            self.fdt_resource_server = None
 
     def device_tree(self):
         # TODO
         mod = {
-            'devices': self.devices,
+            'devices': self.fdt_devices,
+            'resource_server': self.fdt_resource_server,
             'num_cpus': len(self.nodes),
             }
 
@@ -267,7 +268,7 @@ class VM(BaseComponent):
         ring_buffer = self.map_ring_buffer(objs)
         ring_buffer['kick'] = kick
 
-        self.devices.append({
+        self.fdt_devices.append({
             'Con': {
                 'ring_buffer': ring_buffer,
                 'irq': irq - 32,
@@ -281,7 +282,7 @@ class VM(BaseComponent):
         ring_buffer = self.map_ring_buffer(objs)
         ring_buffer['kick'] = kick
 
-        self.devices.append({
+        self.fdt_devices.append({
             'Net': {
                 'ring_buffer': ring_buffer,
                 'mtu': 65536,
@@ -300,7 +301,7 @@ class VM(BaseComponent):
         id = self.cur_channel_id
         self.cur_channel_id += 1
 
-        self.devices.append({
+        self.fdt_devices.append({
             'Channel': {
                 'ring_buffer': ring_buffer,
                 'irq': irq - 32,

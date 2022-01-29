@@ -7,10 +7,10 @@ extern crate alloc;
 
 mod chosen;
 mod icecap;
-mod realm;
+mod guest;
 mod utils;
 
 pub use chosen::Chosen;
 pub use icecap::{Channel, Con, Device, Net, RingBuffer, RingBufferSide};
-pub use realm::RealmConfig;
+pub use guest::GuestConfig;
 pub use utils::mk_range;
