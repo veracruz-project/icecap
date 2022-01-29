@@ -41,7 +41,7 @@ everything-cached:
 	nix-build -A everything.cached --no-out-link
 
 .PHONY: everything-with-excess
-everything-with-excess:
+everything: check-generated-sources
 	nix-build -A everything.allWithExcess --no-out-link
 
 .PHONY: check-generated-sources
