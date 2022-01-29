@@ -11,6 +11,6 @@ mod server;
 
 pub type ClientId = usize;
 
-pub use plat::plat_init_device;
 pub use event::Event;
+pub use plat::plat_init_device;
 pub use server::run;

@@ -8,18 +8,14 @@ declare_main!(main);
 use finite_set::Finite;
 use icecap_event_server_types::calls::Client as EventServerRequest;
 use icecap_event_server_types::events;
+use icecap_generic_timer_server_client::*;
 use icecap_serial_server_config::Config;
 use icecap_std::config::RingBufferKicksConfig;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::RingBuffer;
 use icecap_std::rpc;
-use icecap_generic_timer_server_client::*;
 
-use icecap_generic_serial_server_core::{
-    run, ClientId,
-    Event,
-    plat_init_device,
-};
+use icecap_generic_serial_server_core::{plat_init_device, run, ClientId, Event};
 
 pub fn main(config: Config) -> Fallible<()> {
     let timer = TimerClient::new(config.timer_ep_write);

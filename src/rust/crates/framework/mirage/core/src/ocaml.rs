@@ -19,15 +19,11 @@ pub struct Bytes {
 
 impl Bytes {
     pub fn as_slice(&self) -> &[u8] {
-        unsafe {
-            core::slice::from_raw_parts(self.buf, self.size)
-        }
+        unsafe { core::slice::from_raw_parts(self.buf, self.size) }
     }
 
     pub fn as_mut_slice(&self) -> &mut [u8] {
-        unsafe {
-            core::slice::from_raw_parts_mut(self.buf, self.size)
-        }
+        unsafe { core::slice::from_raw_parts_mut(self.buf, self.size) }
     }
 }
 
@@ -37,9 +33,7 @@ pub fn alloc(size: usize) -> Bytes {
     unsafe {
         c::costub_alloc(size, &mut handle, &mut buf);
     }
-    Bytes {
-        handle, buf, size,
-    }
+    Bytes { handle, buf, size }
 }
 
 pub fn run_main(arg: &[u8]) -> c_types::c_int {
@@ -48,7 +42,5 @@ pub fn run_main(arg: &[u8]) -> c_types::c_int {
     }
     let bytes = alloc(arg.len());
     bytes.as_mut_slice().copy_from_slice(arg);
-    unsafe {
-        c::costub_run_main(bytes.handle)
-    }
+    unsafe { c::costub_run_main(bytes.handle) }
 }

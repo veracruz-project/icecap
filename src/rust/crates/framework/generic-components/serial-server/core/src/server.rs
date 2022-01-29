@@ -1,16 +1,14 @@
 use alloc::collections::VecDeque;
 
-use icecap_driver_interfaces::SerialDevice;
 use icecap_core::prelude::*;
 use icecap_core::ring_buffer::{BufferedRingBuffer, RingBuffer};
 use icecap_core::rpc;
+use icecap_driver_interfaces::SerialDevice;
 use icecap_generic_timer_server_client::*;
 
 use crate::{
-    ClientId,
-    Event,
     color::{Color, COLORS},
-    out,
+    out, ClientId, Event,
 };
 
 struct SerialServer<T: SerialDevice> {

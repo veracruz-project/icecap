@@ -1,8 +1,8 @@
 #![no_std]
 
+use icecap_generic_timer_server_types::{Result as TimerServerResult, *};
 use icecap_rpc as rpc;
 use icecap_sel4::*;
-use icecap_generic_timer_server_types::{Result as TimerServerResult, *};
 
 #[derive(Clone)]
 pub struct TimerClient {

@@ -8,9 +8,9 @@ extern crate alloc;
 use alloc::sync::Arc;
 
 use icecap_driver_interfaces::TimerDevice;
-use icecap_std::{prelude::*, rpc, sync::*};
 use icecap_generic_timer_server_config::Config;
 use icecap_generic_timer_server_types::Request;
+use icecap_std::{prelude::*, rpc, sync::*};
 
 use crate::{plat::timer_device, server::Server};
 

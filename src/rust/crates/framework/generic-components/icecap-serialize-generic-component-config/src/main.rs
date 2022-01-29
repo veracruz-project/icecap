@@ -20,12 +20,7 @@ pub fn main() -> Result<(), io::Error> {
     let module = args.next().unwrap();
     assert!(args.next().is_none());
 
-    gen!(
-        module.as_str(),
-        [
-            icecap_generic_timer_server_config,
-        ]
-    )?;
+    gen!(module.as_str(), [icecap_generic_timer_server_config,])?;
 
     Ok(())
 }

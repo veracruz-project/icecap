@@ -14,6 +14,7 @@ use icecap_event_server_types::{
     calls::Client as EventServerRequest, events, Bitfield as EventServerBitfield,
 };
 use icecap_mirage_config::Config;
+use icecap_mirage_core::ocaml;
 use icecap_std::{
     config::RingBufferKicksConfig,
     prelude::*,
@@ -22,7 +23,6 @@ use icecap_std::{
     rpc,
     sel4::sys::c_types::*,
 };
-use icecap_mirage_core::ocaml;
 
 mod syscall;
 mod time_hack;
