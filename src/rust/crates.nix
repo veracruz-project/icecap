@@ -69,8 +69,9 @@
 
   icecap-generic-timer-server = ./crates/framework/generic-components/timer-server;
   icecap-generic-timer-server-types = ./crates/framework/generic-components/timer-server/types;
-  icecap-generic-timer-server-config = ./crates/framework/generic-components/timer-server/config;
   icecap-generic-timer-server-client = ./crates/framework/generic-components/timer-server/client;
+  icecap-generic-timer-server-config = ./crates/framework/generic-components/timer-server/config;
+  icecap-generic-serial-server-core = ./crates/framework/generic-components/serial-server/core;
 
   crosvm-9p = ./crates/framework/9p/crosvm-9p;
   crosvm-9p-wire-format-derive = ./crates/framework/9p/crosvm-9p/wire-format-derive;

@@ -3,12 +3,6 @@
 
 extern crate alloc;
 
-mod run;
-mod event;
-mod color;
-mod plat;
-mod fmt;
-
 declare_main!(main);
 
 use finite_set::Finite;
@@ -21,8 +15,11 @@ use icecap_std::ring_buffer::RingBuffer;
 use icecap_std::rpc;
 use icecap_generic_timer_server_client::*;
 
-use event::Event;
-use run::{run, ClientId};
+use icecap_generic_serial_server_core::{
+    run::{run, ClientId},
+    event::Event,
+    plat,
+};
 
 pub fn main(config: Config) -> Fallible<()> {
     let timer = TimerClient::new(config.timer_ep_write);

@@ -1,4 +1,7 @@
-use icecap_std::prelude::*;
+use icecap_core::prelude::*;
+use icecap_driver_interfaces::SerialDevice;
+
+use crate::out;
 
 pub struct Color(BaseColor, Style);
 
@@ -24,16 +27,16 @@ use BaseColor::*;
 use Style::*;
 
 impl Color {
-    pub fn set(&self) {
-        print!("\x1B[3{}", self.0 as i32);
+    pub fn set(&self, dev: &impl SerialDevice) {
+        out!(dev, "\x1B[3{}", self.0 as i32);
         if let Bold = self.1 {
-            print!(";1");
+            out!(dev, ";1");
         }
-        print!("m");
+        out!(dev, "m");
     }
 
-    pub fn clear() {
-        print!("\x1B[0m");
+    pub fn clear(dev: &impl SerialDevice) {
+        out!(dev, "\x1B[0m");
     }
 }
 

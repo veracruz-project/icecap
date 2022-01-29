@@ -751,6 +751,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "icecap-generic-serial-server-core"
+version = "0.1.0"
+dependencies = [
+ "cfg-if 1.0.0",
+ "finite-set",
+ "icecap-bcm2835-aux-uart-driver",
+ "icecap-core",
+ "icecap-driver-interfaces",
+ "icecap-generic-timer-server-client",
+ "icecap-pl011-driver",
+ "serde",
+]
+
+[[package]]
 name = "icecap-generic-timer-server"
 version = "0.1.0"
 dependencies = [
@@ -1602,6 +1616,7 @@ dependencies = [
  "icecap-bcm2835-aux-uart-driver",
  "icecap-driver-interfaces",
  "icecap-event-server-types",
+ "icecap-generic-serial-server-core",
  "icecap-generic-timer-server-client",
  "icecap-pl011-driver",
  "icecap-serial-server-config",

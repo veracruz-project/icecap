@@ -25,6 +25,7 @@ icecap-failure
 icecap-fault-handler-config
 icecap-fdt
 icecap-fdt-bindings
+icecap-generic-serial-server-core
 icecap-generic-timer-server
 icecap-generic-timer-server-client
 icecap-generic-timer-server-config

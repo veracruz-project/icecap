@@ -1,13 +1,10 @@
-{ mkSeL4Bin, localCrates, serdeMin }:
+{ mkSeL4, localCrates, serdeMin }:
 
-mkSeL4Bin {
-  nix.name = "serial-server";
+mkSeL4 {
+  nix.name = "icecap-generic-serial-server-core";
   nix.local.dependencies = with localCrates; [
-    icecap-std
-    icecap-serial-server-config
+    icecap-core
     icecap-generic-timer-server-client
-    icecap-generic-serial-server-core
-    icecap-event-server-types
     icecap-driver-interfaces
     finite-set
 
@@ -17,8 +14,6 @@ mkSeL4Bin {
   ];
   dependencies = {
     cfg-if = "*";
-    tock-registers = "*";
     serde = serdeMin;
   };
-  nix.passthru.excludeFromDocs = true;
 }

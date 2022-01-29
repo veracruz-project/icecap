@@ -15,5 +15,5 @@ impl<T: SerialDevice> fmt::Write for Writer<'_, T> {
 
 #[macro_export]
 macro_rules! out {
-    ($dst:expr, $($arg:tt)*) => ($crate::fmt::Writer($dst).write_fmt(format_args!($($arg)*)).unwrap());
+    ($dst:expr, $($arg:tt)*) => (core::fmt::Write::write_fmt(&mut $crate::fmt::Writer($dst), format_args!($($arg)*)).unwrap());
 }

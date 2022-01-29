@@ -25,6 +25,7 @@ icecap-driver-interfaces
 icecap-failure
 icecap-failure-derive
 icecap-fdt
+icecap-generic-serial-server-core
 icecap-generic-timer-server
 icecap-generic-timer-server-config
 icecap-generic-timer-server-types

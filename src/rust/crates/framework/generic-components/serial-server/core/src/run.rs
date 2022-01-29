@@ -2,9 +2,9 @@ use alloc::collections::VecDeque;
 use core::fmt::Write;
 
 use icecap_driver_interfaces::SerialDevice;
-use icecap_std::prelude::*;
-use icecap_std::ring_buffer::{BufferedRingBuffer, RingBuffer};
-use icecap_std::rpc;
+use icecap_core::prelude::*;
+use icecap_core::ring_buffer::{BufferedRingBuffer, RingBuffer};
+use icecap_core::rpc;
 use icecap_generic_timer_server_client::*;
 
 use crate::{
@@ -289,14 +289,14 @@ Escape char: {}
     fn set_output_client(&mut self, client_id: ClientId) {
         if self.last_output_client != Some(client_id) {
             self.last_output_client = Some(client_id);
-            self.clients[client_id].color.set();
+            self.clients[client_id].color.set(&self.dev);
         }
     }
 
     fn clear_output_client(&mut self) {
         if let Some(_) = self.last_output_client {
             self.last_output_client = None;
-            Color::clear();
+            Color::clear(&self.dev);
         }
     }
 
