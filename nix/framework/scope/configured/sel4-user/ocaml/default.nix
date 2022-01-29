@@ -9,7 +9,7 @@ let
 in {
   mkMirageBinary = mirageLibrary: buildIceCapComponent {
 
-    rootCrate = globalCrates.mirage;
+    rootCrate = globalCrates.hypervisor-mirage; # HACK
 
     extraLastLayer = attrs: {
       buildInputs = (attrs.buildInputs or []) ++ [
