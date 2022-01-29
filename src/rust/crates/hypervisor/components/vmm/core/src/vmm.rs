@@ -13,7 +13,6 @@ use icecap_core::{
 use icecap_vmm_gic::*;
 use icecap_vmm_psci as psci;
 
-const SYS_PSCI: Word = 0;
 const SYS_PUTCHAR: Word = 1337;
 
 const BADGE_FAULT: Badge = 0;
@@ -269,8 +268,8 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_syscall(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
         Ok(match fault.syscall {
+            psci::SYS_PSCI => self.sys_psci(fault)?,
             SYS_PUTCHAR => self.sys_putchar(fault)?,
-            SYS_PSCI => self.sys_psci(fault)?,
             _ => E::handle_syscall(self, fault)?,
         })
     }
@@ -282,11 +281,9 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     }
 
     fn sys_psci(&self, fault: &UnknownSyscall) -> Fallible<()> {
-        let fid = fault.x0 as u32;
-        let ret = match fid {
-            psci::FID_PSCI_VERSION => psci::VERSION,
-            psci::FID_PSCI_FEATURES => {
-                let qfid = fault.x1 as u32;
+        let ret = match psci::Call::parse(fault).unwrap() {
+            psci::Call::Version => psci::VERSION,
+            psci::Call::Features { qfid } => {
                 match qfid {
                     psci::FID_CPU_ON => {
                         0 // no feature flags
@@ -294,10 +291,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                     _ => psci::RET_NOT_SUPPORTED,
                 }
             }
-            psci::FID_CPU_ON => {
-                let target = fault.x1 as usize;
-                let entry = fault.x2 as u64;
-                let ctx_id = fault.x3 as u64;
+            psci::Call::CpuOn { target, entry, ctx_id } => {
                 let (thread, mut node) = {
                     let mut this = None;
                     let mut nodes = self.nodes.lock();
@@ -313,10 +307,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 });
                 psci::RET_SUCCESS
             }
-            psci::FID_MIGRATE_INFO_TYPE => psci::RET_NOT_SUPPORTED,
-            _ => {
-                panic!("unexpected psci fid {:x}", fid);
-            }
+            psci::Call::MigrateInfoType => psci::RET_NOT_SUPPORTED,
         };
         UnknownSyscall::mr_gpr(0).set(ret as u64);
         fault.advance_and_reply();
