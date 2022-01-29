@@ -6,7 +6,6 @@ mkSeL4 {
     icecap-core
     icecap-generic-timer-server-client
     icecap-driver-interfaces
-    finite-set
 
     # TODO see note in timer-server/crate.nix
     icecap-pl011-driver

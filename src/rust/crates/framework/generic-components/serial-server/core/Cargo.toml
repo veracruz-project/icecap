@@ -9,7 +9,6 @@ edition = "2018"
 [dependencies]
 cfg-if = "*"
 serde = { version = "*", default-features = false, features = [ "alloc", "derive",] }
-finite-set = { path = "../../../helpers/finite-set" }
 icecap-bcm2835-aux-uart-driver = { path = "../../../drivers/devices/bcm2835-aux-uart" }
 icecap-core = { path = "../../../base/icecap-core" }
 icecap-driver-interfaces = { path = "../../../drivers/icecap-driver-interfaces" }

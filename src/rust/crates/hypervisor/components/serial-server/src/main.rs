@@ -16,9 +16,9 @@ use icecap_std::rpc;
 use icecap_generic_timer_server_client::*;
 
 use icecap_generic_serial_server_core::{
-    run::{run, ClientId},
-    event::Event,
-    plat,
+    run, ClientId,
+    Event,
+    plat_init_device,
 };
 
 pub fn main(config: Config) -> Fallible<()> {
@@ -52,7 +52,7 @@ pub fn main(config: Config) -> Fallible<()> {
     let cspace = config.cnode;
     let reply_ep = config.reply_ep;
 
-    let dev = plat::serial_device(config.dev_vaddr);
+    let dev = plat_init_device(config.dev_vaddr);
 
     let irq_nfn = config.irq_nfn;
     let irq_handler = config.irq_handler;

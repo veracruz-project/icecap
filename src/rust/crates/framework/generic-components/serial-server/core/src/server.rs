@@ -1,5 +1,4 @@
 use alloc::collections::VecDeque;
-use core::fmt::Write;
 
 use icecap_driver_interfaces::SerialDevice;
 use icecap_core::prelude::*;
@@ -8,12 +7,11 @@ use icecap_core::rpc;
 use icecap_generic_timer_server_client::*;
 
 use crate::{
+    ClientId,
+    Event,
     color::{Color, COLORS},
-    event::Event,
     out,
 };
-
-pub type ClientId = usize;
 
 struct SerialServer<T: SerialDevice> {
     clients: Vec<Client>,

@@ -1,4 +1,3 @@
-use icecap_core::prelude::*;
 use icecap_driver_interfaces::SerialDevice;
 
 use crate::out;

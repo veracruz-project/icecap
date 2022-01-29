@@ -755,7 +755,6 @@ name = "icecap-generic-serial-server-core"
 version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
- "finite-set",
  "icecap-bcm2835-aux-uart-driver",
  "icecap-core",
  "icecap-driver-interfaces",
