@@ -827,10 +827,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "icecap-linux-syscall"
-version = "0.1.0"
-
-[[package]]
 name = "icecap-logger"
 version = "0.1.0"
 dependencies = [
@@ -844,6 +840,10 @@ dependencies = [
  "icecap-config",
  "serde",
 ]
+
+[[package]]
+name = "icecap-mirage-syscall-types"
+version = "0.1.0"
 
 [[package]]
 name = "icecap-pl011-driver"
@@ -1261,8 +1261,8 @@ version = "0.1.0"
 dependencies = [
  "finite-set",
  "icecap-event-server-types",
- "icecap-linux-syscall",
  "icecap-mirage-config",
+ "icecap-mirage-syscall-types",
  "icecap-std",
  "serde",
 ]

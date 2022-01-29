@@ -1,4 +1,5 @@
 {
+  # framework
 
   icecap-sel4 = ./crates/framework/base/icecap-sel4;
   icecap-sel4-sys = ./crates/framework/base/icecap-sel4/sys;
@@ -46,10 +47,8 @@
   generated-module-hack = ./crates/framework/helpers/generated-module-hack;
   numeric-literal-env-hack = ./crates/framework/helpers/numeric-literal-env-hack;
 
-
   icecap-std-external = ./crates/framework/std-support/icecap-std-external;
   icecap-std-impl = ./crates/framework/std-support/icecap-std-impl;
-
 
   dyndl-realize = ./crates/framework/dyndl/realize;
   dyndl-realize-simple = ./crates/framework/dyndl/realize/simple;
@@ -58,6 +57,9 @@
   dyndl-types-derive = ./crates/framework/dyndl/types/derive;
   dyndl-serialize-spec = ./crates/framework/dyndl/cli/dyndl-serialize-spec;
 
+  icecap-vmm-gic = ./crates/framework/vmm/gic;
+
+  icecap-mirage-syscall-types = ./crates/framework/mirage/syscall-types;
 
   icecap-serialize-generic-component-config = ./crates/framework/generic-components/icecap-serialize-generic-component-config;
 
@@ -66,9 +68,14 @@
   icecap-generic-timer-server-config = ./crates/framework/generic-components/timer-server/config;
   icecap-generic-timer-server-client = ./crates/framework/generic-components/timer-server/client;
 
+  crosvm-9p = ./crates/framework/9p/crosvm-9p;
+  crosvm-9p-wire-format-derive = ./crates/framework/9p/crosvm-9p/wire-format-derive;
+  crosvm-9p-server = ./crates/framework/9p/crosvm-9p-server;
+  crosvm-9p-server-cli = ./crates/framework/9p/crosvm-9p-server/cli;
+
+  # hypervisor
 
   icecap-vmm = ./crates/hypervisor/icecap-vmm;
-  icecap-vmm-gic = ./crates/hypervisor/icecap-vmm/gic;
   icecap-fdt-bindings = ./crates/hypervisor/icecap-fdt-bindings;
   icecap-append-devices = ./crates/hypervisor/icecap-fdt-bindings/cli/icecap-append-devices;
   icecap-serialize-builtin-config = ./crates/hypervisor/icecap-serialize-builtin-config;
@@ -107,12 +114,5 @@
 
   mirage = ./crates/hypervisor/components/mirage;
   icecap-mirage-config = ./crates/hypervisor/components/mirage/config;
-  icecap-linux-syscall = ./crates/hypervisor/components/mirage/icecap-linux-syscall;
-
-
-  crosvm-9p = ./crates/framework/9p/crosvm-9p;
-  crosvm-9p-wire-format-derive = ./crates/framework/9p/crosvm-9p/wire-format-derive;
-  crosvm-9p-server = ./crates/framework/9p/crosvm-9p-server;
-  crosvm-9p-server-cli = ./crates/framework/9p/crosvm-9p-server/cli;
 
 }

@@ -4,7 +4,7 @@ mkExcludeBin {
   nix.name = "mirage";
   nix.local.dependencies = with localCrates; [
     finite-set
-    icecap-linux-syscall
+    icecap-mirage-syscall-types
     icecap-std
     icecap-mirage-config
     icecap-event-server-types

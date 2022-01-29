@@ -29,8 +29,8 @@ icecap-host
 icecap-host-user
 icecap-host-vmm-config
 icecap-host-vmm-types
-icecap-linux-syscall
 icecap-mirage-config
+icecap-mirage-syscall-types
 icecap-realm-vmm-config
 icecap-resource-server-config
 icecap-resource-server-types

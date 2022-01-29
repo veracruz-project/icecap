@@ -59,8 +59,10 @@ members = [
     "crates/framework/helpers/finite-set/derive",
     "crates/framework/helpers/generated-module-hack",
     "crates/framework/helpers/numeric-literal-env-hack",
+    "crates/framework/mirage/syscall-types",
     "crates/framework/std-support/icecap-std-external",
     "crates/framework/std-support/icecap-std-impl",
+    "crates/framework/vmm/gic",
     "crates/hypervisor/components/benchmark-server",
     "crates/hypervisor/components/benchmark-server/config",
     "crates/hypervisor/components/benchmark-server/types",
@@ -78,7 +80,6 @@ members = [
     "crates/hypervisor/components/idle",
     "crates/hypervisor/components/mirage",
     "crates/hypervisor/components/mirage/config",
-    "crates/hypervisor/components/mirage/icecap-linux-syscall",
     "crates/hypervisor/components/realm/vmm",
     "crates/hypervisor/components/realm/vmm/config",
     "crates/hypervisor/components/resource-server",
@@ -91,7 +92,6 @@ members = [
     "crates/hypervisor/icecap-fdt-bindings/cli/icecap-append-devices",
     "crates/hypervisor/icecap-serialize-builtin-config",
     "crates/hypervisor/icecap-vmm",
-    "crates/hypervisor/icecap-vmm/gic",
 ]
 
 [profile.release]
