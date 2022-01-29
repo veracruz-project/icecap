@@ -35,16 +35,17 @@ self: with self;
   mkDynDLSpec = callPackage ./capdl/mk-dyndl-spec.nix {};
   mkIceDL = callPackage ./capdl/mk-icedl.nix {};
 
-  userC = callPackage ./sel4-user/c {};
-
-  inherit (callPackage ./sel4-user/ocaml {}) mkMirageBinary;
-
   buildIceCapComponent = callPackage ./sel4-user/rust/build-icecap-component.nix {};
+  genericComponents = callPackage ./sel4-user/rust/generic-components.nix {};
 
   # TODO generalize or leave up to downstream projects
   sysroot-rs = callPackage ./sel4-user/rust/sysroot.nix {};
 
+  userC = callPackage ./sel4-user/c {};
+
   root-task-tls-lds = icecapSrc.relative "c/support/root-task-tls.lds";
   root-task-eh-lds = icecapSrc.relative "c/support/root-task-eh.lds";
+
+  inherit (callPackage ./sel4-user/ocaml {}) mkMirageBinary;
 
 }

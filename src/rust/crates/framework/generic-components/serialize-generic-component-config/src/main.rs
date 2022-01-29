@@ -17,22 +17,13 @@ macro_rules! gen {
 pub fn main() -> Result<(), io::Error> {
     let mut args = env::args();
     let _ = args.next().unwrap();
-    let arg = args.next().unwrap();
+    let module = args.next().unwrap();
     assert!(args.next().is_none());
-
-    let module = format!("icecap_{}_config", arg.replace("-", "_"));
 
     gen!(
         module.as_str(),
         [
-            icecap_fault_handler_config,
-            icecap_serial_server_config,
-            icecap_host_vmm_config,
-            icecap_realm_vmm_config,
-            icecap_resource_server_config,
-            icecap_event_server_config,
-            icecap_benchmark_server_config,
-            icecap_mirage_config,
+            icecap_generic_timer_server_config,
         ]
     )?;
 

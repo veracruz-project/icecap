@@ -6,7 +6,6 @@ mkBin {
     icecap-config-cli-core
 
     icecap-fault-handler-config
-    icecap-timer-server-config
     icecap-serial-server-config
     icecap-host-vmm-config
     icecap-realm-vmm-config

@@ -9,7 +9,7 @@ mkSeL4 {
     icecap-plat
     icecap-resource-server-types
     icecap-event-server-types
-    icecap-timer-server-client
+    icecap-generic-timer-server-client
   ];
   dependencies = {
     log = "*";

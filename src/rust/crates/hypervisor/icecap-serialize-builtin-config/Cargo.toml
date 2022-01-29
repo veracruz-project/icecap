@@ -19,4 +19,3 @@ icecap-mirage-config = { path = "../components/mirage/config" }
 icecap-realm-vmm-config = { path = "../components/realm/vmm/config" }
 icecap-resource-server-config = { path = "../components/resource-server/config" }
 icecap-serial-server-config = { path = "../components/serial-server/config" }
-icecap-timer-server-config = { path = "../components/timer-server/config" }

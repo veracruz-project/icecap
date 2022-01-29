@@ -23,6 +23,8 @@ icecap-failure-derive
 icecap-fault-handler-config
 icecap-fdt
 icecap-fdt-bindings
+icecap-generic-timer-server-config
+icecap-generic-timer-server-types
 icecap-host
 icecap-host-user
 icecap-host-vmm-config
@@ -38,8 +40,7 @@ icecap-sel4-derive
 icecap-serial-server-config
 icecap-serialize-builtin-config
 icecap-serialize-event-server-out-index
+icecap-serialize-generic-component-config
 icecap-serialize-runtime-config
 icecap-show-backtrace
-icecap-timer-server-config
-icecap-timer-server-types
 numeric-literal-env-hack

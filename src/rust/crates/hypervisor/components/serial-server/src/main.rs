@@ -19,7 +19,7 @@ use icecap_std::config::RingBufferKicksConfig;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::RingBuffer;
 use icecap_std::rpc;
-use icecap_timer_server_client::*;
+use icecap_generic_timer_server_client::*;
 
 use event::Event;
 use run::{run, ClientId};

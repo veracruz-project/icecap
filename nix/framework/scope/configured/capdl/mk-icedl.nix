@@ -7,7 +7,7 @@
 , object-sizes
 
 , icecap-serialize-runtime-config
-, dyndl-serialize-spec
+, icecap-serialize-generic-component-config
 }:
 
 { config
@@ -31,7 +31,7 @@ runCommand "manifest" {
 
   nativeBuildInputs = [
     icecap-serialize-runtime-config
-    dyndl-serialize-spec
+    icecap-serialize-generic-component-config
   ] ++ (with python3Packages; [
     future six
     aenum orderedset sortedcontainers

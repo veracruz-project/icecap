@@ -14,8 +14,8 @@ dyndl-realize-simple = { path = "../../../framework/dyndl/realize/simple" }
 dyndl-realize-simple-config = { path = "../../../framework/dyndl/realize/simple/config" }
 dyndl-types = { path = "../../../framework/dyndl/types" }
 icecap-event-server-types = { path = "../event-server/types" }
+icecap-generic-timer-server-client = { path = "../../../framework/generic-components/timer-server/client" }
 icecap-resource-server-config = { path = "./config" }
 icecap-resource-server-core = { path = "./core" }
 icecap-resource-server-types = { path = "./types" }
 icecap-std = { path = "../../../framework/base/icecap-std" }
-icecap-timer-server-client = { path = "../timer-server/client" }

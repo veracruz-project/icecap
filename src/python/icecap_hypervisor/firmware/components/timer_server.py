@@ -68,7 +68,7 @@ class TimerServer(ElfComponent):
         return client_endpoint_cap
 
     def serialize_arg(self):
-        return self.serialize_builtin_arg('timer-server')
+        return self.serialize_generic_component_arg('icecap_generic_timer_server_config')
 
     def arg_json(self):
         self._arg.update({

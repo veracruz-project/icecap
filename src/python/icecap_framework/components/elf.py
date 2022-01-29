@@ -159,8 +159,8 @@ class ElfComponent(BaseComponent):
     def serialize_arg(self):
         raise NotImplementedError()
 
-    def serialize_builtin_arg(self, ty):
-        return ['icecap-serialize-builtin-config', ty]
+    def serialize_generic_component_arg(self, ty):
+        return ['icecap-serialize-generic-component-config', ty]
 
     # default
     def heap(self):

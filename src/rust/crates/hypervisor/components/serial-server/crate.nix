@@ -5,7 +5,7 @@ mkComponent {
   nix.local.dependencies = with localCrates; [
     icecap-std
     icecap-serial-server-config
-    icecap-timer-server-client
+    icecap-generic-timer-server-client
     icecap-event-server-types
     icecap-driver-interfaces
     finite-set

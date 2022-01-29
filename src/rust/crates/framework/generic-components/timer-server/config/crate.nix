@@ -1,7 +1,7 @@
 { mk, localCrates, serdeMin }:
 
 mk {
-  nix.name = "icecap-timer-server-config";
+  nix.name = "icecap-generic-timer-server-config";
   nix.local.dependencies = with localCrates; [
     icecap-config
   ];

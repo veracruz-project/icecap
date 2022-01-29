@@ -5,7 +5,7 @@ use icecap_driver_interfaces::SerialDevice;
 use icecap_std::prelude::*;
 use icecap_std::ring_buffer::{BufferedRingBuffer, RingBuffer};
 use icecap_std::rpc;
-use icecap_timer_server_client::*;
+use icecap_generic_timer_server_client::*;
 
 use crate::{
     color::{Color, COLORS},

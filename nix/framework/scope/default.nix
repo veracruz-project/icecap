@@ -70,6 +70,7 @@ superCallPackage ./rust {} self //
   dyndl-serialize-spec = mkTool globalCrates.dyndl-serialize-spec;
   icecap-show-backtrace = mkTool globalCrates.icecap-show-backtrace;
   icecap-serialize-runtime-config = mkTool globalCrates.icecap-serialize-runtime-config;
+  icecap-serialize-generic-component-config = mkTool globalCrates.icecap-serialize-generic-component-config;
 
   inherit (callPackage ./stdenv {}) mkStdenv stdenvMusl stdenvBoot stdenvToken stdenvMirage;
 

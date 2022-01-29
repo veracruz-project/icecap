@@ -52,4 +52,4 @@ class Mirage(ElfComponent):
         return self._arg
 
     def serialize_arg(self):
-        return self.serialize_builtin_arg('mirage')
+        return ('icecap-serialize-builtin-config', 'mirage')

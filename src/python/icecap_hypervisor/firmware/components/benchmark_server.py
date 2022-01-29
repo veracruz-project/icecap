@@ -14,7 +14,7 @@ class BenchmarkServer(ElfComponent):
             }
 
     def serialize_arg(self):
-        return self.serialize_builtin_arg('benchmark-server')
+        return ('icecap-serialize-builtin-config', 'benchmark-server')
 
     def arg_json(self):
         return self._arg

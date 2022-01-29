@@ -14,7 +14,7 @@ finite-set = { path = "../../../framework/helpers/finite-set" }
 icecap-bcm2835-aux-uart-driver = { path = "../../../framework/drivers/devices/bcm2835-aux-uart" }
 icecap-driver-interfaces = { path = "../../../framework/drivers/icecap-driver-interfaces" }
 icecap-event-server-types = { path = "../event-server/types" }
+icecap-generic-timer-server-client = { path = "../../../framework/generic-components/timer-server/client" }
 icecap-pl011-driver = { path = "../../../framework/drivers/devices/pl011" }
 icecap-serial-server-config = { path = "./config" }
 icecap-std = { path = "../../../framework/base/icecap-std" }
-icecap-timer-server-client = { path = "../timer-server/client" }

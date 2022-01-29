@@ -1,11 +1,11 @@
 { mkComponent, localCrates }:
 
 mkComponent {
-  nix.name = "timer-server";
+  nix.name = "icecap-generic-timer-server";
   nix.local.dependencies = with localCrates; [
     icecap-std
-    icecap-timer-server-types
-    icecap-timer-server-config
+    icecap-generic-timer-server-types
+    icecap-generic-timer-server-config
 
     icecap-driver-interfaces
 

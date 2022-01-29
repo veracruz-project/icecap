@@ -1,5 +1,6 @@
 { lib
 , buildIceCapComponent, globalCrates
+, genericComponents
 }:
 
 let
@@ -19,5 +20,9 @@ lib.mapAttrs mk {
   host-vmm = null;
   realm-vmm = null;
   idle = null;
+
+} // {
+
+  timer-server = genericComponents.icecap-generic-timer-server;
 
 }

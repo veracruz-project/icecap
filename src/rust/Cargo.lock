@@ -751,6 +751,44 @@ dependencies = [
 ]
 
 [[package]]
+name = "icecap-generic-timer-server"
+version = "0.1.0"
+dependencies = [
+ "cfg-if 1.0.0",
+ "icecap-bcm-system-timer-driver",
+ "icecap-driver-interfaces",
+ "icecap-generic-timer-server-config",
+ "icecap-generic-timer-server-types",
+ "icecap-std",
+ "icecap-virt-timer-driver",
+ "tock-registers",
+]
+
+[[package]]
+name = "icecap-generic-timer-server-client"
+version = "0.1.0"
+dependencies = [
+ "icecap-generic-timer-server-types",
+ "icecap-rpc",
+ "icecap-sel4",
+]
+
+[[package]]
+name = "icecap-generic-timer-server-config"
+version = "0.1.0"
+dependencies = [
+ "icecap-config",
+ "serde",
+]
+
+[[package]]
+name = "icecap-generic-timer-server-types"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "icecap-host"
 version = "0.1.0"
 dependencies = [
@@ -851,9 +889,9 @@ dependencies = [
  "dyndl-types",
  "icecap-core",
  "icecap-event-server-types",
+ "icecap-generic-timer-server-client",
  "icecap-plat",
  "icecap-resource-server-types",
- "icecap-timer-server-client",
  "log",
  "postcard",
  "serde",
@@ -964,7 +1002,6 @@ dependencies = [
  "icecap-realm-vmm-config",
  "icecap-resource-server-config",
  "icecap-serial-server-config",
- "icecap-timer-server-config",
  "postcard",
  "serde",
  "serde_json",
@@ -976,6 +1013,17 @@ version = "0.1.0"
 dependencies = [
  "finite-set",
  "icecap-event-server-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "icecap-serialize-generic-component-config"
+version = "0.1.0"
+dependencies = [
+ "icecap-config-cli-core",
+ "icecap-generic-timer-server-config",
+ "postcard",
  "serde",
  "serde_json",
 ]
@@ -1071,30 +1119,6 @@ dependencies = [
  "icecap-sel4",
  "rustc-std-workspace-alloc",
  "rustc-std-workspace-core",
-]
-
-[[package]]
-name = "icecap-timer-server-client"
-version = "0.1.0"
-dependencies = [
- "icecap-rpc",
- "icecap-sel4",
- "icecap-timer-server-types",
-]
-
-[[package]]
-name = "icecap-timer-server-config"
-version = "0.1.0"
-dependencies = [
- "icecap-config",
- "serde",
-]
-
-[[package]]
-name = "icecap-timer-server-types"
-version = "0.1.0"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -1456,11 +1480,11 @@ dependencies = [
  "dyndl-realize-simple-config",
  "dyndl-types",
  "icecap-event-server-types",
+ "icecap-generic-timer-server-client",
  "icecap-resource-server-config",
  "icecap-resource-server-core",
  "icecap-resource-server-types",
  "icecap-std",
- "icecap-timer-server-client",
  "postcard",
  "serde",
 ]
@@ -1555,10 +1579,10 @@ dependencies = [
  "icecap-bcm2835-aux-uart-driver",
  "icecap-driver-interfaces",
  "icecap-event-server-types",
+ "icecap-generic-timer-server-client",
  "icecap-pl011-driver",
  "icecap-serial-server-config",
  "icecap-std",
- "icecap-timer-server-client",
  "serde",
  "tock-registers",
 ]
@@ -1654,20 +1678,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 dependencies = [
  "unicode-width",
-]
-
-[[package]]
-name = "timer-server"
-version = "0.1.0"
-dependencies = [
- "cfg-if 1.0.0",
- "icecap-bcm-system-timer-driver",
- "icecap-driver-interfaces",
- "icecap-std",
- "icecap-timer-server-config",
- "icecap-timer-server-types",
- "icecap-virt-timer-driver",
- "tock-registers",
 ]
 
 [[package]]

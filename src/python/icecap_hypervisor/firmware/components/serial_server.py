@@ -79,7 +79,7 @@ class SerialServer(ElfComponent):
         return client_config
 
     def serialize_arg(self):
-        return self.serialize_builtin_arg('serial-server')
+        return ('icecap-serialize-builtin-config', 'serial-server')
 
     def arg_json(self):
         self._arg.update({

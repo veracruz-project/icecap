@@ -59,6 +59,14 @@
   dyndl-serialize-spec = ./crates/framework/dyndl/cli/dyndl-serialize-spec;
 
 
+  icecap-serialize-generic-component-config = ./crates/framework/generic-components/serialize-generic-component-config;
+
+  icecap-generic-timer-server = ./crates/framework/generic-components/timer-server;
+  icecap-generic-timer-server-types = ./crates/framework/generic-components/timer-server/types;
+  icecap-generic-timer-server-config = ./crates/framework/generic-components/timer-server/config;
+  icecap-generic-timer-server-client = ./crates/framework/generic-components/timer-server/client;
+
+
   icecap-vmm = ./crates/hypervisor/icecap-vmm;
   icecap-vmm-gic = ./crates/hypervisor/icecap-vmm/gic;
   icecap-fdt-bindings = ./crates/hypervisor/icecap-fdt-bindings;
@@ -84,11 +92,6 @@
 
   fault-handler = ./crates/hypervisor/components/fault-handler;
   icecap-fault-handler-config = ./crates/hypervisor/components/fault-handler/config;
-
-  timer-server = ./crates/hypervisor/components/timer-server;
-  icecap-timer-server-types = ./crates/hypervisor/components/timer-server/types;
-  icecap-timer-server-config = ./crates/hypervisor/components/timer-server/config;
-  icecap-timer-server-client = ./crates/hypervisor/components/timer-server/client;
 
   event-server = ./crates/hypervisor/components/event-server;
   icecap-event-server-types = ./crates/hypervisor/components/event-server/types;

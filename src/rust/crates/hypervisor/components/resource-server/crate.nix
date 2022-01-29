@@ -8,7 +8,7 @@ mkComponent {
     icecap-resource-server-types
     icecap-resource-server-config
     icecap-resource-server-core
-    icecap-timer-server-client
+    icecap-generic-timer-server-client
     dyndl-types
     dyndl-realize
     dyndl-realize-simple

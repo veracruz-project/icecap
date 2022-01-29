@@ -11,6 +11,8 @@ icecap-bcm2835-aux-uart-driver
 icecap-core
 icecap-driver-interfaces
 icecap-failure
+icecap-generic-timer-server
+icecap-generic-timer-server-client
 icecap-logger
 icecap-pl011-driver
 icecap-plat
@@ -25,7 +27,6 @@ icecap-start-generic
 icecap-std
 icecap-std-impl
 icecap-sync
-icecap-timer-server-client
 icecap-unwind
 icecap-virt-timer-driver
 icecap-vmm
@@ -34,4 +35,3 @@ idle
 realm-vmm
 resource-server
 serial-server
-timer-server

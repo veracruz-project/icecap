@@ -1,11 +1,11 @@
 { mkSeL4, localCrates }:
 
 mkSeL4 {
-  nix.name = "icecap-timer-server-client";
+  nix.name = "icecap-generic-timer-server-client";
   nix.local.dependencies = with localCrates; [
     icecap-sel4
     icecap-rpc
-    icecap-timer-server-types
+    icecap-generic-timer-server-types
   ];
   nix.passthru.noDoc = true;
 }
