@@ -2,7 +2,7 @@
 
 mkSeL4 {
   nix.name = "icecap-runtime";
-  nix.buildScriptHack = true;
+  nix.passthru.buildScriptPath = "build.rs";
   nix.local.dependencies = with localCrates; [
     icecap-sel4
   ];

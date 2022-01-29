@@ -50,8 +50,8 @@ let
         name = "${elaboratedNix.name}"
         version = "0.1.0"
         edition = "2018"
-        ${lib.optionalString (elaboratedNix.buildScriptHack != null) ''
-          build = "build.rs"
+        ${lib.optionalString (elaboratedNix.passthru ? buildScriptPath) ''
+          build = "${elaboratedNix.passthru.buildScriptPath}"
         ''}
         ${lib.optionalString (lib.hasAttr "lib" rest) ''
           [lib]

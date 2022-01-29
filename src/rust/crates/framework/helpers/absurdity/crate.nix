@@ -2,5 +2,5 @@
 
 mkExclude {
   nix.name = "absurdity";
-  nix.buildScriptHack = true;
+  nix.passthru.buildScriptPath = "build.rs";
 }

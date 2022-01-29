@@ -14,16 +14,17 @@ rec {
   mkCrate =
     let
       elaborateNix =
-        { name, srcPath ? null, src ? icecapSrc.absoluteSplitWithName name srcPath
-        , buildScriptHack ? null
-        , keepFilesHack ? []
+        { name
+        , srcPath ? null, src ? icecapSrc.absoluteSplitWithName name srcPath
+        , buildScript ? null
+        , extraLinks ? icecapSrc.splitTrivially []
         , isBin ? false
         , local ? {}
         , passthru ? {}
         }:
         {
           inherit
-            name src buildScriptHack keepFilesHack isBin
+            name src buildScript extraLinks isBin
             local
             passthru;
         };
@@ -44,15 +45,15 @@ rec {
 
         flatten = x: if lib.isList x then x else lib.concatMap flatten (lib.attrValues x);
 
-        mk = src: buildRs:
+        mk = src: buildScript:
           nixToToml (clobber [
             {
               package = {
                 inherit (elaboratedNix) name;
                 version = "0.1.0";
                 edition = "2018";
-              } // optionalAttrs (elaboratedNix.buildScriptHack != null) {
-                build = buildRs;
+              } // optionalAttrs (buildScript != null) {
+                build = buildScript;
               };
             }
 
@@ -74,9 +75,9 @@ rec {
 
       in lib.fix (self: {
         inherit (elaboratedNix) name;
-        store = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.store elaboratedNix.buildScriptHack.store);
-        env = mkLink elaboratedNix.keepFilesHack (mk elaboratedNix.src.env elaboratedNix.buildScriptHack.store);
-        dummy = mkLink elaboratedNix.keepFilesHack (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
+        store = mkLink elaboratedNix.extraLinks.store (mk elaboratedNix.src.store (elaboratedNix.buildScript.store or null));
+        env = mkLink elaboratedNix.extraLinks.env (mk elaboratedNix.src.env (elaboratedNix.buildScript.env or null));
+        dummy = mkLink elaboratedNix.extraLinks.store (mk (if elaboratedNix.isBin then dummySrcBin else dummySrcLib) "${dummySrcBin}/main.rs");
         localDependencies = flatten elaboratedNix.local;
 
         closure = {

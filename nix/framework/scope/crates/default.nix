@@ -13,27 +13,31 @@ let
   callCrate = path:
 
     let
-      mkBase = isBin: isSeL4: exclude: args: crateUtils.mkCrate (crateUtils.clobber [
-        args
-        {
-          nix.srcPath = icecapSrc.absolute (path + "/src");
-          nix.isBin = isBin;
-          nix.buildScriptHack =
-            if args.nix.buildScriptHack or false
-            then icecapSrc.absoluteSplit (path + "/build.rs")
-            else null;
-          nix.keepFilesHack = lib.forEach (args.nix.keepFilesHack or []) (name: {
-            inherit name;
-            path = icecapSrc.absolute (path + "/${name}");
-          });
-          nix.passthru.path = path;
-          nix.passthru.isSeL4 = isSeL4;
-          nix.passthru.exclude = exclude;
-        }
-        (lib.optionalAttrs (!((args.nix ? passthru) && (args.nix.passthru ? noDoc))) {
-          nix.passthru.noDoc = false;
-        })
-      ]);
+      mkBase = isBin: isSeL4: exclude: args:
+        let
+          passthru = args.nix.passthru or {};
+        in
+          crateUtils.mkCrate (crateUtils.clobber [
+            {
+              nix.srcPath = icecapSrc.absolute (path + "/src");
+              nix.isBin = isBin;
+              nix.buildScript =
+                if (passthru.buildScriptPath or null) != null
+                then icecapSrc.absoluteSplit (path + "/${passthru.buildScriptPath}")
+                else null;
+              nix.extraLinks = lib.flip lib.mapAttrs (icecapSrc.splitTrivially null) (k: _v: lib.forEach (passthru.extraPaths or []) (name: {
+                inherit name;
+                path = (icecapSrc.absoluteSplit (path + "/${name}")).${k};
+              }));
+              nix.passthru.path = path;
+              nix.passthru.isSeL4 = isSeL4;
+              nix.passthru.exclude = exclude;
+            }
+            (lib.optionalAttrs (!(passthru ? noDoc)) {
+              nix.passthru.noDoc = false;
+            })
+            args
+          ]);
 
     in newScope {
 

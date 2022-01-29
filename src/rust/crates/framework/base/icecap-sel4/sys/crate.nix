@@ -2,8 +2,8 @@
 
 mkSeL4 {
   nix.name = "icecap-sel4-sys";
-  nix.buildScriptHack = true;
-  nix.keepFilesHack = [
+  nix.passthru.buildScriptPath = "build.rs";
+  nix.passthru.extraPaths = [
     "wrapper.h"
   ];
   nix.local.target."cfg(not(target_os = \"icecap\"))".dependencies = with localCrates; [
