@@ -92,7 +92,7 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         icecap_runtime_eh_frame_hdr_start = config->eh_info.eh_frame_hdr_start;
         icecap_runtime_eh_frame_hdr_end = config->eh_info.eh_frame_hdr_end;
         icecap_runtime_eh_frame_end = config->eh_info.eh_frame_end;
-        icecap_runtime_image_path = (const char *)config + config->eh_info.image_path_offset;
+        icecap_runtime_image_path = config->eh_info.image_path_offset == 0 ? 0 : (const char *)config + config->eh_info.image_path_offset;
         icecap_runtime_tls_region_align = __icecap_runtime_tls_region_align_of(&config->tls_image);
         icecap_runtime_tls_region_size = __icecap_runtime_tls_region_size_of(&config->tls_image);
         icecap_runtime_print_lock = config->print_lock;
@@ -178,6 +178,12 @@ void ICECAP_NORETURN icecap_runtime_stop_component(void)
 
 #ifdef ICECAP_RUNTIME_ROOT
 
+extern seL4_Word __text_start[];
+extern seL4_Word __text_end[];
+extern seL4_Word __eh_frame_hdr_start[];
+extern seL4_Word __eh_frame_hdr_end[];
+extern seL4_Word __eh_frame_end[];
+
 extern seL4_Word __icecap_runtime_root_tdata_start[];
 extern seL4_Word __icecap_runtime_root_tdata_end[];
 extern seL4_Word __icecap_runtime_root_tbss_end[];
@@ -193,7 +199,12 @@ static struct icecap_runtime_config root_config = {
         .lock = 0,
     },
     .eh_info = {
-        // TODO
+        .text_start = (seL4_Word)&__text_start[0],
+        .text_end = (seL4_Word)&__text_end[0],
+        .eh_frame_hdr_start = (seL4_Word)&__eh_frame_hdr_start[0],
+        .eh_frame_hdr_end = (seL4_Word)&__eh_frame_hdr_end[0],
+        .eh_frame_end = (seL4_Word)&__eh_frame_end[0],
+        .image_path_offset = 0,
     },
     .num_threads = 1,
     .threads = {

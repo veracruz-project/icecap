@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawBacktrace {
-    pub path: String,
+    pub path: Option<String>,
     pub skip: usize,
     pub stack_frames: Vec<RawStackFrame>,
     pub error: Option<String>,

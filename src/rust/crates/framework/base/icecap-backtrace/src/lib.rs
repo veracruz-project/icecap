@@ -27,7 +27,7 @@ impl Backtrace {
         let (stack_frames, error) = collect_raw_backtrace();
         Self {
             raw: RawBacktrace {
-                path: image_path().unwrap().to_string(),
+                path: image_path().map(|r| r.unwrap().to_string()),
                 skip,
                 stack_frames,
                 error,

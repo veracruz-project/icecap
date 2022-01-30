@@ -12,19 +12,28 @@ use icecap_backtrace_types::RawBacktrace;
 
 fn main() {
     let matches = App::new("")
+        .arg(Arg::from_usage("-f --file=[ELF]"))
         .arg(Arg::from_usage("<raw_backtrace>"))
         .get_matches();
     let bt_hex = matches.value_of("raw_backtrace").unwrap();
     let bt: RawBacktrace = RawBacktrace::deserialize(bt_hex);
-    let elf_file = File::open(&bt.path).unwrap();
+    let elf_file_path = matches
+        .value_of("file")
+        .or(bt.path.as_ref().map(String::as_str))
+        .expect("ELF file neither embedded nor provided");
+    let elf_file = File::open(elf_file_path).unwrap();
     let map = unsafe { Mmap::map(&elf_file).unwrap() };
     let elf_obj = &object::File::parse(&*map).unwrap();
     let ctx = Context::new(elf_obj).unwrap();
-    show_backtrace(ctx, bt).unwrap();
+    show_backtrace(ctx, &bt, elf_file_path).unwrap();
 }
 
-fn show_backtrace<R: Reader>(ctx: Context<R>, bt: RawBacktrace) -> Result<(), gimli::Error> {
-    println!("backtrace: {}", bt.path);
+fn show_backtrace<R: Reader>(
+    ctx: Context<R>,
+    bt: &RawBacktrace,
+    elf_file_path: &str,
+) -> Result<(), gimli::Error> {
+    println!("backtrace: {}", elf_file_path);
     if let Some(ref err) = bt.error {
         println!("    error: {}", err);
     }

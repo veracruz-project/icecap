@@ -41,7 +41,9 @@ lib.fix (self: buildRustPackageIncrementally ({
         "--cfg=icecap_benchmark"
       ] ++ lib.optionals isRoot [
         "-C" "link-arg=-T${root-task-tls-lds}"
+        "-C" "link-arg=-T${root-task-eh-lds}"
         # "-T" root-task-tls-lds
+        # "-T" root-task-eh-lds
       ];
     }
   ]);

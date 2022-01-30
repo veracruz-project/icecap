@@ -4,18 +4,22 @@ use core::str;
 
 use crate::c;
 
-pub fn image_path() -> Result<&'static str, str::Utf8Error> {
-    str::from_utf8({
-        let start = unsafe { c::icecap_runtime_image_path };
-        let mut size = 0;
-        loop {
-            match unsafe { *start.offset(size as isize) } {
-                0 => break,
-                _ => size += 1,
+pub fn image_path() -> Option<Result<&'static str, str::Utf8Error>> {
+    let start = unsafe { c::icecap_runtime_image_path };
+    if start.is_null() {
+        None
+    } else {
+        Some({
+            let mut size = 0;
+            loop {
+                match unsafe { *start.offset(size as isize) } {
+                    0 => break,
+                    _ => size += 1,
+                }
             }
-        }
-        unsafe { slice::from_raw_parts(start, size) }
-    })
+            str::from_utf8(unsafe { slice::from_raw_parts(start, size) })
+        })
+    }
 }
 
 pub fn text() -> Range<usize> {

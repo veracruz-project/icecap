@@ -19,11 +19,12 @@ let
 
 in linkFarm "system" (lib.flatten [
   (link "image.elf" image)
-  (sub "breakdown" (lib.flatten [
+  (sub "breakdown" (lib.flatten ([
     (showSplit "elfloader" bootImages.loader)
     (showSplit "kernel" bootImages.kernel)
     (showSplit "root-task" bootImages.app)
     (link "kernel.dtb" attrs.kernel.dtb)
+  ] ++ lib.optionals (attrs.config != null) [
     (sub "components" (lib.flatten [
       (lib.mapAttrsToList showSplit cdlImages)
     ]))
@@ -33,5 +34,5 @@ in linkFarm "system" (lib.flatten [
       (link "frame-fill" "${attrs.cdl}/links")
       (link "workspace" attrs.cdl)
     ]))
-  ]))
+  ])))
 ])

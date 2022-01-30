@@ -62,6 +62,7 @@ let
   mkRoot = attrs: mk (attrs // {
     extraCFlagsLink = (attrs.extraCFlagsLink or []) ++ [
       "-T" root-task-tls-lds
+      "-T" root-task-eh-lds
     ];
   });
 

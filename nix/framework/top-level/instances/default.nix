@@ -18,6 +18,7 @@ let
 in {
   tests = {
     backtrace = callInstance ./tests/backtrace {};
+    backtrace-root-task = callInstance ./tests/backtrace-root-task {};
     sysroot = callInstance ./tests/sysroot {};
   };
 
