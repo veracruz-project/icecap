@@ -7,6 +7,6 @@ mkSeL4 {
   ];
   dependencies = {
     log = "*";
-    dlmalloc = patches.dlmalloc.dep;
+    dlmalloc = "0.2.3";
   };
 }

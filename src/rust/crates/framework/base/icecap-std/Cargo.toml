@@ -7,6 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-dlmalloc = { git = "https://gitlab.com/arm-research/security/icecap/rust-dlmalloc", rev = "f6759cfed44dc4135eaa43c8c26599357749af39" }
+dlmalloc = "0.2.3"
 log = "*"
 icecap-core = { path = "../icecap-core" }
