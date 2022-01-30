@@ -177,32 +177,32 @@ allocation and exception handling).
 
 ### The IceCap Python libraries
 
-This section addresses how the CapDL specification we found at `-A
-minimal-capdl.composition.cdl` was produced.  The IceCap framework includes a
-Python library built on top of the [CapDL Python
+This section addresses how the CapDL specification we found at
+`examples/03-minimal-capdl -A composition.cdl` was produced.  The IceCap
+framework includes a Python library built on top of the [CapDL Python
 library](https://github.com/seL4/capdl/tree/master/python-capdl-tool).  This
 library is located at
 [../src/python/icecap_framework](../src/python/icecap_framework).  To describe a
 system, we write a small Python program
 ([./03-minimal-capdl/cdl.py](./03-minimal-capdl/cdl.py)) using this library
 whose input includes the binaries of our components along with some
-configuration, and whose output is what you saw at `-A
-minimal-capdl.composition.cdl`.
+configuration, and whose output is what you saw at `examples/03-minimal-capdl -A
+composition.cdl`.
 
 The IceCap Framework's Nix build system takes care of the details of running
 that Python code.  See
-[./03-minimal-capdl/default.nix#L14](./03-minimal-capdl/default.nix#L14) for an
+[./03-minimal-capdl/default.nix#L16](./03-minimal-capdl/default.nix#L16) for an
 example.  For details, either trace the Nix code back to
 [../nix/framework/scope/configured/capdl/mk-icedl.nix](../nix/framework/scope/configured/capdl/mk-icedl.nix)
 or take a look at the relevant bits of Makefile in the repository referenced in
 [IceCap without Nix](../docs/icecap-without-nix.md).
 
 All `class ExampleComponent` in `cdl.py` does is create the file found at
-`result/example_component_arg.bin` after `nix-build examples/ -A
-minimal-capdl.composition.cdl`.  The contents of this file is embedded into the
-`struct icecap_runtime_config` blob passed to the component, and is ultimately
-the argument to `void icecap_main(void *arg, seL4_Word arg_size)`.  Recall that
-this function is declared in `icecap-runtime.h` and defined by the application.
+`result/example_component_arg.bin` after `nix-build examples/03-minimal-capdl -A
+composition.cdl`.  The contents of this file is embedded into the `struct
+icecap_runtime_config` blob passed to the component, and is ultimately the
+argument to `void icecap_main(void *arg, seL4_Word arg_size)`.  Recall that this
+function is declared in `icecap-runtime.h` and defined by the application.
 
 In the case of `03-minimal-capdl`, that `arg` blob is the text `"Hello,
 CapDL!\n"`.  In the manner described just now, that text makes its way from
@@ -244,19 +244,19 @@ along with the value you saw at `example_component_arg.json`. The `Config` type
 has both application-specific data (the `"foo"` field) and capability pointers
 (e.g. the `"barrier_nfn"` field). Our Python script `cdl.py` declares some seL4
 objects with `self.alloc()` and grants capabilities for those objects to the
-component with `self.cspace().alloc()`. It passes the capability pointers of
-those capabilities in the component's address space to the component application
+component with `self.cspace().alloc()`. It passes capability pointers to those
+capabilities in the component's capability space to the component application
 code via `Config`.
 
 The script also creates a static secondary thread with
 `self.secondary_thread()`.  This creates a TCB object and a stack.  At component
-boot, that thread executes from `_start` just like the primary thread, but it is
-passed a nonzero `thread_index`.  Eventually it diverges from the primary thread
-in `__icecap_runtime_continue()` in
+boot time, that thread executes from `_start` just like the primary thread, but
+it is passed a nonzero `thread_index`.  Eventually it diverges from the primary
+thread in `__icecap_runtime_continue()` in
 [../src/c/icecap-runtime/src/runtime.c](../src/c/icecap-runtime/src/runtime.c).
 It then blocks, waiting for the primary thread to send it a function pointer and
 arguments via an associated endpoint.  The `icecap-runtime` crate provides a
-high level interface to this low-level abstraction.  The
+high level interface to this low-level mechanism.  The
 `example_component_config::Config` field `secondary_thread:
 icecap_runtime::Thread` is just a wrapper around `icecap_sel4::Endpoint`.
 Observe how the thread is sent a closure in
@@ -281,7 +281,7 @@ nix-build examples/05-basic-system -A run && ./result/run
 # wait for the example to boot and then type some characters
 ```
 
-The Python script for this example is a bit more complicated, and is broken up
+The Python script for this example is a bit more complex, and is broken up
 into several modules: [./05-basic-system/cdl](./05-basic-system/cdl). Note that
 the components extend `class GenericElfComponent` rather than `class
 ElfComponent`. We forgo build-time type-checking of configuration in this
@@ -313,7 +313,9 @@ capable of dynamically realizing CapDL-like specifications describing subsystems
 at runtime. In [./06-dynamism](./06-dynamism), a component called
 `supercomponent` is endowed with extra untyped memory resources, and provided
 with a serialized CapDL specificaiton called `subsystem`. It uses the `dyndl-*`
-crates to repeatedly realize and destroy `subsystem`.
+crates
+([../src/rust/crates/framework/dyndl](../src/rust/crates/framework/dyndl)) to
+repeatedly realize and destroy `subsystem`.
 
 ```
 nix-build examples/06-dynamism -A run && ./result/run
@@ -327,7 +329,7 @@ cat result/icecap.cdl
 ```
 
 You'll notice an object named `extern_nfn`. Objects whose names contain the
-prefix `extern_` are treated specially by the `dyndl-realize` crate. Such names
+prefix `extern_` are treated as special by the `dyndl-realize` crate. Such names
 refer to shared objects provided by the realizer. In the case of this example,
 `supersystem` and `subsystem` share a notification object, which they use for
 communication.
@@ -339,7 +341,7 @@ hypervisor with a minimal trusted computing base which serves as a research
 vehicle for virtualization-based confidential computing.  The IceCap Hypervisor
 doubles as the reference application of the IceCap Framework.  See
 [../README.md](../README.md) for an overview of the IceCap Hypervisor.  This
-section will focus on how the IceCap Framework is used to create the IceCap
+section will focus on how the IceCap Framework is used to construct the IceCap
 Hypervisor.
 
 The IceCap Hypervisor is a CapDL-based system created using the IceCap
