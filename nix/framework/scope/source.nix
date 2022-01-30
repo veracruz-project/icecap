@@ -1,4 +1,4 @@
-{ lib, fetchgit, linuxHelpers, makeOverridable' }:
+{ lib, fetchgit, linuxHelpers, makeOverridable', icecapFrameworkConfig }:
 
 rec {
 
@@ -36,11 +36,7 @@ rec {
     splitTrivially = store: { inherit store; env = store; };
     extend = suffix: lib.mapAttrs (_: v: "${v}${suffix}");
 
-
-    gitUrlOf = repo: "https://gitlab.com/arm-research/security/icecap/${repo}";
-    keepRefOf = rev: "refs/tags/icecap/keep/${builtins.substring 0 32 rev}";
-
-    localPathOf = repo: ../../../../local + "/${repo}";
+    inherit (icecapFrameworkConfig.source) gitUrlOf keepRefOf localPathOf;
 
     localPathWithBranchOf = repo: branch:
       let

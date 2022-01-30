@@ -54,7 +54,7 @@ let
     };
 
   baseArgs = selfFramework: {
-    config = {};
+    config = import ./config.nix;
     nixpkgsArgsFor = crossSystem: {
       inherit crossSystem;
       overlays = [

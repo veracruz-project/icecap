@@ -18,6 +18,8 @@ superCallPackage ./rust {} self //
 
 (with self; {
 
+  icecapFrameworkConfig = icecapFramework.config;
+
   icecapPlats = [
     "virt"
     "rpi4"
