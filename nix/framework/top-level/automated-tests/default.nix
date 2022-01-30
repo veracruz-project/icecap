@@ -2,7 +2,11 @@
 
 rec {
   cases = {
-    # TODO
+    # TODO add more
+    sysroot = automateQemuBasic {
+      script = "${instances.tests.sysroot.virt.run}/run";
+      timeout = 30;
+    };
   };
 
   runAll = mkRunAll cases;
