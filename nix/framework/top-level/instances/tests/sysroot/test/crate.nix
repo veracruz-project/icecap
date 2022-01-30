@@ -9,4 +9,7 @@ crateUtils.mkCrate {
     icecap-start-generic
     icecap-std-external
   ];
+  dependencies = {
+    libc = globalCrates._patches.libc.dep;
+  };
 }
