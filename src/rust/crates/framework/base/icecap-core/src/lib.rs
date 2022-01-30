@@ -18,4 +18,4 @@ pub use icecap_logger as logger;
 pub use icecap_start as start;
 pub use icecap_config as config;
 
-pub use icecap_start::{declare_main, declare_raw_main};
+pub use icecap_start::{declare_main, declare_root_main, declare_raw_main};
