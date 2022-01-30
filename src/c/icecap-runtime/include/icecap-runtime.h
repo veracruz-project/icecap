@@ -23,6 +23,7 @@ struct icecap_runtime_eh_info {
     seL4_Word text_end;
     seL4_Word eh_frame_hdr_start;
     seL4_Word eh_frame_hdr_end;
+    seL4_Word eh_frame_start;
     seL4_Word eh_frame_end;
     seL4_Word image_path_offset; // offset from &config
 };
@@ -74,6 +75,7 @@ extern seL4_Word icecap_runtime_text_start;
 extern seL4_Word icecap_runtime_text_end;
 extern seL4_Word icecap_runtime_eh_frame_hdr_start;
 extern seL4_Word icecap_runtime_eh_frame_hdr_end;
+extern seL4_Word icecap_runtime_eh_frame_start;
 extern seL4_Word icecap_runtime_eh_frame_end;
 extern const char *icecap_runtime_image_path;
 

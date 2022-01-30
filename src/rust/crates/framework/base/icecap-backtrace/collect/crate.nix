@@ -17,3 +17,7 @@ mkSeL4 {
     gimli = { version = "0.20.0"; default-features = false; features = [ "read" ]; };
   };
 }
+
+# TODO
+# unwinding = { version = "0.1.4"; default-features = false; features = [ "unwinder" "fde-static" "personality" "panic" ]; };
+# unwinding = { version = "0.1.4"; default-features = false; features = [ "unwinder" "fde-static" ]; };

@@ -11,7 +11,7 @@ mod debug;
 
 use icecap_sel4::{LocalCPtr, TCB};
 
-pub use debug::{eh_frame_end, eh_frame_hdr, image_path, text};
+pub use debug::{eh_frame_hdr, eh_frame, image_path, text};
 pub use thread::Thread;
 pub use tls::TlsRegion;
 

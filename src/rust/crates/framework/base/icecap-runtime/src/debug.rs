@@ -25,10 +25,11 @@ pub fn image_path() -> Option<Result<&'static str, str::Utf8Error>> {
 pub fn text() -> Range<usize> {
     unsafe { c::icecap_runtime_text_start..c::icecap_runtime_text_end }
 }
+
 pub fn eh_frame_hdr() -> Range<usize> {
     unsafe { c::icecap_runtime_eh_frame_hdr_start..c::icecap_runtime_eh_frame_hdr_end }
 }
 
-pub fn eh_frame_end() -> usize {
-    unsafe { c::icecap_runtime_eh_frame_end }
+pub fn eh_frame() -> Range<usize> {
+    unsafe { c::icecap_runtime_eh_frame_start..c::icecap_runtime_eh_frame_end }
 }

@@ -6,6 +6,7 @@ extern "C" {
     pub(crate) static icecap_runtime_text_end: usize;
     pub(crate) static icecap_runtime_eh_frame_hdr_start: usize;
     pub(crate) static icecap_runtime_eh_frame_hdr_end: usize;
+    pub(crate) static icecap_runtime_eh_frame_start: usize;
     pub(crate) static icecap_runtime_eh_frame_end: usize;
     pub(crate) static icecap_runtime_image_path: *const u8;
 

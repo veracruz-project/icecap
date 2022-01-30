@@ -230,6 +230,7 @@ def eh_info(elf):
     # TODO is it reasonable to silently omit?
     eh_frame_hdr_start = 0
     eh_frame_hdr_end = 0
+    eh_frame_start = 0
     eh_frame_end = 0
     for sec in elf.iter_sections():
         if sec.name == '.text':
@@ -239,12 +240,14 @@ def eh_info(elf):
             eh_frame_hdr_start = sec.header.sh_addr
             eh_frame_hdr_end = sec.header.sh_addr + sec.header.sh_size
         if sec.name == '.eh_frame':
+            eh_frame_start = sec.header.sh_addr
             eh_frame_end = sec.header.sh_addr + sec.header.sh_size
     return {
         'text_start': text_start,
         'text_end': text_end,
         'eh_frame_hdr_start': eh_frame_hdr_start,
         'eh_frame_hdr_end': eh_frame_hdr_end,
+        'eh_frame_start': eh_frame_start,
         'eh_frame_end': eh_frame_end,
         }
 

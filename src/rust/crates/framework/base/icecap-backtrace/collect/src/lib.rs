@@ -23,8 +23,9 @@ cfg_if::cfg_if! {
 
             pub fn collect_raw_backtrace() -> (Vec<RawStackFrame>, Option<String>) {
                 log::warn!("collecting backtrace");
-                let mut stack_frames = vec![];
+
                 let mut error = None;
+                let mut stack_frames = vec![];
                 DwarfUnwinder::default().trace(|frames| {
                     frames.for_each(|frame| {
                         stack_frames.push(RawStackFrame {

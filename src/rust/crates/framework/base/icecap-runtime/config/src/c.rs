@@ -15,6 +15,7 @@ pub struct EhInfo {
     pub text_end: u64,
     pub eh_frame_hdr_start: u64,
     pub eh_frame_hdr_end: u64,
+    pub eh_frame_start: u64,
     pub eh_frame_end: u64,
     pub image_path_offset: u64,
 }
