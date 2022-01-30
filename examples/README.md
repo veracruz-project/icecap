@@ -305,6 +305,14 @@ find result/
 cat result/icecap.cdl
 ```
 
+The `composition.display` attribute (present in all examples) provides a
+breakdown of the system's composition:
+
+```
+nix-build examples/05-basic-system -A composition.display
+find -L result/
+```
+
 ### Adding dynamism
 
 So far, we have used CapDL to describe complete, static systems. The IceCap
@@ -344,12 +352,8 @@ doubles as the reference application of the IceCap Framework.  See
 section will focus on how the IceCap Framework is used to construct the IceCap
 Hypervisor.
 
-The IceCap Hypervisor is a CapDL-based system created using the IceCap
-Framework, just like `05-basic-system`, only much more complex and much more
-useful.
-
 Build and run a simple demonstration of the IceCap Hypervisor, including three
-examples of confidential guests (called "realms").  (For a more sophisticated
+examples of confidential guests (called "Realms").  (For a more sophisticated
 demo, see
 [../demos/hypervisor-demo/README.md](../demos/hypervisor-demo/README.md)).
 
@@ -358,28 +362,28 @@ demo, see
 
                # ... wait for the host VM to boot to a shell ...
 
-               # Spawn a minimal realm:
+               # Spawn a minimal Realm:
 
  [icecap host] create minimal
 
-               # Cease the realm's exectution with '<ctrl>-c' and destroy it:
+               # Cease the Realm's exectution with '<ctrl>-c', and then destroy it:
 
  [icecap host] destroy
 
-               # Spawn a VM in a realm:
+               # Spawn a VM in a Realm:
 
  [icecap host] create vm
 
-               # ... wait for the realm VM to boot to a shell ...
+               # ... wait for the Realm VM to boot to a shell ...
 
                # Type '<enter>@?<enter>' for console multiplexer help.
-               # The host VM uses virtual console 0, and the realm VM uses virtual console 1.
-               # Switch to the realm VM virtual console by typing '<enter>@1<enter>'.
+               # The host VM uses virtual console 0, and the Realm VM uses virtual console 1.
+               # Switch to the Realm VM virtual console by typing '<enter>@1<enter>'.
 
 [icecap realm] echo hello
 
                # Switch back to the host VM virtual console by typing '<enter>@0<enter>'.
-               # Interrupt the realm's execution with '<ctrl>-c' and then destroy it:
+               # Interrupt the Realm's execution with '<ctrl>-c' and then destroy it:
 
  [icecap host] destroy
 
@@ -387,19 +391,27 @@ demo, see
 
  [icecap host] create mirage
 
-               # Cease the realm's exectution with '<ctrl>-c' and destroy it:
+               # Cease the Realm's exectution with '<ctrl>-c' and destroy it:
 
  [icecap host] destroy
 
                # As usual, '<ctrl>-a x' quits QEMU.
 ```
 
-To get a picture of the system, take a look at its CapDL specification:
+The IceCap Hypervisor firmware's structure is similar to that of [Trusted
+Firmware-A](https://www.trustedfirmware.org/projects/tf-a/) in that it
+initializes the trusted part of the system, and then passes control to a
+bootloader in the untrusted part of the system. However, the IceCap Hypervisor
+firmware starts in NS-EL2 rather than EL3, and the untrusted domain is confined
+to a distinguised virtual machine called the "host", rather than the entire
+non-secure world. Take a look at the firmware's CapDL specification and
+breakdown:
 
 ```
 nix-build examples/07-hypervisor -A configured.icecapFirmware.cdl
-find result/
 cat result/icecap.cdl
+nix-build examples/07-hypervisor -A configured.icecapFirmware.display
+find -L result/
 ```
 
 For reference, the IceCap Hypervisor's CapDL specification is created with the
@@ -415,14 +427,28 @@ Where `icecap_hypervisor` is the Python module located at
 The Rust code for the IceCap Hypervisor components is located at
 [../src/rust/crates/hypervisor/components](../src/rust/crates/hypervisor/components).
 
-Like the hypervisor itself, realm images are also specified using CapDL.  Unlike
+The untrusted bootloader (U-Boot) boots the host virtual machine into a Linux
+system, which is responsible for managing the the platform's CPU and memory
+resources and for driving the platform's untrusted devices. While the host
+manages Realms' CPU and memory resources, it does not have access to those
+resources. In other words, the host is responsbile for scheduling and memory
+management policy, but the corresponding mechanisms are the responsibility of
+trusted services in the hypervisor firmware. These services cooperate
+defensively with the host to enable confidential Realm execution.
+
+The host virtual machine spans all cores on the system. "Shadow threads" act as
+projections of the Realm's virtual cores onto the host's scheduler, enabling
+integration of the resource manager's interface into the host's scheduler with
+minimally invasive modifications.
+
+Like the hypervisor itself, Realm images are also specified using CapDL.  Unlike
 the hypervisor's CapDL specification, which is realized at boot-time by the root
-task, realm CapDL specifications are realized at realm creation-time by a
+task, Realm CapDL specifications are realized at Realm creation-time by a
 dynamic CapDL loader in the [resource
 server](../src/rust/crates/hypervisor/components/resource-server).
 
-Take a look at the CapDL specifications for each of the three example realms: a
-minimal realm analogous to the `03-minimal-capdl` example, a Linux VM, and a
+Take a look at the CapDL specifications for each of the three example Realms: a
+minimal Realm analogous to the `03-minimal-capdl` example, a Linux VM, and a
 MirageOS unikernel:
 
 ```
@@ -436,13 +462,13 @@ nix-build examples/07-hypervisor -A realms.mirage.spec.ddl
 Veracruz is a framework for defining and deploying collaborative,
 privacy-preserving computations amongst a group of mutually mistrusting
 individuals. Veracruz's support for the IceCap Hypervisor serves as another
-example for the IceCap Framework:
+example application of the IceCap Framework:
 
 [https://github.com/veracruz-project/veracruz](https://github.com/veracruz-project/veracruz)
 
-Veracruz's support for IceCap includes a realm with a more rich structure than
-any presented so far in this guide.  The Veracruz Runtime consists of two
-components: a WebAssembly JIT-compiler and sandbox, and a supervisor which
-projects an operating system personality for the sandbox.  The supervisor
-manages the virtual address space of the sandbox and provides services such as
-`mmap`.
+Veracruz's support for IceCap includes a Realm with a more rich structure than
+any presented so far in this guide.  This Realm, called the Veracruz Runtime,
+consists of two components: a WebAssembly JIT-compiler and sandbox, and a
+supervisor which projects an operating system personality for the sandbox.  The
+supervisor manages the virtual address space of the sandbox and provides
+services such as `mmap`.
