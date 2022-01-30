@@ -13,3 +13,4 @@ hypervisor-event-server-types = { path = "../../event-server/types" }
 icecap-core = { path = "../../../../framework/base/icecap-core" }
 icecap-vmm-gic = { path = "../../../../framework/vmm/gic" }
 icecap-vmm-psci = { path = "../../../../framework/vmm/psci" }
+icecap-vmm-utils = { path = "../../../../framework/vmm/utils" }

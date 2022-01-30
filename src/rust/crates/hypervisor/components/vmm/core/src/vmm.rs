@@ -12,8 +12,7 @@ use icecap_core::{
 };
 use icecap_vmm_gic::*;
 use icecap_vmm_psci as psci;
-
-const SYS_PUTCHAR: Word = 1337;
+use icecap_vmm_utils as utils;
 
 const BADGE_FAULT: Badge = 0;
 
@@ -147,7 +146,7 @@ impl<E: 'static + VMMExtension + Send> VMMConfig<E> {
 
 impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     fn run(&mut self) -> Fallible<()> {
-        self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?;
+        self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?; // TODO is this necessary? probably not.
         self.tcb.resume()?;
         loop {
             let (info, badge) = self.ep.recv();
@@ -176,11 +175,10 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             }
                         }
                         Fault::VPPIEvent(fault) => {
-                            let irq = QualifiedIRQ::QualifiedPPI {
+                            self.gic.lock().handle_irq(self.node_index, QualifiedIRQ::QualifiedPPI {
                                 node: self.node_index,
                                 irq: fault.irq as usize,
-                            };
-                            self.gic.lock().handle_irq(self.node_index, irq)?;
+                            })?;
                             reply(MessageInfo::empty());
                         }
                         _ => {
@@ -229,39 +227,10 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_page_fault(&mut self, fault: VMFault) -> Fallible<()> {
         let addr = fault.addr as usize;
-        if self.gic_dist_paddr <= addr
-            && addr < self.gic_dist_paddr + GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE
-        {
-            let offset = addr - self.gic_dist_paddr;
-            self.handle_dist_fault(fault, offset)?;
+        if let Some(offset) = utils::offset_in_region(addr, self.gic_dist_paddr, GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE) {
+            utils::handle_gic_distributor_fault(&mut self.gic.lock(), self.node_index, self.tcb, fault, offset)?;
         } else {
             panic!("unhandled page fault: {:x?}", fault);
-        }
-        Ok(())
-    }
-
-    fn handle_dist_fault(&mut self, fault: VMFault, offset: usize) -> Fallible<()> {
-        assert!(fault.is_valid());
-        assert!(fault.is_aligned());
-        if fault.is_write() {
-            let mut ctx = self.tcb.read_all_registers(false).unwrap();
-            let data = fault.data(&ctx);
-            self.gic
-                .lock()
-                .handle_write(self.node_index, offset, data)?;
-            ctx.advance();
-            self.tcb.write_all_registers(false, &mut ctx).unwrap();
-        } else if fault.is_read() {
-            let data = self
-                .gic
-                .lock()
-                .handle_read(self.node_index, offset, fault.width())?;
-            let mut ctx = self.tcb.read_all_registers(false).unwrap();
-            fault.emulate_read(&mut ctx, data);
-            ctx.advance();
-            self.tcb.write_all_registers(false, &mut ctx).unwrap();
-        } else {
-            panic!();
         }
         Ok(())
     }
@@ -269,7 +238,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
     fn handle_syscall(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
         Ok(match fault.syscall {
             psci::SYS_PSCI => self.sys_psci(fault)?,
-            SYS_PUTCHAR => self.sys_putchar(fault)?,
+            utils::SYS_PUTCHAR => self.sys_putchar(fault)?,
             _ => E::handle_syscall(self, fault)?,
         })
     }

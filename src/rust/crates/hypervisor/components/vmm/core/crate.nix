@@ -7,6 +7,7 @@ mkSeL4 {
     icecap-core
     icecap-vmm-gic
     icecap-vmm-psci
+    icecap-vmm-utils
     hypervisor-event-server-types
   ];
   dependencies = {

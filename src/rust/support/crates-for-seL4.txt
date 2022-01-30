@@ -65,3 +65,4 @@ icecap-unwind
 icecap-virt-timer-driver
 icecap-vmm-gic
 icecap-vmm-psci
+icecap-vmm-utils

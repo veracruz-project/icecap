@@ -800,6 +800,7 @@ dependencies = [
  "icecap-core",
  "icecap-vmm-gic",
  "icecap-vmm-psci",
+ "icecap-vmm-utils",
  "log",
 ]
 
@@ -1264,6 +1265,15 @@ name = "icecap-vmm-psci"
 version = "0.1.0"
 dependencies = [
  "icecap-sel4",
+]
+
+[[package]]
+name = "icecap-vmm-utils"
+version = "0.1.0"
+dependencies = [
+ "icecap-failure",
+ "icecap-sel4",
+ "icecap-vmm-gic",
 ]
 
 [[package]]

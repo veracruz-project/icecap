@@ -68,6 +68,7 @@ members = [
     "crates/framework/std-support/icecap-std-impl",
     "crates/framework/vmm/gic",
     "crates/framework/vmm/psci",
+    "crates/framework/vmm/utils",
     "crates/hypervisor/build-tools/hypervisor-fdt-append-devices",
     "crates/hypervisor/build-tools/hypervisor-serialize-component-config",
     "crates/hypervisor/build-tools/hypervisor-serialize-event-server-out-index",

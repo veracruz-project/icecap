@@ -43,6 +43,7 @@
 
   icecap-vmm-gic = ./crates/framework/vmm/gic;
   icecap-vmm-psci = ./crates/framework/vmm/psci;
+  icecap-vmm-utils = ./crates/framework/vmm/utils;
 
   icecap-mirage-core = ./crates/framework/mirage/core;
  

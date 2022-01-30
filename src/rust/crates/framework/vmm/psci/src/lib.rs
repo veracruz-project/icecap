@@ -2,11 +2,6 @@
 
 use icecap_sel4::fault::UnknownSyscall;
 
-// TODO enrich
-//  - request and response enums
-//  - parsing from icecap_sel4::TCB
-//  - etc.
-
 pub const SYS_PSCI: u64 = 0;
 
 pub const VERSION: i32 = 0x0001_0001;
