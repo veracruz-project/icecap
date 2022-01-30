@@ -18,5 +18,5 @@ pub fn f() {
 }
 
 fn g(_: &()) -> () {
-    panic!()
+    panic!("test");
 }
