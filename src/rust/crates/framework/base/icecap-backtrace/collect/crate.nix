@@ -10,14 +10,9 @@ mkSeL4 {
     log = "*";
   };
   nix.local.target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies = with localCrates; [
-    icecap-unwind
+    icecap-sel4
   ];
   target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies = {
-    fallible-iterator = { version = "*"; default-features = false; features = [ "alloc" ]; };
-    gimli = { version = "0.20.0"; default-features = false; features = [ "read" ]; };
+    unwinding = { version = "0.1.4"; default-features = false; features = [ "unwinder" "fde-gnu-eh-frame-hdr" ]; };
   };
 }
-
-# TODO
-# unwinding = { version = "0.1.4"; default-features = false; features = [ "unwinder" "fde-static" "personality" "panic" ]; };
-# unwinding = { version = "0.1.4"; default-features = false; features = [ "unwinder" "fde-static" ]; };

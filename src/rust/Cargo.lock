@@ -821,11 +821,10 @@ name = "icecap-backtrace-collect"
 version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
- "fallible-iterator",
- "gimli 0.20.0",
  "icecap-backtrace-types",
- "icecap-unwind",
+ "icecap-sel4",
  "log",
+ "unwinding",
 ]
 
 [[package]]
@@ -1771,6 +1770,15 @@ name = "unicode-xid"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
+
+[[package]]
+name = "unwinding"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76b094d871608c32cdc2cc06ade39d8dc8c99ce95cbc528c1dcf7434319a1faf"
+dependencies = [
+ "gimli 0.26.1",
+]
 
 [[package]]
 name = "uuid"
