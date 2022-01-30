@@ -188,7 +188,7 @@ impl Realizer {
                     self.initialization_resources.fill_frame(
                         cptr_with_depth.local_cptr::<SmallPage>(),
                         frame.fill[fill_entry_index].offset,
-                        &frame.fill[fill_entry_index].content,
+                        &frame.fill[fill_entry_index].content_digest,
                         untrusted_content,
                     )?;
                 }
@@ -196,7 +196,7 @@ impl Realizer {
                     self.initialization_resources.fill_frame(
                         cptr_with_depth.local_cptr::<LargePage>(),
                         frame.fill[fill_entry_index].offset,
-                        &frame.fill[fill_entry_index].content,
+                        &frame.fill[fill_entry_index].content_digest,
                         untrusted_content,
                     )?;
                 }

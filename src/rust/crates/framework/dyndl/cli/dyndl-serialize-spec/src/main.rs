@@ -37,12 +37,12 @@ fn add_fill(model: &mut Model, dir: &Path) -> Result<Vec<u8>, io::Error> {
                     f.seek(io::SeekFrom::Start(entry.file_offset as u64))?;
                     let mut content = vec![0; entry.length];
                     f.read_exact(&mut content)?;
-                    let digest = {
+                    let content_digest = {
                         let mut hasher = Sha256::new();
                         hasher.update(&content);
                         hasher.finalize()
                     };
-                    entry.content = digest.as_slice().to_vec();
+                    entry.content_digest = content_digest.as_slice().to_vec();
                     fill_blob.extend(&content);
                 }
             }

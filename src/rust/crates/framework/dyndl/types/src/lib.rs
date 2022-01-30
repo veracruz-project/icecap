@@ -59,13 +59,16 @@ type CPtr = u64;
 pub type Table<T> = BTreeMap<usize, T>;
 pub type Fill = Vec<FillEntry>;
 
+// TODO
+// Parameterize this type. Right now, it is overloaded.
+// An instance should have either 'file{_offset}' or 'content_digest'.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct FillEntry {
     pub offset: usize,
     pub length: usize,
-    pub content: Vec<u8>,
     pub file: String,
     pub file_offset: usize,
+    pub content_digest: Vec<u8>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
