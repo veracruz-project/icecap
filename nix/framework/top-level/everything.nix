@@ -11,16 +11,13 @@ in mkEverything {
   cached = [
     (map (lib.mapAttrsToList (_: plat: plat.run)) [
       instances.tests.backtrace
+      instances.tests.sysroot
     ])
 
     automatedTests.runAll
   ];
 
   extraPure = [
-    (forEachConfigured (configured: [
-      configured.sysroot-rs
-    ]))
-
     (forEachIn [ dev linux musl ] (host: [
       host.icecap.crosvm-9p-server
     ]))
