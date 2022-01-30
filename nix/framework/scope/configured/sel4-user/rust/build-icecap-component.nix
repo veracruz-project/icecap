@@ -11,6 +11,10 @@ let
 in
 
 { isRoot ? false
+# TODO better way of overriding
+, modifyExtraCargoConfig ? lib.id
+, modifyExtra ? lib.id
+, modifyExtraLastLayer ? lib.id
 , ... /* TODO */
 } @ args:
 
@@ -27,7 +31,7 @@ lib.fix (self: buildRustPackageIncrementally ({
     };
   };
 
-  extraCargoConfig = crateUtils.clobber [
+  extraCargoConfig = modifyExtraCargoConfig (crateUtils.clobber [
     {
       target.${rustTargetName}.rustflags = [
         "--cfg=icecap_plat=\"${icecapPlat}\""
@@ -35,15 +39,14 @@ lib.fix (self: buildRustPackageIncrementally ({
         "--cfg=icecap_debug"
       ] ++ lib.optionals icecapConfig.benchmark [
         "--cfg=icecap_benchmark"
+      ] ++ lib.optionals isRoot [
+        "-C" "link-arg=-T${root-task-tls-lds}"
+        # "-T" root-task-tls-lds
       ];
     }
-    (lib.optionalAttrs isRoot {
-      # target.${rustTargetName}.rustc-link-arg-bin = [ "-T" root-task-tls-lds ];
-      target.${rustTargetName}.rustflags = [ "-C" "link-arg=-T${root-task-tls-lds}" ];
-    })
-  ];
+  ]);
 
-  extra = {
+  extra = modifyExtra {
     LIBCLANG_PATH = "${lib.getLib buildPackages.llvmPackages.libclang}/lib";
     BINDGEN_EXTRA_CLANG_ARGS = [
       "-I${libsel4}/include"
@@ -56,12 +59,12 @@ lib.fix (self: buildRustPackageIncrementally ({
     dontPatchELF = true;
   };
 
-  extraLastLayer = attrs: {
+  extraLastLayer = modifyExtraLastLayer (attrs: {
     passthru = (attrs.passthru or {}) // {
       split = elfUtils.split "${self}/bin/${args.rootCrate.name}.elf";
     };
-  };
+  });
 
 } // builtins.removeAttrs args [
-  "isRoot"
+  "isRoot" "modifyExtraCargoConfig" "modifyExtra" "modifyExtraLastLayer"
 ]))

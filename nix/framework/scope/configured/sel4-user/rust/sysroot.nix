@@ -28,8 +28,8 @@ let
 
     rust = icecapSrc.repo {
       repo = "rust";
-      rev = "564dac541463c35b1e2028e759f49f21e1374ddf"; # branch: icecap-sysroot
-      sha256 = "sha256-/iZoSXDzcMc2L/gyGuTKzp4l/7CJT9RlWWz5XK0abzo=";
+      rev = "77e3986cdc88d4d470e1830d314ad32613f47fed"; # branch: icecap-sysroot
+      sha256 = "sha256-wOvLivmJtExTvYvDStVAH0BvfP2mpUAj0Zx1W2EIpTg=";
       submodules = true;
     };
 
@@ -39,7 +39,7 @@ let
     };
 
     inherit (lib.mapAttrs (_: patch: patch.srcSplit) globalCrates._patches)
-      dlmalloc libc;
+      libc;
   };
 
   mkSplit = f: mapAttrs (k: _: f k) {
@@ -109,7 +109,6 @@ let
           std.path = "${src}/rust/library/std";
           # Hacks to get std to depend on our patches.
           libc = "=0.2.108";
-          dlmalloc = "=0.1.3";
         };
 
         patch.crates-io = {
@@ -117,7 +116,6 @@ let
           rustc-std-workspace-alloc = { path = "${src}/rust/library/rustc-std-workspace-alloc"; };
           rustc-std-workspace-std = { path = "${src}/rust/library/rustc-std-workspace-std"; };
           libc = { path = "${src}/libc"; };
-          dlmalloc = { path = "${src}/dlmalloc"; };
           icecap-std-impl = { path = "${src}/icecap/icecap-std-impl"; };
         };
       } extraManifest));

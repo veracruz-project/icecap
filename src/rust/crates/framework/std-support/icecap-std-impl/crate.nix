@@ -6,6 +6,7 @@ mkSeL4 {
     icecap-sel4
     icecap-runtime
     icecap-sync
+    icecap-dlmalloc
   ];
   dependencies = {
     core = {
@@ -31,6 +32,7 @@ mkSeL4 {
       "icecap-sel4/rustc-dep-of-std"
       "icecap-runtime/rustc-dep-of-std"
       "icecap-sync/rustc-dep-of-std"
+      "icecap-dlmalloc/rustc-dep-of-std"
     ];
   };
   nix.passthru.excludeFromDocs = true;

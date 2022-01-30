@@ -18,6 +18,7 @@ let
 in {
   tests = {
     backtrace = callInstance ./tests/backtrace {};
+    sysroot = callInstance ./tests/sysroot {};
   };
 
   inherit mkInstanceWith callInstance;

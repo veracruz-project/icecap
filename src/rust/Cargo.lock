@@ -313,7 +313,9 @@ version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6fe28e0bf9357092740362502f5cc7955d8dc125ebda71dec72336c2e15c62e"
 dependencies = [
+ "compiler_builtins",
  "libc",
+ "rustc-std-workspace-core",
 ]
 
 [[package]]
@@ -899,8 +901,11 @@ dependencies = [
 name = "icecap-dlmalloc"
 version = "0.1.0"
 dependencies = [
+ "compiler_builtins",
  "dlmalloc",
  "icecap-sync",
+ "rustc-std-workspace-alloc",
+ "rustc-std-workspace-core",
 ]
 
 [[package]]
@@ -1222,6 +1227,7 @@ name = "icecap-std-impl"
 version = "0.1.0"
 dependencies = [
  "compiler_builtins",
+ "icecap-dlmalloc",
  "icecap-runtime",
  "icecap-sel4",
  "icecap-sync",

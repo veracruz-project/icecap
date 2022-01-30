@@ -6,6 +6,12 @@ name = "icecap-dlmalloc"
 version = "0.1.0"
 edition = "2018"
 
+[features]
+rustc-dep-of-std = [ "core", "alloc", "compiler_builtins/rustc-dep-of-std", "dlmalloc/rustc-dep-of-std", "icecap-sync/rustc-dep-of-std",]
+
 [dependencies]
+alloc = { version = "1.0.0", optional = true, package = "rustc-std-workspace-alloc" }
+compiler_builtins = { version = "0.1.0", optional = true }
+core = { version = "1.0.0", optional = true, package = "rustc-std-workspace-core" }
 dlmalloc = "0.2.3"
 icecap-sync = { path = "../icecap-sync" }

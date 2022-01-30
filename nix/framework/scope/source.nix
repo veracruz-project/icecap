@@ -180,17 +180,11 @@ rec {
             };
         };
       in {
-        dlmalloc = mk {
-          repo = "rust-dlmalloc";
-          rev = "f6759cfed44dc4135eaa43c8c26599357749af39"; # branch: icecap
-          cacheTag = "rust-dlmalloc-e8402a3cfb2bf152";
-          sha256WithDotGit = "sha256-gcpNxRBHHv9m0RZbIWGXO+PqCUJa2y3Xlk73KjXt3OI=";
-        };
         libc = mk {
           repo = "rust-libc";
-          rev = "bcb2c71ab1377db89ca6bca3e234b8f9ea20c012"; # branch: icecap
+          rev = "642614a0e357d33620d922114fe902c4af17ae54"; # branch: icecap
           cacheTag = "rust-libc-TODO"; # TODO
-          sha256WithDotGit = "sha256-mQNTbPO1BKQLfdeX1MoTuBSIzDT0TQl9kxw1xWdeXIU=";
+          sha256WithDotGit = "sha256-chEevE/IOLj/DbYAlIOP/Q8GTt1HAl6hQ0VmP47hH8U=";
         };
       };
 

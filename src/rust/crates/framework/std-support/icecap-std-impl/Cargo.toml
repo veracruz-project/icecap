@@ -7,12 +7,13 @@ version = "0.1.0"
 edition = "2018"
 
 [features]
-rustc-dep-of-std = [ "core", "alloc", "compiler_builtins/rustc-dep-of-std", "icecap-sel4/rustc-dep-of-std", "icecap-runtime/rustc-dep-of-std", "icecap-sync/rustc-dep-of-std",]
+rustc-dep-of-std = [ "core", "alloc", "compiler_builtins/rustc-dep-of-std", "icecap-sel4/rustc-dep-of-std", "icecap-runtime/rustc-dep-of-std", "icecap-sync/rustc-dep-of-std", "icecap-dlmalloc/rustc-dep-of-std",]
 
 [dependencies]
 alloc = { version = "1.0.0", optional = true, package = "rustc-std-workspace-alloc" }
 compiler_builtins = { version = "0.1.0", optional = true }
 core = { version = "1.0.0", optional = true, package = "rustc-std-workspace-core" }
+icecap-dlmalloc = { path = "../../base/icecap-dlmalloc" }
 icecap-runtime = { path = "../../base/icecap-runtime" }
 icecap-sel4 = { path = "../../base/icecap-sel4" }
 icecap-sync = { path = "../../base/icecap-sync" }
