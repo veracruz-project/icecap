@@ -45,23 +45,23 @@ IceCap build artifacts.
 
 ### Our first system
 
-Our first system consists only of the seL4 kernel and a trivial root task,
-written in C:
+This system consists only of the seL4 kernel and a trivial root task, written in
+C:
 [./01-minimal-root-task/root-task/src/main.c](./01-minimal-root-task/root-task/src/main.c).
 
 The example systems in the guide are configured for `qemu-system-aarch64
 -machine virt`.  Each example system is accompanied by a build target which
 builds the system and creates a shell script to emulate it.
 
-To build the first system, run the following from the root of this repository:
+To build, run the following from the root of this repository:
 
 ```
 nix-build examples/01-minimal-root-task -A run
 ```
 
 The Docker image is configured to support tab-completion for Nix attribute
-paths. For example, try `nix-build examples/01-minimal-root-task -A <tab>`.
-`minimal-root-task.run` corresponds to the attribute found at
+paths. For example, try `nix-build examples/01-minimal-root-task -A <tab><tab>`.
+The `run` attribute corresponds to the attribute found at
 [./01-minimal-root-task/default.nix#L10](./01-minimal-root-task/default.nix#L10).
 
 Now, run the example:
@@ -81,7 +81,7 @@ The following is the only code compiled into the root task:
 responsible for `_start` up until `icecap_main`, the latter of which is defined
 in the root task's `main.c`. Note that, in the case of the root task,
 `libicecap-runtime` is configured with `#define ICECAP_RUNTIME_ROOT` in
-[../nix/framework/scope/configured/sel4-user/c/default.nix#L85](../nix/framework/scope/configured/sel4-user/c/default.nix#L85).
+[../nix/framework/scope/configured/sel4-user/c/default.nix#L89](../nix/framework/scope/configured/sel4-user/c/default.nix#L89).
 The root task configuration of `libicecap-runtime` is more complicated than the
 configuration for CapDL components, so we will defer our examination of
 `libicecap-runtime` until we introduce CapDL.
@@ -97,8 +97,8 @@ Framework includes a collection of crates for creating seL4 components.  Check
 out the [rendered
 rustdoc](https://arm-research.gitlab.io/security/icecap/icecap/rustdoc/) for the
 IceCap crates.  The
-[icecap-core](https://arm-research.gitlab.io/security/icecap/icecap/rustdoc/worlds/aarch64-icecap/virt/host/icecap_core/index.html)
-crate is a good entrypoint.
+[icecap-core](https://arm-research.gitlab.io/security/icecap/icecap/rustdoc/worlds/aarch64-icecap/rpi4/host/icecap_core/index.html)
+crate is a good place to start.
 [./02-minimal-root-task-with-rust/root-task/src/main.rs](./02-minimal-root-task-with-rust/root-task/src/main.rs)
 is an example of a simple root task written in Rust.  It parses and prints the
 Flattened Device Tree passed to it by the kernel via the `bootinfo`.
@@ -109,7 +109,7 @@ nix-build examples/02-minimal-root-task-with-rust -A run && ./result/run
 
 ### Using CapDL
 
-CapDL[[1]](https://trustworthy.systems/publications/papers/Kuz_KLW_10.pdf)[[2]](https://docs.sel4.systems/projects/capdl/)
+CapDL[[1]](https://dl.acm.org/doi/pdf/10.1145/1851276.1851284)[[2]](https://docs.sel4.systems/projects/capdl/)
 (Capability Distribution Language) is a language and set of accompanying tools
 for declaratively specifying the state of objects and capabilites of a
 seL4-based system.  In this part of the guide, we will be using CapDL to specify
@@ -149,8 +149,8 @@ As mentioned before, `libicecap-runtime` contains the code which runs between
 when `libicecap-runtime` is compiled for a root task), `ICECAP_RUNTIME_ROOT` is
 not defined.  `_start` is defined in
 [../src/c/icecap-runtime/src/start.S](../src/c/icecap-runtime/src/start.S).  Go
-ahead and visually trace execution from `_start` to `icecap_main` for the case
-where `thread_index == 1`.  The steps are as follows:
+ahead and mentally trace execution from `_start` to `icecap_main` for the case
+where `thread_index == 0`.  The steps are as follows:
 
 - The component begins at `_start` with `x0 <- struct icecap_runtime_config
   *config` and `x1 <- seL4_Word thread_index`.
@@ -171,7 +171,7 @@ is comprised of symbols with configuration information (e.g. the location of the
 heap, some notification objects for use as static locks, and exception handling
 information), and a few functions such as `icecap_runtime_stop_thread()` and
 `icecap_runtime_stop_component()`. The crate at
-[../src/rust/crates/framework/icecap-std](../src/rust/crates/framework/icecap-std)
+[../src/rust/crates/framework/base/icecap-std](../src/rust/crates/framework/base/icecap-std)
 uses this interface to provide a Rust runtime (including, for example,
 allocation and exception handling).
 
