@@ -4,7 +4,7 @@
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr;
 
-use dlmalloc::{Dlmalloc, Allocator as DlmallocAllocator};
+use dlmalloc::{Allocator as DlmallocAllocator, Dlmalloc};
 
 use icecap_sync::{unsafe_static_mutex, GenericMutex};
 
@@ -33,7 +33,9 @@ unsafe impl GlobalAlloc for IceCapGlobalAllocator {
 
     #[inline]
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        GLOBAL_DLMALLOC.lock().free(ptr, layout.size(), layout.align())
+        GLOBAL_DLMALLOC
+            .lock()
+            .free(ptr, layout.size(), layout.align())
     }
 
     #[inline]
@@ -47,7 +49,6 @@ unsafe impl GlobalAlloc for IceCapGlobalAllocator {
 pub struct IceCapSystemAllocator;
 
 unsafe impl DlmallocAllocator for IceCapSystemAllocator {
-
     fn alloc(&self, size: usize) -> (*mut u8, usize, u32) {
         unsafe {
             let addr = icecap_runtime_heap_start;
