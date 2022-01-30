@@ -2,11 +2,10 @@
 # It is checked-in to version control for convenience and to serve as a reference.
 
 [package]
-name = "icecap-std"
+name = "icecap-dlmalloc"
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-log = "*"
-icecap-core = { path = "../icecap-core" }
-icecap-dlmalloc = { path = "../icecap-dlmalloc" }
+dlmalloc = "0.2.3"
+icecap-sync = { path = "../icecap-sync" }

@@ -22,6 +22,7 @@ icecap-config
 icecap-config-cli-core
 icecap-config-sys
 icecap-core
+icecap-dlmalloc
 icecap-driver-interfaces
 icecap-failure
 icecap-failure-derive

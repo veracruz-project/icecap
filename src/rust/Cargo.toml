@@ -18,6 +18,7 @@ members = [
     "crates/framework/base/icecap-config/cli/core",
     "crates/framework/base/icecap-config/sys",
     "crates/framework/base/icecap-core",
+    "crates/framework/base/icecap-dlmalloc",
     "crates/framework/base/icecap-failure",
     "crates/framework/base/icecap-failure/derive",
     "crates/framework/base/icecap-fdt",

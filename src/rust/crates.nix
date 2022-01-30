@@ -14,6 +14,7 @@
   icecap-logger = ./crates/framework/base/icecap-logger;
   icecap-start = ./crates/framework/base/icecap-start;
   icecap-start-generic = ./crates/framework/base/icecap-start/generic;
+  icecap-dlmalloc = ./crates/framework/base/icecap-dlmalloc;
   icecap-core = ./crates/framework/base/icecap-core;
   icecap-std = ./crates/framework/base/icecap-std;
 

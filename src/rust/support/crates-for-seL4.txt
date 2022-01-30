@@ -34,6 +34,7 @@ icecap-bcm2835-aux-uart-driver
 icecap-config
 icecap-config-sys
 icecap-core
+icecap-dlmalloc
 icecap-driver-interfaces
 icecap-failure
 icecap-fdt

@@ -896,6 +896,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "icecap-dlmalloc"
+version = "0.1.0"
+dependencies = [
+ "dlmalloc",
+ "icecap-sync",
+]
+
+[[package]]
 name = "icecap-driver-interfaces"
 version = "0.1.0"
 dependencies = [
@@ -1196,8 +1204,8 @@ dependencies = [
 name = "icecap-std"
 version = "0.1.0"
 dependencies = [
- "dlmalloc",
  "icecap-core",
+ "icecap-dlmalloc",
  "log",
 ]
 
