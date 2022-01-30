@@ -175,10 +175,13 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                             }
                         }
                         Fault::VPPIEvent(fault) => {
-                            self.gic.lock().handle_irq(self.node_index, QualifiedIRQ::QualifiedPPI {
-                                node: self.node_index,
-                                irq: fault.irq as usize,
-                            })?;
+                            self.gic.lock().handle_irq(
+                                self.node_index,
+                                QualifiedIRQ::QualifiedPPI {
+                                    node: self.node_index,
+                                    irq: fault.irq as usize,
+                                },
+                            )?;
                             reply(MessageInfo::empty());
                         }
                         _ => {
@@ -227,8 +230,18 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn handle_page_fault(&mut self, fault: VMFault) -> Fallible<()> {
         let addr = fault.addr as usize;
-        if let Some(offset) = utils::offset_in_region(addr, self.gic_dist_paddr, GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE) {
-            utils::handle_gic_distributor_fault(&mut self.gic.lock(), self.node_index, self.tcb, fault, offset)?;
+        if let Some(offset) = utils::offset_in_region(
+            addr,
+            self.gic_dist_paddr,
+            GIC::<VMMGICCallbacks>::DISTRIBUTOR_SIZE,
+        ) {
+            utils::handle_gic_distributor_fault(
+                &mut self.gic.lock(),
+                self.node_index,
+                self.tcb,
+                fault,
+                offset,
+            )?;
         } else {
             panic!("unhandled page fault: {:x?}", fault);
         }
@@ -260,7 +273,11 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                     _ => psci::RET_NOT_SUPPORTED,
                 }
             }
-            psci::Call::CpuOn { target, entry, ctx_id } => {
+            psci::Call::CpuOn {
+                target,
+                entry,
+                ctx_id,
+            } => {
                 let (thread, mut node) = {
                     let mut this = None;
                     let mut nodes = self.nodes.lock();

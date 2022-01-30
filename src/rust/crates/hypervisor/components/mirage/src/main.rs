@@ -15,9 +15,8 @@ use hypervisor_event_server_types::{
 use hypervisor_mirage_config::Config;
 use icecap_mirage_core::ocaml;
 use icecap_std::{
-    config::RingBufferKicksConfig, prelude::*, ring_buffer::*, rpc, sel4::sys::c_types::c_int,
-    sync::*,
-    fmt::set_print_debug,
+    config::RingBufferKicksConfig, fmt::set_print_debug, prelude::*, ring_buffer::*, rpc,
+    sel4::sys::c_types::c_int, sync::*,
 };
 
 mod syscall;

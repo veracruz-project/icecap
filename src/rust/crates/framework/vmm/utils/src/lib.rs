@@ -1,9 +1,9 @@
 #![no_std]
 
-use icecap_sel4::prelude::*;
-use icecap_sel4::fault::VMFault;
 use icecap_failure::Fallible;
-use icecap_vmm_gic::{GIC, GICCallbacks};
+use icecap_sel4::fault::VMFault;
+use icecap_sel4::prelude::*;
+use icecap_vmm_gic::{GICCallbacks, GIC};
 
 // TODO enrich
 
@@ -18,7 +18,13 @@ pub fn offset_in_region(addr: usize, region_start: usize, region_size: usize) ->
     }
 }
 
-pub fn handle_gic_distributor_fault<T: GICCallbacks>(gic: &mut GIC<T>, node_index: usize, tcb: TCB, fault: VMFault, offset: usize) -> Fallible<()> {
+pub fn handle_gic_distributor_fault<T: GICCallbacks>(
+    gic: &mut GIC<T>,
+    node_index: usize,
+    tcb: TCB,
+    fault: VMFault,
+    offset: usize,
+) -> Fallible<()> {
     assert!(fault.is_valid());
     assert!(fault.is_aligned());
     if fault.is_write() {

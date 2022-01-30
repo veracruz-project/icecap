@@ -16,14 +16,18 @@ pub const RET_NOT_SUPPORTED: i32 = -1;
 
 pub enum Call {
     Version,
-    Features { qfid: u32 },
-    CpuOn { target: usize, entry: u64, ctx_id: u64 },
+    Features {
+        qfid: u32,
+    },
+    CpuOn {
+        target: usize,
+        entry: u64,
+        ctx_id: u64,
+    },
     MigrateInfoType,
 }
 
 impl Call {
-
-    
     pub fn parse(fault: &UnknownSyscall) -> Result<Self, CallParseError> {
         let fid = fault.x0 as u32;
         Ok(match fid {
@@ -37,9 +41,7 @@ impl Call {
                 ctx_id: fault.x3 as u64,
             },
             FID_MIGRATE_INFO_TYPE => Self::MigrateInfoType,
-            _ => {
-                return Err(CallParseError::UnrecognizedFid { fid })
-            }
+            _ => return Err(CallParseError::UnrecognizedFid { fid }),
         })
     }
 }
