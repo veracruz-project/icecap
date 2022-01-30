@@ -6,7 +6,7 @@ mkSeL4Bin {
     icecap-std
   ];
   dependencies = {
-    cortex-a = "*";
+    cortex-a = "6.1";
   };
   nix.passthru.excludeFromDocs = true;
 }

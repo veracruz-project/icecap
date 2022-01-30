@@ -5,8 +5,8 @@
 let
   git = fetchgit {
     url = "https://github.com/rust-lang/crates.io-index";
-    rev = "63708ede2c67233eb146473cdcac9475f5e3d375";
-    sha256 = "sha256-RDNvknWZcKgJvyp7zi4rvHWSBwM+Fbic+uI6zXOfz5A=";
+    rev = "4a1533efb084a8f67ca803e41b8592f4471c4827";
+    sha256 = "sha256-w60yg4iKlROHDOf9LeS+rK6HPYY67OUTiApGVuAJwJc=";
     leaveDotGit = true;
     deepClone = false;
     postFetch = ''

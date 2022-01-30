@@ -7,7 +7,7 @@ mkLinuxBin {
     hypervisor-host-vmm-types
   ];
   dependencies = {
-    clap = "*";
+    clap = "2.34";
   };
   nix.passthru.excludeFromDocs = true;
 }

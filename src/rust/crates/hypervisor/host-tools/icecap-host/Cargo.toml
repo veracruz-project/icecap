@@ -7,6 +7,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-clap = "*"
+clap = "2.34"
 hypervisor-host-vmm-types = { path = "../../components/vmm/host/types" }
 icecap-host-core = { path = "./core" }
