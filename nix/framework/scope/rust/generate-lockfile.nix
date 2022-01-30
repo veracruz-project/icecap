@@ -5,7 +5,7 @@
 , strace
 }:
 
-{ rootCrates, extraManifest ? {} }:
+{ rootCrates, extraManifest ? {}, debugWithStrace ? false }:
 
 let
   crates = lib.attrValues (crateUtils.closureMany rootCrates);
@@ -25,13 +25,14 @@ in
 runCommand "Cargo.lock" {
   nativeBuildInputs = [
     cargo
-    # strace
+  ] ++ lib.optionals debugWithStrace [
+    strace
   ];
   CARGO_HOME = cratesIOIndexCache;
 } ''
   ln -s ${src} src
   ln -s ${workspace} Cargo.toml
-  cargo generate-lockfile --offline
+  ${lib.optionalString debugWithStrace "strace -f -e trace=file "}cargo generate-lockfile --offline
   mv Cargo.lock $out
 ''
   # strace -f -e trace=file cargo generate-lockfile --offline

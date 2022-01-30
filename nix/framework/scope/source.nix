@@ -183,7 +183,7 @@ rec {
         libc = mk {
           repo = "rust-libc";
           rev = "642614a0e357d33620d922114fe902c4af17ae54"; # branch: icecap
-          cacheTag = "rust-libc-TODO"; # TODO
+          cacheTag = "rust-libc-9c8137544de9ffee";
           sha256WithDotGit = "sha256-chEevE/IOLj/DbYAlIOP/Q8GTt1HAl6hQ0VmP47hH8U=";
         };
       };

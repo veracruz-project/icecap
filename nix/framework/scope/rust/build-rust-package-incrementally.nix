@@ -66,10 +66,13 @@ let
 
   lastLayer = f allAccumulatedLayers;
 
-  lock = generateLockfileInternal {
-    inherit extraManifest;
+  lockMaybeDebug = { debugWithStrace }: generateLockfileInternal {
+    inherit extraManifest debugWithStrace;
     rootCrates = [ rootCrate ];
   };
+
+  lock = lockMaybeDebug { debugWithStrace = false; };
+  lockDebug = lockMaybeDebug { debugWithStrace = true; };
 
   baseCargoConfig = crateUtils.clobber [
     (fetchCrates lock).config
@@ -264,7 +267,7 @@ in
   passthru = {
     inherit env doc;
     inherit lastLayer;
-    inherit src workspace lock;
+    inherit src workspace lock lockDebug;
   };
 })).overrideAttrs extra).overrideAttrs extraLastLayer
 
