@@ -8,7 +8,9 @@ pub fn reply(info: MessageInfo) {
 pub struct MessageRegister(i32);
 
 impl MessageRegister {
+    #[inline]
     pub const fn new(i: i32) -> Self {
+        assert!((i as u32) < MSG_MAX_LENGTH);
         Self(i)
     }
 
@@ -30,3 +32,5 @@ pub const MR_4: MessageRegister = MessageRegister::new(4);
 pub const MR_5: MessageRegister = MessageRegister::new(5);
 pub const MR_6: MessageRegister = MessageRegister::new(6);
 pub const MR_7: MessageRegister = MessageRegister::new(7);
+
+pub const MSG_MAX_LENGTH: u32 = sys::seL4_MsgMaxLength;
