@@ -12,7 +12,7 @@ This guide assumes that the reader is familiar with
 [seL4](https://sel4.systems/), or at least has the [seL4 Reference
 Manual](https://sel4.systems/Info/Docs/seL4-manual-latest.pdf) handy.
 
-This guide does not assume that the reader is familiar with Nix. You wish to
+This guide does not assume that the reader is familiar with Nix. You may wish to
 refer to the [Nix manual](https://nixos.org/manual/nix/stable/).
 
 ### Development environment
