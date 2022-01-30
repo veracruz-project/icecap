@@ -37,8 +37,8 @@ implementation with you directly. Please feel free to reach out to project lead
 
 ## Demo
 
-See [./demos/hypervisor-demo/README.md](./demos/hypervisor-demo) for
-instructions on how to build and run a demo of the IceCap Hypervisor.
+See [./demos/hypervisor/README.md](./demos/hypervisor) for instructions on how
+to build and run a demo of the IceCap Hypervisor.
 
 ## Tutorial
 

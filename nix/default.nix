@@ -25,7 +25,7 @@ let
         hypervisor = ../examples/07-hypervisor;
       };
       demos = {
-        hypervisor-demo = ../demos/hypervisor-demo;
+        hypervisor = ../demos/hypervisor;
       };
     };
   };

@@ -1,9 +1,9 @@
-# IceCap Hypervisor demo
+# Demo: IceCap Hypervisor
 
-This is a self-contained guide for quickly building and running the IceCap
-Hypervisor demo, targeting either a QEMU emulation or the Raspberry Pi 4. The
-only develoment environment requirement is Docker. If you encounter problems,
-please raise an issue or reach out to [Nick Spinale
+This is a self-contained guide for quickly building and running a demonstration
+of the IceCap Hypervisor, targeting either a QEMU emulation or the Raspberry Pi
+4. The only develoment environment requirement is Docker. If you encounter
+problems, please raise an issue or reach out to [Nick Spinale
 &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
 
 First, clone this respository and its submodules:
@@ -24,7 +24,7 @@ machine spawns a confidential virtual machine called a realm, and then
 communicates with it via the virtual network:
 
 ```
-   [container] cd demos/hypervisor-demo # this directory
+   [container] cd demos/hypervisor # this directory
    [container] make run
 
                # ... wait for the host VM to boot to a shell ...

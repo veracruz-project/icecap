@@ -1,6 +1,6 @@
 # Demos
 
-### [IceCap Hypervisor demo](./hypervisor-demo)
+### [IceCap Hypervisor](./hypervisor)
 
 A small, self contained demo of the hypervisor's basic operation.
 

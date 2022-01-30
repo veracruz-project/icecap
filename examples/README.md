@@ -354,8 +354,7 @@ Hypervisor.
 
 Build and run a simple demonstration of the IceCap Hypervisor, including three
 examples of confidential guests (called "Realms").  (For a more sophisticated
-demo, see
-[../demos/hypervisor-demo/README.md](../demos/hypervisor-demo/README.md)).
+demo, see [../demos/hypervisor/README.md](../demos/hypervisor/README.md)).
 
 ```
    [container] nix-build examples/07-hypervisor -A run && ./result/run
