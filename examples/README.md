@@ -348,13 +348,12 @@ The original purpose of the IceCap Framework is the IceCap Hypervisor, a
 hypervisor with a minimal trusted computing base which serves as a research
 vehicle for virtualization-based confidential computing.  The IceCap Hypervisor
 doubles as the reference application of the IceCap Framework.  See
-[../README.md](../README.md) for an overview of the IceCap Hypervisor.  This
-section will focus on how the IceCap Framework is used to construct the IceCap
-Hypervisor.
+[../README.md](../) for an overview of the IceCap Hypervisor.  This section will
+focus on how the IceCap Framework is used to construct the IceCap Hypervisor.
 
 Build and run a simple demonstration of the IceCap Hypervisor, including three
 examples of confidential guests (called "Realms").  (For a more sophisticated
-demo, see [../demos/hypervisor/README.md](../demos/hypervisor/README.md)).
+demo, see [../demos/hypervisor/README.md](../demos/hypervisor/)).
 
 ```
    [container] nix-build examples/07-hypervisor -A run && ./result/run
