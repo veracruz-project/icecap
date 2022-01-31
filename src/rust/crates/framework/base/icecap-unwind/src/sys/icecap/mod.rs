@@ -1,13 +1,13 @@
 use alloc::vec::Vec;
-use icecap_runtime::{text, eh_frame_hdr, eh_frame};
 use crate::EhRef;
 
 pub(crate) fn find_cfi_sections() -> Vec<EhRef> {
     vec![
         EhRef {
-            text: text(),
-            eh_frame_hdr: eh_frame_hdr(),
-            eh_frame_end: eh_frame().end,
+            // TODO
+            text: 0..0,
+            eh_frame_hdr: 0..0,
+            eh_frame_end: 0,
         }
     ]
 }
