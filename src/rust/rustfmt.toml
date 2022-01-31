@@ -4,5 +4,4 @@ ignore = [
     # Mostly third-party code, copied into our tree (see corresponding LICENSE files for details)
     "crates/framework/9p",
     "crates/framework/base/icecap-failure",
-    "crates/framework/base/icecap-unwind",
 ]
