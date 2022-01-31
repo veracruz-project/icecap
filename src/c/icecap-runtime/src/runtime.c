@@ -13,10 +13,10 @@ seL4_Word icecap_runtime_heap_start;
 seL4_Word icecap_runtime_heap_end;
 seL4_CPtr icecap_runtime_heap_lock;
 
-const char *icecap_runtime_image_path;
-
 seL4_Word icecap_runtime_tls_region_align;
 seL4_Word icecap_runtime_tls_region_size;
+
+const char *icecap_runtime_image_path;
 
 seL4_CPtr icecap_runtime_print_lock;
 seL4_CPtr icecap_runtime_idle_notification;

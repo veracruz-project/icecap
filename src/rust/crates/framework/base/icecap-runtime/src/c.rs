@@ -2,8 +2,6 @@ use icecap_sel4::sys;
 
 extern "C" {
 
-    pub(crate) static icecap_runtime_image_path: *const u8;
-
     pub(crate) static icecap_runtime_tls_region_align: usize;
     pub(crate) static icecap_runtime_tls_region_size: usize;
     pub(crate) fn icecap_runtime_tls_region_init(tls_region: usize) -> u64;
@@ -18,5 +16,7 @@ extern "C" {
 
     #[thread_local]
     pub(crate) static icecap_runtime_tcb: sys::seL4_CPtr;
+
+    pub(crate) static icecap_runtime_image_path: *const u8;
 
 }

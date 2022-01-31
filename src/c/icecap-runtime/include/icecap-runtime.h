@@ -61,10 +61,10 @@ extern seL4_Word icecap_runtime_heap_start;
 extern seL4_Word icecap_runtime_heap_end;
 extern seL4_CPtr icecap_runtime_heap_lock;
 
-extern const char *icecap_runtime_image_path;
-
 extern seL4_Word icecap_runtime_tls_region_align;
 extern seL4_Word icecap_runtime_tls_region_size;
+
+extern const char *icecap_runtime_image_path;
 
 extern seL4_CPtr icecap_runtime_print_lock;
 extern seL4_CPtr icecap_runtime_idle_notification;
