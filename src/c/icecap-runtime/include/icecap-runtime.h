@@ -18,16 +18,6 @@ struct icecap_runtime_heap_info {
     seL4_CPtr lock;
 };
 
-struct icecap_runtime_eh_info {
-    seL4_Word text_start;
-    seL4_Word text_end;
-    seL4_Word eh_frame_hdr_start;
-    seL4_Word eh_frame_hdr_end;
-    seL4_Word eh_frame_start;
-    seL4_Word eh_frame_end;
-    seL4_Word image_path_offset; // offset from &config
-};
-
 struct icecap_runtime_tls_image {
     seL4_Word vaddr;
     seL4_Word filesz;
@@ -48,7 +38,7 @@ struct icecap_runtime_thread_config {
 
 struct icecap_runtime_config {
     struct icecap_runtime_heap_info heap_info;
-    struct icecap_runtime_eh_info eh_info;
+    seL4_Word image_path_offset;
     struct icecap_runtime_tls_image tls_image;
     struct icecap_runtime_arg arg;
     seL4_CPtr print_lock;
@@ -71,12 +61,6 @@ extern seL4_Word icecap_runtime_heap_start;
 extern seL4_Word icecap_runtime_heap_end;
 extern seL4_CPtr icecap_runtime_heap_lock;
 
-extern seL4_Word icecap_runtime_text_start;
-extern seL4_Word icecap_runtime_text_end;
-extern seL4_Word icecap_runtime_eh_frame_hdr_start;
-extern seL4_Word icecap_runtime_eh_frame_hdr_end;
-extern seL4_Word icecap_runtime_eh_frame_start;
-extern seL4_Word icecap_runtime_eh_frame_end;
 extern const char *icecap_runtime_image_path;
 
 extern seL4_Word icecap_runtime_tls_region_align;

@@ -10,18 +10,6 @@ pub struct HeapInfo {
 
 #[repr(C)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EhInfo {
-    pub text_start: u64,
-    pub text_end: u64,
-    pub eh_frame_hdr_start: u64,
-    pub eh_frame_hdr_end: u64,
-    pub eh_frame_start: u64,
-    pub eh_frame_end: u64,
-    pub image_path_offset: u64,
-}
-
-#[repr(C)]
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TlsImage {
     pub vaddr: u64,
     pub filesz: u64,
@@ -40,7 +28,7 @@ pub struct Arg {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommonConfig {
     pub heap_info: HeapInfo,
-    pub eh_info: EhInfo,
+    pub image_path_offset: u64,
     pub tls_image: TlsImage,
     pub arg: Arg,
     pub print_lock: u64,

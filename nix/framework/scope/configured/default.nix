@@ -44,7 +44,6 @@ self: with self;
   userC = callPackage ./sel4-user/c {};
 
   root-task-tls-lds = icecapSrc.relative "c/support/root-task-tls.lds";
-  root-task-eh-lds = icecapSrc.relative "c/support/root-task-eh.lds";
 
   inherit (callPackage ./sel4-user/ocaml {}) mkMirageBinary;
 

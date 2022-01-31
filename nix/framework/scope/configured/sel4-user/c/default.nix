@@ -5,7 +5,6 @@
 , libsel4, musl
 , platformInfo, icecapExternalSrc
 , root-task-tls-lds
-, root-task-eh-lds
 }:
 
 let
@@ -62,7 +61,6 @@ let
   mkRoot = attrs: mk (attrs // {
     extraCFlagsLink = (attrs.extraCFlagsLink or []) ++ [
       "-T" root-task-tls-lds
-      "-T" root-task-eh-lds
     ];
   });
 

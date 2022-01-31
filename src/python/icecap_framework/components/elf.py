@@ -84,10 +84,7 @@ class ElfComponent(BaseComponent):
         config = {
             'common': {
                 'heap_info': heap_info,
-                'eh_info': {
-                    **eh_info(self.elf_full),
-                    'image_path_offset': 0,
-                },
+                'image_path_offset': 0,
                 'tls_image': tls_image(self.elf_min._elf),
                 'arg': {
                     'offset': 0,
@@ -224,32 +221,6 @@ def tls_image(elf):
         'memsz': tls.header.p_memsz,
         'align': tls.header.p_align,
     }
-
-# TODO only include if backtrace enabled and useful debug info is present
-def eh_info(elf):
-    # TODO is it reasonable to silently omit?
-    eh_frame_hdr_start = 0
-    eh_frame_hdr_end = 0
-    eh_frame_start = 0
-    eh_frame_end = 0
-    for sec in elf.iter_sections():
-        if sec.name == '.text':
-            text_start = sec.header.sh_addr
-            text_end = sec.header.sh_addr + sec.header.sh_size
-        if sec.name == '.eh_frame_hdr':
-            eh_frame_hdr_start = sec.header.sh_addr
-            eh_frame_hdr_end = sec.header.sh_addr + sec.header.sh_size
-        if sec.name == '.eh_frame':
-            eh_frame_start = sec.header.sh_addr
-            eh_frame_end = sec.header.sh_addr + sec.header.sh_size
-    return {
-        'text_start': text_start,
-        'text_end': text_end,
-        'eh_frame_hdr_start': eh_frame_hdr_start,
-        'eh_frame_hdr_end': eh_frame_hdr_end,
-        'eh_frame_start': eh_frame_start,
-        'eh_frame_end': eh_frame_end,
-        }
 
 def runtime_config_size(num_threads):
     WORD_SIZE = 8

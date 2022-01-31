@@ -45,13 +45,13 @@ impl<T> Config<T> {
 
 impl<T: AsRef<[u8]>> Config<T> {
     pub fn serialize(mut self) -> Vec<Vec<u8>> {
-        assert_eq!(self.common.eh_info.image_path_offset, 0);
+        assert_eq!(self.common.image_path_offset, 0);
         assert_eq!(self.common.arg.offset, 0);
         assert_eq!(self.common.arg.size, 0);
 
         let mut blob = vec![];
 
-        self.common.eh_info.image_path_offset = (self.struct_size() + blob.len()) as u64;
+        self.common.image_path_offset = (self.struct_size() + blob.len()) as u64;
         blob.extend_from_slice(self.image_path.as_bytes());
         blob.push(0);
 
