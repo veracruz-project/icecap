@@ -1245,16 +1245,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "icecap-unwind"
-version = "0.1.0"
-dependencies = [
- "fallible-iterator",
- "gimli 0.20.0",
- "icecap-runtime",
- "log",
-]
-
-[[package]]
 name = "icecap-virt-timer-driver"
 version = "0.1.0"
 dependencies = [

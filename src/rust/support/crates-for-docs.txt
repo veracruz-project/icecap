@@ -52,7 +52,6 @@ icecap-start
 icecap-start-generic
 icecap-std
 icecap-sync
-icecap-unwind
 icecap-virt-timer-driver
 icecap-vmm-gic
 icecap-vmm-psci

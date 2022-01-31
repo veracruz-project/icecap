@@ -18,7 +18,6 @@
   icecap-core = ./crates/framework/base/icecap-core;
   icecap-std = ./crates/framework/base/icecap-std;
 
-  icecap-unwind = ./crates/framework/base/icecap-unwind;
   icecap-backtrace = ./crates/framework/base/icecap-backtrace;
   icecap-backtrace-types = ./crates/framework/base/icecap-backtrace/types;
   icecap-backtrace-collect = ./crates/framework/base/icecap-backtrace/collect;
