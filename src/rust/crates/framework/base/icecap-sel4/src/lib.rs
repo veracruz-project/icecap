@@ -1,5 +1,6 @@
 #![no_std]
 #![feature(const_panic)]
+#![feature(thread_local)]
 
 // TODO remove or guard with feature
 extern crate alloc;
@@ -14,6 +15,7 @@ mod error;
 mod cspace;
 mod vspace;
 mod invoke;
+mod ipc_buffer;
 mod endpoint;
 pub mod fault; // TODO
 mod bootinfo;
@@ -51,6 +53,8 @@ pub use invoke::yield_;
 pub use endpoint::{
     reply, MessageRegister, MR_0, MR_1, MR_2, MR_3, MR_4, MR_5, MR_6, MR_7, MSG_MAX_LENGTH,
 };
+
+pub use ipc_buffer::{IPC_BUFFER, IPCBuffer};
 
 pub use fault::{
     CapFault,
