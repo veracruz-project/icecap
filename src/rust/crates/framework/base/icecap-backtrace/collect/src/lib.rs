@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use alloc::prelude::v1::*;
-use icecap_backtrace_types::{RawStackFrame, Error};
+use icecap_backtrace_types::{Error, RawStackFrame};
 
 cfg_if::cfg_if! {
     if #[cfg(all(target_os = "icecap", icecap_debug))] {

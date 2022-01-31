@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 pub struct RawBacktrace {
     pub path: Option<String>,
     pub stack_frames: Vec<RawStackFrame>,
-    pub error: Option<Error>
+    pub error: Option<Error>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

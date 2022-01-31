@@ -42,36 +42,35 @@ fn show_backtrace<R: Reader>(
         // TODO
         // let mut seen = false;
         // let initial_location = ctx.find_location(frame.ip as u64)?;
-        ctx.find_frames(frame.ip as u64)?
-            .for_each(|inner_frame| {
-                if first {
-                    print!(" {:4}: ", i);
-                    print!(" {:#18x} - ", frame.ip);
-                } else {
-                    print!("      {:18}   ", "");
+        ctx.find_frames(frame.ip as u64)?.for_each(|inner_frame| {
+            if first {
+                print!(" {:4}: ", i);
+                print!(" {:#18x} - ", frame.ip);
+            } else {
+                print!("      {:18}   ", "");
+            }
+            // TODO
+            // if inner_frame.location == frame {
+            //     seen = true;
+            // }
+            match inner_frame.function {
+                Some(f) => {
+                    // TODO
+                    // let raw_name = f.raw_name()?;
+                    // let demangled = demangle(&raw_name);
+                    let demangled = f.demangle()?;
+                    print!("{}", demangled)
                 }
-                // TODO
-                // if inner_frame.location == frame {
-                //     seen = true;
-                // }
-                match inner_frame.function {
-                    Some(f) => {
-                        // TODO
-                        // let raw_name = f.raw_name()?;
-                        // let demangled = demangle(&raw_name);
-                        let demangled = f.demangle()?;
-                        print!("{}", demangled)
-                    }
-                    None => print!("<unknown>"),
-                }
-                print!("\n");
-                // TODO
-                // if let Some(loc) = inner_frame.location {
-                //     println!("      {:18}       at {}", "", fmt_location(loc));
-                // }
-                first = false;
-                Ok(())
-            })?;
+                None => print!("<unknown>"),
+            }
+            print!("\n");
+            // TODO
+            // if let Some(loc) = inner_frame.location {
+            //     println!("      {:18}       at {}", "", fmt_location(loc));
+            // }
+            first = false;
+            Ok(())
+        })?;
         // TODO this isn't accurate
         if let Some(loc) = ctx.find_location(frame.ip as u64)? {
             println!("      {:18}       at {}", "", fmt_location(loc));
