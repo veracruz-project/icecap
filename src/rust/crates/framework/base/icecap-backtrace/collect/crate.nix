@@ -13,6 +13,6 @@ mkSeL4 {
     icecap-sel4
   ];
   target."cfg(all(target_os = \"icecap\", icecap_debug))".dependencies = {
-    unwinding = { version = "0.1.4"; default-features = false; features = [ "unwinder" "fde-gnu-eh-frame-hdr" ]; };
+    unwinding = { version = "0.1.4"; default-features = false; features = [ "hide-trace" "unwinder" "fde-gnu-eh-frame-hdr" ]; };
   };
 }

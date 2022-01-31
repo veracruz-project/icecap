@@ -35,23 +35,18 @@ fn show_backtrace<R: Reader>(
 ) -> Result<(), gimli::Error> {
     println!("backtrace: {}", elf_file_path);
     if let Some(ref err) = bt.error {
-        println!("    error: {}", err);
+        println!("    error: {:?}", err);
     }
     for (i, frame) in bt.stack_frames.iter().enumerate() {
         let mut first = true;
         // TODO
         // let mut seen = false;
-        // let initial_location = ctx.find_location(frame.initial_address)?;
-        ctx.find_frames(frame.initial_address)?
+        // let initial_location = ctx.find_location(frame.ip as u64)?;
+        ctx.find_frames(frame.ip as u64)?
             .for_each(|inner_frame| {
                 if first {
-                    // TODO not correct when inlining present
-                    if i == bt.skip {
-                        print!("[{:4}:]", i);
-                    } else {
-                        print!(" {:4}: ", i);
-                    }
-                    print!(" {:#18x} - ", frame.initial_address);
+                    print!(" {:4}: ", i);
+                    print!(" {:#18x} - ", frame.ip);
                 } else {
                     print!("      {:18}   ", "");
                 }
@@ -77,7 +72,8 @@ fn show_backtrace<R: Reader>(
                 first = false;
                 Ok(())
             })?;
-        if let Some(loc) = ctx.find_location(frame.callsite_address)? {
+        // TODO this isn't accurate
+        if let Some(loc) = ctx.find_location(frame.ip as u64)? {
             println!("      {:18}       at {}", "", fmt_location(loc));
         }
         // TODO

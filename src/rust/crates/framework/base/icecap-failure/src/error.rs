@@ -28,7 +28,7 @@ struct Inner<F: ?Sized + Fail> {
 impl<F: Fail> From<F> for Error {
     fn from(failure: F) -> Self {
         let backtrace = match failure.backtrace() {
-            None => Backtrace::new_skip(1),
+            None => Backtrace::new(),
             Some(_) => Backtrace::none(),
         };
         Self {

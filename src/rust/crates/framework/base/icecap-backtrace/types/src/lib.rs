@@ -10,15 +10,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawBacktrace {
     pub path: Option<String>,
-    pub skip: usize,
     pub stack_frames: Vec<RawStackFrame>,
-    pub error: Option<String>,
+    pub error: Option<Error>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Error {}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawStackFrame {
-    pub initial_address: u64,
-    pub callsite_address: u64,
+    // TODO add more detail
+    pub ip: usize,
 }
 
 impl RawBacktrace {

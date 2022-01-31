@@ -9,14 +9,10 @@ pub struct Backtrace {
 impl Backtrace {
 
     pub fn new() -> Self {
-        Self::new_skip(1)
-    }
-
-    pub fn new_skip(skip: usize) -> Self {
         Backtrace {
             internal:
                 if is_backtrace_enabled() {
-                    Some(ActualBacktrace::new_skip(skip + 1))
+                    Some(ActualBacktrace::new())
                 } else {
                     None
                 },

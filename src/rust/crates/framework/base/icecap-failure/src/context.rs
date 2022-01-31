@@ -19,7 +19,7 @@ impl<D: Display + Send + Sync + 'static> Context<D> {
     pub fn new(context: D) -> Context<D> {
         Context {
             context,
-            failure: Either::This(Backtrace::new_skip(1)),
+            failure: Either::This(Backtrace::new()),
         }
     }
 
