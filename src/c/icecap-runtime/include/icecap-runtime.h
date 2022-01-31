@@ -38,9 +38,9 @@ struct icecap_runtime_thread_config {
 
 struct icecap_runtime_config {
     struct icecap_runtime_heap_info heap_info;
-    seL4_Word image_path_offset;
     struct icecap_runtime_tls_image tls_image;
     struct icecap_runtime_arg arg;
+    seL4_Word image_path_offset;
     seL4_CPtr print_lock;
     seL4_CPtr idle_notification;
     seL4_Uint64 num_threads;

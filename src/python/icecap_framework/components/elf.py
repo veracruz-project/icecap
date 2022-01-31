@@ -84,12 +84,12 @@ class ElfComponent(BaseComponent):
         config = {
             'common': {
                 'heap_info': heap_info,
-                'image_path_offset': 0,
                 'tls_image': tls_image(self.elf_min._elf),
                 'arg': {
                     'offset': 0,
                     'size': 0,
                 },
+                'image_path_offset': 0,
                 'print_lock': self.cspace().alloc(
                     self.alloc(ObjectType.seL4_NotificationObject, 'print_lock'),
                     read=True, write=True, badge=1,

@@ -83,9 +83,9 @@ void ICECAP_NORETURN __icecap_runtime_continue(struct icecap_runtime_config *con
         icecap_runtime_heap_start = config->heap_info.start;
         icecap_runtime_heap_end = config->heap_info.end;
         icecap_runtime_heap_lock = config->heap_info.lock;
-        icecap_runtime_image_path = config->image_path_offset == 0 ? 0 : (const char *)config + config->image_path_offset;
         icecap_runtime_tls_region_align = __icecap_runtime_tls_region_align_of(&config->tls_image);
         icecap_runtime_tls_region_size = __icecap_runtime_tls_region_size_of(&config->tls_image);
+        icecap_runtime_image_path = config->image_path_offset == 0 ? 0 : (const char *)config + config->image_path_offset;
         icecap_runtime_print_lock = config->print_lock;
         icecap_runtime_idle_notification = config->idle_notification;
         __icecap_runtime_tls_image = config->tls_image;

@@ -45,19 +45,19 @@ impl<T> Config<T> {
 
 impl<T: AsRef<[u8]>> Config<T> {
     pub fn serialize(mut self) -> Vec<Vec<u8>> {
-        assert_eq!(self.common.image_path_offset, 0);
         assert_eq!(self.common.arg.offset, 0);
         assert_eq!(self.common.arg.size, 0);
+        assert_eq!(self.common.image_path_offset, 0);
 
         let mut blob = vec![];
-
-        self.common.image_path_offset = (self.struct_size() + blob.len()) as u64;
-        blob.extend_from_slice(self.image_path.as_bytes());
-        blob.push(0);
 
         self.common.arg.offset = (self.struct_size() + blob.len()) as u64;
         self.common.arg.size = self.arg.as_ref().len() as u64;
         blob.extend_from_slice(self.arg.as_ref());
+
+        self.common.image_path_offset = (self.struct_size() + blob.len()) as u64;
+        blob.extend_from_slice(self.image_path.as_bytes());
+        blob.push(0);
 
         let mut struct_ = as_bytes(&self.common).to_vec();
         struct_.extend_from_slice(as_bytes(&(self.threads.len() as u64)));
