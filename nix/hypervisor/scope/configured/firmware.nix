@@ -20,7 +20,7 @@ makeOverridable' compose (rec {
     config = {
       num_cores = platUtils.${icecapPlat}.numCores;
       num_realms = 2;
-      default_affinity = 1;
+      default_affinity = 0;
 
       components = {
         idle.image = hypervisorComponents.idle.split;

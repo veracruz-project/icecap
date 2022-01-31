@@ -5,7 +5,7 @@
 }:
 
 let
-  numCores = 4;
+  numCores = 2;
   memorySize = 1024 * 3; # TODO make configurable
 
   exe = "${devPkgs.linuxHelpers.qemu-aarch64}/bin/qemu-system-aarch64";

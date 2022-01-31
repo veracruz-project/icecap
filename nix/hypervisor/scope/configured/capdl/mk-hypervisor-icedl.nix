@@ -8,7 +8,7 @@
 
 (mkIceDL ({
   config = {
-    hack_realm_affinity = 1;
+    hack_realm_affinity = 0;
   } // config;
 } // (if script != null then {
   inherit script;

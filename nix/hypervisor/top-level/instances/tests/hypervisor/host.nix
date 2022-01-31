@@ -12,8 +12,8 @@ in {
       '';
 
       initramfs.extraInitCommands = mkAfter ''
-        export iperf_affinity=0x4
-        export realm_affinity=0x2
+        export iperf_affinity=0x1
+        export realm_affinity=0x1
 
         # HACK
         . /etc/profile
