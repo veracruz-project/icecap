@@ -42,6 +42,9 @@ lib.fix (self: buildRustPackageIncrementally ({
         "-C" "link-arg=-T${root-task-tls-lds}"
         # "-T" root-task-tls-lds
       ];
+      # NOTE
+      # To support unwinding with the 'unwinding' crate with non-GNU linkers:
+      # https://github.com/rust-lang/llvm-project/blob/b6b46f596a7d2523ee1acd1c00e699615849da60/libunwind/src/AddressSpace.hpp#L64
     }
   ]);
 
