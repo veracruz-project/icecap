@@ -46,7 +46,7 @@
   icecap-vmm-utils = ./crates/framework/vmm/utils;
 
   icecap-mirage-core = ./crates/framework/mirage/core;
- 
+
   icecap-linux-syscall-types = ./crates/framework/linux-syscall/types;
   icecap-linux-syscall-musl = ./crates/framework/linux-syscall/musl;
 
