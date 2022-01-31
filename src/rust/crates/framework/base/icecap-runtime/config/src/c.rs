@@ -28,9 +28,9 @@ pub struct Arg {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommonConfig {
     pub heap_info: HeapInfo,
-    pub image_path_offset: u64,
     pub tls_image: TlsImage,
     pub arg: Arg,
+    pub image_path_offset: u64,
     pub print_lock: u64,
     pub idle_notification: u64,
 }
