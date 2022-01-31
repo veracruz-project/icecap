@@ -1,5 +1,0 @@
-This crate is derived, with significant modification, from:
-- https://github.com/gimli-rs/unwind-rs
-- https://github.com/roblabla/unwind-rs
-
-See unwind-rs.LICENSE for copyright information.
