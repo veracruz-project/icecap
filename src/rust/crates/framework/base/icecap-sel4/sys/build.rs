@@ -14,6 +14,7 @@ fn main() {
         .rust_target(bindgen::RustTarget::Nightly)
         .rustfmt_bindings(true)
         .generate_comments(false)
+        .blocklist_item("__sel4_ipc_buffer") // bindgen doesn't support thead-local symbols
         .generate()
         .unwrap();
 

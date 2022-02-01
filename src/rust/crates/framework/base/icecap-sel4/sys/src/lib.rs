@@ -1,4 +1,5 @@
 #![no_std]
+#![feature(thread_local)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
@@ -19,3 +20,9 @@ pub mod c_types {
 }
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+// bindgen doesn't support thead-local symbols
+extern "C" {
+    #[thread_local]
+    pub static mut __sel4_ipc_buffer: *mut seL4_IPCBuffer;
+}
