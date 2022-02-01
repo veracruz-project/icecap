@@ -6,7 +6,9 @@ use core::slice;
 use crate::{sys, Word};
 
 #[thread_local]
-pub static IPC_BUFFER: RefCell<IPCBuffer> = RefCell::new(IPCBuffer { _marker: PhantomData });
+pub static IPC_BUFFER: RefCell<IPCBuffer> = RefCell::new(IPCBuffer {
+    _marker: PhantomData,
+});
 
 /// The thread's IPC buffer.
 ///

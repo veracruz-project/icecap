@@ -54,7 +54,7 @@ pub use endpoint::{
     reply, MessageRegister, MR_0, MR_1, MR_2, MR_3, MR_4, MR_5, MR_6, MR_7, MSG_MAX_LENGTH,
 };
 
-pub use ipc_buffer::{IPC_BUFFER, IPCBuffer};
+pub use ipc_buffer::{IPCBuffer, IPC_BUFFER};
 
 pub use fault::{
     CapFault,
