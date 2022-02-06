@@ -59,4 +59,20 @@ impl IPCBuffer {
     fn inner_mut(&mut self) -> &mut sys::seL4_IPCBuffer {
         unsafe { &mut *sys::__sel4_ipc_buffer }
     }
+
+    pub fn with<F, T>(f: F) -> T
+    where
+        F: FnOnce(&IPCBuffer) -> T,
+    {
+        let ipc_buffer = IPC_BUFFER.borrow();
+        f(&*ipc_buffer)
+    }
+
+    pub fn with_mut<F, T>(f: F) -> T
+    where
+        F: FnOnce(&mut IPCBuffer) -> T,
+    {
+        let mut ipc_buffer = IPC_BUFFER.borrow_mut();
+        f(&mut *ipc_buffer)
+    }
 }

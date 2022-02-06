@@ -27,6 +27,8 @@ pub use crate::{
     MR_0, MR_1, MR_2, MR_3,
     MR_4, MR_5, MR_6, MR_7,
 
+    IPCBuffer,
+
     debug_put_char,
     debug_snapshot,
 
