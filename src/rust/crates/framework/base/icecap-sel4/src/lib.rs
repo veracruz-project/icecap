@@ -16,6 +16,7 @@ mod cspace;
 mod vspace;
 mod invoke;
 mod ipc_buffer;
+mod fast_ipc;
 mod endpoint;
 pub mod fault; // TODO
 mod bootinfo;
@@ -55,6 +56,10 @@ pub use endpoint::{
 };
 
 pub use ipc_buffer::{IPCBuffer, IPC_BUFFER};
+
+pub use fast_ipc::{
+    fast_call, fast_nb_send, fast_recv, fast_reply, fast_send, FastCallResult, FastRecvResult,
+};
 
 pub use fault::{
     CapFault,

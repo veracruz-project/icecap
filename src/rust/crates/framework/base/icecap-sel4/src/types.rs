@@ -91,6 +91,14 @@ impl MessageInfo {
         unsafe { sys::seL4_MessageInfo_get_label(self.raw()) }
     }
 
+    pub fn caps_unwrapped(self) -> usize {
+        unsafe { sys::seL4_MessageInfo_get_capsUnwrapped(self.raw()) as usize }
+    }
+
+    pub fn extra_caps(self) -> usize {
+        unsafe { sys::seL4_MessageInfo_get_extraCaps(self.raw()) as usize }
+    }
+
     pub fn length(self) -> Word {
         unsafe { sys::seL4_MessageInfo_get_length(self.raw()) }
     }
