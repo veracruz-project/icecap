@@ -82,10 +82,10 @@ impl<T: SerialDevice> SerialServer<T> {
         timer.periodic(0, 500000000).unwrap();
 
         loop {
-            let (info, _) = event_ep.recv();
+            let event = rpc::server::recv(event_ep, |mut receiving| receiving.read());
             cspace.relative(reply_ep).save_caller().unwrap();
 
-            match rpc::server::recv::<Event>(&info) {
+            match event {
                 Event::Interrupt => {
                     self.dev.handle_interrupt();
                     loop {

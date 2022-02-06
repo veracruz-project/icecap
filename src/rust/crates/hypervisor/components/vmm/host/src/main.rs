@@ -98,62 +98,72 @@ impl Extension {
     fn userspace_syscall(
         node: &mut VMMNode<Self>,
         fault: &UnknownSyscall,
-        f: impl FnOnce(&mut VMMNode<Self>, &[u64]) -> Fallible<Vec<u64>>,
+        f: impl FnOnce(&mut IPCBuffer, &mut VMMNode<Self>, &[u64]) -> Fallible<Vec<u64>>,
     ) -> Fallible<()> {
-        let length = fault.x0 as usize;
-        let parameters = (0..length).map(|i| fault.gpr(i + 1)).collect::<Vec<u64>>();
-        let mut r = f(node, &parameters)?;
-        assert!(r.len() <= 6);
-        UnknownSyscall::mr_gpr(0).set(r.len() as u64);
-        r.resize_with(6, || 0);
-        for i in 0..6 {
-            UnknownSyscall::mr_gpr(i + 1).set(r[i]);
-        }
-        fault.advance_and_reply();
-        Ok(())
+        IPCBuffer::with_mut(|ipcbuf| {
+            let length = fault.x0 as usize;
+            let parameters = (0..length).map(|i| fault.gpr(i + 1)).collect::<Vec<u64>>();
+            let mut r = f(ipcbuf, node, &parameters)?;
+            assert!(r.len() <= 6);
+            UnknownSyscall::mr_gpr(0).set(r.len() as u64);
+            r.resize_with(6, || 0);
+            for i in 0..6 {
+                UnknownSyscall::mr_gpr(i + 1).set(r[i]);
+            }
+            fault.advance_and_reply();
+            Ok(())
+        })
     }
 
     fn sys_resource_server_passthru(
         node: &mut VMMNode<Self>,
         fault: &UnknownSyscall,
     ) -> Fallible<()> {
-        Self::userspace_syscall(node, fault, |node, values| {
-            let recv_info = node
-                .extension
-                .resource_server_ep
-                .call(rpc::proxy::up(values));
-            let resp = rpc::proxy::down(&recv_info);
+        Self::userspace_syscall(node, fault, |ipcbuf, node, values| {
+            let send_info = rpc::proxy::up(ipcbuf, values);
+            let recv_info = node.extension.resource_server_ep.call(send_info);
+            let resp = rpc::proxy::down(ipcbuf, recv_info).to_vec();
             Ok(resp)
         })
     }
 
     fn sys_direct(node: &mut VMMNode<Self>, fault: &UnknownSyscall) -> Fallible<()> {
-        Self::userspace_syscall(node, fault, |node, values| {
+        Self::userspace_syscall(node, fault, |ipcbuf, node, values| {
             let request = DirectRequest::recv_from_slice(&values);
-            let response = Self::direct(node, &request)?;
+            let response = Self::direct(ipcbuf, node, &request)?;
             Ok(response.send_to_vec())
         })
     }
 
     cfg_if::cfg_if! {
         if #[cfg(icecap_benchmark)] {
-            fn direct(node: &mut VMMNode<Self>, request: &DirectRequest) -> Fallible<DirectResponse> {
+            fn direct(ipcbuf: &mut IPCBuffer, node: &mut VMMNode<Self>, request: &DirectRequest)
+                      -> Fallible<DirectResponse>
+            {
                 match request {
                     DirectRequest::BenchmarkUtilisationStart => {
                         rpc::Client::new(node.extension.benchmark_server_ep)
-                            .call::<benchmark_server::Response>(&benchmark_server::Request::Start)
+                            .call_with_ipcbuf::<benchmark_server::Response>(
+                                ipcbuf,
+                                &benchmark_server::Request::Start
+                            )
                             .unwrap();
                     }
                     DirectRequest::BenchmarkUtilisationFinish => {
                         rpc::Client::new(node.extension.benchmark_server_ep)
-                            .call::<benchmark_server::Response>(&benchmark_server::Request::Finish)
+                            .call_with_ipcbuf::<benchmark_server::Response>(
+                                ipcbuf,
+                                &benchmark_server::Request::Finish
+                            )
                             .unwrap();
                     }
                 }
                 Ok(DirectResponse)
             }
         } else {
-            fn direct(_node: &mut VMMNode<Self>, _request: &DirectRequest) -> Fallible<DirectResponse> {
+            fn direct(_ipcbuf: &mut IPCBuffer, _node: &mut VMMNode<Self>, _request: &DirectRequest)
+                      -> Fallible<DirectResponse>
+            {
                 panic!()
             }
         }

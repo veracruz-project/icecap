@@ -91,99 +91,98 @@ fn run(
     let bulk_region = bulk_region as *const u8;
 
     loop {
-        let (info, badge) = endpoint.recv();
+        enum Received {
+            HostControl(Request),
+            HostYield(Yield),
+            HostEvent,
+            Timeout,
+        }
+        let received = rpc::server::recv(endpoint, |mut receiving| match receiving.badge {
+            BADGE_HOST_CONTROL => Received::HostControl(receiving.read()),
+            BADGE_HOST_YIELD => Received::HostYield(receiving.read()),
+            BADGE_HOST_EVENT => Received::HostEvent,
+            BADGE_TIMEOUT => Received::Timeout,
+            _ => panic!("badge: {}", receiving.badge),
+        });
 
-        {
-            let mut resource_server = server.lock();
-
-            match badge {
-                BADGE_HOST_CONTROL =>
-                {
-                    #[allow(unused_variables)]
-                    match rpc::server::recv(&info) {
-                        Request::Declare {
-                            realm_id,
-                            spec_size,
-                        } => {
-                            rpc::server::reply::<()>(&resource_server.declare(realm_id, spec_size)?)
-                        }
-                        Request::SpecChunk {
-                            realm_id,
-                            bulk_data_offset,
+        let mut resource_server = server.lock();
+        match received {
+            Received::HostControl(req) => match req {
+                Request::Declare {
+                    realm_id,
+                    spec_size,
+                } => rpc::server::reply::<()>(&resource_server.declare(realm_id, spec_size)?),
+                Request::SpecChunk {
+                    realm_id,
+                    bulk_data_offset,
+                    bulk_data_size,
+                    offset,
+                } => {
+                    assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
+                    let content = unsafe {
+                        core::slice::from_raw_parts(
+                            bulk_region.offset(bulk_data_offset as isize),
                             bulk_data_size,
-                            offset,
-                        } => {
-                            assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
-                            let content = unsafe {
-                                core::slice::from_raw_parts(
-                                    bulk_region.offset(bulk_data_offset as isize),
-                                    bulk_data_size,
-                                )
-                            };
-                            resource_server.incorporate_spec_chunk(realm_id, offset, content)?;
-                            rpc::server::reply::<()>(&());
-                        }
-                        Request::FillChunks {
-                            realm_id,
-                            bulk_data_offset,
+                        )
+                    };
+                    resource_server.incorporate_spec_chunk(realm_id, offset, content)?;
+                    rpc::server::reply::<()>(&());
+                }
+                Request::FillChunks {
+                    realm_id,
+                    bulk_data_offset,
+                    bulk_data_size,
+                } => {
+                    assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
+                    let mut aggregate_content = unsafe {
+                        core::slice::from_raw_parts(
+                            bulk_region.offset(bulk_data_offset as isize),
                             bulk_data_size,
-                        } => {
-                            assert!(bulk_data_offset + bulk_data_size <= bulk_region_size);
-                            let mut aggregate_content = unsafe {
-                                core::slice::from_raw_parts(
-                                    bulk_region.offset(bulk_data_offset as isize),
-                                    bulk_data_size,
-                                )
-                            };
-                            while aggregate_content.len() > 0 {
-                                let (header, rest) =
-                                    postcard::take_from_bytes::<FillChunkHeader>(aggregate_content)
-                                        .unwrap();
-                                let (content, rest) = rest.split_at(header.size);
-                                aggregate_content = rest;
-                                resource_server.realize_continue(
-                                    realm_id,
-                                    header.object_index,
-                                    header.fill_entry_index,
-                                    content,
-                                )?;
-                            }
-                            rpc::server::reply::<()>(&())
-                        }
-                        Request::RealizeStart { realm_id } => {
-                            rpc::server::reply::<()>(&resource_server.realize_start(realm_id)?)
-                        }
-                        Request::RealizeFinish { realm_id } => rpc::server::reply::<()>(
-                            &resource_server.realize_finish(node_index, realm_id)?,
-                        ),
-                        Request::Destroy { realm_id } => rpc::server::reply::<()>(
-                            &resource_server.destroy(node_index, realm_id)?,
-                        ),
-                        Request::HackRun { realm_id } => {
-                            rpc::server::reply::<()>(&resource_server.hack_run(realm_id)?)
-                        }
+                        )
+                    };
+                    while aggregate_content.len() > 0 {
+                        let (header, rest) =
+                            postcard::take_from_bytes::<FillChunkHeader>(aggregate_content)
+                                .unwrap();
+                        let (content, rest) = rest.split_at(header.size);
+                        aggregate_content = rest;
+                        resource_server.realize_continue(
+                            realm_id,
+                            header.object_index,
+                            header.fill_entry_index,
+                            content,
+                        )?;
                     }
+                    rpc::server::reply::<()>(&())
                 }
-                BADGE_HOST_YIELD => {
-                    let Yield {
-                        physical_node,
-                        realm_id,
-                        virtual_node,
-                        timeout,
-                    } = rpc::server::recv(&info);
-                    resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
+                Request::RealizeStart { realm_id } => {
+                    rpc::server::reply::<()>(&resource_server.realize_start(realm_id)?)
                 }
-                BADGE_HOST_EVENT => {
-                    //  debug_println!("host event on {}", node_index);
-                    resource_server.host_event(node_index)?;
+                Request::RealizeFinish { realm_id } => {
+                    rpc::server::reply::<()>(&resource_server.realize_finish(node_index, realm_id)?)
                 }
-                BADGE_TIMEOUT => {
-                    // debug_println!("timeout on {}", node_index);
-                    resource_server.timeout(node_index)?;
+                Request::Destroy { realm_id } => {
+                    rpc::server::reply::<()>(&resource_server.destroy(node_index, realm_id)?)
                 }
-                _ => {
-                    panic!("badge: {}", badge)
+                Request::HackRun { realm_id } => {
+                    rpc::server::reply::<()>(&resource_server.hack_run(realm_id)?)
                 }
+            },
+            Received::HostYield(Yield {
+                physical_node,
+                realm_id,
+                virtual_node,
+                timeout,
+            }) => {
+                resource_server.yield_to(physical_node, realm_id, virtual_node, timeout)?;
+            }
+            Received::HostEvent => {
+                //  debug_println!("host event on {}", node_index);
+                resource_server.host_event(node_index)?;
+            }
+            Received::Timeout => {
+                // debug_println!("timeout on {}", node_index);
+                resource_server.timeout(node_index)?;
             }
         }
     }

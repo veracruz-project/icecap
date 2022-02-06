@@ -13,12 +13,11 @@ declare_main!(main);
 pub fn main(config: Config) -> Fallible<()> {
     let ep = config.ep;
     let tcb = config.self_tcb;
-    loop {
-        let (info, _badge) = ep.recv();
-        let request = rpc::server::recv::<Request>(&info);
+    IPCBuffer::with_mut(|ipcbuf| loop {
+        let request = rpc::server::recv_with_ipcbuf(ipcbuf, ep, |mut receiving| receiving.read());
         let response = handle(tcb, &request)?;
-        rpc::server::reply(&response);
-    }
+        rpc::server::reply_with_ipcbuf(ipcbuf, &response);
+    })
 }
 
 cfg_if::cfg_if! {

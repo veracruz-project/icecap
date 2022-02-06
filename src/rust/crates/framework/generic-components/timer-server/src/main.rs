@@ -55,33 +55,38 @@ pub fn run(
     irq_handler: IRQHandler,
 ) -> Fallible<!> {
     loop {
-        let (recv_info, badge) = endpoint.recv();
+        enum Received {
+            Interrupt,
+            Client { cid: usize, req: Request },
+        }
+        let received = rpc::server::recv(endpoint, |mut receiving| match receiving.badge {
+            INTERRUPT_BADGE => Received::Interrupt,
+            _ => Received::Client {
+                cid: receiving.badge as usize - CLIENT_BADGE_START as usize,
+                req: receiving.read(),
+            },
+        });
 
-        {
-            let mut server = server.lock();
-            match badge {
-                INTERRUPT_BADGE => {
-                    server.handle_interrupt();
-                    irq_handler.ack().unwrap();
-                }
-                _ => {
-                    let cid: usize = badge as usize - CLIENT_BADGE_START as usize;
-                    reply(match rpc::server::recv(&recv_info) {
-                        Request::Completed => panic!(), // rpc::server::prepare(server.completed(cid)),
-                        Request::Periodic { tid, ns } => {
-                            rpc::server::prepare(&server.periodic(cid, tid, ns as i64))
-                        }
-                        Request::OneshotAbsolute { tid, ns } => {
-                            rpc::server::prepare(&server.oneshot_absolute(cid, tid, ns as i64))
-                        }
-                        Request::OneshotRelative { tid, ns } => {
-                            rpc::server::prepare(&server.oneshot_relative(cid, tid, ns as i64))
-                        }
-                        Request::Stop { tid } => rpc::server::prepare(&server.stop(cid, tid)),
-                        Request::Time => rpc::server::prepare(&(server.time(cid) as u64)),
-                    })
-                }
+        let mut server = server.lock();
+        match received {
+            Received::Interrupt => {
+                server.handle_interrupt();
+                irq_handler.ack().unwrap();
             }
+            Received::Client { cid, req } => match req {
+                Request::Completed => panic!(), // rpc::server::reply(server.completed(cid)),
+                Request::Periodic { tid, ns } => {
+                    rpc::server::reply(&server.periodic(cid, tid, ns as i64))
+                }
+                Request::OneshotAbsolute { tid, ns } => {
+                    rpc::server::reply(&server.oneshot_absolute(cid, tid, ns as i64))
+                }
+                Request::OneshotRelative { tid, ns } => {
+                    rpc::server::reply(&server.oneshot_relative(cid, tid, ns as i64))
+                }
+                Request::Stop { tid } => rpc::server::reply(&server.stop(cid, tid)),
+                Request::Time => rpc::server::reply(&(server.time(cid) as u64)),
+            },
         }
     }
 }
