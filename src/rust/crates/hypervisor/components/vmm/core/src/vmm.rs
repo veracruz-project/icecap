@@ -149,47 +149,55 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
         self.vcpu.write_regs(VCPUReg::CNTVOFF, 0)?; // TODO is this necessary? probably not.
         self.tcb.resume()?;
         loop {
-            let (info, badge) = self.ep.recv();
-            match badge {
-                BADGE_FAULT => {
-                    let fault = Fault::get(info);
-                    match fault {
-                        Fault::VMFault(fault) => {
-                            self.handle_page_fault(fault)?;
-                            reply(MessageInfo::empty());
-                        }
-                        Fault::UnknownSyscall(fault) => {
-                            self.handle_syscall(&fault)?;
-                        }
-                        Fault::VGICMaintenance(fault) => {
-                            self.gic
-                                .lock()
-                                .handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
-                            reply(MessageInfo::empty());
-                        }
-                        Fault::VCPUFault(fault) => {
-                            if fault.is_wf() {
-                                E::handle_wf(self)?;
-                            } else {
-                                panic!();
-                            }
-                        }
-                        Fault::VPPIEvent(fault) => {
-                            self.gic.lock().handle_irq(
-                                self.node_index,
-                                QualifiedIRQ::QualifiedPPI {
-                                    node: self.node_index,
-                                    irq: fault.irq as usize,
-                                },
-                            )?;
-                            reply(MessageInfo::empty());
-                        }
-                        _ => {
-                            panic!("unexpected fault: {:?}", fault);
+            enum Received {
+                Fault(Fault),
+                Interrupt(Word),
+            }
+            let received = IPCBuffer::with_mut(|ipcbuf| {
+                let (info, badge) = self.ep.recv();
+                match badge {
+                    BADGE_FAULT => Received::Fault(Fault::get(ipcbuf, info)),
+                    event_bit_groups => Received::Interrupt(event_bit_groups),
+                }
+            });
+
+            match received {
+                Received::Fault(fault) => match fault {
+                    Fault::VMFault(fault) => {
+                        self.handle_page_fault(fault)?;
+                        reply(MessageInfo::empty());
+                    }
+                    Fault::UnknownSyscall(fault) => {
+                        self.handle_syscall(&fault)?;
+                    }
+                    Fault::VGICMaintenance(fault) => {
+                        self.gic
+                            .lock()
+                            .handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
+                        reply(MessageInfo::empty());
+                    }
+                    Fault::VCPUFault(fault) => {
+                        if fault.is_wf() {
+                            E::handle_wf(self)?;
+                        } else {
+                            panic!();
                         }
                     }
-                }
-                event_bit_groups => {
+                    Fault::VPPIEvent(fault) => {
+                        self.gic.lock().handle_irq(
+                            self.node_index,
+                            QualifiedIRQ::QualifiedPPI {
+                                node: self.node_index,
+                                irq: fault.irq as usize,
+                            },
+                        )?;
+                        reply(MessageInfo::empty());
+                    }
+                    _ => {
+                        panic!("unexpected fault: {:?}", fault);
+                    }
+                },
+                Received::Interrupt(event_bit_groups) => {
                     let mut gic = self.gic.lock();
                     self.event_server_bitfield
                         .clear(event_bit_groups, |bit| -> Fallible<()> {
@@ -258,7 +266,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
 
     fn sys_putchar(&mut self, fault: &UnknownSyscall) -> Fallible<()> {
         E::handle_putchar(self, fault.x0 as u8)?;
-        fault.advance_and_reply();
+        IPCBuffer::with_mut(|ipcbuf| fault.advance_and_reply(ipcbuf));
         Ok(())
     }
 
@@ -295,8 +303,10 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
             }
             psci::Call::MigrateInfoType => psci::RET_NOT_SUPPORTED,
         };
-        UnknownSyscall::mr_gpr(0).set(ret as u64);
-        fault.advance_and_reply();
+        IPCBuffer::with_mut(|ipcbuf| {
+            *UnknownSyscall::mr_gpr(ipcbuf, 0) = ret as u64;
+            fault.advance_and_reply(ipcbuf);
+        });
         Ok(())
     }
 }

@@ -105,12 +105,12 @@ impl Extension {
             let parameters = (0..length).map(|i| fault.gpr(i + 1)).collect::<Vec<u64>>();
             let mut r = f(ipcbuf, node, &parameters)?;
             assert!(r.len() <= 6);
-            UnknownSyscall::mr_gpr(0).set(r.len() as u64);
+            *UnknownSyscall::mr_gpr(ipcbuf, 0) = r.len() as u64;
             r.resize_with(6, || 0);
             for i in 0..6 {
-                UnknownSyscall::mr_gpr(i + 1).set(r[i]);
+                *UnknownSyscall::mr_gpr(ipcbuf, i + 1) = r[i];
             }
-            fault.advance_and_reply();
+            fault.advance_and_reply(ipcbuf);
             Ok(())
         })
     }

@@ -1,21 +1,21 @@
-use crate::{reply, sys, MessageInfo, MessageRegister, UserContext, Word};
+use crate::{reply, sys, IPCBuffer, MessageInfo, UserContext, Word};
 
 // TODO
 // - use proper types in fault structs (e.g. signed for seL4_VGICMaintenance_IDX)
 
-fn get(i: Word) -> Word {
-    MessageRegister::new(i as i32).get()
+fn get(ipcbuf: &IPCBuffer, i: Word) -> Word {
+    ipcbuf.msg_regs()[i as usize]
 }
 
 pub trait IsFault {
-    fn get() -> Self;
+    fn get(ipcbuf: &IPCBuffer) -> Self;
 }
 
 #[derive(Debug)]
 pub struct NullFault {}
 
 impl IsFault for NullFault {
-    fn get() -> Self {
+    fn get(_ipcbuf: &IPCBuffer) -> Self {
         Self {}
     }
 }
@@ -32,17 +32,22 @@ pub struct CapFault {
 }
 
 impl IsFault for CapFault {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            ip: get(sys::seL4_CapFault_Msg_seL4_CapFault_IP),
-            addr: get(sys::seL4_CapFault_Msg_seL4_CapFault_Addr),
-            in_recv_phase: get(sys::seL4_CapFault_Msg_seL4_CapFault_InRecvPhase),
-            lookup_failure_type: get(sys::seL4_CapFault_Msg_seL4_CapFault_LookupFailureType),
-            bits_left: get(sys::seL4_CapFault_Msg_seL4_CapFault_BitsLeft),
+            ip: get(ipcbuf, sys::seL4_CapFault_Msg_seL4_CapFault_IP),
+            addr: get(ipcbuf, sys::seL4_CapFault_Msg_seL4_CapFault_Addr),
+            in_recv_phase: get(ipcbuf, sys::seL4_CapFault_Msg_seL4_CapFault_InRecvPhase),
+            lookup_failure_type: get(
+                ipcbuf,
+                sys::seL4_CapFault_Msg_seL4_CapFault_LookupFailureType,
+            ),
+            bits_left: get(ipcbuf, sys::seL4_CapFault_Msg_seL4_CapFault_BitsLeft),
             guard_mismatch_guard_found: get(
+                ipcbuf,
                 sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_GuardFound,
             ),
             guard_mismatch_bits_found: get(
+                ipcbuf,
                 sys::seL4_CapFault_Msg_seL4_CapFault_GuardMismatch_BitsFound,
             ),
         }
@@ -67,21 +72,30 @@ pub struct UnknownSyscall {
 }
 
 impl IsFault for UnknownSyscall {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            x0: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0),
-            x1: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X1),
-            x2: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X2),
-            x3: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X3),
-            x4: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X4),
-            x5: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X5),
-            x6: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X6),
-            x7: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X7),
-            fault_ip: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP),
-            sp: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_SP),
-            lr: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_LR),
-            spsr: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_SPSR),
-            syscall: get(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_Syscall),
+            x0: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0),
+            x1: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X1),
+            x2: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X2),
+            x3: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X3),
+            x4: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X4),
+            x5: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X5),
+            x6: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X6),
+            x7: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X7),
+            fault_ip: get(
+                ipcbuf,
+                sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP,
+            ),
+            sp: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_SP),
+            lr: get(ipcbuf, sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_LR),
+            spsr: get(
+                ipcbuf,
+                sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_SPSR,
+            ),
+            syscall: get(
+                ipcbuf,
+                sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_Syscall,
+            ),
         }
     }
 }
@@ -96,13 +110,19 @@ pub struct UserException {
 }
 
 impl IsFault for UserException {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            fault_ip: get(sys::seL4_UserException_Msg_seL4_UserException_FaultIP),
-            sp: get(sys::seL4_UserException_Msg_seL4_UserException_SP),
-            spsr: get(sys::seL4_UserException_Msg_seL4_UserException_SPSR),
-            number: get(sys::seL4_UserException_Msg_seL4_UserException_Number),
-            code: get(sys::seL4_UserException_Msg_seL4_UserException_Code),
+            fault_ip: get(
+                ipcbuf,
+                sys::seL4_UserException_Msg_seL4_UserException_FaultIP,
+            ),
+            sp: get(ipcbuf, sys::seL4_UserException_Msg_seL4_UserException_SP),
+            spsr: get(ipcbuf, sys::seL4_UserException_Msg_seL4_UserException_SPSR),
+            number: get(
+                ipcbuf,
+                sys::seL4_UserException_Msg_seL4_UserException_Number,
+            ),
+            code: get(ipcbuf, sys::seL4_UserException_Msg_seL4_UserException_Code),
         }
     }
 }
@@ -122,12 +142,12 @@ impl VMFault {
 }
 
 impl IsFault for VMFault {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            ip: get(sys::seL4_VMFault_Msg_seL4_VMFault_IP),
-            addr: get(sys::seL4_VMFault_Msg_seL4_VMFault_Addr),
-            prefetch_fault: get(sys::seL4_VMFault_Msg_seL4_VMFault_PrefetchFault),
-            fsr: get(sys::seL4_VMFault_Msg_seL4_VMFault_FSR),
+            ip: get(ipcbuf, sys::seL4_VMFault_Msg_seL4_VMFault_IP),
+            addr: get(ipcbuf, sys::seL4_VMFault_Msg_seL4_VMFault_Addr),
+            prefetch_fault: get(ipcbuf, sys::seL4_VMFault_Msg_seL4_VMFault_PrefetchFault),
+            fsr: get(ipcbuf, sys::seL4_VMFault_Msg_seL4_VMFault_FSR),
         }
     }
 }
@@ -138,9 +158,12 @@ pub struct VGICMaintenance {
 }
 
 impl IsFault for VGICMaintenance {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            idx: match get(sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_IDX) {
+            idx: match get(
+                ipcbuf,
+                sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_IDX,
+            ) {
                 Word::MAX => None,
                 idx => Some(idx),
             },
@@ -154,9 +177,9 @@ pub struct VCPUFault {
 }
 
 impl IsFault for VCPUFault {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            hsr: get(sys::seL4_VCPUFault_Msg_seL4_VCPUFault_HSR),
+            hsr: get(ipcbuf, sys::seL4_VCPUFault_Msg_seL4_VCPUFault_HSR),
         }
     }
 }
@@ -167,9 +190,9 @@ pub struct VPPIEvent {
 }
 
 impl IsFault for VPPIEvent {
-    fn get() -> Self {
+    fn get(ipcbuf: &IPCBuffer) -> Self {
         Self {
-            irq: get(sys::seL4_VPPIEvent_Msg_seL4_VPPIEvent_IRQ),
+            irq: get(ipcbuf, sys::seL4_VPPIEvent_Msg_seL4_VPPIEvent_IRQ),
         }
     }
 }
@@ -187,42 +210,42 @@ pub enum Fault {
 }
 
 impl Fault {
-    pub fn get(tag: MessageInfo) -> Fault {
+    pub fn get(ipcbuf: &IPCBuffer, tag: MessageInfo) -> Fault {
         match tag.label() as u32 {
             sys::seL4_Fault_tag_seL4_Fault_NullFault => {
                 // TODO
                 // assert!(tag.length() == sys::seL4_NullFault_Length);
-                Fault::NullFault(NullFault::get())
+                Fault::NullFault(NullFault::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_CapFault => {
                 // TODO
                 // assert!(tag.length() == sys::seL4_CapFault_Length);
-                Fault::CapFault(CapFault::get())
+                Fault::CapFault(CapFault::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_UnknownSyscall => {
                 assert!(tag.length() == sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_Length);
-                Fault::UnknownSyscall(UnknownSyscall::get())
+                Fault::UnknownSyscall(UnknownSyscall::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_UserException => {
                 assert!(tag.length() == sys::seL4_UserException_Msg_seL4_UserException_Length);
-                Fault::UserException(UserException::get())
+                Fault::UserException(UserException::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_VMFault => {
                 assert!(tag.length() == sys::seL4_VMFault_Msg_seL4_VMFault_Length);
-                Fault::VMFault(VMFault::get())
+                Fault::VMFault(VMFault::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_VGICMaintenance => {
                 assert!(tag.length() == sys::seL4_VGICMaintenance_Msg_seL4_VGICMaintenance_Length);
-                Fault::VGICMaintenance(VGICMaintenance::get())
+                Fault::VGICMaintenance(VGICMaintenance::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_VCPUFault => {
                 assert!(tag.length() == sys::seL4_VCPUFault_Msg_seL4_VCPUFault_Length);
-                Fault::VCPUFault(VCPUFault::get())
+                Fault::VCPUFault(VCPUFault::get(ipcbuf))
             }
             sys::seL4_Fault_tag_seL4_Fault_VPPIEvent => {
                 // TODO
                 // assert!(tag.length() == sys::seL4_VPPIEvent_Length);
-                Fault::VPPIEvent(VPPIEvent::get())
+                Fault::VPPIEvent(VPPIEvent::get(ipcbuf))
             }
             _ => {
                 panic!()
@@ -364,12 +387,12 @@ impl UnknownSyscall {
         reply(MessageInfo::new(0, 0, 0, num_regs as u64))
     }
 
-    pub fn advance(&self) {
-        Self::mr_pc().set(self.fault_ip + 4)
+    pub fn advance(&self, ipcbuf: &mut IPCBuffer) {
+        *Self::mr_pc(ipcbuf) = self.fault_ip + 4;
     }
 
-    pub fn advance_and_reply(&self) {
-        self.advance();
+    pub fn advance_and_reply(&self, ipcbuf: &mut IPCBuffer) {
+        self.advance(ipcbuf);
         Self::reply(Self::num_regs_for_gprs_and_pc())
     }
 
@@ -377,13 +400,15 @@ impl UnknownSyscall {
         sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP as usize + 1
     }
 
-    pub const fn mr_pc() -> MessageRegister {
-        MessageRegister::new(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP as i32)
+    pub fn mr_pc(ipcbuf: &mut IPCBuffer) -> &mut Word {
+        let reg_idx = sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_FaultIP as usize;
+        &mut ipcbuf.msg_regs_mut()[reg_idx]
     }
 
-    pub const fn mr_gpr(ix: usize) -> MessageRegister {
+    pub fn mr_gpr(ipcbuf: &mut IPCBuffer, ix: usize) -> &mut Word {
         assert!(ix <= 7);
-        MessageRegister::new(sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0 as i32 + ix as i32)
+        let reg_idx = sys::seL4_UnknownSyscall_Msg_seL4_UnknownSyscall_X0 as usize + ix;
+        &mut ipcbuf.msg_regs_mut()[reg_idx]
     }
 
     pub fn gpr(&self, ix: usize) -> u64 {

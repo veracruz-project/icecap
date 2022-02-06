@@ -11,11 +11,11 @@ declare_main!(main);
 
 fn main(config: Config) -> Fallible<()> {
     let ep = config.ep;
-    loop {
+    IPCBuffer::with_mut(|ipcbuf| loop {
         let (tag, badge) = ep.recv();
-        let fault = Fault::get(tag);
+        let fault = Fault::get(ipcbuf, tag);
         handle(&config.threads[&badge], &fault)?;
-    }
+    })
 }
 
 fn handle(thread: &Thread, fault: &Fault) -> Fallible<()> {
