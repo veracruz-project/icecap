@@ -7,7 +7,7 @@ use icecap_core::{
     prelude::*,
     rpc,
     runtime::Thread,
-    sel4::fault::*,
+    sel4::{fast_reply, fault::*},
     sync::{ExplicitMutexNotification, Mutex},
 };
 use icecap_vmm_gic::*;
@@ -154,7 +154,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 Interrupt(Word),
             }
             let received = IPCBuffer::with_mut(|ipcbuf| {
-                let (info, badge) = self.ep.recv();
+                let (info, badge) = self.ep.recv(ipcbuf);
                 match badge {
                     BADGE_FAULT => Received::Fault(Fault::get(ipcbuf, info)),
                     event_bit_groups => Received::Interrupt(event_bit_groups),
@@ -165,7 +165,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                 Received::Fault(fault) => match fault {
                     Fault::VMFault(fault) => {
                         self.handle_page_fault(fault)?;
-                        reply(MessageInfo::empty());
+                        fast_reply(0, &[]);
                     }
                     Fault::UnknownSyscall(fault) => {
                         self.handle_syscall(&fault)?;
@@ -174,7 +174,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                         self.gic
                             .lock()
                             .handle_maintenance(self.node_index, fault.idx.unwrap() as usize)?;
-                        reply(MessageInfo::empty());
+                        fast_reply(0, &[]);
                     }
                     Fault::VCPUFault(fault) => {
                         if fault.is_wf() {
@@ -191,7 +191,7 @@ impl<E: 'static + VMMExtension + Send> VMMNode<E> {
                                 irq: fault.irq as usize,
                             },
                         )?;
-                        reply(MessageInfo::empty());
+                        fast_reply(0, &[]);
                     }
                     _ => {
                         panic!("unexpected fault: {:?}", fault);

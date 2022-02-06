@@ -1,6 +1,6 @@
-use crate::{sys, MessageInfo, Word};
+use crate::{sys, IPCBuffer, MessageInfo, Word};
 
-pub fn reply(info: MessageInfo) {
+pub fn reply(_ipcbuf: &IPCBuffer, info: MessageInfo) {
     unsafe { sys::seL4_Reply(info.raw()) }
 }
 

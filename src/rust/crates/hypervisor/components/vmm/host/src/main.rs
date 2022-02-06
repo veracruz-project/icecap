@@ -121,7 +121,7 @@ impl Extension {
     ) -> Fallible<()> {
         Self::userspace_syscall(node, fault, |ipcbuf, node, values| {
             let send_info = rpc::proxy::up(ipcbuf, values);
-            let recv_info = node.extension.resource_server_ep.call(send_info);
+            let recv_info = node.extension.resource_server_ep.call(ipcbuf, send_info);
             let resp = rpc::proxy::down(ipcbuf, recv_info).to_vec();
             Ok(resp)
         })

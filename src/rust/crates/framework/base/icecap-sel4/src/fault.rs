@@ -383,8 +383,8 @@ impl From<VMFaultData> for VMFaultWidth {
 ///
 
 impl UnknownSyscall {
-    pub fn reply(num_regs: usize) {
-        reply(MessageInfo::new(0, 0, 0, num_regs as u64))
+    pub fn reply(ipcbuf: &IPCBuffer, num_regs: usize) {
+        reply(ipcbuf, MessageInfo::new(0, 0, 0, num_regs as u64))
     }
 
     pub fn advance(&self, ipcbuf: &mut IPCBuffer) {
@@ -393,7 +393,7 @@ impl UnknownSyscall {
 
     pub fn advance_and_reply(&self, ipcbuf: &mut IPCBuffer) {
         self.advance(ipcbuf);
-        Self::reply(Self::num_regs_for_gprs_and_pc())
+        Self::reply(ipcbuf, Self::num_regs_for_gprs_and_pc())
     }
 
     pub const fn num_regs_for_gprs_and_pc() -> usize {

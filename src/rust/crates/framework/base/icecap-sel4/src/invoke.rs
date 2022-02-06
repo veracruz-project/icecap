@@ -1,8 +1,8 @@
 use core::mem::size_of;
 
 use crate::{
-    sys, Badge, CNodeCapData, CapRights, Error, Frame, FrameSize, MessageInfo, Result, UserContext,
-    VCPUReg, VMAttributes, VSpaceBranch, Word,
+    sys, Badge, CNodeCapData, CapRights, Error, Frame, FrameSize, IPCBuffer, MessageInfo, Result,
+    UserContext, VCPUReg, VMAttributes, VSpaceBranch, Word,
 };
 
 use super::*;
@@ -37,27 +37,27 @@ impl Untyped {
 }
 
 impl Endpoint {
-    pub fn send(&self, info: MessageInfo) {
+    pub fn send(&self, _ipcbuf: &IPCBuffer, info: MessageInfo) {
         unsafe { sys::seL4_Send(self.raw(), info.raw()) }
     }
 
-    pub fn nb_send(&self, info: MessageInfo) {
+    pub fn nb_send(&self, _ipcbuf: &IPCBuffer, info: MessageInfo) {
         unsafe { sys::seL4_NBSend(self.raw(), info.raw()) }
     }
 
-    pub fn recv(&self) -> (MessageInfo, Badge) {
+    pub fn recv(&self, _ipcbuf: &mut IPCBuffer) -> (MessageInfo, Badge) {
         let mut badge = 0;
         let raw_info = unsafe { sys::seL4_Recv(self.raw(), &mut badge) };
         (MessageInfo::from_raw(raw_info), badge)
     }
 
-    pub fn nb_recv(&self) -> (MessageInfo, Badge) {
+    pub fn nb_recv(&self, _ipcbuf: &mut IPCBuffer) -> (MessageInfo, Badge) {
         let mut badge = 0;
         let raw_info = unsafe { sys::seL4_NBRecv(self.raw(), &mut badge) };
         (MessageInfo::from_raw(raw_info), badge)
     }
 
-    pub fn call(&self, info: MessageInfo) -> MessageInfo {
+    pub fn call(&self, _ipcbuf: &mut IPCBuffer, info: MessageInfo) -> MessageInfo {
         unsafe { MessageInfo::from_raw(sys::seL4_Call(self.raw(), info.raw())) }
     }
 }

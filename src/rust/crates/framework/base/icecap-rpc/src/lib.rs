@@ -111,7 +111,7 @@ impl<Input: RPC> Client<Input> {
 
     pub fn send_with_ipcbuf(&self, ipcbuf: &mut IPCBuffer, input: &Input) {
         let info = SendingImpl::complete(ipcbuf, input);
-        self.endpoint.send(info);
+        self.endpoint.send(ipcbuf, info);
     }
 
     pub fn call<Output: RPC>(&self, input: &Input) -> Output {
@@ -120,7 +120,7 @@ impl<Input: RPC> Client<Input> {
 
     pub fn call_with_ipcbuf<Output: RPC>(&self, ipcbuf: &mut IPCBuffer, input: &Input) -> Output {
         let send_info = SendingImpl::complete(ipcbuf, input);
-        let recv_info = self.endpoint.call(send_info);
+        let recv_info = self.endpoint.call(ipcbuf, send_info);
         ReceivingImpl::complete(ipcbuf, recv_info)
     }
 }
@@ -139,7 +139,7 @@ pub mod server {
     where
         F: FnOnce(ReceivingIPC) -> T,
     {
-        let (info, badge) = endpoint.recv();
+        let (info, badge) = endpoint.recv(ipcbuf);
         let receiving = ReceivingIPC::new(ipcbuf, info, badge);
         f(receiving)
     }
@@ -154,7 +154,7 @@ pub mod server {
         output: &Output,
     ) {
         let info = SendingImpl::complete(ipcbuf, output);
-        endpoint.send(info)
+        endpoint.send(ipcbuf, info)
     }
 
     pub fn reply<Output: RPC>(output: &Output) {
@@ -163,7 +163,7 @@ pub mod server {
 
     pub fn reply_with_ipcbuf<Output: RPC>(ipcbuf: &mut IPCBuffer, output: &Output) {
         let info = SendingImpl::complete(ipcbuf, output);
-        sel4::reply(info);
+        sel4::reply(ipcbuf, info);
     }
 }
 
