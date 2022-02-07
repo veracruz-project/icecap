@@ -22,10 +22,10 @@ repository contains both the IceCap Hypervisor and the IceCap Framework.
 
 ##### Highlights
 
-- IceCap Framework replaces the C-based seL4 userspace of the [seL4 software
-  ecosystem](https://github.com/seL4) with Rust. With the exception of libsel4
-  and the [CapDL loader](https://dl.acm.org/doi/pdf/10.1145/1851276.1851284),
-  the IceCap Hypervisor's seL4 userspace contains [less than 400 lines of
+- IceCap Framework supports a Rust-dominant seL4 userspace. With the exception
+  of libsel4 and the [CapDL
+  loader](https://dl.acm.org/doi/pdf/10.1145/1851276.1851284), the IceCap
+  Hypervisor's seL4 userspace contains [less than 400 lines of
   C](./src/c/icecap-runtime).
 - The IceCap project includes a port of the [MirageOS unikernel](https://mirage.io/) to seL4.
 - The build system of the IceCap project is based on [Nix](https://nixos.org/manual/nix/stable/)
