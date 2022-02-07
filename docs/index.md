@@ -1,6 +1,6 @@
 # Documentation
 
-- [Overview](../#IceCap)
+- [Overview](../#icecap)
 - [seL4 Summit 2020 presentation](https://nickspinale.com/talks/sel4-summit-2020.html)
 - [Demos](../demos)
 - [Tutorial](../examples)
