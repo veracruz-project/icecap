@@ -44,34 +44,46 @@ fn main(config: Config) -> Fallible<()> {
     let mut compare_state: Option<u64> = None;
 
     loop {
-        let (info, badge) = config.loop_ep.recv();
-        if badge & config.badges.irq != 0 {
-            if let Some(compare) = compare_state {
-                if compare <= dev.get_count() {
-                    compare_state = None;
-                    config.client_timeout.signal();
-                    dev.set_enable(false);
-                }
-            }
-            dev.clear_interrupt();
-            config.irq_handler.ack()?;
+        enum Received {
+            Interrupt,
+            Client(Request),
+            Unknown,
         }
-        if badge & config.badges.client != 0 {
-            match rpc::server::recv::<Request>(&info) {
-                Request::SetTimeout(ns) => {
-                    let ticks = ns_to_ticks(ns);
-                    let compare = ticks + dev.get_count();
-                    compare_state = Some(compare);
-                    dev.set_compare(compare);
-                    dev.set_enable(true);
-                    rpc::server::reply(&());
-                }
-                Request::GetTime => {
-                    let ticks = dev.get_count();
-                    let response = ticks_to_ns(ticks);
-                    rpc::server::reply(&response);
-                }
+        let received = rpc::server::recv(config.loop_ep, |mut receiving| {
+            if receiving.badge & config.badges.irq != 0 {
+                Received::Interrupt
+            } else if receiving.badge & config.badges.client != 0 {
+                Received::Client(receiving.read())
+            } else {
+                Received::Unknown
             }
+        });
+        match received {
+            Received::Interrupt => {
+                if let Some(compare) = compare_state {
+                    if compare <= dev.get_count() {
+                        compare_state = None;
+                        config.client_timeout.signal();
+                        dev.set_enable(false);
+                    }
+                }
+                dev.clear_interrupt();
+                config.irq_handler.ack()?;
+            }
+            Received::Client(Request::SetTimeout(ns)) => {
+                let ticks = ns_to_ticks(ns);
+                let compare = ticks + dev.get_count();
+                compare_state = Some(compare);
+                dev.set_compare(compare);
+                dev.set_enable(true);
+                rpc::server::reply(&());
+            }
+            Received::Client(Request::GetTime) => {
+                let ticks = dev.get_count();
+                let response = ticks_to_ns(ticks);
+                rpc::server::reply(&response);
+            }
+            Received::Unknown => {}
         }
     }
 }
