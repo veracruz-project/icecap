@@ -24,7 +24,7 @@ in linkFarm "system" (lib.flatten [
     (showSplit "kernel" bootImages.kernel)
     (showSplit "root-task" bootImages.app)
     (link "kernel.dtb" attrs.kernel.dtb)
-  ] ++ lib.optionals (attrs.config != null) [
+  ] ++ lib.optionals (args ? config || args ? cdl) [
     (sub "components" (lib.flatten [
       (lib.mapAttrsToList showSplit cdlImages)
     ]))

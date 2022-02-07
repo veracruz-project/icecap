@@ -50,7 +50,7 @@ let
     (lib.filterAttrs (k: lib.hasAttr "image") attrs.cdl.config.components);
 
 in lib.fix (self: with self; {
-  inherit attrs;
+  inherit args attrs;
   inherit (attrs) cdl;
 
   image = attrs.loader-elf.min;
