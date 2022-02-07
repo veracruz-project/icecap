@@ -57,7 +57,7 @@ Interactive exploration using `nix repl` can be a useful tool when combined with
 looking at the Nix code itself. You can use tab completion inside the repl to
 traverse the expression. Furthermore, the Docker container is equipped with Bash
 tab completion for all Nix command-line tools. For example, try `nix-build -A
-meta.<tab><tab>`.
+framework.<tab><tab>`.
 
 The one aspect of the IceCap build system which has side effects on the working
 tree is the generation of Cargo-related files in `//src/rust`. For a variety of
@@ -73,9 +73,7 @@ workflow for rapid iteration on code in `//src/rust`. To use
 
 The top-level Makefile (`//Makefile`) provides some convenient rules for
 building common groups of derivations. It also contains some rules displaying
-groups of related build artifacts. The target audience of these
-`meta.display.*`-based rules are folks who would like to see some concrete build
-outputs but who are not yet familiar with Nix.
+groups of related build artifacts.
 
 `//hacking` contains miscelanous files related to hacking and maintenance, which
 exist outside of the source code and build system. See `//hacking/Makefile` for
@@ -84,6 +82,8 @@ entrypoints.
 ```
 TODO
 ```
+
+<!--
 
 ### Leveraging a Nix remote cache
 
@@ -114,6 +114,8 @@ TODO
 ```
 TODO
 ```
+
+-->
 
 <!--
 
