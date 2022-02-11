@@ -26,24 +26,40 @@ repository contains both the IceCap Hypervisor and the IceCap Framework.
   loader](https://dl.acm.org/doi/pdf/10.1145/1851276.1851284), the IceCap
   Hypervisor's seL4 userspace contains [less than 400 lines of
   C](./src/c/icecap-runtime).
-- The IceCap project includes a port of the [MirageOS unikernel](https://mirage.io/) to seL4.
-- The build system of the IceCap project is based on [Nix](https://nixos.org/manual/nix/stable/)
-  for the sake of hermeticity, configurability, and maintainability.
+
 
 IceCap was originally conceived by Nick Spinale [&lt;nick@nickspinale.com&gt;](mailto:nick@nickspinale.com),
 and is now maintained and developed by [Arm Research](https://developer.arm.com/solutions/research/research-publications).
 
 Feel free to contact us at [&lt;christopher.haster@arm.com&gt;](mailto:christopher.haster@arm.com).
 
-## Demo
+## Build
 
-See [./demos/hypervisor/README.md](./demos/hypervisor) for instructions on how
-to build and run a demo of the IceCap Hypervisor.
+IceCap now uses the [seL4 build infrastructure](https://docs.sel4.systems/projects/buildsystem/).
+You must have the [seL4 build dependencies](https://docs.sel4.systems/HostDependencies).
 
-## Tutorial
+To build a project, you need to:
+- check out the sources using Repo,
+- configure a target build using CMake,
+- build the project using Ninja.
 
-See [./examples/README.md](./examples) for a tutorial-style introduction to the
-IceCap Framework.
+Use repo to check icecap out from gitlab. Its manifest is located in the icecap/manifest repository.
+```
+  mkdir iceap
+  cd icecap
+  repo init -u https://gitlab.com/arm-research/security/icecap/manifest.git
+  repo sync
+```
+
+Configure a 64-bit arm build directory, with a simulation target to be run by Qemu. QEMU is a generic and open source machine emulator and virtualizer, and can emulate different architectures on different systems.
+```
+  mkdir build-arm
+  cd build-arm 
+  ../init-build.sh -DPLATFORM=qemu-arm-virt -DSIMULATION=TRUE 
+  ninja
+```
+
+The build images are available in build-arm/images, and a script build-arm/simulation that will run Qemu with the correct arguments to run seL4test.
 
 ## Supported platforms
 
@@ -56,3 +72,24 @@ seL4 has the notion of a `KernelPlatform` (e.g. `bcm2711` for the Raspberry Pi
 - `virt`: A minimal, made-up platform emulated by QEMU with `qemu-system-aarch64 -machine virt`
 
 - `rpi4`: Raspberry Pi 4 Model B (with at least 4GiB of RAM)
+
+## Historical
+
+IceCap was originally developed as a hypervisor by Nick Spinale during his tenure at
+Arm research.  Code for that work including the original Nix build system are stored
+on tag v0.1.0.
+
+- The build system of the IceCap v0.1.0project is based on [Nix](https://nixos.org/manual/nix/stable/)
+  for the sake of hermeticity, configurability, and maintainability.
+- The IceCap project includes a port of the [MirageOS unikernel](https://mirage.io/) to seL4.
+
+### Demo
+
+See [./demos/hypervisor/README.md](./demos/hypervisor) for instructions on how
+to build and run a demo of the IceCap Hypervisor.
+
+### Tutorial
+
+See [./examples/README.md](./examples) for a tutorial-style introduction to the
+IceCap Framework.
+
