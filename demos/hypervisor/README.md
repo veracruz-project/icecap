@@ -2,9 +2,7 @@
 
 This is a self-contained guide for quickly building and running a demonstration
 of the IceCap Hypervisor, targeting either a QEMU emulation or the Raspberry Pi
-4. The only develoment environment requirement is Docker. If you encounter
-problems, please raise an issue or reach out to [Nick Spinale
-&lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
+4. The only develoment environment requirement is Docker.
 
 First, clone this respository and its submodules:
 
@@ -68,9 +66,7 @@ The following steps to run the demo on the Raspberry Pi 4 expand on the
 instructions above.  Note that we have only tested on a Raspberry Pi 4 Model B
 with 4GiB of RAM. Some hard-coded physical address space constants would likely
 need to be made configurable to get IceCap running on a Raspberry Pi 4 Model B
-with an amout of RAM other than 4GiB.  Please reach out to [Nick Spinale
-&lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com) if you would like to
-work together to do so.
+with an amout of RAM other than 4GiB.
 
 You will need an SD card containing a sufficiently large bootable FAT partition
 (>=1GiB).  Here is one way to set that up:

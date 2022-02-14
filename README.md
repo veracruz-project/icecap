@@ -31,10 +31,6 @@ repository contains both the IceCap Hypervisor and the IceCap Framework.
 - The build system of the IceCap project is based on [Nix](https://nixos.org/manual/nix/stable/)
   for the sake of hermeticity, configurability, and maintainability.
 
-We are eager to share and discuss any aspect of IceCap's design and
-implementation with you directly. Please feel free to reach out to project lead
-[Nick Spinale &lt;nick.spinale@arm.com&gt;](mailto:nick.spinale@arm.com).
-
 ## Demo
 
 See [./demos/hypervisor/README.md](./demos/hypervisor) for instructions on how
