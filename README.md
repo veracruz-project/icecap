@@ -2,12 +2,11 @@
 
 [![pipeline status](https://gitlab.com/arm-research/security/icecap/icecap/badges/main/pipeline.svg)](https://gitlab.com/arm-research/security/icecap/icecap/-/commits/main)
 
-IceCap is a virtualization platform from [Arm
-Research](https://developer.arm.com/solutions/research/research-publications)
-with a minimal trusted computing base that aims to provide guests with
-confidentiality and integrity guarentees. IceCap serves as a research vehicle
-for virtualization-based confidential computing.  At the foundation of IceCap is
-[seL4](https://sel4.systems/), the formally verified microkernel.
+IceCap is a virtualization platform with a minimal trusted computing base that
+aims to provide guests with confidentiality and integrity guarentees. IceCap
+serves as a research vehicle for virtualization-based confidential computing.
+At the foundation of IceCap is [seL4](https://sel4.systems/), the formally
+verified microkernel.
 
 [This seL4 Summit 2020 talk](https://nickspinale.com/talks/sel4-summit-2020.html)
 provides a high-level overview of IceCap's design.
@@ -30,6 +29,11 @@ repository contains both the IceCap Hypervisor and the IceCap Framework.
 - The IceCap project includes a port of the [MirageOS unikernel](https://mirage.io/) to seL4.
 - The build system of the IceCap project is based on [Nix](https://nixos.org/manual/nix/stable/)
   for the sake of hermeticity, configurability, and maintainability.
+
+IceCap was originally conceived by Nick Spinale [&lt;nick@nickspinale.com&gt;](mailto:nick@nickspinale.com),
+and is now maintained and developed by [Arm Research](https://developer.arm.com/solutions/research/research-publications).
+
+Feel free to contact us at [&lt;christopher.haster@arm.com&gt;](mailto:christopher.haster@arm.com).
 
 ## Demo
 
