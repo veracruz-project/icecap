@@ -1,0 +1,11 @@
+[package]
+name = "serial-server"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+icecap-std = { path =  "../../../../src/rust/crates/framework/base/icecap-std" }
+icecap-start-generic = { path =  "../../../../src/rust/crates/framework/base/icecap-start/generic" }
+icecap-driver-interfaces = { path =  "../../../../src/rust/crates/framework/drivers/icecap-driver-interfaces" }
+icecap-pl011-driver = { path =  "../../../../src/rust/crates/framework/drivers/devices/pl011" }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive" ] }

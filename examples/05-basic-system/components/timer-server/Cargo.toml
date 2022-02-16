@@ -1,0 +1,12 @@
+[package]
+name = "timer-server"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+icecap-std = { path =  "../../../../src/rust/crates/framework/base/icecap-std" }
+icecap-start-generic = { path =  "../../../../src/rust/crates/framework/base/icecap-start/generic" }
+icecap-driver-interfaces = { path =  "../../../../src/rust/crates/framework/drivers/icecap-driver-interfaces" }
+icecap-virt-timer-driver = { path =  "../../../../src/rust/crates/framework/drivers/devices/virt-timer" }
+timer-server-types = { path =  "types" }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive" ] }
