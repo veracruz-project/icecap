@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 import os
+from xxlimited import Str
 
 from icecap_framework import BaseComposition
 
@@ -18,13 +19,14 @@ class Composition(BaseComposition):
 parser = ArgumentParser()
 parser.add_argument('-c', '--components', metavar='COMPONENTS', type=Path)
 parser.add_argument('-o', '--out-dir', metavar='OUT_DIR', type=Path)
+parser.add_argument('-p', '--plat', metavar='PLAT', type=Str)
 parser.add_argument('-s', '--object-sizes', metavar='OBJECT_SIZES', type=Path)
 args = parser.parse_args()
 
 components_path = os.path.abspath(args.components)
 
 config = {
-    "plat": "virt",
+    "plat": args.plat,
     "num_cores": 4,
     "num_realms": 2,
     "default_affinity": 1,
