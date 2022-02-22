@@ -6,6 +6,7 @@ use alloc::format;
 
 use core::convert::TryFrom;
 use core::ops::Range;
+use core::fmt::Write;
 
 use serde::{Deserialize, Serialize};
 
@@ -93,12 +94,19 @@ fn main(config: Config) -> Fallible<()> {
             continue;
         }
 
-        debug_println!("found virtio-console at virtio{}@{:012x}, initializing...", i, v);
+        debug_println!("found virtio-console at virtio{}@{:012x}", i, v);
+        debug_println!("virtio{}@{:012x}: initializing...", i, v);
         let mmio = unsafe { &mut *(v as *mut VirtIOHeader) };
         let mut console = VirtIOConsole::new(mmio).unwrap();
-        for c in format!("hello over virtio{}@{:012x}!\r\n\r\n", i, v).bytes() {
-            console.send(c).unwrap();
-        }
+
+        debug_println!("virtio{}@{:012x}: sending...", i, v);
+        // we need to send in a frame, allocate one from pool
+        let page = unsafe { virtio_phys_to_virt(virtio_dma_alloc(1)) };
+        let page = unsafe { core::slice::from_raw_parts_mut(page as *mut u8, 4096) };
+        let formatted = format!("\nhello over virtio{}@{:012x}!\n\n", i, v);
+        page[..formatted.as_bytes().len()].copy_from_slice(&formatted.as_bytes());
+        console.send_slice(&page[..formatted.as_bytes().len()]).unwrap();
+        unsafe { virtio_dma_dealloc(virtio_virt_to_phys(page.as_ptr() as usize), 1) };
     }
 
     debug_println!("done!");
@@ -192,14 +200,18 @@ pub unsafe extern "C" fn virtio_dma_dealloc(paddr: usize, pages: usize) -> i32 {
 #[no_mangle]
 pub unsafe extern "C" fn virtio_phys_to_virt(paddr: usize) -> usize {
     let pool = VIRTIO_POOL.as_mut().unwrap();
-    debug_println!("map_pv {:012x} => {:012x}", paddr, paddr - pool.paddr + (pool.pool.as_ptr() as usize));
+    //debug_println!("map_pv {:012x} => {:012x}", paddr, paddr - pool.paddr + (pool.pool.as_ptr() as usize));
+    debug_assert!(paddr >= pool.paddr && paddr < pool.paddr + pool.pool.len(),
+        "virtio: invalid paddr {:012x}", paddr);
     paddr - pool.paddr + (pool.pool.as_ptr() as usize)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn virtio_virt_to_phys(vaddr: usize) -> usize {
     let pool = VIRTIO_POOL.as_mut().unwrap();
-    debug_println!("map_vp {:012x} => {:012x}", vaddr, vaddr - (pool.pool.as_ptr() as usize) + pool.paddr);
+    //debug_println!("map_vp {:012x} => {:012x}", vaddr, vaddr - (pool.pool.as_ptr() as usize) + pool.paddr);
+    debug_assert!(vaddr >= pool.pool.as_ptr() as usize && vaddr < pool.pool.as_ptr() as usize + pool.pool.len(),
+        "virtio: invalid vaddr {:012x}", vaddr);
     vaddr - (pool.pool.as_ptr() as usize) + pool.paddr
 }
 

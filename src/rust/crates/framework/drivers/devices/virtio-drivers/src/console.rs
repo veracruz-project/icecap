@@ -83,10 +83,22 @@ impl<'a> VirtIOConsole<'a> {
         }
         Ok(Some(ch))
     }
+
     /// Put a char onto the device.
     pub fn send(&mut self, chr: u8) -> Result<()> {
         let buf: [u8; 1] = [chr];
         self.transmitq.add(&[&buf], &[])?;
+        self.header.notify(QUEUE_TRANSMITQ_PORT_0 as u32);
+        while !self.transmitq.can_pop() {
+            spin_loop();
+        }
+        self.transmitq.pop_used()?;
+        Ok(())
+    }
+
+    /// Put a slice on the device.
+    pub fn send_slice(&mut self, slice: &[u8]) -> Result<()> {
+        self.transmitq.add(&[slice], &[])?;
         self.header.notify(QUEUE_TRANSMITQ_PORT_0 as u32);
         while !self.transmitq.can_pop() {
             spin_loop();
