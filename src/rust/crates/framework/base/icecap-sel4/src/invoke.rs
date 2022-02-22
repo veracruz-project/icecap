@@ -213,6 +213,15 @@ impl Frame for SmallPage {
     fn unmap(&self) -> Result<()> {
         Error::wrap(unsafe { sys::seL4_ARM_Page_Unmap(self.raw()) })
     }
+
+    fn paddr(&self) -> Result<usize> {
+        let res = unsafe {
+            sys::seL4_ARM_Page_GetAddress(
+                self.raw()
+            )
+        };
+        Error::or(res.paddr as usize, res.error as u32)
+    }
 }
 
 impl Frame for LargePage {
@@ -235,6 +244,15 @@ impl Frame for LargePage {
     fn unmap(&self) -> Result<()> {
         Error::wrap(unsafe { sys::seL4_ARM_Page_Unmap(self.raw()) })
     }
+
+    fn paddr(&self) -> Result<usize> {
+        let res = unsafe {
+            sys::seL4_ARM_Page_GetAddress(
+                self.raw()
+            )
+        };
+        Error::or(res.paddr as usize, res.error as u32)
+    }
 }
 
 impl Frame for HugePage {
@@ -256,6 +274,15 @@ impl Frame for HugePage {
 
     fn unmap(&self) -> Result<()> {
         Error::wrap(unsafe { sys::seL4_ARM_Page_Unmap(self.raw()) })
+    }
+
+    fn paddr(&self) -> Result<usize> {
+        let res = unsafe {
+            sys::seL4_ARM_Page_GetAddress(
+                self.raw()
+            )
+        };
+        Error::or(res.paddr as usize, res.error as u32)
     }
 }
 

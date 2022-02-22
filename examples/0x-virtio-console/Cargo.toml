@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+    "components/application",
+    "components/serial-server",
+    "components/timer-server",
+]

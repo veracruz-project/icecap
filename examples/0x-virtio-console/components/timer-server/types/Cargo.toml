@@ -1,0 +1,8 @@
+[package]
+name = "timer-server-types"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+icecap-core = { path =  "../../../../../src/rust/crates/framework/base/icecap-core" }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive" ] }

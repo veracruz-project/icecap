@@ -5,6 +5,7 @@ pub trait Frame: LocalCPtr + ObjectFixedSize {
 
     fn map(&self, pgd: PGD, vaddr: usize, rights: CapRights, attrs: VMAttributes) -> Result<()>;
     fn unmap(&self) -> Result<()>;
+    fn paddr(&self) -> Result<usize>;
 }
 
 #[derive(Copy, Clone, Debug)]

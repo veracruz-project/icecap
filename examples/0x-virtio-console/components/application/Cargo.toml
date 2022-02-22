@@ -1,0 +1,10 @@
+[package]
+name = "application"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+icecap-std = { path =  "../../../../src/rust/crates/framework/base/icecap-std" }
+icecap-start-generic = { path =  "../../../../src/rust/crates/framework/base/icecap-start/generic" }
+timer-server-types = { path =  "../timer-server/types" }
+serde = { version = "*", default-features = false, features = [ "alloc", "derive" ] }
